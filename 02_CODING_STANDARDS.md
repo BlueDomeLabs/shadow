@@ -809,6 +809,8 @@ final supplements = ref.watch(supplementListProvider(currentProfileId));
 
 ## 7. Error Handling Standards
 
+> **Complete Implementation:** See `16_ERROR_HANDLING.md` for full error handling patterns including recovery strategies, UI integration, and logging. This section provides the canonical interface definition.
+
 ### 7.1 Result Pattern and AppError Hierarchy
 
 **All domain operations use `Result<T, AppError>` - never throw exceptions.**
@@ -816,12 +818,25 @@ final supplements = ref.watch(supplementListProvider(currentProfileId));
 Define error types in `lib/core/errors/app_error.dart`:
 
 ```dart
+/// Recovery action to suggest to users
+enum RecoveryAction {
+  none,           // No recovery possible
+  retry,          // User can retry the operation
+  refreshToken,   // Need to refresh auth token
+  reAuthenticate, // Need full re-authentication
+  goToSettings,   // User should go to settings
+  contactSupport, // User should contact support
+}
+
 /// Base sealed class for all application errors
 sealed class AppError {
   String get code;
   String get message;
   String get userMessage;
   StackTrace? get stackTrace;
+  dynamic get originalError;
+  bool get isRecoverable;
+  RecoveryAction get recoveryAction;
 
   /// Factory to create appropriate error from exception
   static AppError fromException(dynamic e, [StackTrace? stackTrace]) {
@@ -831,11 +846,14 @@ sealed class AppError {
 }
 
 /// Database operation errors
-class DatabaseError extends AppError {
+final class DatabaseError extends AppError {
   @override final String code;
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override bool get isRecoverable => true;
+  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
   final String? operation;
 
   DatabaseError({
@@ -843,19 +861,23 @@ class DatabaseError extends AppError {
     required this.message,
     this.userMessage = 'A database error occurred. Please try again.',
     this.stackTrace,
+    this.originalError,
     this.operation,
   });
 
   factory DatabaseError.fromException(dynamic e, [StackTrace? st]) =>
-    DatabaseError(code: 'DB_001', message: e.toString(), stackTrace: st);
+    DatabaseError(code: 'DB_001', message: e.toString(), stackTrace: st, originalError: e);
 }
 
 /// Entity not found error
-class NotFoundError extends AppError {
+final class NotFoundError extends AppError {
   @override final String code = 'DB_002';
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
+  @override dynamic get originalError => null;
+  @override bool get isRecoverable => false;
+  @override RecoveryAction get recoveryAction => RecoveryAction.none;
   final String entityType;
   final String entityId;
 
@@ -868,63 +890,153 @@ class NotFoundError extends AppError {
 }
 
 /// Network/API errors
-class NetworkError extends AppError {
+final class NetworkError extends AppError {
   @override final String code;
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override bool get isRecoverable => true;
+  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
 
   NetworkError({
     required this.code,
     required this.message,
     this.userMessage = 'Network error. Check your connection.',
     this.stackTrace,
+    this.originalError,
   });
 }
 
 /// Authentication/authorization errors
-class AuthError extends AppError {
+final class AuthError extends AppError {
   @override final String code;
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override final bool isRecoverable;
+  @override final RecoveryAction recoveryAction;
 
   AuthError({
     required this.code,
     required this.message,
     this.userMessage = 'Authentication required.',
     this.stackTrace,
+    this.originalError,
+    this.isRecoverable = true,
+    this.recoveryAction = RecoveryAction.reAuthenticate,
   });
 }
 
 /// Input validation errors
-class ValidationError extends AppError {
-  @override final String code = 'VAL_001';
+final class ValidationError extends AppError {
+  @override final String code;
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
-  final Map<String, String> fieldErrors;
+  @override dynamic get originalError => null;
+  @override bool get isRecoverable => true;
+  @override RecoveryAction get recoveryAction => RecoveryAction.none;
+
+  /// Field-specific errors: field name -> list of error messages
+  final Map<String, List<String>> fieldErrors;
+
+  // Standard validation error codes
+  static const String codeRequired = 'VAL_REQUIRED';
+  static const String codeInvalidFormat = 'VAL_INVALID_FORMAT';
+  static const String codeOutOfRange = 'VAL_OUT_OF_RANGE';
+  static const String codeTooLong = 'VAL_TOO_LONG';
+  static const String codeTooShort = 'VAL_TOO_SHORT';
+  static const String codeDuplicate = 'VAL_DUPLICATE';
 
   ValidationError({
+    required this.code,
     required this.message,
     required this.userMessage,
     this.fieldErrors = const {},
     this.stackTrace,
   });
+
+  /// Factory for required field validation
+  factory ValidationError.required(String fieldName) => ValidationError(
+    code: codeRequired,
+    message: '$fieldName is required',
+    userMessage: 'Please provide $fieldName.',
+    fieldErrors: {fieldName: ['Required']},
+  );
+
+  /// Factory for out of range validation
+  factory ValidationError.outOfRange(String fieldName, num value, num min, num max) => ValidationError(
+    code: codeOutOfRange,
+    message: '$fieldName value $value is out of range [$min, $max]',
+    userMessage: '$fieldName must be between $min and $max.',
+    fieldErrors: {fieldName: ['Must be between $min and $max']},
+  );
 }
 
 /// Sync-related errors
-class SyncError extends AppError {
+final class SyncError extends AppError {
   @override final String code;
   @override final String message;
   @override final String userMessage;
   @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override bool get isRecoverable => true;
+  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
 
   SyncError({
     required this.code,
     required this.message,
     this.userMessage = 'Sync failed. Will retry automatically.',
     this.stackTrace,
+    this.originalError,
+  });
+}
+
+/// Notification-related errors
+final class NotificationError extends AppError {
+  @override final String code;
+  @override final String message;
+  @override final String userMessage;
+  @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override final bool isRecoverable;
+  @override final RecoveryAction recoveryAction;
+
+  NotificationError({
+    required this.code,
+    required this.message,
+    this.userMessage = 'Notification error.',
+    this.stackTrace,
+    this.originalError,
+    this.isRecoverable = true,
+    this.recoveryAction = RecoveryAction.goToSettings,
+  });
+
+  factory NotificationError.permissionDenied() => NotificationError(
+    code: 'NOTIF_PERMISSION_DENIED',
+    message: 'Notification permissions not granted',
+    userMessage: 'Please enable notifications in Settings.',
+    recoveryAction: RecoveryAction.goToSettings,
+  );
+}
+
+/// Unknown/unexpected errors
+final class UnknownError extends AppError {
+  @override final String code = 'UNKNOWN';
+  @override final String message;
+  @override final String userMessage;
+  @override final StackTrace? stackTrace;
+  @override final dynamic originalError;
+  @override bool get isRecoverable => false;
+  @override RecoveryAction get recoveryAction => RecoveryAction.contactSupport;
+
+  UnknownError({
+    required this.message,
+    this.userMessage = 'An unexpected error occurred.',
+    this.stackTrace,
+    this.originalError,
   });
 }
 ```
@@ -1735,11 +1847,31 @@ String maskToken(String token) {
   return '${token.substring(0, 3)}***${token.substring(token.length - 3)}';
 }
 
-/// User ID - hash for correlation without exposing ID
+/// User ID - hash for correlation without exposing ID (with 4-char suffix)
 String maskUserId(String userId) {
   final bytes = utf8.encode(userId);
   final digest = sha256.convert(bytes);
+  final suffix = userId.length >= 4 ? userId.substring(userId.length - 4) : userId;
+  return '${digest.toString().substring(0, 16)}...$suffix';
+}
+
+/// Profile ID - same pattern as User ID
+String maskProfileId(String profileId) => maskUserId(profileId);
+
+/// Device ID - hash only, no suffix (devices don't have human-readable IDs)
+String maskDeviceId(String deviceId) {
+  final bytes = utf8.encode(deviceId);
+  final digest = sha256.convert(bytes);
   return digest.toString().substring(0, 16);
+}
+
+/// IP address - partial masking
+String maskIpAddress(String ip) {
+  final parts = ip.split('.');
+  if (parts.length == 4) {
+    return '${parts[0]}.${parts[1]}.xxx.xxx';
+  }
+  return 'xxx.xxx.xxx.xxx';
 }
 ```
 
@@ -1779,18 +1911,33 @@ final response = await http.get(uri).timeout(standardTimeout);
 final response = await http.get(uri);  // NEVER
 ```
 
-**Certificate pinning (required for sensitive APIs):**
+**Certificate pinning (required for ALL external APIs):**
+
+| Host Category | Domains |
+|---------------|---------|
+| Google OAuth/Drive | `accounts.google.com`, `oauth2.googleapis.com`, `www.googleapis.com`, `drive.googleapis.com` |
+| Apple Sign-in/iCloud | `appleid.apple.com`, `api.apple-cloudkit.com` |
+| Wearable APIs | `api.fitbit.com`, `connect.garmin.com`, `cloud.ouraring.com`, `api.prod.whoop.com` |
+| Shadow API | `api.shadow.app` |
 
 ```dart
-// Required for these hosts:
-// - accounts.google.com (OAuth)
-// - oauth2.googleapis.com (Token exchange)
-// - www.googleapis.com (Drive API)
-
+// ALL pinned hosts (11 total)
 final pinnedHosts = {
+  // Google services
   'accounts.google.com',
   'oauth2.googleapis.com',
   'www.googleapis.com',
+  'drive.googleapis.com',
+  // Apple services
+  'appleid.apple.com',
+  'api.apple-cloudkit.com',
+  // Wearable APIs
+  'api.fitbit.com',
+  'connect.garmin.com',
+  'cloud.ouraring.com',
+  'api.prod.whoop.com',
+  // Shadow API
+  'api.shadow.app',
 };
 
 // Validation on connection
@@ -1805,7 +1952,7 @@ void validateCertificate(X509Certificate cert, String host) {
 }
 ```
 
-> **Real Certificate Pins:** See `11_SECURITY_GUIDELINES.md` Section 3.4 for actual SHA256 SPKI hashes for Google Trust Services, Apple, DigiCert, Let's Encrypt, and Cloudflare roots.
+> **Real Certificate Pins:** See `11_SECURITY_GUIDELINES.md` Section 5.4 for actual SHA256 SPKI hashes. Each domain requires 2 backup pins for redundancy.
 
 ### 11.3 OAuth Token Storage
 
@@ -1845,7 +1992,69 @@ Future<void> clearTokens() async {
 }
 ```
 
-### 11.4 SQL-Level Authorization (MANDATORY)
+### 11.4 Encryption Standards
+
+> **Complete Implementation:** See `11_SECURITY_GUIDELINES.md` Sections 2.1-2.3 for full encryption procedures including key rotation.
+
+**Required encryption:**
+
+| Data | Encryption | Key Storage |
+|------|------------|-------------|
+| Database | AES-256-GCM via SQLCipher | Platform secure storage |
+| Sensitive fields | AES-256-GCM field-level | Platform secure storage |
+| Photos | AES-256-GCM before storage | Platform secure storage |
+| Cloud backup | AES-256-GCM envelope | Derived from user key |
+
+**CRITICAL: Use GCM mode, NOT CBC.**
+
+```dart
+// lib/core/services/encryption_service.dart
+
+/// AES-256-GCM encryption service
+class EncryptionService {
+  static const int keyLengthBytes = 32;  // 256 bits
+  static const int nonceLengthBytes = 12; // 96 bits for GCM
+
+  /// Encrypt data with AES-256-GCM
+  Future<EncryptedData> encrypt(Uint8List plaintext, SecretKey key) async {
+    final algorithm = AesGcm.with256bits();
+    final nonce = algorithm.newNonce(); // 96-bit random nonce
+
+    final secretBox = await algorithm.encrypt(
+      plaintext,
+      secretKey: key,
+      nonce: nonce,
+    );
+
+    return EncryptedData(
+      ciphertext: secretBox.cipherText,
+      nonce: nonce,
+      mac: secretBox.mac.bytes,
+    );
+  }
+
+  /// Decrypt data with AES-256-GCM
+  Future<Uint8List> decrypt(EncryptedData data, SecretKey key) async {
+    final algorithm = AesGcm.with256bits();
+
+    final secretBox = SecretBox(
+      data.ciphertext,
+      nonce: data.nonce,
+      mac: Mac(data.mac),
+    );
+
+    return await algorithm.decrypt(secretBox, secretKey: key);
+  }
+}
+```
+
+**Key rotation:**
+- Keys must be rotated annually or on security incident
+- Old key retained for decryption during transition
+- Re-encrypt all data with new key on next app open
+- See `11_SECURITY_GUIDELINES.md` Section 2.3 for full procedure
+
+### 11.5 SQL-Level Authorization (MANDATORY)
 
 **All data source queries MUST validate profile ownership:**
 

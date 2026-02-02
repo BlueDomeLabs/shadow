@@ -10,6 +10,27 @@
 
 Every pull request MUST be reviewed against this checklist. Reviewers should copy this checklist into their review and check off each item. Any unchecked item blocks merge.
 
+### Coding Standards Cross-Reference
+
+Each review category maps to a section in `02_CODING_STANDARDS.md`:
+
+| Review Category | Coding Standards Section |
+|-----------------|-------------------------|
+| API Contracts | §3 Repository Pattern, §7 Error Handling |
+| ProfileId Filtering | §4.3 Data Source Standards |
+| Code Quality | §1 Philosophy, §14 Documentation |
+| Specification Compliance | §5 Entity Standards, §8 Database Standards |
+| Testing | §10 Testing Standards |
+| Accessibility | §13 Accessibility Standards |
+| Performance | §12 Performance Standards |
+| Security | §11 Security Standards |
+| Documentation | §14 Documentation Standards |
+| Generated Code | §5.2 Freezed Annotations |
+| Architecture | §2 Architecture Standards |
+| Providers | §6 Provider Standards |
+
+**When in doubt, consult the canonical source in 02_CODING_STANDARDS.md.**
+
 ---
 
 ## 1. Quick Reference Checklist
@@ -19,14 +40,29 @@ Copy this into your PR review:
 ```markdown
 ## Code Review Checklist
 
-### API Contracts
+### Architecture (§2 of 02_CODING_STANDARDS)
+- [ ] Clean Architecture layers respected (Presentation → Domain → Data)
+- [ ] No imports from Presentation in Domain layer
+- [ ] No imports from Data in Domain layer
+- [ ] Repository interfaces defined in Domain, implementations in Data
+- [ ] UseCases are single-responsibility (one public method)
+
+### API Contracts (§3, §7 of 02_CODING_STANDARDS)
 - [ ] Methods return `Result<T, AppError>` (not throwing)
 - [ ] Error codes use defined constants (e.g., `DatabaseError.codeNotFound`)
 - [ ] Use case checks authorization first
 - [ ] Use case validates input before repository calls
 - [ ] Repository interface matches 22_API_CONTRACTS.md
+- [ ] AppError includes `isRecoverable` and `recoveryAction` properties
 
-### ProfileId Filtering (MANDATORY)
+### Provider Standards (§6 of 02_CODING_STANDARDS)
+- [ ] Providers delegate to UseCases (no direct repository calls)
+- [ ] State is immutable (no mutation of existing state objects)
+- [ ] Loading/error/data states handled via AsyncValue
+- [ ] ProfileId passed to all data-fetching methods
+- [ ] Riverpod code generation used (@riverpod annotation)
+
+### ProfileId Filtering (MANDATORY - §4.3)
 - [ ] ALL repository methods returning lists include `profileId` parameter
 - [ ] Data source WHERE clause includes `profile_id = ?`
 - [ ] Data source WHERE clause includes `sync_deleted_at IS NULL`

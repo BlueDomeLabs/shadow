@@ -301,6 +301,29 @@ WHERE sync_deleted_at IS NOT NULL
 5. Verify deletion succeeded before removing local record
 6. Log deletion to audit table for HIPAA compliance
 
+### 2.7 Sync Metadata Exemptions
+
+The following tables are **exempt** from standard sync metadata columns and do NOT sync to cloud storage:
+
+| Table | Reason | Columns Omitted |
+|-------|--------|-----------------|
+| `profile_access_logs` | Immutable audit trail - local-only for compliance | All sync_* columns |
+| `imported_data_log` | Import deduplication only - device-specific | All sync_* columns |
+| `refresh_token_usage` | Security artifact - device-local token tracking | All sync_* columns |
+| `pairing_sessions` | Ephemeral - device-local session management | All sync_* columns |
+| `fhir_exports` | Export metadata - device-specific record | All sync_* columns |
+| `ml_models` | Local ML models - device-specific optimization | All sync_* columns |
+| `prediction_feedback` | Local feedback - used to improve device models | All sync_* columns |
+
+**Rationale:**
+- **Security tables** (`refresh_token_usage`, `pairing_sessions`): Security artifacts must not leave the device
+- **Audit tables** (`profile_access_logs`): Immutable compliance records, write-once
+- **Export tables** (`fhir_exports`): Records of what was exported from this device
+- **Import tables** (`imported_data_log`): Deduplication for imports to this device
+- **ML tables** (`ml_models`, `prediction_feedback`): Device-specific model optimization
+
+**Code Review Requirement:** Any new table without sync metadata MUST be added to this list with justification.
+
 ---
 
 ## 3. User & Access Control Tables
@@ -1887,8 +1910,8 @@ Per coding standards, each migration requires a documented rollback procedure. S
 -- Remove import tracking columns (requires table recreation)
 -- Step 1: Create temp tables without import columns
 CREATE TABLE activity_logs_temp AS
-  SELECT id, client_id, profile_id, activity_id, started_at, ended_at, duration_minutes,
-         intensity, notes, sync_created_at, sync_updated_at, sync_deleted_at,
+  SELECT id, client_id, profile_id, timestamp, activity_ids, ad_hoc_activities, duration, notes,
+         sync_created_at, sync_updated_at, sync_deleted_at,
          sync_last_synced_at, sync_status, sync_version, sync_device_id, sync_is_dirty, conflict_data
   FROM activity_logs;
 DROP TABLE activity_logs;

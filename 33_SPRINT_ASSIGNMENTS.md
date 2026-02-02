@@ -6,6 +6,37 @@
 
 ---
 
+## 0. Coding Standards Reference
+
+**CRITICAL:** Before starting ANY task, review the applicable sections of `02_CODING_STANDARDS.md`:
+
+| Task Type | Required Reading |
+|-----------|------------------|
+| Entity creation | §5 Entity Standards, §8 Database Standards |
+| Repository implementation | §3 Repository Pattern, §4 Data Source Standards |
+| Use Case implementation | §6 Provider Standards (UseCase delegation) |
+| Provider/State management | §6 Provider Standards |
+| Error handling | §7 Error Handling Standards |
+| UI/Widget development | §12 Performance, §13 Accessibility |
+| Database work | §8 Database Standards, §9 Sync System |
+| Security features | §11 Security Standards |
+| Any code | §10 Testing (100% coverage required) |
+
+**Task-Specific Standards:**
+
+| Task ID | Applies Coding Standards Sections |
+|---------|----------------------------------|
+| P0-005 Result type | §7.1 Result Pattern |
+| P0-006 AppError hierarchy | §7.1 AppError Hierarchy (must include RecoveryAction) |
+| P0-007 Base repository | §3 Repository Pattern |
+| P0-008 Database helper | §8 Database Standards, §9 Sync System |
+| P0-009 Encryption service | §11.4 Encryption Standards (AES-256-GCM) |
+| P1-xxx Entity tasks | §5 Entity Standards (id, clientId, profileId, syncMetadata) |
+| P2-xxx Repository tasks | §3 Repository Pattern, §4.3 ProfileId filtering |
+| All tasks | §10.3 Test Coverage (100% required) |
+
+---
+
 ## 1. Sprint Structure
 
 ### 1.1 Sprint Cadence

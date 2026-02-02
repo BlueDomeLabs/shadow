@@ -20,6 +20,8 @@ A **task** (single unit of work) is done when:
 - [ ] Implementation matches acceptance criteria exactly
 - [ ] Code follows API Contracts (22_API_CONTRACTS.md)
 - [ ] All methods use Result type (no exceptions thrown for expected errors)
+- [ ] ProfileId filtering implemented on all data queries (MANDATORY per 02_CODING_STANDARDS.md Section 4.3)
+- [ ] SQL queries include `sync_deleted_at IS NULL` for soft delete filtering
 - [ ] Code passes `flutter analyze` with zero warnings
 - [ ] Code formatted with `dart format`
 - [ ] Generated files updated (`build_runner build`)
@@ -29,7 +31,7 @@ A **task** (single unit of work) is done when:
 - [ ] Contract tests written for interface changes
 - [ ] Widget tests written for UI changes
 - [ ] All tests pass locally
-- [ ] Coverage meets minimum thresholds (80% for new code)
+- [ ] Coverage meets minimum threshold (100% per 02_CODING_STANDARDS.md Section 10.3)
 
 ### 1.3 Documentation Complete
 - [ ] Dartdoc added to public APIs
@@ -120,7 +122,7 @@ A **release** is done when:
 
 ### 4.2 Quality Gates Passed
 - [ ] All automated tests pass (100%)
-- [ ] Code coverage meets threshold (85% line coverage AND 80% branch coverage)
+- [ ] Code coverage meets threshold (100% per 02_CODING_STANDARDS.md Section 10.3)
 - [ ] Security scan passed (no critical/high)
 - [ ] Performance benchmarks met
 

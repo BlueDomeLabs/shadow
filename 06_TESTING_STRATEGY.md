@@ -61,13 +61,16 @@ This is not optional. PRs without adequate tests will be rejected.
 
 ### 2.1 Test Distribution
 
+> **Coverage Requirement:** All layers require **100% coverage** per Section 9.1 and 02_CODING_STANDARDS.md Section 10.3.
+
 | Test Type | Coverage Target | Focus |
 |-----------|-----------------|-------|
-| Unit Tests | 90%+ | Entities, Models, Utilities |
-| Data Source Tests | 95%+ | SQLite operations |
-| Repository Tests | 95%+ | Business logic |
-| Provider Tests | 85%+ | State management |
-| Widget Tests | 70%+ | UI components |
+| Unit Tests | 100% | Entities, Models, Utilities |
+| Data Source Tests | 100% | SQLite operations |
+| Repository Tests | 100% | Business logic |
+| Provider Tests | 100% | State management |
+| Widget Tests | 100% | UI components |
+| Screen Tests | 100% | Full screen behavior |
 | Integration Tests | Key flows | End-to-end scenarios |
 
 ---

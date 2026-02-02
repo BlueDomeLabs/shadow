@@ -213,14 +213,19 @@ SHADOW-XXX
 
 ### 3.2 Code Coverage Requirements
 
+> **Canonical Source:** All coverage requirements are defined in `02_CODING_STANDARDS.md` Section 10.3.
+
 | Area | Minimum | Target |
 |------|---------|--------|
-| Entities | 100% | 100% |
-| Use Cases | 95% | 100% |
-| Repositories | 90% | 95% |
-| Providers | 85% | 90% |
-| Widgets | 70% | 80% |
-| Overall | 80% | 85% |
+| Domain Entities | 100% | 100% |
+| Data Models | 100% | 100% |
+| Data Sources | 100% | 100% |
+| Repositories | 100% | 100% |
+| Services | 100% | 100% |
+| Providers | 100% | 100% |
+| Widgets | 100% | 100% |
+| Screens | 100% | 100% |
+| **Overall** | **100%** | **100%** |
 
 ### 3.3 Review Requirements
 
@@ -510,8 +515,8 @@ jobs:
 
       - name: Check coverage
         run: |
-          # Parse coverage and fail if below threshold
-          ./scripts/check_coverage.sh 80
+          # Parse coverage and fail if below 100% threshold
+          ./scripts/check_coverage.sh 100
 ```
 
 ---

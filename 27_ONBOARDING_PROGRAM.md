@@ -162,6 +162,40 @@ Q: What command must be run before committing changes to entities?
 A: dart run build_runner build --delete-conflicting-outputs
 ```
 
+**Coding Standards Quiz (02_CODING_STANDARDS.md):**
+```
+Q: What are the 4 required fields for all health data entities?
+A: id, clientId, profileId, syncMetadata
+
+Q: What pattern must all domain operations use for error handling?
+A: Result<T, AppError> - never throw exceptions for expected errors
+
+Q: What 3 properties must every AppError subclass implement for recovery?
+A: isRecoverable, recoveryAction, originalError
+
+Q: What must every data source query include for soft delete filtering?
+A: sync_deleted_at IS NULL
+
+Q: What must SQL queries include to validate profile ownership?
+A: JOIN profiles WHERE owner_id = ? (current user's ID)
+
+Q: What encryption algorithm is required for sensitive data?
+A: AES-256-GCM (NOT CBC)
+
+Q: What test coverage percentage is required for all layers?
+A: 100%
+
+Q: Name 4 masking functions required for PII protection.
+A: maskUserId, maskProfileId, maskDeviceId, maskIpAddress, maskEmail, maskPhone, maskToken (any 4)
+
+Q: What columns must every syncable table have?
+A: id, client_id, profile_id, sync_created_at, sync_updated_at, sync_deleted_at,
+   sync_last_synced_at, sync_status, sync_version, sync_device_id, sync_is_dirty, conflict_data
+
+Q: What 6 values does the RecoveryAction enum have?
+A: none, retry, refreshToken, reAuthenticate, goToSettings, contactSupport
+```
+
 ---
 
 ## 4. Mentor Program

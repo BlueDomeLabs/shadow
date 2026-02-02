@@ -18,10 +18,13 @@ This document defines Shadow's error handling architecture, including the Result
 
 All operations that can fail must return a `Result` type instead of throwing exceptions.
 
+> **Usage Convention:** While Result is generic (`Result<T, E>`), all domain operations in Shadow use `Result<T, AppError>` specifically. This ensures consistent error handling throughout the application. See `02_CODING_STANDARDS.md` Section 7 for the canonical usage pattern.
+
 ```dart
 // lib/core/types/result.dart
 
 /// Sealed class representing either success or failure
+/// In practice, always use Result<T, AppError> for domain operations
 sealed class Result<T, E> {
   const Result();
 
