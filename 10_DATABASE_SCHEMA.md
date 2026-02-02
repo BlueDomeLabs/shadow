@@ -1918,7 +1918,9 @@ DROP TABLE activity_logs;
 ALTER TABLE activity_logs_temp RENAME TO activity_logs;
 
 CREATE TABLE sleep_entries_temp AS
-  SELECT id, client_id, profile_id, bedtime, wake_time, quality, notes,
+  SELECT id, client_id, profile_id, bed_time, wake_time,
+         deep_sleep_minutes, light_sleep_minutes, restless_sleep_minutes,
+         dream_type, waking_feeling, notes,
          sync_created_at, sync_updated_at, sync_deleted_at, sync_last_synced_at,
          sync_status, sync_version, sync_device_id, sync_is_dirty, conflict_data
   FROM sleep_entries;
@@ -2420,7 +2422,7 @@ CREATE INDEX idx_pairing_cleanup ON pairing_sessions(expires_at) WHERE status = 
 
 | Category | Count |
 |----------|-------|
-| Total Tables | 41 |
+| Total Tables | 42 |
 | Total Indexes | 120+ |
 | Tables with File Sync | 5 |
 | Tables with client_id | 35 (all health data + profile_access + diet + intelligence + wearable tables) |
@@ -2438,4 +2440,5 @@ CREATE INDEX idx_pairing_cleanup ON pairing_sessions(expires_at) WHERE status = 
 | 1.2 | 2026-01-31 | Added client_id to all health data tables for database merging; Added water_intake and custom "other" fluid columns to fluids_entries |
 | 1.3 | 2026-01-31 | Added v5→v6 migration: Intelligence System tables (patterns, trigger_correlations, health_insights, predictive_alerts, ml_models, prediction_feedback) |
 | 1.4 | 2026-01-31 | Added v6→v7 migration: HIPAA authorization tables, wearable integration tables (wearable_connections, imported_data_log, fhir_exports), import source tracking columns |
-| 1.5 | 2026-02-01 | Added Section 15: Security tables (refresh_token_usage, pairing_sessions); Updated table count to 41 |
+| 1.5 | 2026-02-01 | Added Section 15: Security tables (refresh_token_usage, pairing_sessions) |
+| 1.6 | 2026-02-01 | Added Section 2.7 Sync Metadata Exemptions (7 tables); Fixed V7→6 rollback column names; Corrected table count to 42 |

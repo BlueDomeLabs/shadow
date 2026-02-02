@@ -1149,6 +1149,11 @@ The following tables are local-only and do NOT require sync metadata:
 | `imported_data_log` | Import deduplication only |
 | `ml_models` | Device-local ML artifacts |
 | `prediction_feedback` | Device-local feedback |
+| `refresh_token_usage` | Security artifact - device-local token tracking |
+| `pairing_sessions` | Ephemeral - device-local session management |
+| `fhir_exports` | Export metadata - device-specific record |
+
+> **Complete List:** See `10_DATABASE_SCHEMA.md` Section 2.7 for full exemption documentation with rationale.
 
 ### 8.3 Date Storage
 
