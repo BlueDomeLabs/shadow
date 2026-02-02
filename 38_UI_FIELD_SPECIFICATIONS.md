@@ -1,0 +1,814 @@
+# Shadow UI Field Specifications
+
+**Version:** 1.0
+**Last Updated:** January 31, 2026
+**Purpose:** Complete field-by-field specifications for every screen
+
+---
+
+## 1. Overview
+
+This document specifies every input field on every screen in the Shadow application, including:
+- Field name and type
+- Required vs optional
+- Validation rules
+- Default values
+- Placeholder text
+- Character limits
+- Accessibility labels
+
+---
+
+## 2. Authentication Screens
+
+### 2.1 Welcome Screen
+
+**Purpose:** First-time launch, choose authentication method
+
+| Element | Type | Description |
+|---------|------|-------------|
+| App Logo | Image | Shadow logo, 120x120px |
+| Tagline | Text | "Your private health companion" |
+| "Sign in with Apple" | Button | Primary CTA (Apple platforms) |
+| "Sign in with Google" | Button | Primary CTA |
+| "Continue Offline" | Button | Secondary, no account mode |
+| "Learn More" | Link | Opens privacy/features page |
+
+**Accessibility:**
+- VoiceOver: "Shadow. Your private health companion. Sign in with Apple button. Sign in with Google button. Continue offline button."
+
+### 2.2 Sign In Screen
+
+**Purpose:** OAuth authentication
+
+No input fields - handled by native OAuth sheets.
+
+---
+
+## 3. Profile Screens
+
+### 3.1 Add/Edit Profile Screen
+
+**Purpose:** Create or modify a health profile
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Profile Name | Text | Yes | Min 2 chars | - | "e.g., John Smith" | 100 |
+| Birth Date | Date Picker | No | Must be past date | - | "Select date" | - |
+| Biological Sex | Dropdown | No | Male/Female/Other/Prefer not to say | - | "Select" | - |
+| Ethnicity | Text | No | - | - | "e.g., Caucasian" | 100 |
+| Notes | Text Area | No | - | - | "Any additional notes about this profile" | 2000 |
+| Diet Type | Dropdown | No | None/Vegan/Vegetarian/Paleo/Keto/Gluten-Free/Other | None | "Select diet" | - |
+| Diet Description | Text | No | Only if Diet Type = Other | - | "Describe your diet" | 500 |
+| Profile Photo | Image Picker | No | Max 5MB, JPEG/PNG | Initials avatar | - | - |
+
+**Buttons:**
+- Save (Primary) - Validates and saves
+- Cancel (Secondary) - Discards changes with confirmation if dirty
+
+**Validation Messages:**
+- "Profile name is required"
+- "Profile name must be at least 2 characters"
+- "Birth date cannot be in the future"
+
+---
+
+## 4. Supplement Screens
+
+### 4.1 Add/Edit Supplement Screen
+
+**Purpose:** Create or modify a supplement
+
+#### Basic Information Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Supplement Name | Text | Yes | Min 2 chars | - | "e.g., Vitamin D3" | 200 |
+| Brand | Text | No | - | - | "e.g., NOW Foods" | 200 |
+| Form | Dropdown | Yes | Capsule/Tablet/Powder/Liquid/Gummy/Spray/Other | Capsule | - | - |
+| Custom Form | Text | Conditional | Only if Form = Other | - | "Describe form" | 100 |
+
+#### Dosage Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Dosage Amount | Number | Yes | > 0, max 6 decimals | - | "e.g., 2000" | 15 |
+| Dosage Unit | Dropdown | Yes | mg/mcg/g/IU/HDU/mL/drops/tsp/custom | mg | - | - |
+| Custom Unit | Text | Conditional | Only if Unit = custom | - | "e.g., billion CFU" | 50 |
+| Quantity Per Dose | Number | Yes | ≥ 1, integer | 1 | "1" | 5 |
+
+#### Ingredients Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Ingredient List | Tag Input | No | - | [] | "Add ingredient..." | 100 per tag |
+
+**Add Ingredient Flow:**
+1. Type ingredient name
+2. Press Enter or comma to add
+3. Click X on tag to remove
+
+#### Schedule Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Frequency | Dropdown | Yes | Daily/Every X Days/Specific Days | Daily | - | - |
+| Every X Days | Number | Conditional | 2-365 | 2 | "2" | 3 |
+| Specific Days | Multi-select | Conditional | At least 1 day | All selected | - | - |
+| Anchor Event | Dropdown | Yes | With Breakfast/Lunch/Dinner/Morning/Evening/Bedtime/Specific Time | With Breakfast | - | - |
+| Timing | Dropdown | Yes | With/Before/After | With | - | - |
+| Offset Minutes | Number | Conditional | 5-120, step 5 | 30 | "30" | 3 |
+| Specific Time | Time Picker | Conditional | - | 08:00 | "Select time" | - |
+| Start Date | Date Picker | No | Today or future | Today | "Start date" | - |
+| End Date | Date Picker | No | After start date | - | "End date (optional)" | - |
+
+**Notes Field:**
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Notes | Text Area | No | - | - | "Any notes about this supplement" | 2000 |
+
+---
+
+### 4.2 Log Supplement Intake Screen
+
+**Purpose:** Record taking/skipping a supplement
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Status | Segment | Yes | Taken/Skipped/Snoozed | Taken | - | - |
+| Actual Time | Time Picker | Conditional | Required if Taken | Now | "Time taken" | - |
+| Snooze Duration | Dropdown | Conditional | 5/10/15/30/60 min | 15 min | - | - |
+| Skip Reason | Dropdown | Conditional | Forgot/Side Effects/Out of Stock/Other | - | "Select reason" | - |
+| Custom Reason | Text | Conditional | Only if Reason = Other | - | "Describe reason" | 200 |
+| Notes | Text | No | - | - | "Any additional notes" | 500 |
+
+---
+
+## 5. Food Screens
+
+### 5.1 Log Food Screen
+
+**Purpose:** Record a meal or snack
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
+| Meal Type | Segment | No | Breakfast/Lunch/Dinner/Snack | Auto-detect: Breakfast (5:00-10:59), Lunch (11:00-14:59), Dinner (15:00-20:59), Snack (other times) | - | - |
+| Food Items | Multi-select | No | - | [] | "Search foods..." | - |
+| Ad-hoc Items | Tag Input | No | - | [] | "Add item not in library..." | 100 per tag |
+| Notes | Text Area | No | - | - | "Any notes about this meal" | 1000 |
+
+**Food Search:**
+- Searches user's food library
+- Shows recent foods first
+- Allows creating new food inline
+
+---
+
+### 5.2 Add/Edit Food Item Screen
+
+**Purpose:** Add a food to the library
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Food Name | Text | Yes | Min 2 chars | - | "e.g., Grilled Chicken" | 200 |
+| Type | Segment | Yes | Simple/Composed | Simple | - | - |
+| Ingredients | Multi-select | Conditional | Required if Composed | [] | "Select ingredients..." | - |
+| Notes | Text Area | No | - | - | "Notes about this food" | 1000 |
+
+---
+
+## 6. Fluids Screens
+
+### 6.1 Add Fluids Entry Screen
+
+**Purpose:** Log fluid-related health data
+
+#### Header Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
+
+#### Water Intake Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Water Amount | Number + Unit | No | ≥ 0 | - | "Amount" | 10 |
+| Water Unit | Dropdown | No | mL/fl oz | Based on preferences | - | - |
+| Quick Add Buttons | Button Group | No | 8oz/12oz/16oz or 250/350/500 mL | - | - | - |
+| Water Notes | Text | No | - | - | "e.g., with lemon" | 200 |
+
+#### Bowel Movement Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Had Bowel Movement | Toggle | No | - | No | - | - |
+| Condition | Dropdown | Conditional | Diarrhea/Runny/Loose/Normal/Firm/Hard/Custom | - | "Select" | - |
+| Custom Condition | Text | Conditional | Only if Custom | - | "Describe" | 100 |
+| Size | Dropdown | Conditional | Tiny/Small/Medium/Large/Huge | Medium | - | - |
+| Add Photo | Image Picker | No | Max 10MB raw, 2MB after compression | - | "Add photo" | - |
+
+#### Urine Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Had Urination | Toggle | No | - | No | - | - |
+| Color | Dropdown | Conditional | Clear/Light Yellow/Yellow/Dark Yellow/Amber/Custom | - | "Select color" | - |
+| Custom Color | Text | Conditional | Only if Custom | - | "Describe" | 100 |
+| Size | Dropdown | Conditional | Small/Medium/Large | Medium | - | - |
+| Urgency | Slider | Conditional | 1-5 scale | 3 | - | - |
+
+#### Menstruation Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Flow Level | Segment | No | None/Spotty/Light/Medium/Heavy | None | - | - |
+
+#### BBT Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Temperature | Number | No | 95-105°F or 35-40.5°C | - | "e.g., 98.6" | 6 |
+| Temperature Unit | Dropdown | No | °F/°C | Based on preferences | - | - |
+| Time Recorded | Time Picker | No | - | Now | "Time measured" | - |
+
+#### Custom Fluid Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Fluid Name | Text + Autocomplete | No | - | - | "e.g., Sweat, Mucus" | 100 |
+| Amount | Text | No | - | - | "e.g., Light, Heavy, 2 tbsp" | 100 |
+| Notes | Text | No | - | - | "Additional details" | 500 |
+
+---
+
+## 7. Sleep Screens
+
+### 7.1 Add/Edit Sleep Entry Screen
+
+**Purpose:** Log a night's sleep
+
+#### Time Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Sleep Date | Date Picker | Yes | Not future | Last night (date when sleep started; overnight sleep spans two calendar dates, use start date) | - | - |
+| Bed Time | Time Picker | Yes | - | 10:30 PM | "When did you go to bed?" | - |
+| Wake Time | Time Picker | Yes | After bed time | 6:30 AM | "When did you wake up?" | - |
+
+#### Sleep Quality Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Time to Fall Asleep | Dropdown | No | Immediately/5 min/15 min/30 min/1 hour/1+ hours | - | "How long to fall asleep?" | - |
+| Times Awakened | Number | No | 0-20, integer | 0 | "Number of times" | 2 |
+| Time Awake During Night | Dropdown | No | None/A few min/15 min/30 min/1 hour/1+ hours | None | - | - |
+
+#### Sleep Breakdown Section (Optional)
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Deep Sleep | Duration Picker | No | 0 - total sleep | - | "Hours of deep sleep" | - |
+| Light Sleep | Duration Picker | No | 0 - total sleep | - | "Hours of light sleep" | - |
+| Restless Sleep | Duration Picker | No | 0 - total sleep | - | "Hours of restless sleep" | - |
+
+#### Waking Section
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Waking Feeling | Segment | No | Groggy/Neutral/Rested/Energized | Neutral | - | - |
+| Dream Type | Dropdown | No | No Dreams/Vague/Vivid/Nightmares | No Dreams | - | - |
+| Notes | Text Area | No | - | - | "Any notes about your sleep" | 1000 |
+
+---
+
+## 8. Condition Screens
+
+### 8.1 Add Condition Screen
+
+**Purpose:** Create a new health condition to track
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Condition Name | Text | Yes | Min 2 chars | - | "e.g., Eczema" | 200 |
+| Category | Dropdown | Yes | Skin/Digestive/Respiratory/Autoimmune/Mental Health/Pain/Other | - | "Select category" | - |
+| Body Locations | Multi-select | Yes | At least 1 | - | "Select affected areas" | - |
+| Description | Text Area | No | - | - | "Describe the condition" | 2000 |
+| Start Timeframe | Dropdown | Yes | This week/This month/This year/1-2 years/2-5 years/5+ years/Since birth/Unknown | - | - | - |
+| Status | Segment | Yes | Active/Resolved | Active | - | - |
+| Baseline Photo | Image Picker | No | Max 5MB | - | "Add baseline photo" | - |
+
+**Body Location Options:**
+Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Internal, Whole Body, Other
+
+---
+
+### 8.2 Log Condition Entry Screen
+
+**Purpose:** Record daily condition status
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
+| Severity | Slider | Yes | 1-10 | 5 | - | - |
+| Severity Labels | Display | - | 1=Minimal, 5=Moderate, 10=Severe | - | - | - |
+| Is Flare-up | Toggle | No | - | No | - | - |
+| Triggers | Multi-select | No | From condition's trigger list + Add new | [] | "Select triggers" | - |
+| Add New Trigger | Text + Button | No | - | - | "Add new trigger" | 100 |
+| Photos | Multi-Image Picker | No | Max 5 photos, 5MB each | - | "Add photos" | - |
+| Notes | Text Area | No | - | - | "Notes about today" | 2000 |
+
+---
+
+## 9. Activity Screens
+
+### 9.1 Add/Edit Activity Screen
+
+**Purpose:** Create an activity template
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Activity Name | Text | Yes | Min 2 chars | - | "e.g., Morning Jog" | 200 |
+| Description | Text Area | No | - | - | "Describe this activity" | 1000 |
+| Default Duration | Duration Picker | No | 1 min - 24 hours | 30 min | "Typical duration" | - |
+| Location | Text | No | - | - | "e.g., Local park" | 200 |
+| Potential Triggers | Tag Input | No | - | [] | "Add potential trigger" | 100 per tag |
+
+---
+
+### 9.2 Log Activity Screen
+
+**Purpose:** Record an activity instance
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
+| Activities | Multi-select | No | - | [] | "Select activities" | - |
+| Ad-hoc Activities | Tag Input | No | - | [] | "Add unlisted activity" | 100 per tag |
+| Actual Duration | Duration Picker | No | 1 min - 24 hours | From template | "Actual duration" | - |
+| Intensity | Slider | No | 1-10 | 5 | - | - |
+| Notes | Text Area | No | - | - | "Notes about this activity" | 1000 |
+
+---
+
+## 10. Journal Screens
+
+### 10.1 Add/Edit Journal Entry Screen
+
+**Purpose:** Create a journal entry
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Date & Time | DateTime Picker | Yes | - | Now | - | - |
+| Title | Text | No | - | - | "Entry title (optional)" | 200 |
+| Content | Rich Text Area | Yes | Min 10 chars | - | "Write your thoughts..." | 50000 |
+| Tags | Tag Input | No | - | [] | "Add tags" | 50 per tag |
+| Mood | Emoji Picker | No | 5 options | - | "How are you feeling?" | - |
+| Audio Note | Audio Recorder | No | Max 5 min | - | "Record audio note" | - |
+
+**Mood Options:**
+😊 Great, 🙂 Good, 😐 Neutral, 😕 Low, 😢 Difficult
+
+---
+
+## 11. Photo Screens
+
+### 11.1 Add/Edit Photo Area Screen
+
+**Purpose:** Define a body area for photos
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Area Name | Text | Yes | Min 2 chars | - | "e.g., Left Arm" | 100 |
+| Consistency Notes | Text Area | No | - | - | "Tips for consistent photos (lighting, angle)" | 500 |
+
+---
+
+### 11.2 Take Photo Screen
+
+**Purpose:** Capture a photo for an area
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Photo | Camera/Gallery | Yes | Max 10MB raw, 2MB after compression | - | - | - |
+| Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
+| Notes | Text | No | - | - | "Notes about this photo" | 500 |
+| Condition Link | Dropdown | No | Active conditions | - | "Link to condition" | - |
+
+---
+
+## 12. Notification Settings Screen
+
+### 12.1 Notification Preferences
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Enable All Notifications | Toggle | No | - | Yes | - | - |
+| Supplement Reminders | Toggle | No | - | Yes | - | - |
+| Meal Reminders | Toggle | No | - | No | - | - |
+| Water Reminders | Toggle | No | - | No | - | - |
+| Sleep Reminders | Toggle | No | - | No | - | - |
+| Fluids Reminders | Toggle | No | - | No | - | - |
+| Condition Check-ins | Toggle | No | - | No | - | - |
+| Photo Reminders | Toggle | No | - | No | - | - |
+| Quiet Hours Start | Time Picker | No | - | 10:00 PM | - | - |
+| Quiet Hours End | Time Picker | No | - | 7:00 AM | - | - |
+| Respect System DND | Toggle | No | - | Yes | - | - |
+
+---
+
+## 13. Settings Screens
+
+### 13.1 Units Settings Screen
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Measurement System | Segment | Yes | Metric/Imperial | Based on locale | - | - |
+| Temperature | Segment | Yes | °C/°F | Based on locale | - | - |
+| Volume | Segment | Yes | mL, L / fl oz, gal | Based on system | - | - |
+| Weight | Segment | Yes | g, kg / oz, lb | Based on system | - | - |
+
+### 13.2 Cloud Sync Settings Screen
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Cloud Provider | Segment | No | iCloud/Google Drive/Offline | Current | - | - |
+| Auto-Sync | Toggle | No | - | Yes | - | - |
+| Sync on WiFi Only | Toggle | No | - | No | - | - |
+| Last Sync | Display | - | - | - | - | - |
+| Sync Now | Button | - | - | - | - | - |
+
+### 13.3 Security Settings Screen
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| App Lock | Toggle | No | - | No | - | - |
+| Lock Method | Dropdown | Conditional | Biometric/PIN/Both | Biometric | - | - |
+| PIN | Secure Text | Conditional | 4-6 digits | - | "Enter PIN" | 6 |
+| Lock Timeout | Dropdown | Conditional | Immediately/1 min/5 min/15 min | Immediately | - | - |
+| Show in Recent Apps | Toggle | No | - | Yes | - | - |
+
+---
+
+## 14. Common Field Behaviors
+
+### 14.1 Date/Time Picker Defaults
+
+| Context | Date Default | Time Default |
+|---------|--------------|--------------|
+| Logging past event | Today | Current time |
+| Scheduling future | Today | Next hour |
+| Sleep (bed time) | Last night | 10:30 PM |
+| Sleep (wake time) | Today | 6:30 AM |
+| BBT | Today | Current time |
+
+### 14.2 Validation Timing
+
+- **On blur:** Validate when user leaves field
+- **On submit:** Full form validation
+- **Real-time:** Character counts, format hints
+
+### 14.3 Error Display
+
+- Red border on invalid field
+- Error message below field
+- Scroll to first error on submit
+- Clear error when user starts typing
+
+---
+
+## 15. Diet Screens
+
+### 15.1 Diet Selection Screen
+
+**Purpose:** Choose and activate a diet
+
+| Field | Type | Required | Validation | Default | Placeholder |
+|-------|------|----------|------------|---------|-------------|
+| Search | Text | No | None | Empty | "Search diets..." |
+| Diet List | Selection | Yes | One selected | None | - |
+| Diet Category Filter | Segmented | No | None | "All" | - |
+
+**Diet Categories (complete list):**
+- All
+- Food Restriction: Vegan, Vegetarian, Pescatarian, Paleo, Mediterranean
+- Time-Based: IF 16:8, IF 18:6, IF 20:4, OMAD, 5:2
+- Macronutrient: Keto (Strict), Keto (Standard), Low-Carb, Zone
+- Elimination: Whole30, AIP, Low-FODMAP, Gluten-Free, Dairy-Free
+
+See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
+
+### 15.2 Custom Diet Builder Screen
+
+**Purpose:** Create or edit custom diet
+
+| Field | Type | Required | Validation | Default | Placeholder | Max Length |
+|-------|------|----------|------------|---------|-------------|------------|
+| Diet Name | Text | Yes | Min 2 chars | Empty | "My Diet" | 50 |
+| Start From | Picker | No | Valid preset | "Blank" | - | - |
+| Start Date | Date | No | Not in past | Today | "Select date" | - |
+| End Date | Date | No | After start | None | "Ongoing" | - |
+| Enable Eating Window | Switch | No | None | Off | - | - |
+| Window Start | Time | Conditional* | Valid time | 12:00 PM | "Select time" | - |
+| Window End | Time | Conditional* | After start | 8:00 PM | "Select time" | - |
+
+*Required if "Enable Eating Window" is on
+
+**Food Exclusion Section:**
+
+| Field | Type | Required | Default |
+|-------|------|----------|---------|
+| Exclude Meat | Checkbox | No | Off |
+| Exclude Poultry | Checkbox | No | Off |
+| Exclude Fish | Checkbox | No | Off |
+| Exclude Eggs | Checkbox | No | Off |
+| Exclude Dairy | Checkbox | No | Off |
+| Exclude Grains | Checkbox | No | Off |
+| Exclude Legumes | Checkbox | No | Off |
+| Exclude Nuts | Checkbox | No | Off |
+| Exclude Sugar | Checkbox | No | Off |
+| Exclude Gluten | Checkbox | No | Off |
+| Exclude Processed | Checkbox | No | Off |
+| Exclude Alcohol | Checkbox | No | Off |
+
+**Macro Limits Section:**
+
+| Field | Type | Required | Validation | Default | Unit |
+|-------|------|----------|------------|---------|------|
+| Enable Carb Limit | Switch | No | None | Off | - |
+| Max Carbs | Number | Conditional | 1-500 | 20 | grams |
+| Enable Calorie Limit | Switch | No | None | Off | - |
+| Max Calories | Number | Conditional | 500-5000 | 2000 | kcal |
+
+### 15.3 Diet Compliance Dashboard Screen
+
+**Purpose:** View diet compliance stats
+
+| Element | Type | Description |
+|---------|------|-------------|
+| Overall Score | Gauge | 0-100% circular gauge |
+| Daily Score | Text | "Today: XX%" |
+| Weekly Score | Text | "This Week: XX%" |
+| Monthly Score | Text | "This Month: XX%" |
+| Current Streak | Badge | "X days" with flame icon |
+| Trend Chart | Chart | Line chart of daily compliance |
+| Rule Breakdown | List | Per-rule compliance bars |
+| Recent Violations | List | Last 10 violations with dates |
+
+### 15.4 Fasting Timer Screen
+
+**Purpose:** Intermittent fasting status and timer
+
+| Element | Type | Description |
+|---------|------|-------------|
+| Status Label | Text | "Currently Fasting" or "Eating Window" |
+| Timer Display | Large Text | "14:32:17" hours:minutes:seconds |
+| Progress Bar | Progress | Visual of fasting progress |
+| Countdown | Text | "Window opens in X:XX" |
+| Timeline | Visual | 24-hour visual with fasting/eating zones |
+| End Fast Button | Button | Only during fasting, ends fast early |
+| Weekly Log | Grid | Mon-Sun with checkmarks/times |
+
+### 15.5 Diet Violation Alert (Modal)
+
+**Purpose:** Warn before logging violating food
+
+| Element | Type | Description |
+|---------|------|-------------|
+| Title | Text | "Diet Alert" with warning icon |
+| Food Name | Text | Name of food being logged |
+| Violations List | List | Each rule violated with icon |
+| Impact Preview | Text | "Compliance will drop from 92% to 77%" |
+| Impact Bar | Progress | Visual before/after comparison |
+| Cancel Button | Button | Cancel logging |
+| Log Anyway Button | Button | Secondary, proceeds with log |
+| Find Alternatives | Button | Opens compliant alternatives |
+
+### 15.6 Add Custom Diet Rule Screen
+
+**Purpose:** Create individual diet rules
+
+| Field | Type | Required | Validation | Default | Options |
+|-------|------|----------|------------|---------|---------|
+| Rule Type | Picker | Yes | Valid type | - | Exclude Category, Limit Category, Max Carbs, etc. |
+| Category | Picker | Conditional | Valid category | - | Meat, Dairy, Grains, etc. |
+| Ingredient | Text | Conditional | Min 2 chars | Empty | "e.g., peanuts" |
+| Limit Value | Number | Conditional | > 0 | - | - |
+| Severity | Segmented | Yes | Valid option | Violation | Violation, Warning, Info |
+| Description | Text | No | None | Empty | "Why this rule?" |
+| Violation Message | Text | No | None | Auto-generated | "Custom message" |
+
+---
+
+## 16. Accessibility Field Specifications
+
+**MANDATORY:** All interactive elements MUST have semantic labels for screen reader support per WCAG 2.1 Level AA (4.1.2 Name, Role, Value).
+
+### 16.1 Semantic Label Pattern
+
+Format: `"{Field name}, {required|optional}, {context if needed}"`
+
+### 16.2 Profile Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Profile Name | "Profile name, required" |
+| Birth Date | "Birth date, optional, select date" |
+| Biological Sex | "Biological sex, optional, select from list" |
+| Ethnicity | "Ethnicity, optional" |
+| Notes | "Profile notes, optional, 2000 character limit" |
+| Diet Type | "Diet type, optional, select from list" |
+| Diet Description | "Diet description, required when other diet selected" |
+| Profile Photo | "Profile photo, optional, tap to select image" |
+| Save Button | "Save profile" |
+| Cancel Button | "Cancel and discard changes" |
+
+### 16.3 Supplement Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Supplement Name | "Supplement name, required" |
+| Brand | "Brand name, optional" |
+| Form | "Supplement form, required, capsule tablet powder or other" |
+| Dosage Amount | "Dosage amount, required, enter number" |
+| Dosage Unit | "Dosage unit, required, select unit" |
+| Quantity Per Dose | "Quantity per dose, required, default is 1" |
+| Frequency | "How often to take, required" |
+| Time(s) | "Reminder time, tap to add time" |
+| Specific Days | "Which days to take, optional" |
+| Take With Food | "Take with food, optional toggle" |
+| Notes | "Supplement notes, optional" |
+| Is Archived | "Archive supplement, hides from active list" |
+
+### 16.4 Food Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Search | "Search food items" |
+| Food Name | "Food name, required" |
+| Category | "Food category, optional" |
+| Calories | "Calories, optional, enter number" |
+| Protein | "Protein grams, optional" |
+| Carbs | "Carbohydrates grams, optional" |
+| Fat | "Fat grams, optional" |
+| Fiber | "Fiber grams, optional" |
+| Sodium | "Sodium milligrams, optional" |
+| Serving Size | "Serving size, optional" |
+| Notes | "Food notes, optional" |
+| Date/Time | "When eaten, required" |
+| Meal Type | "Meal type, optional" |
+
+### 16.5 Fluids Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Water Amount Quick Add 8oz | "Add 8 ounces water" |
+| Water Amount Quick Add 12oz | "Add 12 ounces water" |
+| Water Amount Quick Add 16oz | "Add 16 ounces water" |
+| Water Amount Custom | "Custom water amount, enter ounces" |
+| Water Notes | "Water intake notes, optional" |
+| Bowel Movement Toggle | "Had bowel movement, toggle" |
+| Bristol Scale | "Bristol stool scale, 1 to 7, required if bowel movement" |
+| Bowel Size | "Movement size, small medium or large" |
+| Bowel Photo | "Take photo of bowel movement, optional" |
+| Urine Toggle | "Had urination, toggle" |
+| Urine Color | "Urine color, select from scale" |
+| Urine Size | "Urination volume, small medium or large" |
+| Menstruation Flow | "Menstruation flow intensity, none to heavy" |
+| BBT Value | "Basal body temperature, required, degrees" |
+| BBT Time | "Temperature recorded time" |
+| Other Fluid Name | "Other fluid name, optional" |
+| Other Fluid Amount | "Other fluid amount, optional" |
+| Other Fluid Notes | "Other fluid notes, optional" |
+
+### 16.6 Sleep Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Bed Time | "When you went to bed, required" |
+| Wake Time | "When you woke up, required" |
+| Sleep Quality | "Sleep quality, 1 to 5 stars" |
+| Interruptions | "Number of wake-ups, optional" |
+| Dreams | "Dream notes, optional" |
+| Notes | "Sleep notes, optional" |
+
+### 16.7 Condition Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Condition Name | "Condition name, required" |
+| Category | "Condition category, optional" |
+| Severity Slider | "Current severity, 1 minimal to 10 severe, required" |
+| Baseline Photo | "Baseline photo for comparison, optional" |
+| Log Date | "Date of this log entry" |
+| Flare Toggle | "Currently in flare-up, toggle" |
+| Flare Start | "When flare-up started" |
+| Flare End | "When flare-up ended, leave empty if ongoing" |
+| Flare Notes | "Flare-up notes, optional" |
+| Log Notes | "Condition log notes, optional" |
+
+### 16.8 Activity Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Activity Name | "Activity name, required" |
+| Category | "Activity category, optional" |
+| Duration | "Duration in minutes, optional" |
+| Intensity | "Activity intensity, low medium or high" |
+| Distance | "Distance, optional" |
+| Calories Burned | "Calories burned, optional" |
+| Heart Rate | "Average heart rate, optional" |
+| Notes | "Activity notes, optional" |
+| Date/Time | "When activity occurred, required" |
+
+### 16.9 Journal Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Journal Entry | "Journal entry text, required, no character limit" |
+| Mood | "Current mood, optional" |
+| Tags | "Entry tags, optional, add multiple" |
+| Date | "Entry date, defaults to today" |
+
+### 16.10 Photo Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Photo Area Name | "Photo tracking area name, required" |
+| Description | "Area description, optional" |
+| Take Photo Button | "Take new photo" |
+| Select Photo Button | "Choose from photo library" |
+| Photo Notes | "Photo notes, optional" |
+| Photo Date | "Photo date, required" |
+
+### 16.11 Notification Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Notifications Toggle | "Enable notifications, master toggle" |
+| Supplement Reminders | "Supplement reminder notifications, toggle" |
+| Meal Reminders | "Meal reminder notifications, toggle" |
+| Water Reminders | "Water reminder notifications, toggle" |
+| Sleep Reminders | "Sleep reminder notifications, toggle" |
+| Add Time Button | "Add reminder time" |
+| Remove Time Button | "Remove this reminder time" |
+| Quiet Hours Toggle | "Enable quiet hours, toggle" |
+| Quiet Start | "Quiet hours start time" |
+| Quiet End | "Quiet hours end time" |
+
+### 16.12 Diet Screen Semantic Labels
+
+| Field | Semantic Label |
+|-------|----------------|
+| Diet Search | "Search diets" |
+| Diet Name | "Custom diet name, required" |
+| Start Date | "Diet start date, optional" |
+| End Date | "Diet end date, optional, leave empty for ongoing" |
+| Eating Window Toggle | "Enable eating window for intermittent fasting" |
+| Window Start | "Eating window start time" |
+| Window End | "Eating window end time" |
+| Exclude Checkbox | "Exclude {category} from diet" |
+| Carb Limit Toggle | "Enable daily carb limit" |
+| Max Carbs | "Maximum carbs per day in grams" |
+| Calorie Limit Toggle | "Enable daily calorie limit" |
+| Max Calories | "Maximum calories per day" |
+| Compliance Gauge | "Overall diet compliance, {percent} percent" |
+| Fasting Timer | "Fasting timer, {hours} hours {minutes} minutes elapsed" |
+| End Fast Button | "End fast early" |
+
+### 16.13 Touch Target Requirements
+
+**MANDATORY:** All interactive elements minimum 48x48 dp per WCAG 2.1 Level AA.
+
+| Element | Minimum Size | Notes |
+|---------|--------------|-------|
+| Buttons | 48x48 dp | Use `minimumSize: Size(48, 48)` |
+| Icon buttons | 48x48 dp container | Icon can be 24px inside |
+| Checkboxes | 48x48 dp tap area | Flutter default is compliant |
+| Switches | 48 dp height | Flutter default is compliant |
+| List items | 48 dp height minimum | `ListTile` default is compliant |
+| Form fields | 48 dp height | Standard `TextField` is compliant |
+| Dropdown items | 48 dp height | Per Material Design |
+
+### 16.14 Focus Order by Screen
+
+Focus traversal must follow logical reading order. Use `FocusTraversalGroup` with `OrderedTraversalPolicy`.
+
+**Add/Edit Supplement Screen Focus Order:**
+1. Supplement Name → 2. Brand → 3. Form → 4. Dosage Amount → 5. Dosage Unit → 6. Quantity → 7. Frequency → 8. Add Time → 9. Notes → 10. Save → 11. Cancel
+
+**Add/Edit Profile Screen Focus Order:**
+1. Profile Name → 2. Birth Date → 3. Biological Sex → 4. Ethnicity → 5. Diet Type → 6. Diet Description → 7. Notes → 8. Photo → 9. Save → 10. Cancel
+
+**Custom Diet Builder Focus Order:**
+1. Diet Name → 2. Start From → 3. Start Date → 4. End Date → 5. Eating Window Toggle → 6. Window Start → 7. Window End → 8. Food Exclusions (top to bottom) → 9. Macro Toggles → 10. Save → 11. Cancel
+
+---
+
+## Document Control
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | 2026-01-31 | Initial release - complete UI field specifications |
