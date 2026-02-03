@@ -87,7 +87,9 @@ void main() {
       });
 
       test('sets dirty flag to true', () {
-        final metadata = SyncMetadata.create(deviceId: testDeviceId).markSynced();
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markSynced();
         expect(metadata.syncIsDirty, isFalse);
 
         final modified = metadata.markModified(testDeviceId);
@@ -194,7 +196,9 @@ void main() {
       });
 
       test('sets dirty flag to true', () {
-        final metadata = SyncMetadata.create(deviceId: testDeviceId).markSynced();
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markSynced();
         expect(metadata.syncIsDirty, isFalse);
 
         final deleted = metadata.markDeleted(testDeviceId);
@@ -228,8 +232,9 @@ void main() {
       });
 
       test('returns true when syncDeletedAt is set', () {
-        final metadata =
-            SyncMetadata.create(deviceId: testDeviceId).markDeleted(testDeviceId);
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markDeleted(testDeviceId);
 
         expect(metadata.isDeleted, isTrue);
       });

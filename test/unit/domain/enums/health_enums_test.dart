@@ -97,8 +97,14 @@ void main() {
     });
 
     test('fromValue returns moderate for invalid value', () {
-      expect(ActivityIntensity.fromValue(-1), equals(ActivityIntensity.moderate));
-      expect(ActivityIntensity.fromValue(99), equals(ActivityIntensity.moderate));
+      expect(
+        ActivityIntensity.fromValue(-1),
+        equals(ActivityIntensity.moderate),
+      );
+      expect(
+        ActivityIntensity.fromValue(99),
+        equals(ActivityIntensity.moderate),
+      );
     });
   });
 
@@ -129,33 +135,69 @@ void main() {
     group('fromStorageScale()', () {
       test('converts from 1-10 scale correctly', () {
         // none: 1
-        expect(ConditionSeverity.fromStorageScale(0), equals(ConditionSeverity.none));
-        expect(ConditionSeverity.fromStorageScale(1), equals(ConditionSeverity.none));
+        expect(
+          ConditionSeverity.fromStorageScale(0),
+          equals(ConditionSeverity.none),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(1),
+          equals(ConditionSeverity.none),
+        );
 
         // mild: 2-3
-        expect(ConditionSeverity.fromStorageScale(2), equals(ConditionSeverity.mild));
-        expect(ConditionSeverity.fromStorageScale(3), equals(ConditionSeverity.mild));
+        expect(
+          ConditionSeverity.fromStorageScale(2),
+          equals(ConditionSeverity.mild),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(3),
+          equals(ConditionSeverity.mild),
+        );
 
         // moderate: 4-5
-        expect(ConditionSeverity.fromStorageScale(4), equals(ConditionSeverity.moderate));
-        expect(ConditionSeverity.fromStorageScale(5), equals(ConditionSeverity.moderate));
+        expect(
+          ConditionSeverity.fromStorageScale(4),
+          equals(ConditionSeverity.moderate),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(5),
+          equals(ConditionSeverity.moderate),
+        );
 
         // severe: 6-8
-        expect(ConditionSeverity.fromStorageScale(6), equals(ConditionSeverity.severe));
-        expect(ConditionSeverity.fromStorageScale(7), equals(ConditionSeverity.severe));
-        expect(ConditionSeverity.fromStorageScale(8), equals(ConditionSeverity.severe));
+        expect(
+          ConditionSeverity.fromStorageScale(6),
+          equals(ConditionSeverity.severe),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(7),
+          equals(ConditionSeverity.severe),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(8),
+          equals(ConditionSeverity.severe),
+        );
 
         // extreme: 9-10
-        expect(ConditionSeverity.fromStorageScale(9), equals(ConditionSeverity.extreme));
-        expect(ConditionSeverity.fromStorageScale(10), equals(ConditionSeverity.extreme));
+        expect(
+          ConditionSeverity.fromStorageScale(9),
+          equals(ConditionSeverity.extreme),
+        );
+        expect(
+          ConditionSeverity.fromStorageScale(10),
+          equals(ConditionSeverity.extreme),
+        );
       });
 
       test('round-trip conversion preserves severity', () {
         for (final severity in ConditionSeverity.values) {
           final storageValue = severity.toStorageScale();
           final restored = ConditionSeverity.fromStorageScale(storageValue);
-          expect(restored, equals(severity),
-              reason: '$severity -> $storageValue -> $restored');
+          expect(
+            restored,
+            equals(severity),
+            reason: '$severity -> $storageValue -> $restored',
+          );
         }
       });
     });
@@ -229,10 +271,19 @@ void main() {
       expect(InsightCategory.values.contains(InsightCategory.pattern), isTrue);
       expect(InsightCategory.values.contains(InsightCategory.trigger), isTrue);
       expect(InsightCategory.values.contains(InsightCategory.progress), isTrue);
-      expect(InsightCategory.values.contains(InsightCategory.compliance), isTrue);
+      expect(
+        InsightCategory.values.contains(InsightCategory.compliance),
+        isTrue,
+      );
       expect(InsightCategory.values.contains(InsightCategory.anomaly), isTrue);
-      expect(InsightCategory.values.contains(InsightCategory.milestone), isTrue);
-      expect(InsightCategory.values.contains(InsightCategory.recommendation), isTrue);
+      expect(
+        InsightCategory.values.contains(InsightCategory.milestone),
+        isTrue,
+      );
+      expect(
+        InsightCategory.values.contains(InsightCategory.recommendation),
+        isTrue,
+      );
     });
   });
 
@@ -253,8 +304,14 @@ void main() {
   group('WearablePlatform', () {
     test('has all expected platforms', () {
       expect(WearablePlatform.values.length, equals(6));
-      expect(WearablePlatform.values.contains(WearablePlatform.healthkit), isTrue);
-      expect(WearablePlatform.values.contains(WearablePlatform.googlefit), isTrue);
+      expect(
+        WearablePlatform.values.contains(WearablePlatform.healthkit),
+        isTrue,
+      );
+      expect(
+        WearablePlatform.values.contains(WearablePlatform.googlefit),
+        isTrue,
+      );
       expect(WearablePlatform.values.contains(WearablePlatform.fitbit), isTrue);
       expect(WearablePlatform.values.contains(WearablePlatform.garmin), isTrue);
       expect(WearablePlatform.values.contains(WearablePlatform.oura), isTrue);
@@ -279,8 +336,14 @@ void main() {
     });
 
     test('fromValue returns supplementIndividual for invalid value', () {
-      expect(NotificationType.fromValue(-1), equals(NotificationType.supplementIndividual));
-      expect(NotificationType.fromValue(99), equals(NotificationType.supplementIndividual));
+      expect(
+        NotificationType.fromValue(-1),
+        equals(NotificationType.supplementIndividual),
+      );
+      expect(
+        NotificationType.fromValue(99),
+        equals(NotificationType.supplementIndividual),
+      );
     });
 
     group('allowsSnooze', () {
@@ -304,13 +367,22 @@ void main() {
       test('returns 0 for non-snoozable types', () {
         expect(NotificationType.bbtMorning.defaultSnoozeMinutes, equals(0));
         expect(NotificationType.dietStreak.defaultSnoozeMinutes, equals(0));
-        expect(NotificationType.dietWeeklySummary.defaultSnoozeMinutes, equals(0));
+        expect(
+          NotificationType.dietWeeklySummary.defaultSnoozeMinutes,
+          equals(0),
+        );
         expect(NotificationType.inactivity.defaultSnoozeMinutes, equals(0));
       });
 
       test('returns 15 for supplement types', () {
-        expect(NotificationType.supplementIndividual.defaultSnoozeMinutes, equals(15));
-        expect(NotificationType.supplementGrouped.defaultSnoozeMinutes, equals(15));
+        expect(
+          NotificationType.supplementIndividual.defaultSnoozeMinutes,
+          equals(15),
+        );
+        expect(
+          NotificationType.supplementGrouped.defaultSnoozeMinutes,
+          equals(15),
+        );
       });
 
       test('returns 30 for meal types', () {
@@ -327,8 +399,14 @@ void main() {
       });
 
       test('returns 60 for condition and tracking types', () {
-        expect(NotificationType.menstruationTracking.defaultSnoozeMinutes, equals(60));
-        expect(NotificationType.conditionCheckIn.defaultSnoozeMinutes, equals(60));
+        expect(
+          NotificationType.menstruationTracking.defaultSnoozeMinutes,
+          equals(60),
+        );
+        expect(
+          NotificationType.conditionCheckIn.defaultSnoozeMinutes,
+          equals(60),
+        );
         expect(NotificationType.photoReminder.defaultSnoozeMinutes, equals(60));
         expect(NotificationType.journalPrompt.defaultSnoozeMinutes, equals(60));
         expect(NotificationType.fluidsBowel.defaultSnoozeMinutes, equals(60));
@@ -344,9 +422,18 @@ void main() {
 
       test('returns 15 for sleep bedtime and fasting windows', () {
         expect(NotificationType.sleepBedtime.defaultSnoozeMinutes, equals(15));
-        expect(NotificationType.fastingWindowOpen.defaultSnoozeMinutes, equals(15));
-        expect(NotificationType.fastingWindowClose.defaultSnoozeMinutes, equals(15));
-        expect(NotificationType.fastingWindowClosed.defaultSnoozeMinutes, equals(15));
+        expect(
+          NotificationType.fastingWindowOpen.defaultSnoozeMinutes,
+          equals(15),
+        );
+        expect(
+          NotificationType.fastingWindowClose.defaultSnoozeMinutes,
+          equals(15),
+        );
+        expect(
+          NotificationType.fastingWindowClosed.defaultSnoozeMinutes,
+          equals(15),
+        );
       });
     });
   });
