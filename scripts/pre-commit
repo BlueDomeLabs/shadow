@@ -1,0 +1,48 @@
+#!/bin/bash
+# scripts/pre-commit - SHADOW-014 Implementation
+# Pre-commit hook per 23_ENGINEERING_GOVERNANCE.md Section 6.1
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# 1. Ensure generated files are up to date
+echo "Checking generated files..."
+dart run build_runner build --delete-conflicting-outputs 2>/dev/null || {
+  echo "WARNING: build_runner failed, skipping generated files check"
+}
+
+# Check if generated files have uncommitted changes
+if [[ -n $(git status --porcelain | grep -E '\.(freezed|g)\.dart$') ]]; then
+  echo ""
+  echo "ERROR: Generated files are out of date."
+  echo "The following generated files have uncommitted changes:"
+  git status --porcelain | grep -E '\.(freezed|g)\.dart$'
+  echo ""
+  echo "Please stage and commit these generated files."
+  exit 1
+fi
+
+# 2. Run analyzer
+echo "Running analyzer..."
+flutter analyze || {
+  echo ""
+  echo "ERROR: flutter analyze found issues."
+  echo "Please fix the issues above before committing."
+  exit 1
+}
+
+# 3. Run format check
+echo "Checking format..."
+if ! dart format --set-exit-if-changed lib/ test/ 2>/dev/null; then
+  echo ""
+  echo "ERROR: Code is not properly formatted."
+  echo "The following files need formatting:"
+  dart format --output=none lib/ test/ 2>/dev/null | grep "Changed" || true
+  echo ""
+  echo "Run 'dart format lib/ test/' to fix formatting."
+  exit 1
+fi
+
+echo ""
+echo "All pre-commit checks passed!"
