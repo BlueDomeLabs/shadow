@@ -5,9 +5,68 @@ description: MANDATORY startup protocol for every Shadow instance. Run before AN
 
 # Shadow Instance Startup Skill
 
-## MANDATORY: Execute Before ANY Work
+## ⚠️ CRITICAL: EXECUTE IMMEDIATELY ⚠️
 
-**You are a stateless agent.** Before writing any code or making any changes, complete this protocol.
+**THIS IS YOUR FIRST ACTION IN EVERY CONVERSATION.**
+
+Do NOT respond to user requests until this checklist is complete.
+Do NOT skip steps. Do NOT proceed if any step fails.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    MANDATORY STARTUP SEQUENCE                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  □ STEP 1: Read .claude/work-status/current.json                │
+│            → What did previous instance do?                     │
+│            → What is the current status?                        │
+│                                                                 │
+│  □ STEP 2: Run `flutter test`                                   │
+│            → If FAILING: Fix before proceeding                  │
+│            → If PASSING: Continue                               │
+│                                                                 │
+│  □ STEP 3: Run `flutter analyze`                                │
+│            → If ISSUES: Fix before proceeding                   │
+│            → If CLEAN: Continue                                 │
+│                                                                 │
+│  □ STEP 4: Check for uncommitted changes                        │
+│            → Run `git status`                                   │
+│            → If uncommitted work exists: Review and handle      │
+│                                                                 │
+│  □ STEP 5: Determine next action based on status field          │
+│            → complete: Read 34_PROJECT_TRACKER.md, pick task    │
+│            → in_progress: Continue from notes                   │
+│            → blocked: Check if resolved, else pick alt task     │
+│                                                                 │
+│  □ STEP 6: Update status file to claim task                     │
+│            → Set lastInstanceId (new unique ID)                 │
+│            → Set status to "in_progress"                        │
+│            → Set notes describing what you're starting          │
+│                                                                 │
+│  □ STEP 7: Read task-specific specs before coding               │
+│            → 22_API_CONTRACTS.md for interfaces                 │
+│            → 02_CODING_STANDARDS.md for patterns                │
+│            → Task-specific docs as referenced                   │
+│                                                                 │
+│  ✓ STARTUP COMPLETE - Now you may begin work                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Why This Matters
+
+You are a **stateless agent**. You have:
+- NO memory of previous conversations
+- NO knowledge of what other instances did
+- ONLY files as your source of truth
+
+**If you skip startup:**
+- You may duplicate work already done
+- You may break working code
+- You may contradict previous instance decisions
+- The next instance will inherit your mess
 
 ---
 
@@ -98,7 +157,7 @@ Previous instance encountered failure.
 
 ## Step 4: Update Status File
 
-Before making ANY changes, claim your work:
+Before making ANY code changes, claim your work:
 
 ```json
 {
@@ -120,25 +179,9 @@ Before making ANY changes, claim your work:
 
 Before writing code, read in this order:
 
-1. **`52_INSTANCE_COORDINATION_PROTOCOL.md`** - Coordination rules
-2. **`/coding` skill** - Code production rules
-3. **`22_API_CONTRACTS.md`** - Exact interface definitions
-4. **`02_CODING_STANDARDS.md`** - Mandatory patterns
-5. **Task-specific specs** - As referenced in tracker
-
----
-
-## Startup Checklist
-
-```
-□ Read .claude/work-status/current.json
-□ Run flutter test (fix failures if any)
-□ Run flutter analyze (fix issues if any)
-□ Determine next action based on status
-□ Update status file to claim task
-□ Read relevant specification documents
-□ Ready to begin work
-```
+1. **`22_API_CONTRACTS.md`** - Exact interface definitions
+2. **`02_CODING_STANDARDS.md`** - Mandatory patterns
+3. **Task-specific specs** - As referenced in tracker
 
 ---
 
@@ -180,3 +223,17 @@ Once startup is complete:
 - Use `/coding` skill when writing code
 - Use `/compliance` skill before claiming work is done
 - Use `/handoff` skill when conversation is ending
+
+---
+
+## Session Continuation Rule
+
+**When a conversation is continued from a summary:**
+
+The summary may say "continue where you left off" - but you MUST still run startup.
+The summary provides context, but FILES are the source of truth.
+
+1. Run full startup sequence
+2. Verify summary matches current file state
+3. If mismatch: trust files, not summary
+4. Then continue work
