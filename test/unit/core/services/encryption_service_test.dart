@@ -284,7 +284,7 @@ void main() {
         final decrypted = await service.decrypt(encrypted);
 
         expect(decrypted, equals(jsonData));
-        expect(jsonDecode(decrypted), isA<Map>());
+        expect(jsonDecode(decrypted), isA<Map<String, dynamic>>());
       });
 
       test('handles long strings', () async {
