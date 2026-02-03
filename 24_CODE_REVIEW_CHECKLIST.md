@@ -126,11 +126,24 @@ Copy this into your PR review:
 - [ ] Providers scoped appropriately (no unnecessary rebuilds)
 
 ### Security
-- [ ] No PII in logs (use masking functions)
+- [ ] No PII in logs (use masking functions from 02_CODING_STANDARDS.md §11.6)
 - [ ] Inputs validated/sanitized
 - [ ] No hardcoded secrets or tokens
 - [ ] Authorization checked before data access
 - [ ] SQL includes profile ownership validation
+- [ ] AES-256-GCM used for sensitive data encryption (NOT CBC)
+
+### Data Source Standards (§4)
+- [ ] All queries include `sync_deleted_at IS NULL` filter
+- [ ] Profile ownership validated with JOIN profiles WHERE owner_id = ?
+- [ ] All parameters use parameterized queries (no string concatenation)
+- [ ] Transaction boundaries clearly defined
+
+### Sync System Standards (§9)
+- [ ] SyncMetadata present on all syncable entities
+- [ ] Sync status transitions match spec (pending → synced → modified → conflict)
+- [ ] Conflict resolution strategy documented if applicable
+- [ ] Exempt tables documented in 10_DATABASE_SCHEMA.md Section 2.7
 
 ### Documentation
 - [ ] File header comment present (per Section 14.2)

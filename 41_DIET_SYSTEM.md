@@ -34,26 +34,29 @@ Shadow provides comprehensive diet tracking that goes beyond simple food logging
 
 ### 2.2 Preset Diet Library
 
-| Diet ID | Diet Name | Category | Key Rules |
-|---------|-----------|----------|-----------|
+> **CANONICAL SOURCE:** The `DietPresetType` enum is defined authoritatively in `22_API_CONTRACTS.md` Section 3.2.
+> Diet IDs below use camelCase to match the Dart enum values.
+
+| Diet ID (DietPresetType) | Diet Name | Category | Key Rules |
+|--------------------------|-----------|----------|-----------|
 | `vegan` | Vegan | Food Restriction | No animal products |
 | `vegetarian` | Vegetarian | Food Restriction | No meat/fish, allows dairy/eggs |
 | `pescatarian` | Pescatarian | Food Restriction | No meat, allows fish/dairy/eggs |
 | `paleo` | Paleo | Food Restriction | No grains, legumes, dairy, processed foods |
 | `keto` | Ketogenic | Macronutrient | <20g net carbs, 70-75% fat |
-| `keto_strict` | Strict Keto | Macronutrient | <20g total carbs, 75% fat |
-| `low_carb` | Low Carb | Macronutrient | <100g carbs daily |
+| `ketoStrict` | Strict Keto | Macronutrient | <20g total carbs, 75% fat |
+| `lowCarb` | Low Carb | Macronutrient | <100g carbs daily |
 | `mediterranean` | Mediterranean | Food Preference | Emphasis on fish, olive oil, vegetables |
 | `whole30` | Whole30 | Elimination | No sugar, grains, dairy, legumes, alcohol (30 days) |
 | `aip` | Autoimmune Protocol | Elimination | Paleo + no nightshades, eggs, nuts, seeds |
-| `low_fodmap` | Low-FODMAP | Elimination | No high-FODMAP foods |
-| `gluten_free` | Gluten-Free | Food Restriction | No gluten-containing grains |
-| `dairy_free` | Dairy-Free | Food Restriction | No dairy products |
-| `if_16_8` | Intermittent Fasting 16:8 | Time Restriction | 16hr fast, 8hr eating window |
-| `if_18_6` | Intermittent Fasting 18:6 | Time Restriction | 18hr fast, 6hr eating window |
-| `if_20_4` | Intermittent Fasting 20:4 | Time Restriction | 20hr fast, 4hr eating window |
+| `lowFodmap` | Low-FODMAP | Elimination | No high-FODMAP foods |
+| `glutenFree` | Gluten-Free | Food Restriction | No gluten-containing grains |
+| `dairyFree` | Dairy-Free | Food Restriction | No dairy products |
+| `if168` | Intermittent Fasting 16:8 | Time Restriction | 16hr fast, 8hr eating window |
+| `if186` | Intermittent Fasting 18:6 | Time Restriction | 18hr fast, 6hr eating window |
+| `if204` | Intermittent Fasting 20:4 | Time Restriction | 20hr fast, 4hr eating window |
 | `omad` | One Meal A Day | Time Restriction | 23hr fast, 1hr eating window |
-| `5_2` | 5:2 Diet | Time Restriction | 5 normal days, 2 fasting days (<500 cal) |
+| `fiveTwoDiet` | 5:2 Diet | Time Restriction | 5 normal days, 2 fasting days (<500 cal) |
 | `zone` | Zone Diet | Macronutrient | 40% carb, 30% protein, 30% fat |
 | `custom` | Custom Diet | Custom | User-defined |
 
@@ -461,15 +464,92 @@ class DietComplianceCalculator {
 }
 ```
 
-### 5.2 Violation Severity Weighting
+### Compliance Score Calculation (Exact Formula)
 
-| Severity | Weight | Impact on Score |
-|----------|--------|-----------------|
-| Violation | 1.0 | Full point deduction |
-| Warning | 0.5 | Half point deduction |
-| Info | 0.0 | No impact (tracking only) |
+daily_compliance = ((total_rules - violations) / total_rules) * 100
 
-### 5.3 Daily vs Weekly vs Monthly Compliance
+Where:
+- total_rules: Count of active diet rules for the day
+- violations: Count of logged violations for that day
+- Result: Integer percentage 0-100
+
+Streak Calculation:
+- Streak starts at 0 on diet activation
+- Streak increments by 1 at end of each day with 100% compliance
+- Streak resets to 0 when daily_compliance < 100%
+- Days with no food logged count as 100% (no violations occurred)
+
+### 5.2 Exact Compliance Score Formula
+
+The daily compliance score is calculated using a severity-weighted violation impact formula:
+
+```dart
+/// Calculate daily compliance score (0-100%)
+double calculateDailyCompliance({
+  required List<RuleViolation> violations,
+}) {
+  // Sum all violation impacts
+  double totalImpact = 0.0;
+
+  for (final violation in violations) {
+    final severityWeight = _getSeverityWeight(violation.severity);
+    final portionFactor = violation.portionFactor ?? 1.0; // 1.0 = full serving
+
+    totalImpact += severityWeight * portionFactor;
+  }
+
+  // Calculate compliance: 100 - sum of impacts, clamped to 0-100
+  final compliance = (100.0 - totalImpact).clamp(0.0, 100.0);
+  return compliance;
+}
+
+/// Severity weights determine impact per violation
+double _getSeverityWeight(RuleSeverity severity) {
+  return switch (severity) {
+    RuleSeverity.critical => 25.0,  // Severe diet break (e.g., allergen for allergy diet)
+    RuleSeverity.high => 15.0,      // Major violation (e.g., meat on vegan diet)
+    RuleSeverity.medium => 10.0,    // Moderate violation (e.g., grains on paleo)
+    RuleSeverity.low => 5.0,        // Minor violation (e.g., slightly over carb limit)
+  };
+}
+```
+
+**Formula Summary:**
+```
+daily_compliance = 100 - (sum of violation_impacts)
+violation_impact = rule_severity_weight x portion_factor
+
+Rule Severity Weights:
+- critical = 25 points
+- high = 15 points
+- medium = 10 points
+- low = 5 points
+
+Portion Factor:
+- 1.0 = full serving (default)
+- 0.5 = half serving
+- 2.0 = double serving (impact scales proportionally)
+```
+
+**Examples:**
+| Scenario | Calculation | Result |
+|----------|-------------|--------|
+| No violations | 100 - 0 | 100% |
+| 1 high violation | 100 - 15 | 85% |
+| 2 medium violations | 100 - (10 + 10) | 80% |
+| 1 critical + 1 low | 100 - (25 + 5) | 70% |
+| Half serving of high violation food | 100 - (15 x 0.5) | 92.5% |
+
+### 5.3 Violation Severity Mapping
+
+| Severity | Weight | Use Cases |
+|----------|--------|-----------|
+| Critical (25) | Allergen exposure, medical restriction break | AIP nightshade, celiac gluten |
+| High (15) | Core diet principle violation | Meat on vegan, dairy on paleo |
+| Medium (10) | Standard rule violation | Grains on keto, legumes on paleo |
+| Low (5) | Minor overage, warning-level | Slightly over carb limit, extra fruit |
+
+### 5.4 Daily vs Weekly vs Monthly Compliance
 
 ```dart
 class ComplianceMetrics {
@@ -482,6 +562,84 @@ class ComplianceMetrics {
   final Map<DietRuleType, int> violationsByType;
 }
 ```
+
+### 5.5 Streak Calculation Rules
+
+Compliance streaks track consecutive days of perfect (100%) diet adherence.
+
+**Streak Break Conditions:**
+```dart
+/// A streak breaks when:
+/// 1. daily_compliance < 100% (any violation occurred)
+/// 2. The day boundary is crossed with imperfect compliance
+
+bool checkStreakBroken(double dailyCompliance) {
+  // Streak breaks on ANY violation, regardless of severity
+  return dailyCompliance < 100.0;
+}
+```
+
+**Day Boundary Definition:**
+- A "day" is defined as a calendar day in the user's local timezone
+- Day starts at 00:00:00 and ends at 23:59:59 local time
+- Food logs are assigned to days based on their timestamp, not when logged
+- Example: Food eaten at 11:30 PM on Monday counts toward Monday's compliance
+
+**No Food Logged Behavior:**
+```dart
+/// When no food is logged for a day:
+/// - Compliance = 100% (no violations possible)
+/// - Streak CONTINUES (user maintained their diet by not eating violations)
+/// - This handles fasting days, travel days, etc.
+
+double getComplianceForDay(List<FoodLog> logsForDay) {
+  if (logsForDay.isEmpty) {
+    return 100.0; // No food = no violations = perfect compliance
+  }
+  return calculateDailyCompliance(logsForDay);
+}
+```
+
+**Streak Calculation Algorithm:**
+```dart
+int calculateCurrentStreak({
+  required String profileId,
+  required DateTime today,
+  required String userTimezone,
+}) {
+  int streak = 0;
+  DateTime checkDate = today;
+
+  while (true) {
+    final dayStart = _startOfDayInTimezone(checkDate, userTimezone);
+    final dayEnd = _endOfDayInTimezone(checkDate, userTimezone);
+
+    final logsForDay = _getLogsInRange(profileId, dayStart, dayEnd);
+    final compliance = getComplianceForDay(logsForDay);
+
+    if (compliance < 100.0) {
+      break; // Streak broken
+    }
+
+    streak++;
+    checkDate = checkDate.subtract(Duration(days: 1));
+
+    // Don't count before diet start date
+    if (checkDate.isBefore(diet.startDate)) break;
+  }
+
+  return streak;
+}
+```
+
+**Edge Cases:**
+| Scenario | Streak Behavior |
+|----------|-----------------|
+| Diet started today, no logs yet | Streak = 1 (today is compliant) |
+| Diet started today, 1 violation | Streak = 0 |
+| Yesterday: 100%, Today: violation | Streak = 0 (resets today) |
+| Fasting day (no food logged) | Streak continues |
+| Backdated violation entry | Recalculates; may break historical streak |
 
 ---
 
@@ -976,13 +1134,15 @@ ALTER TABLE food_items ADD COLUMN sugar_grams REAL;
 
 ### 11.1 Diet-Related Notifications
 
-| Notification Type | Trigger | Message |
-|-------------------|---------|---------|
-| `fasting_window_start` | Eating window opens | "Your eating window is now open (12 PM - 8 PM)" |
-| `fasting_window_end` | 30 min before close | "Your eating window closes in 30 minutes" |
-| `fasting_window_closed` | Window closes | "Fasting period has begun. Stay strong!" |
-| `diet_streak` | Milestone reached | "Amazing! You've been 100% compliant for 7 days!" |
-| `diet_weekly_summary` | Weekly | "Last week: 92% diet compliance. Great work!" |
+> **CANONICAL SOURCE:** NotificationType enum is defined in `22_API_CONTRACTS.md` Section 3.2.
+
+| NotificationType (value) | Trigger | Message |
+|--------------------------|---------|---------|
+| `fastingWindowOpen` (17) | Eating window opens | "Your eating window is now open (12 PM - 8 PM)" |
+| `fastingWindowClose` (18) | 30 min before close | "Your eating window closes in 30 minutes" |
+| `fastingWindowClosed` (19) | Window closes | "Fasting period has begun. Stay strong!" |
+| `dietStreak` (20) | Milestone reached | "Amazing! You've been 100% compliant for 7 days!" |
+| `dietWeeklySummary` (21) | Weekly | "Last week: 92% diet compliance. Great work!" |
 
 ---
 
@@ -1033,3 +1193,4 @@ ALTER TABLE food_items ADD COLUMN sugar_grams REAL;
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-31 | Initial release |
+| 1.1 | 2026-02-02 | Updated Diet IDs to camelCase to match DietPresetType enum in 22_API_CONTRACTS.md |

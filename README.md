@@ -61,7 +61,7 @@ This folder contains the complete professional documentation suite for building 
 
 1. Read [06_TESTING_STRATEGY.md](./06_TESTING_STRATEGY.md)
 2. Tests are **mandatory** - no feature ships without tests
-3. Target 85%+ overall coverage
+3. Require 100% test coverage (see 02_CODING_STANDARDS.md Section 10.3)
 
 ---
 

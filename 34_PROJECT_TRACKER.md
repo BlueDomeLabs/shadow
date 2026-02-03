@@ -4,6 +4,8 @@
 **Last Updated:** January 30, 2026
 **Purpose:** Daily task assignments in project tracking format
 
+> **CANONICAL SOURCE:** All implementation details must follow [02_CODING_STANDARDS.md](02_CODING_STANDARDS.md). Before creating or updating tickets, review the applicable coding standards sections. See [22_API_CONTRACTS.md](22_API_CONTRACTS.md) for exact interface specifications.
+
 ---
 
 ## 1. Project Tracking System
@@ -1054,7 +1056,7 @@ Acceptance Criteria:
   - [ ] [Criterion 1]
   - [ ] [Criterion 2]
   - [ ] [Criterion 3]
-  - [ ] Unit tests written (coverage: X%)
+  - [ ] Unit tests written (coverage: 100%)
   - [ ] Widget tests written (if UI)
   - [ ] Documentation updated
   - [ ] Accessibility verified

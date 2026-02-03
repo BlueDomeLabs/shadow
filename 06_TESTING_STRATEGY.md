@@ -928,7 +928,7 @@ Security-critical components require 100% test coverage.
 | Input Sanitization | 100% | XSS, SQL injection, HTML injection |
 | Authorization Checks | 100% | Denied access, expired, wrong profile, shared profile |
 | PII Masking | 100% | All masking functions with edge cases |
-| Secure Storage | 95% | Platform-specific read/write operations |
+| Secure Storage | 100% | Platform-specific read/write operations |
 | Audit Logging | 100% | PHI access logging, immutability |
 
 **Required Security Test Files:**
@@ -1251,8 +1251,8 @@ jobs:
       - name: Check coverage threshold
         run: |
           COVERAGE=$(lcov --summary coverage/lcov.info | grep "lines" | grep -oP '\d+\.\d+')
-          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
-            echo "Coverage $COVERAGE% is below 85% threshold"
+          if (( $(echo "$COVERAGE < 100" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below 100% threshold"
             exit 1
           fi
 ```

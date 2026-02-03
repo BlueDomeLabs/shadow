@@ -48,6 +48,7 @@ part 'supplement.g.dart';
 class Supplement with _$Supplement {
   const factory Supplement({
     required String id,
+    required String clientId,
     required String profileId,
     required String name,
     required SupplementForm form,
@@ -736,6 +737,8 @@ abstract class BaseRepository<T> {
   }
 
   /// Prepare entity for creation (generate ID, create sync metadata)
+  /// NOTE: These helpers return the prepared entity; the calling repository
+  /// method wraps the result in Result<T, AppError>
   Future<T> prepareForCreate<T>(
     T entity,
     T Function(String id, SyncMetadata syncMetadata) copyWith, {
@@ -747,6 +750,8 @@ abstract class BaseRepository<T> {
   }
 
   /// Prepare entity for update (update sync metadata)
+  /// NOTE: These helpers return the prepared entity; the calling repository
+  /// method wraps the result in Result<T, AppError>
   Future<T> prepareForUpdate<T>(
     T entity,
     T Function(SyncMetadata syncMetadata) copyWith, {
@@ -762,6 +767,8 @@ abstract class BaseRepository<T> {
   }
 
   /// Prepare entity for soft delete
+  /// NOTE: These helpers return the prepared entity; the calling repository
+  /// method wraps the result in Result<T, AppError>
   Future<T> prepareForDelete<T>(
     T entity,
     T Function(SyncMetadata syncMetadata) copyWith, {
@@ -809,7 +816,7 @@ class Profile with _$Profile {
     required String id,
     required String clientId,     // Required for database merging
     required String name,
-    DateTime? birthDate,
+    int? birthDate, // Epoch milliseconds
     String? biologicalSex,
     String? ethnicity,
     String? notes,
@@ -930,8 +937,9 @@ class Profile {
 - [ ] All repository implementations
 - [ ] Profile entity includes dietType, dietDescription fields
 - [ ] FluidsEntry includes menstruation and BBT fields
+- [ ] **Verify EVERY entity includes clientId field before repository creation**
 - [ ] 100% test coverage on entities
-- [ ] 95%+ test coverage on repositories
+- [ ] 100% test coverage on repositories
 
 ---
 
@@ -1093,7 +1101,7 @@ void main() {
 - [ ] All providers implemented
 - [ ] Main app structure with provider setup
 - [ ] Tab navigation working
-- [ ] 85%+ test coverage on providers
+- [ ] 100% test coverage on providers
 
 ---
 
@@ -1208,7 +1216,7 @@ class _AddSupplementScreenState extends State<AddSupplementScreen> {
 - [ ] Navigation working correctly
 - [ ] Form validation on all inputs
 - [ ] Loading and error states handled
-- [ ] Widget tests for all screens (70%+ coverage)
+- [ ] Widget tests for all screens (100% coverage)
 
 ---
 
@@ -1505,11 +1513,13 @@ For each entity/feature:
 | Phase | Minimum Coverage |
 |-------|------------------|
 | Phase 2 | 100% for services |
-| Phase 3 | 95%+ for repositories |
-| Phase 4 | 85%+ for providers |
-| Phase 5 | 70%+ for screens |
-| Phase 6 | 90%+ for sync |
-| Phase 7 | 85%+ overall |
+| Phase 3 | 100% for repositories |
+| Phase 4 | 100% for providers |
+| Phase 5 | 100% for screens |
+| Phase 6 | 100% for sync |
+| Phase 7 | 100% overall |
+
+> **Note:** Per 02_CODING_STANDARDS.md Section 10.3, 100% test coverage is required for all code at all phases.
 
 ---
 

@@ -1168,22 +1168,29 @@ ALL domain enums MUST be defined here:
 // lib/domain/enums/health_enums.dart
 
 enum BowelCondition {
-  normal,
-  diarrhea,
-  constipation,
-  bloody,
-  mucusy,
-  custom,
+  diarrhea(0),
+  runny(1),
+  loose(2),
+  normal(3),
+  firm(4),
+  hard(5),
+  custom(6);
+
+  final int value;
+  const BowelCondition(this.value);
 }
 
 enum UrineCondition {
-  clear,
-  lightYellow,
-  darkYellow,
-  amber,
-  brown,
-  red,
-  custom,
+  clear(0),
+  lightYellow(1),
+  darkYellow(2),
+  amber(3),
+  brown(4),
+  red(5),
+  custom(6);
+
+  final int value;
+  const UrineCondition(this.value);
 }
 
 enum MovementSize {
@@ -1223,9 +1230,12 @@ enum SleepQuality {
 }
 
 enum ActivityIntensity {
-  light,
-  moderate,
-  vigorous,
+  light(0),
+  moderate(1),
+  vigorous(2);
+
+  final int value;
+  const ActivityIntensity(this.value);
 }
 
 enum ConditionSeverity {
@@ -1271,42 +1281,48 @@ enum MoodLevel {
 
 enum DietRuleType {
   // Food-based rules
-  excludeCategory,      // Exclude entire food category
-  excludeIngredient,    // Exclude specific ingredient
-  requireCategory,      // Must include category (e.g., vegetables)
-  limitCategory,        // Max servings per day/week
+  excludeCategory(0),      // Exclude entire food category
+  excludeIngredient(1),    // Exclude specific ingredient
+  requireCategory(2),      // Must include category (e.g., vegetables)
+  limitCategory(3),        // Max servings per day/week
 
   // Macronutrient rules
-  maxCarbs,             // Maximum carbs (grams)
-  maxFat,               // Maximum fat (grams)
-  maxProtein,           // Maximum protein (grams)
-  minCarbs,             // Minimum carbs (grams)
-  minFat,               // Minimum fat (grams)
-  minProtein,           // Minimum protein (grams)
-  carbPercentage,       // Carbs as % of calories
-  fatPercentage,        // Fat as % of calories
-  proteinPercentage,    // Protein as % of calories
-  maxCalories,          // Maximum daily calories
+  maxCarbs(4),             // Maximum carbs (grams)
+  maxFat(5),               // Maximum fat (grams)
+  maxProtein(6),           // Maximum protein (grams)
+  minCarbs(7),             // Minimum carbs (grams)
+  minFat(8),               // Minimum fat (grams)
+  minProtein(9),           // Minimum protein (grams)
+  carbPercentage(10),      // Carbs as % of calories
+  fatPercentage(11),       // Fat as % of calories
+  proteinPercentage(12),   // Protein as % of calories
+  maxCalories(13),         // Maximum daily calories
 
   // Time-based rules
-  eatingWindowStart,    // Earliest eating time
-  eatingWindowEnd,      // Latest eating time
-  fastingHours,         // Required consecutive fasting hours
-  fastingDays,          // Specific fasting days (for 5:2)
-  maxMealsPerDay,       // Maximum number of meals
+  eatingWindowStart(14),   // Earliest eating time
+  eatingWindowEnd(15),     // Latest eating time
+  fastingHours(16),        // Required consecutive fasting hours
+  fastingDays(17),         // Specific fasting days (for 5:2)
+  maxMealsPerDay(18),      // Maximum number of meals
 
   // Combination rules
-  mealSpacing,          // Minimum hours between meals
-  noEatingBefore,       // No food before time
-  noEatingAfter,        // No food after time
+  mealSpacing(19),         // Minimum hours between meals
+  noEatingBefore(20),      // No food before time
+  noEatingAfter(21);       // No food after time
+
+  final int value;
+  const DietRuleType(this.value);
 }
 
 enum PatternType {
-  temporal,
-  cyclical,
-  sequential,
-  cluster,
-  dosage,
+  temporal(0),
+  cyclical(1),
+  sequential(2),
+  cluster(3),
+  dosage(4);
+
+  final int value;
+  const PatternType(this.value);
 }
 
 /// Diet preset types - predefined diet configurations
@@ -1346,10 +1362,13 @@ enum InsightCategory {
 }
 
 enum AlertPriority {
-  low,
-  medium,
-  high,
-  critical,
+  low(0),
+  medium(1),
+  high(2),
+  critical(3);
+
+  final int value;
+  const AlertPriority(this.value);
 }
 
 enum WearablePlatform {
@@ -1460,26 +1479,30 @@ enum NotificationType {
 
 // Supplement-related enums
 enum SupplementForm {
-  capsule,
-  powder,
-  liquid,
-  tablet,
-  other,
+  capsule(0),
+  powder(1),
+  liquid(2),
+  tablet(3),
+  other(4);
+
+  final int value;
+  const SupplementForm(this.value);
 }
 
 enum DosageUnit {
-  g('g'),        // grams
-  mg('mg'),      // milligrams
-  mcg('mcg'),    // micrograms
-  iu('IU'),      // International Units
-  hdu('HDU'),    // Histamine Degrading Units
-  ml('mL'),      // milliliters
-  drops('drops'),
-  tsp('tsp'),    // teaspoons
-  custom('');    // User-defined unit
+  g(0, 'g'),        // grams
+  mg(1, 'mg'),      // milligrams
+  mcg(2, 'mcg'),    // micrograms
+  iu(3, 'IU'),      // International Units
+  hdu(4, 'HDU'),    // Histamine Degrading Units
+  ml(5, 'mL'),      // milliliters
+  drops(6, 'drops'),
+  tsp(7, 'tsp'),    // teaspoons
+  custom(8, '');    // User-defined unit
 
+  final int value;
   final String abbreviation;
-  const DosageUnit(this.abbreviation);
+  const DosageUnit(this.value, this.abbreviation);
 }
 
 enum SupplementTimingType {
@@ -1612,7 +1635,230 @@ abstract class EntityRepository<T, ID> {
 typedef BaseRepository<T, ID> = EntityRepository<T, ID>;
 ```
 
-### 3.2 Specific Repository Contracts
+### 4.2 Base Repository SQL Implementation
+
+**ALL data source implementations MUST follow these patterns exactly:**
+
+```dart
+// lib/data/datasources/local/base_local_data_source.dart
+
+abstract class BaseLocalDataSource<T extends Syncable, M extends Model<T>> {
+  final Database _database;
+  final String _tableName;
+
+  BaseLocalDataSource(this._database, this._tableName);
+
+  // ========== getAll ==========
+  // MUST: Include sync_deleted_at IS NULL for soft delete filtering
+  // MUST: Support optional profileId filter
+  // MUST: Support pagination with LIMIT/OFFSET
+  Future<Result<List<T>, AppError>> getAll({
+    String? profileId,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      final where = StringBuffer('sync_deleted_at IS NULL');
+      final whereArgs = <Object>[];
+
+      if (profileId != null) {
+        where.write(' AND profile_id = ?');
+        whereArgs.add(profileId);
+      }
+
+      final orderBy = 'sync_created_at DESC';
+      final limitOffset = limit != null ? 'LIMIT $limit' : '';
+      final offsetClause = offset != null ? 'OFFSET $offset' : '';
+
+      final rows = await _database.query(
+        'SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy $limitOffset $offsetClause',
+        whereArgs,
+      );
+
+      return Success(rows.map((row) => _fromRow(row)).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== getById ==========
+  // MUST: Include sync_deleted_at IS NULL
+  // MUST: Return DatabaseError.notFound if not exists
+  Future<Result<T, AppError>> getById(String id) async {
+    try {
+      final rows = await _database.query(
+        'SELECT * FROM $_tableName WHERE id = ? AND sync_deleted_at IS NULL',
+        [id],
+      );
+
+      if (rows.isEmpty) {
+        return Failure(DatabaseError.notFound(_tableName, id));
+      }
+
+      return Success(_fromRow(rows.first));
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== create ==========
+  // MUST: Generate UUID if id is empty
+  // MUST: Set all sync metadata columns
+  // MUST: Return created entity with generated values
+  Future<Result<T, AppError>> create(T entity) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final id = entity.id.isEmpty ? const Uuid().v4() : entity.id;
+
+      final model = _toModel(entity).copyWith(
+        id: id,
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncIsDirty: true,
+        syncStatus: SyncStatus.pending.value,
+        syncDeletedAt: null,
+      );
+
+      await _database.insert(_tableName, model.toMap());
+
+      return getById(id);
+    } catch (e, stack) {
+      if (e.toString().contains('UNIQUE constraint failed')) {
+        return Failure(DatabaseError.duplicateEntry(_tableName, entity.id));
+      }
+      return Failure(DatabaseError.insertFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== update ==========
+  // MUST: Check entity exists first
+  // MUST: Increment sync_version
+  // MUST: Set sync_is_dirty based on markDirty param
+  // MUST: Update sync_updated_at timestamp
+  Future<Result<T, AppError>> update(T entity, {bool markDirty = true}) async {
+    try {
+      // Verify exists
+      final existsResult = await getById(entity.id);
+      if (existsResult.isFailure) {
+        return existsResult;
+      }
+
+      final existing = existsResult.valueOrNull!;
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final model = _toModel(entity).copyWith(
+        syncUpdatedAt: now,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: markDirty ? true : existing.syncMetadata.syncIsDirty,
+        syncStatus: markDirty ? SyncStatus.modified.value : existing.syncMetadata.syncStatus.value,
+      );
+
+      await _database.update(
+        _tableName,
+        model.toMap(),
+        where: 'id = ? AND sync_deleted_at IS NULL',
+        whereArgs: [entity.id],
+      );
+
+      return getById(entity.id);
+    } catch (e, stack) {
+      return Failure(DatabaseError.updateFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== delete (soft delete) ==========
+  // MUST: Set sync_deleted_at to current timestamp
+  // MUST: Increment version and mark dirty
+  // MUST: NOT physically remove the row
+  Future<Result<void, AppError>> delete(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final rowsAffected = await _database.update(
+        _tableName,
+        {
+          'sync_deleted_at': now,
+          'sync_updated_at': now,
+          'sync_is_dirty': 1,
+          'sync_status': SyncStatus.deleted.value,
+        },
+        where: 'id = ? AND sync_deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound(_tableName, id));
+      }
+
+      return const Success(null);
+    } catch (e, stack) {
+      return Failure(DatabaseError.deleteFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== hardDelete ==========
+  // MUST: Physically remove row from database
+  // MUST: Only use for sync cleanup after cloud deletion confirmed
+  Future<Result<void, AppError>> hardDelete(String id) async {
+    try {
+      final rowsAffected = await _database.delete(
+        _tableName,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound(_tableName, id));
+      }
+
+      return const Success(null);
+    } catch (e, stack) {
+      return Failure(DatabaseError.deleteFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== getModifiedSince ==========
+  // EXCEPTION: MUST NOT filter sync_deleted_at - include tombstones for sync
+  // MUST: Return all records modified after timestamp
+  Future<Result<List<T>, AppError>> getModifiedSince(int since) async {
+    try {
+      final rows = await _database.query(
+        // NOTE: NO sync_deleted_at filter - sync needs tombstones
+        'SELECT * FROM $_tableName WHERE sync_updated_at > ? ORDER BY sync_updated_at ASC',
+        [since],
+      );
+
+      return Success(rows.map((row) => _fromRow(row)).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== getPendingSync ==========
+  // EXCEPTION: MUST NOT filter sync_deleted_at - include deleted for sync
+  // MUST: Return all records where sync_is_dirty = 1
+  Future<Result<List<T>, AppError>> getPendingSync() async {
+    try {
+      final rows = await _database.query(
+        // NOTE: NO sync_deleted_at filter - deleted records must sync
+        'SELECT * FROM $_tableName WHERE sync_is_dirty = 1 ORDER BY sync_updated_at ASC',
+        [],
+      );
+
+      return Success(rows.map((row) => _fromRow(row)).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed(_tableName, e.toString(), stack));
+    }
+  }
+
+  // ========== Abstract methods for subclasses ==========
+  T _fromRow(Map<String, dynamic> row);
+  M _toModel(T entity);
+}
+```
+
+### 4.3 Specific Repository Contracts
 
 ```dart
 // lib/domain/repositories/supplement_repository.dart
@@ -1829,6 +2075,7 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
     // 3. Create entity
     final entry = FluidsEntry(
       id: '', // Will be generated
+      clientId: input.clientId,
       profileId: input.profileId,
       entryDate: input.entryDate,
       bowelCondition: input.bowelCondition,
@@ -1837,7 +2084,7 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       menstruationFlow: input.menstruationFlow,
       basalBodyTemperature: input.basalBodyTemperature,
       bbtRecordedTime: input.bbtRecordedTime,
-      notes: input.notes,
+      notes: input.notes ?? '',
       syncMetadata: SyncMetadata.empty(), // Will be populated
     );
 
@@ -1887,6 +2134,3496 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       return ValidationError.fromFieldErrors(errors);
     }
     return null;
+  }
+}
+```
+
+### 4.4 Domain-Specific Repository SQL Patterns
+
+**ALL domain repositories extend BaseLocalDataSource and add entity-specific methods:**
+
+```dart
+// lib/data/datasources/local/supplement_local_data_source.dart
+
+class SupplementLocalDataSource extends BaseLocalDataSource<Supplement, SupplementModel> {
+  SupplementLocalDataSource(Database db) : super(db, 'supplements');
+
+  /// Get supplements by profile with optional active filter
+  /// PATTERN: Profile-scoped query with optional boolean filter
+  Future<Result<List<Supplement>, AppError>> getByProfile(
+    String profileId, {
+    bool? activeOnly,
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      final where = StringBuffer('profile_id = ? AND sync_deleted_at IS NULL');
+      final whereArgs = <Object>[profileId];
+
+      if (activeOnly == true) {
+        where.write(' AND is_archived = 0');
+      }
+
+      final sql = '''
+        SELECT * FROM supplements
+        WHERE $where
+        ORDER BY brand ASC, sync_created_at DESC
+        ${limit != null ? 'LIMIT $limit' : ''}
+        ${offset != null ? 'OFFSET $offset' : ''}
+      ''';
+
+      final rows = await _database.query(sql, whereArgs);
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('supplements', e.toString(), stack));
+    }
+  }
+
+  /// Search supplements by name/brand
+  /// PATTERN: LIKE query with case-insensitive search
+  Future<Result<List<Supplement>, AppError>> search(
+    String profileId,
+    String query, {
+    int limit = 20,
+  }) async {
+    try {
+      final searchTerm = '%${query.toLowerCase()}%';
+
+      final rows = await _database.query('''
+        SELECT * FROM supplements
+        WHERE profile_id = ?
+          AND sync_deleted_at IS NULL
+          AND (LOWER(brand) LIKE ? OR LOWER(ingredients) LIKE ?)
+        ORDER BY brand ASC
+        LIMIT ?
+      ''', [profileId, searchTerm, searchTerm, limit]);
+
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('supplements', e.toString(), stack));
+    }
+  }
+}
+
+// lib/data/datasources/local/fluids_entry_local_data_source.dart
+
+class FluidsEntryLocalDataSource extends BaseLocalDataSource<FluidsEntry, FluidsEntryModel> {
+  FluidsEntryLocalDataSource(Database db) : super(db, 'fluids_entries');
+
+  /// Get entries for date range
+  /// PATTERN: Timestamp range query
+  Future<Result<List<FluidsEntry>, AppError>> getByDateRange(
+    String profileId,
+    int start,  // Epoch ms
+    int end,    // Epoch ms
+  ) async {
+    try {
+      final rows = await _database.query('''
+        SELECT * FROM fluids_entries
+        WHERE profile_id = ?
+          AND timestamp >= ?
+          AND timestamp < ?
+          AND sync_deleted_at IS NULL
+        ORDER BY timestamp DESC
+      ''', [profileId, start, end]);
+
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('fluids_entries', e.toString(), stack));
+    }
+  }
+
+  /// Get BBT entries for chart
+  /// PATTERN: Nullable column filter (only rows with data)
+  Future<Result<List<FluidsEntry>, AppError>> getBBTEntries(
+    String profileId,
+    int start,
+    int end,
+  ) async {
+    try {
+      final rows = await _database.query('''
+        SELECT * FROM fluids_entries
+        WHERE profile_id = ?
+          AND timestamp >= ?
+          AND timestamp < ?
+          AND basal_body_temperature IS NOT NULL
+          AND sync_deleted_at IS NULL
+        ORDER BY timestamp ASC
+      ''', [profileId, start, end]);
+
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('fluids_entries', e.toString(), stack));
+    }
+  }
+
+  /// Get today's entry
+  /// PATTERN: Single record for date (uses date boundary calculation)
+  Future<Result<FluidsEntry?, AppError>> getTodayEntry(String profileId) async {
+    try {
+      final now = DateTime.now();
+      final startOfDay = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+      final endOfDay = startOfDay + Duration.millisecondsPerDay;
+
+      final rows = await _database.query('''
+        SELECT * FROM fluids_entries
+        WHERE profile_id = ?
+          AND timestamp >= ?
+          AND timestamp < ?
+          AND sync_deleted_at IS NULL
+        ORDER BY timestamp DESC
+        LIMIT 1
+      ''', [profileId, startOfDay, endOfDay]);
+
+      if (rows.isEmpty) {
+        return const Success(null);
+      }
+      return Success(_fromRow(rows.first));
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('fluids_entries', e.toString(), stack));
+    }
+  }
+}
+
+// lib/data/datasources/local/diet_local_data_source.dart
+
+class DietLocalDataSource extends BaseLocalDataSource<Diet, DietModel> {
+  DietLocalDataSource(Database db) : super(db, 'diets');
+
+  /// Get active diet for profile
+  /// PATTERN: Single active record query
+  Future<Result<Diet?, AppError>> getActiveDiet(String profileId) async {
+    try {
+      final rows = await _database.query('''
+        SELECT * FROM diets
+        WHERE profile_id = ?
+          AND is_active = 1
+          AND sync_deleted_at IS NULL
+        LIMIT 1
+      ''', [profileId]);
+
+      if (rows.isEmpty) {
+        return const Success(null);
+      }
+      return Success(_fromRow(rows.first));
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('diets', e.toString(), stack));
+    }
+  }
+
+  /// Activate diet (deactivates others in transaction)
+  /// PATTERN: Transaction with multiple updates
+  Future<Result<Diet, AppError>> activate(String dietId) async {
+    try {
+      return await _database.transaction((txn) async {
+        // Get diet to activate
+        final dietRows = await txn.query('''
+          SELECT * FROM diets WHERE id = ? AND sync_deleted_at IS NULL
+        ''', [dietId]);
+
+        if (dietRows.isEmpty) {
+          return Failure(DatabaseError.notFound('diets', dietId));
+        }
+
+        final diet = _fromRow(dietRows.first);
+        final now = DateTime.now().millisecondsSinceEpoch;
+
+        // Deactivate all other diets for this profile
+        await txn.update(
+          'diets',
+          {'is_active': 0, 'sync_updated_at': now, 'sync_is_dirty': 1},
+          where: 'profile_id = ? AND id != ? AND is_active = 1 AND sync_deleted_at IS NULL',
+          whereArgs: [diet.profileId, dietId],
+        );
+
+        // Activate the requested diet
+        await txn.update(
+          'diets',
+          {'is_active': 1, 'sync_updated_at': now, 'sync_is_dirty': 1},
+          where: 'id = ?',
+          whereArgs: [dietId],
+        );
+
+        return getById(dietId);
+      });
+    } catch (e, stack) {
+      return Failure(DatabaseError.transactionFailed('diets.activate', e.toString(), stack));
+    }
+  }
+}
+
+// lib/data/datasources/local/condition_log_local_data_source.dart
+
+class ConditionLogLocalDataSource extends BaseLocalDataSource<ConditionLog, ConditionLogModel> {
+  ConditionLogLocalDataSource(Database db) : super(db, 'condition_logs');
+
+  /// Get flare entries only
+  /// PATTERN: Boolean flag filter
+  Future<Result<List<ConditionLog>, AppError>> getFlares(
+    String conditionId, {
+    int limit = 50,
+  }) async {
+    try {
+      final rows = await _database.query('''
+        SELECT * FROM condition_logs
+        WHERE condition_id = ?
+          AND is_flare = 1
+          AND sync_deleted_at IS NULL
+        ORDER BY timestamp DESC
+        LIMIT ?
+      ''', [conditionId, limit]);
+
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('condition_logs', e.toString(), stack));
+    }
+  }
+}
+
+// lib/data/datasources/local/intake_log_local_data_source.dart
+
+class IntakeLogLocalDataSource extends BaseLocalDataSource<IntakeLog, IntakeLogModel> {
+  IntakeLogLocalDataSource(Database db) : super(db, 'intake_logs');
+
+  /// Mark intake as taken
+  /// PATTERN: Status update with timestamp
+  Future<Result<IntakeLog, AppError>> markTaken(String id, int actualTime) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final rowsAffected = await _database.update(
+        'intake_logs',
+        {
+          'status': IntakeLogStatus.taken.value,
+          'actual_time': actualTime,
+          'sync_updated_at': now,
+          'sync_is_dirty': 1,
+        },
+        where: 'id = ? AND sync_deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound('intake_logs', id));
+      }
+
+      return getById(id);
+    } catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('intake_logs', e.toString(), stack));
+    }
+  }
+
+  /// Mark intake as skipped
+  /// PATTERN: Status update with reason
+  Future<Result<IntakeLog, AppError>> markSkipped(String id, String? reason) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final rowsAffected = await _database.update(
+        'intake_logs',
+        {
+          'status': IntakeLogStatus.skipped.value,
+          'reason': reason,
+          'sync_updated_at': now,
+          'sync_is_dirty': 1,
+        },
+        where: 'id = ? AND sync_deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound('intake_logs', id));
+      }
+
+      return getById(id);
+    } catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('intake_logs', e.toString(), stack));
+    }
+  }
+}
+
+// lib/data/datasources/local/health_insight_local_data_source.dart
+
+class HealthInsightLocalDataSource extends BaseLocalDataSource<HealthInsight, HealthInsightModel> {
+  HealthInsightLocalDataSource(Database db) : super(db, 'health_insights');
+
+  /// Get active insights (not dismissed, not expired)
+  /// PATTERN: Multiple condition filter with expiration check
+  Future<Result<List<HealthInsight>, AppError>> getActive(
+    String profileId, {
+    InsightCategory? category,
+    int? minPriority,
+    int limit = 20,
+  }) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final where = StringBuffer('''
+        profile_id = ?
+        AND is_dismissed = 0
+        AND (expires_at IS NULL OR expires_at > ?)
+        AND sync_deleted_at IS NULL
+      ''');
+      final whereArgs = <Object>[profileId, now];
+
+      if (category != null) {
+        where.write(' AND category = ?');
+        whereArgs.add(category.value);
+      }
+
+      if (minPriority != null) {
+        where.write(' AND priority >= ?');
+        whereArgs.add(minPriority);
+      }
+
+      final rows = await _database.query('''
+        SELECT * FROM health_insights
+        WHERE $where
+        ORDER BY priority DESC, created_at DESC
+        LIMIT $limit
+      ''', whereArgs);
+
+      return Success(rows.map(_fromRow).toList());
+    } catch (e, stack) {
+      return Failure(DatabaseError.queryFailed('health_insights', e.toString(), stack));
+    }
+  }
+
+  /// Dismiss insight
+  /// PATTERN: Simple boolean toggle
+  Future<Result<void, AppError>> dismiss(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final rowsAffected = await _database.update(
+        'health_insights',
+        {
+          'is_dismissed': 1,
+          'sync_updated_at': now,
+          'sync_is_dirty': 1,
+        },
+        where: 'id = ? AND sync_deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound('health_insights', id));
+      }
+
+      return const Success(null);
+    } catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('health_insights', e.toString(), stack));
+    }
+  }
+}
+```
+
+**SQL Pattern Reference Table:**
+
+| Pattern | Use Case | Example Method |
+|---------|----------|----------------|
+| Profile-scoped query | Any entity belonging to profile | `getByProfile()` |
+| Date range filter | Logs, entries, history | `getByDateRange()` |
+| Nullable column filter | Optional data fields | `getBBTEntries()` |
+| Single record for date | Daily entries | `getTodayEntry()` |
+| Active record query | Single active entity | `getActiveDiet()` |
+| Transaction multi-update | Activate/deactivate patterns | `activate()` |
+| Boolean flag filter | Flares, archived, enabled | `getFlares()` |
+| Status update with data | Intake logging | `markTaken()`, `markSkipped()` |
+| Expiration check | Insights, alerts, auth | `getActive()` |
+| Boolean toggle | Dismiss, archive, enable | `dismiss()` |
+| LIKE search | Name/content search | `search()` |
+| Aggregation | Counts, averages | Use `SELECT COUNT(*), AVG()` |
+| FK join | Related entity lookup | `JOIN conditions ON...` |
+
+---
+
+### 4.5 Complete Use Case Implementation Examples
+
+This section provides complete implementation examples for ALL use cases. Each implementation follows the standard pattern:
+
+1. **Authorization** - Check profile access FIRST
+2. **Validation** - Validate input using ValidationRules
+3. **Business Logic** - Apply domain rules
+4. **Repository Call** - Execute operation
+5. **Result Wrapping** - Return `Success` or `Failure`
+
+#### 4.5.1 CRUD Use Case Templates
+
+These templates apply to ALL entities. Each entity MUST have corresponding use cases.
+
+```dart
+// lib/domain/usecases/base_crud_use_cases.dart
+
+/// Template: Create Entity Use Case
+/// Apply to: Supplement, Condition, Activity, PhotoArea, etc.
+class CreateEntityUseCase<T, CreateInput> implements UseCase<CreateInput, T> {
+  final EntityRepository<T, String> _repository;
+  final ProfileAuthorizationService _authService;
+  final String Function(CreateInput) _getProfileId;
+  final ValidationError? Function(CreateInput) _validate;
+  final T Function(CreateInput, String) _toEntity; // Input + generated ID
+
+  CreateEntityUseCase({
+    required EntityRepository<T, String> repository,
+    required ProfileAuthorizationService authService,
+    required String Function(CreateInput) getProfileId,
+    required ValidationError? Function(CreateInput) validate,
+    required T Function(CreateInput, String) toEntity,
+  })  : _repository = repository,
+        _authService = authService,
+        _getProfileId = getProfileId,
+        _validate = validate,
+        _toEntity = toEntity;
+
+  @override
+  Future<Result<T, AppError>> call(CreateInput input) async {
+    // 1. Authorization
+    final profileId = _getProfileId(input);
+    if (!await _authService.canWrite(profileId)) {
+      return Failure(AuthError.profileAccessDenied(profileId));
+    }
+
+    // 2. Validation
+    final validationError = _validate(input);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 3. Generate ID and create entity
+    final id = const Uuid().v4();
+    final entity = _toEntity(input, id);
+
+    // 4. Persist
+    return _repository.create(entity);
+  }
+}
+
+/// Template: Update Entity Use Case
+class UpdateEntityUseCase<T, UpdateInput> implements UseCase<UpdateInput, T> {
+  final EntityRepository<T, String> _repository;
+  final ProfileAuthorizationService _authService;
+  final String Function(UpdateInput) _getId;
+  final String Function(UpdateInput) _getProfileId;
+  final ValidationError? Function(UpdateInput, T) _validate;
+  final T Function(UpdateInput, T) _applyUpdate;
+
+  UpdateEntityUseCase({
+    required EntityRepository<T, String> repository,
+    required ProfileAuthorizationService authService,
+    required String Function(UpdateInput) getId,
+    required String Function(UpdateInput) getProfileId,
+    required ValidationError? Function(UpdateInput, T) validate,
+    required T Function(UpdateInput, T) applyUpdate,
+  })  : _repository = repository,
+        _authService = authService,
+        _getId = getId,
+        _getProfileId = getProfileId,
+        _validate = validate,
+        _applyUpdate = applyUpdate;
+
+  @override
+  Future<Result<T, AppError>> call(UpdateInput input) async {
+    // 1. Authorization
+    final profileId = _getProfileId(input);
+    if (!await _authService.canWrite(profileId)) {
+      return Failure(AuthError.profileAccessDenied(profileId));
+    }
+
+    // 2. Fetch existing entity
+    final existingResult = await _repository.getById(_getId(input));
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+    final existing = existingResult.valueOrNull!;
+
+    // 3. Validation
+    final validationError = _validate(input, existing);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 4. Apply update
+    final updated = _applyUpdate(input, existing);
+
+    // 5. Persist
+    return _repository.update(updated);
+  }
+}
+
+/// Template: Delete Entity Use Case (Soft Delete)
+class DeleteEntityUseCase implements UseCase<DeleteEntityInput, void> {
+  final EntityRepository<dynamic, String> _repository;
+  final ProfileAuthorizationService _authService;
+
+  DeleteEntityUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<void, AppError>> call(DeleteEntityInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Verify entity exists and belongs to profile
+    final existingResult = await _repository.getById(input.id);
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+
+    // 3. Soft delete
+    return _repository.delete(input.id);
+  }
+}
+
+@freezed
+class DeleteEntityInput with _$DeleteEntityInput {
+  const factory DeleteEntityInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteEntityInput;
+}
+```
+
+#### 4.5.2 Supplement Use Cases
+
+```dart
+// lib/domain/usecases/supplements/create_supplement_use_case.dart
+
+@freezed
+class CreateSupplementInput with _$CreateSupplementInput {
+  const factory CreateSupplementInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    required SupplementForm form,
+    String? customForm,
+    required int dosageQuantity,
+    required DosageUnit dosageUnit,
+    @Default('') String brand,
+    @Default('') String notes,
+    @Default([]) List<SupplementIngredient> ingredients,
+    @Default([]) List<SupplementSchedule> schedules,
+    int? startDate,
+    int? endDate,
+  }) = _CreateSupplementInput;
+}
+
+class CreateSupplementUseCase implements UseCase<CreateSupplementInput, Supplement> {
+  final SupplementRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  CreateSupplementUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Supplement, AppError>> call(CreateSupplementInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationError = _validate(input);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final supplement = Supplement(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      form: input.form,
+      customForm: input.customForm,
+      dosageQuantity: input.dosageQuantity,
+      dosageUnit: input.dosageUnit,
+      brand: input.brand,
+      notes: input.notes,
+      ingredients: input.ingredients,
+      schedules: input.schedules,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      isArchived: false,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '', // Will be populated by repository
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(supplement);
+  }
+
+  ValidationError? _validate(CreateSupplementInput input) {
+    final errors = <String, List<String>>{};
+
+    // Name validation
+    final nameError = ValidationRules.supplementName(input.name);
+    if (nameError != null) errors['name'] = [nameError];
+
+    // Brand validation (optional but max length)
+    if (input.brand.isNotEmpty) {
+      final brandError = ValidationRules.brand(input.brand);
+      if (brandError != null) errors['brand'] = [brandError];
+    }
+
+    // Custom form required when form is 'other'
+    if (input.form == SupplementForm.other &&
+        (input.customForm == null || input.customForm!.isEmpty)) {
+      errors['customForm'] = ['Custom form name is required when form is "Other"'];
+    }
+
+    // Dosage quantity must be positive
+    if (input.dosageQuantity <= 0) {
+      errors['dosageQuantity'] = ['Dosage quantity must be greater than 0'];
+    }
+
+    // Ingredients count limit
+    final ingredientsError = ValidationRules.ingredientsCount(input.ingredients.length);
+    if (ingredientsError != null) errors['ingredients'] = [ingredientsError];
+
+    // Schedules count limit
+    final schedulesError = ValidationRules.schedulesCount(input.schedules.length);
+    if (schedulesError != null) errors['schedules'] = [schedulesError];
+
+    // Date range validation
+    if (input.startDate != null && input.endDate != null) {
+      final dateError = ValidationRules.dateRange(input.startDate!, input.endDate!, 'startDate', 'endDate');
+      if (dateError != null) errors['dateRange'] = [dateError];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+// lib/domain/usecases/supplements/update_supplement_use_case.dart
+
+@freezed
+class UpdateSupplementInput with _$UpdateSupplementInput {
+  const factory UpdateSupplementInput({
+    required String id,
+    required String profileId,
+    String? name,
+    SupplementForm? form,
+    String? customForm,
+    int? dosageQuantity,
+    DosageUnit? dosageUnit,
+    String? brand,
+    String? notes,
+    List<SupplementIngredient>? ingredients,
+    List<SupplementSchedule>? schedules,
+    int? startDate,
+    int? endDate,
+    bool? isArchived,
+  }) = _UpdateSupplementInput;
+}
+
+class UpdateSupplementUseCase implements UseCase<UpdateSupplementInput, Supplement> {
+  final SupplementRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  UpdateSupplementUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Supplement, AppError>> call(UpdateSupplementInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch existing
+    final existingResult = await _repository.getById(input.id);
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+    final existing = existingResult.valueOrNull!;
+
+    // 3. Verify ownership
+    if (existing.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 4. Apply updates (copyWith pattern)
+    final updated = existing.copyWith(
+      name: input.name ?? existing.name,
+      form: input.form ?? existing.form,
+      customForm: input.customForm ?? existing.customForm,
+      dosageQuantity: input.dosageQuantity ?? existing.dosageQuantity,
+      dosageUnit: input.dosageUnit ?? existing.dosageUnit,
+      brand: input.brand ?? existing.brand,
+      notes: input.notes ?? existing.notes,
+      ingredients: input.ingredients ?? existing.ingredients,
+      schedules: input.schedules ?? existing.schedules,
+      startDate: input.startDate ?? existing.startDate,
+      endDate: input.endDate ?? existing.endDate,
+      isArchived: input.isArchived ?? existing.isArchived,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    // 5. Validate updated entity
+    final validationError = _validateUpdated(updated);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 6. Persist
+    return _repository.update(updated);
+  }
+
+  ValidationError? _validateUpdated(Supplement supplement) {
+    final errors = <String, List<String>>{};
+
+    final nameError = ValidationRules.supplementName(supplement.name);
+    if (nameError != null) errors['name'] = [nameError];
+
+    if (supplement.form == SupplementForm.other &&
+        (supplement.customForm == null || supplement.customForm!.isEmpty)) {
+      errors['customForm'] = ['Custom form name is required when form is "Other"'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+// lib/domain/usecases/supplements/archive_supplement_use_case.dart
+
+@freezed
+class ArchiveSupplementInput with _$ArchiveSupplementInput {
+  const factory ArchiveSupplementInput({
+    required String id,
+    required String profileId,
+    required bool archive, // true = archive, false = unarchive
+  }) = _ArchiveSupplementInput;
+}
+
+class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supplement> {
+  final SupplementRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  ArchiveSupplementUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Supplement, AppError>> call(ArchiveSupplementInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch existing
+    final existingResult = await _repository.getById(input.id);
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+    final existing = existingResult.valueOrNull!;
+
+    // 3. Verify ownership
+    if (existing.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 4. Update archive status
+    final updated = existing.copyWith(
+      isArchived: input.archive,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    // 5. Persist
+    return _repository.update(updated);
+  }
+}
+```
+
+#### 4.5.3 Condition Use Cases
+
+```dart
+// lib/domain/usecases/conditions/get_conditions_use_case.dart
+
+@freezed
+class GetConditionsInput with _$GetConditionsInput {
+  const factory GetConditionsInput({
+    required String profileId,
+    bool? activeOnly,
+    String? categoryId,
+    int? limit,
+    int? offset,
+  }) = _GetConditionsInput;
+}
+
+class GetConditionsUseCase implements UseCase<GetConditionsInput, List<Condition>> {
+  final ConditionRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetConditionsUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<List<Condition>, AppError>> call(GetConditionsInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Execute query
+    return _repository.getByProfile(
+      input.profileId,
+      activeOnly: input.activeOnly,
+      categoryId: input.categoryId,
+      limit: input.limit,
+      offset: input.offset,
+    );
+  }
+}
+
+// lib/domain/usecases/conditions/create_condition_use_case.dart
+
+@freezed
+class CreateConditionInput with _$CreateConditionInput {
+  const factory CreateConditionInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    String? categoryId,
+    String? description,
+    @Default([]) List<String> trackingFields, // Which fields to track
+    @Default(true) bool isActive,
+  }) = _CreateConditionInput;
+}
+
+class CreateConditionUseCase implements UseCase<CreateConditionInput, Condition> {
+  final ConditionRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  CreateConditionUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Condition, AppError>> call(CreateConditionInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final errors = <String, List<String>>{};
+
+    final nameError = ValidationRules.conditionName(input.name);
+    if (nameError != null) errors['name'] = [nameError];
+
+    if (errors.isNotEmpty) {
+      return Failure(ValidationError.fromFieldErrors(errors));
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final condition = Condition(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      categoryId: input.categoryId,
+      description: input.description,
+      trackingFields: input.trackingFields,
+      isActive: input.isActive,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(condition);
+  }
+}
+
+// lib/domain/usecases/conditions/log_condition_use_case.dart
+
+@freezed
+class LogConditionInput with _$LogConditionInput {
+  const factory LogConditionInput({
+    required String profileId,
+    required String clientId,
+    required String conditionId,
+    required int logDate,          // Epoch ms
+    required Severity severity,    // 1-10 or enum
+    String? notes,
+    @Default([]) List<String> symptomIds,
+    @Default([]) List<String> photoIds,
+    bool? isFlare,                 // Override flare detection
+  }) = _LogConditionInput;
+}
+
+class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
+  final ConditionLogRepository _logRepository;
+  final ConditionRepository _conditionRepository;
+  final ProfileAuthorizationService _authService;
+
+  LogConditionUseCase(
+    this._logRepository,
+    this._conditionRepository,
+    this._authService,
+  );
+
+  @override
+  Future<Result<ConditionLog, AppError>> call(LogConditionInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Verify condition exists and belongs to profile
+    final conditionResult = await _conditionRepository.getById(input.conditionId);
+    if (conditionResult.isFailure) {
+      return Failure(conditionResult.errorOrNull!);
+    }
+    final condition = conditionResult.valueOrNull!;
+    if (condition.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 3. Validation
+    final errors = <String, List<String>>{};
+
+    // Photo count limit
+    final photoError = ValidationRules.photoIdsCount(input.photoIds.length);
+    if (photoError != null) errors['photoIds'] = [photoError];
+
+    // Notes length
+    if (input.notes != null) {
+      final notesError = ValidationRules.notes(input.notes!);
+      if (notesError != null) errors['notes'] = [notesError];
+    }
+
+    // Log date not in future
+    final dateError = ValidationRules.notFutureDate(input.logDate, 'logDate');
+    if (dateError != null) errors['logDate'] = [dateError];
+
+    if (errors.isNotEmpty) {
+      return Failure(ValidationError.fromFieldErrors(errors));
+    }
+
+    // 4. Detect flare-up (if not overridden)
+    final isFlare = input.isFlare ?? _detectFlare(input.severity, condition);
+
+    // 5. Create log entry
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final log = ConditionLog(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      conditionId: input.conditionId,
+      logDate: input.logDate,
+      severity: input.severity,
+      notes: input.notes,
+      symptomIds: input.symptomIds,
+      photoIds: input.photoIds,
+      isFlare: isFlare,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    // 6. Persist
+    return _logRepository.create(log);
+  }
+
+  /// Detect flare-up based on severity threshold
+  /// Flare = severity >= 7 on 1-10 scale
+  bool _detectFlare(Severity severity, Condition condition) {
+    return severity.toStorageScale() >= 7;
+  }
+}
+
+// lib/domain/usecases/conditions/get_condition_trend_use_case.dart
+
+@freezed
+class GetConditionTrendInput with _$GetConditionTrendInput {
+  const factory GetConditionTrendInput({
+    required String profileId,
+    required String conditionId,
+    required int startDate,        // Epoch ms
+    required int endDate,          // Epoch ms
+    @Default(TrendGranularity.daily) TrendGranularity granularity,
+  }) = _GetConditionTrendInput;
+}
+
+enum TrendGranularity { daily, weekly, monthly }
+
+@freezed
+class ConditionTrend with _$ConditionTrend {
+  const factory ConditionTrend({
+    required List<TrendDataPoint> dataPoints,
+    required double averageSeverity,
+    required int totalFlares,
+    required int daysTracked,
+    required Severity? currentSeverity,
+    required TrendDirection direction, // improving, stable, worsening
+  }) = _ConditionTrend;
+}
+
+@freezed
+class TrendDataPoint with _$TrendDataPoint {
+  const factory TrendDataPoint({
+    required int dateEpoch,
+    required double? averageSeverity,
+    required int? maxSeverity,
+    required int logCount,
+    required bool hadFlare,
+  }) = _TrendDataPoint;
+}
+
+enum TrendDirection { improving, stable, worsening }
+
+class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, ConditionTrend> {
+  final ConditionLogRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetConditionTrendUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<ConditionTrend, AppError>> call(GetConditionTrendInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    if (input.startDate >= input.endDate) {
+      return Failure(ValidationError.fromFieldErrors({
+        'dateRange': ['Start date must be before end date'],
+      }));
+    }
+
+    // 3. Fetch logs in range
+    final logsResult = await _repository.getByCondition(
+      input.conditionId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+    );
+    if (logsResult.isFailure) {
+      return Failure(logsResult.errorOrNull!);
+    }
+    final logs = logsResult.valueOrNull!;
+
+    // 4. Calculate trend
+    final dataPoints = _aggregateByGranularity(logs, input.granularity);
+    final trend = _calculateTrend(logs, dataPoints);
+
+    return Success(trend);
+  }
+
+  List<TrendDataPoint> _aggregateByGranularity(
+    List<ConditionLog> logs,
+    TrendGranularity granularity,
+  ) {
+    // Group logs by date bucket based on granularity
+    final buckets = <int, List<ConditionLog>>{};
+
+    for (final log in logs) {
+      final bucketKey = _getBucketKey(log.logDate, granularity);
+      buckets.putIfAbsent(bucketKey, () => []).add(log);
+    }
+
+    return buckets.entries.map((entry) {
+      final bucketLogs = entry.value;
+      final severities = bucketLogs.map((l) => l.severity.toStorageScale()).toList();
+
+      return TrendDataPoint(
+        dateEpoch: entry.key,
+        averageSeverity: severities.isNotEmpty
+            ? severities.reduce((a, b) => a + b) / severities.length
+            : null,
+        maxSeverity: severities.isNotEmpty
+            ? severities.reduce(max)
+            : null,
+        logCount: bucketLogs.length,
+        hadFlare: bucketLogs.any((l) => l.isFlare),
+      );
+    }).toList()
+      ..sort((a, b) => a.dateEpoch.compareTo(b.dateEpoch));
+  }
+
+  int _getBucketKey(int epochMs, TrendGranularity granularity) {
+    final date = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    switch (granularity) {
+      case TrendGranularity.daily:
+        return DateTime(date.year, date.month, date.day).millisecondsSinceEpoch;
+      case TrendGranularity.weekly:
+        // Start of ISO week
+        final weekday = date.weekday - 1; // 0 = Monday
+        final startOfWeek = date.subtract(Duration(days: weekday));
+        return DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day)
+            .millisecondsSinceEpoch;
+      case TrendGranularity.monthly:
+        return DateTime(date.year, date.month, 1).millisecondsSinceEpoch;
+    }
+  }
+
+  ConditionTrend _calculateTrend(List<ConditionLog> logs, List<TrendDataPoint> dataPoints) {
+    if (logs.isEmpty) {
+      return const ConditionTrend(
+        dataPoints: [],
+        averageSeverity: 0,
+        totalFlares: 0,
+        daysTracked: 0,
+        currentSeverity: null,
+        direction: TrendDirection.stable,
+      );
+    }
+
+    final severities = logs.map((l) => l.severity.toStorageScale()).toList();
+    final avgSeverity = severities.reduce((a, b) => a + b) / severities.length;
+    final totalFlares = logs.where((l) => l.isFlare).length;
+
+    // Get unique days
+    final uniqueDays = logs
+        .map((l) => DateTime.fromMillisecondsSinceEpoch(l.logDate))
+        .map((d) => DateTime(d.year, d.month, d.day))
+        .toSet()
+        .length;
+
+    // Current = most recent log
+    final sortedLogs = logs..sort((a, b) => b.logDate.compareTo(a.logDate));
+    final currentSeverity = sortedLogs.first.severity;
+
+    // Calculate direction based on first half vs second half
+    TrendDirection direction;
+    if (dataPoints.length < 2) {
+      direction = TrendDirection.stable;
+    } else {
+      final midpoint = dataPoints.length ~/ 2;
+      final firstHalf = dataPoints.take(midpoint).toList();
+      final secondHalf = dataPoints.skip(midpoint).toList();
+
+      final firstAvg = firstHalf
+          .where((p) => p.averageSeverity != null)
+          .map((p) => p.averageSeverity!)
+          .fold<double>(0, (sum, v) => sum + v) / firstHalf.length;
+      final secondAvg = secondHalf
+          .where((p) => p.averageSeverity != null)
+          .map((p) => p.averageSeverity!)
+          .fold<double>(0, (sum, v) => sum + v) / secondHalf.length;
+
+      if (secondAvg < firstAvg - 0.5) {
+        direction = TrendDirection.improving;
+      } else if (secondAvg > firstAvg + 0.5) {
+        direction = TrendDirection.worsening;
+      } else {
+        direction = TrendDirection.stable;
+      }
+    }
+
+    return ConditionTrend(
+      dataPoints: dataPoints,
+      averageSeverity: avgSeverity,
+      totalFlares: totalFlares,
+      daysTracked: uniqueDays,
+      currentSeverity: currentSeverity,
+      direction: direction,
+    );
+  }
+}
+```
+
+#### 4.5.4 Diet Use Cases
+
+```dart
+// lib/domain/usecases/diet/create_diet_use_case.dart
+
+class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
+  final DietRepository _dietRepository;
+  final DietRuleRepository _ruleRepository;
+  final ProfileAuthorizationService _authService;
+
+  CreateDietUseCase(this._dietRepository, this._ruleRepository, this._authService);
+
+  @override
+  Future<Result<Diet, AppError>> call(CreateDietInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationError = _validate(input);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 3. Deactivate any existing active diet
+    final deactivateResult = await _deactivateCurrentDiet(input.profileId);
+    if (deactivateResult.isFailure) {
+      return Failure(deactivateResult.errorOrNull!);
+    }
+
+    // 4. Get rules (from preset or custom)
+    final rules = input.presetId != null
+        ? DietPresets.getRules(input.presetId!)
+        : input.customRules;
+
+    // 5. Create diet entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final diet = Diet(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      presetType: input.presetId != null
+          ? DietPresetType.values.firstWhere((t) => t.name == input.presetId)
+          : null,
+      isActive: true,
+      startDate: input.startDateEpoch ?? now,
+      endDate: input.endDateEpoch,
+      eatingWindowStartMinutes: input.eatingWindowStartMinutes,
+      eatingWindowEndMinutes: input.eatingWindowEndMinutes,
+      rules: rules,
+      notes: null,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    // 6. Persist diet and rules in transaction
+    return _dietRepository.create(diet);
+  }
+
+  ValidationError? _validate(CreateDietInput input) {
+    final errors = <String, List<String>>{};
+
+    // Name required
+    if (input.name.isEmpty || input.name.length > 100) {
+      errors['name'] = ['Diet name must be 1-100 characters'];
+    }
+
+    // Either preset or custom rules required
+    if (input.presetId == null && input.customRules.isEmpty) {
+      errors['rules'] = ['Either a preset diet or custom rules are required'];
+    }
+
+    // Eating window validation
+    if (input.eatingWindowStartMinutes != null && input.eatingWindowEndMinutes != null) {
+      final startError = ValidationRules.minutesFromMidnight(
+        input.eatingWindowStartMinutes!, 'eatingWindowStart');
+      if (startError != null) errors['eatingWindowStart'] = [startError];
+
+      final endError = ValidationRules.minutesFromMidnight(
+        input.eatingWindowEndMinutes!, 'eatingWindowEnd');
+      if (endError != null) errors['eatingWindowEnd'] = [endError];
+
+      if (input.eatingWindowStartMinutes! >= input.eatingWindowEndMinutes!) {
+        errors['eatingWindow'] = ['Eating window start must be before end'];
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+
+  Future<Result<void, AppError>> _deactivateCurrentDiet(String profileId) async {
+    final activeResult = await _dietRepository.getActiveDiet(profileId);
+    if (activeResult.isFailure) {
+      return Failure(activeResult.errorOrNull!);
+    }
+
+    final activeDiet = activeResult.valueOrNull;
+    if (activeDiet != null) {
+      final deactivated = activeDiet.copyWith(
+        isActive: false,
+        syncMetadata: activeDiet.syncMetadata.copyWith(
+          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncVersion: activeDiet.syncMetadata.syncVersion + 1,
+          syncIsDirty: true,
+        ),
+      );
+      await _dietRepository.update(deactivated);
+    }
+
+    return const Success(null);
+  }
+}
+
+// lib/domain/usecases/diet/activate_diet_use_case.dart
+
+class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
+  final DietRepository _dietRepository;
+  final ProfileAuthorizationService _authService;
+
+  ActivateDietUseCase(this._dietRepository, this._authService);
+
+  @override
+  Future<Result<Diet, AppError>> call(ActivateDietInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch diet to activate
+    final dietResult = await _dietRepository.getById(input.dietId);
+    if (dietResult.isFailure) {
+      return Failure(dietResult.errorOrNull!);
+    }
+    final diet = dietResult.valueOrNull!;
+
+    // 3. Verify ownership
+    if (diet.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 4. Already active?
+    if (diet.isActive) {
+      return Success(diet);
+    }
+
+    // 5. Deactivate current diet
+    final activeResult = await _dietRepository.getActiveDiet(input.profileId);
+    if (activeResult.isSuccess && activeResult.valueOrNull != null) {
+      final currentActive = activeResult.valueOrNull!;
+      await _dietRepository.update(currentActive.copyWith(
+        isActive: false,
+        syncMetadata: currentActive.syncMetadata.copyWith(
+          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncVersion: currentActive.syncMetadata.syncVersion + 1,
+          syncIsDirty: true,
+        ),
+      ));
+    }
+
+    // 6. Activate target diet
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final activated = diet.copyWith(
+      isActive: true,
+      syncMetadata: diet.syncMetadata.copyWith(
+        syncUpdatedAt: now,
+        syncVersion: diet.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    return _dietRepository.update(activated);
+  }
+}
+
+// lib/domain/usecases/diet/pre_log_compliance_check_use_case.dart
+
+class PreLogComplianceCheckUseCase
+    implements UseCaseWithInput<ComplianceWarning, PreLogComplianceCheckInput> {
+  final DietRepository _dietRepository;
+  final FoodItemRepository _foodItemRepository;
+  final DietComplianceService _complianceService;
+  final ProfileAuthorizationService _authService;
+
+  PreLogComplianceCheckUseCase(
+    this._dietRepository,
+    this._foodItemRepository,
+    this._complianceService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<ComplianceWarning, AppError>> call(PreLogComplianceCheckInput input) async {
+    // 1. Authorization (read access is sufficient for checking)
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch diet
+    final dietResult = await _dietRepository.getById(input.dietId);
+    if (dietResult.isFailure) {
+      return Failure(dietResult.errorOrNull!);
+    }
+    final diet = dietResult.valueOrNull!;
+
+    // 3. Fetch food item
+    final foodResult = await _foodItemRepository.getById(input.foodItemId);
+    if (foodResult.isFailure) {
+      return Failure(foodResult.errorOrNull!);
+    }
+    final food = foodResult.valueOrNull!;
+
+    // 4. Check compliance
+    final logTime = DateTime.fromMillisecondsSinceEpoch(input.logTimeEpoch);
+    final violations = _complianceService.checkFoodAgainstRules(food, diet.rules, logTime);
+
+    // 5. If no violations, return all clear
+    if (violations.isEmpty) {
+      return Success(ComplianceWarning(
+        violatesRules: false,
+        violatedRules: [],
+        complianceImpactPercent: 0.0,
+        alternatives: [],
+      ));
+    }
+
+    // 6. Calculate impact
+    final impact = _complianceService.calculateImpact(input.profileId, violations);
+
+    // 7. Find alternatives
+    final alternativesResult = await _findAlternatives(food, violations);
+    final alternatives = alternativesResult.isSuccess
+        ? alternativesResult.valueOrNull!
+        : <FoodItem>[];
+
+    return Success(ComplianceWarning(
+      violatesRules: true,
+      violatedRules: violations,
+      complianceImpactPercent: impact,
+      alternatives: alternatives,
+    ));
+  }
+
+  Future<Result<List<FoodItem>, AppError>> _findAlternatives(
+    FoodItem food,
+    List<DietRule> violatedRules,
+  ) async {
+    // Find foods in similar category that don't violate the rules
+    final categories = violatedRules
+        .where((r) => r.category != null)
+        .map((r) => r.category!)
+        .toList();
+
+    // Exclude those categories and find similar foods
+    return _foodItemRepository.searchExcludingCategories(
+      food.name,
+      excludeCategories: categories,
+      limit: 5,
+    );
+  }
+}
+
+// lib/domain/usecases/diet/get_compliance_stats_use_case.dart
+
+class GetComplianceStatsUseCase implements UseCase<ComplianceStatsInput, ComplianceStats> {
+  final DietRepository _dietRepository;
+  final DietViolationRepository _violationRepository;
+  final FoodLogRepository _foodLogRepository;
+  final ProfileAuthorizationService _authService;
+
+  GetComplianceStatsUseCase(
+    this._dietRepository,
+    this._violationRepository,
+    this._foodLogRepository,
+    this._authService,
+  );
+
+  @override
+  Future<Result<ComplianceStats, AppError>> call(ComplianceStatsInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    if (input.startDateEpoch >= input.endDateEpoch) {
+      return Failure(ValidationError.fromFieldErrors({
+        'dateRange': ['Start date must be before end date'],
+      }));
+    }
+
+    // 3. Fetch diet
+    final dietResult = await _dietRepository.getById(input.dietId);
+    if (dietResult.isFailure) {
+      return Failure(dietResult.errorOrNull!);
+    }
+    final diet = dietResult.valueOrNull!;
+
+    // 4. Fetch violations in range
+    final violationsResult = await _violationRepository.getByDiet(
+      input.dietId,
+      input.startDateEpoch,
+      input.endDateEpoch,
+    );
+    if (violationsResult.isFailure) {
+      return Failure(violationsResult.errorOrNull!);
+    }
+    final violations = violationsResult.valueOrNull!;
+
+    // 5. Fetch food logs for the period
+    final logsResult = await _foodLogRepository.getByDateRange(
+      input.profileId,
+      input.startDateEpoch,
+      input.endDateEpoch,
+    );
+    if (logsResult.isFailure) {
+      return Failure(logsResult.errorOrNull!);
+    }
+    final foodLogs = logsResult.valueOrNull!;
+
+    // 6. Calculate statistics
+    return Success(_calculateStats(diet, violations, foodLogs, input));
+  }
+
+  ComplianceStats _calculateStats(
+    Diet diet,
+    List<DietViolation> violations,
+    List<FoodLog> foodLogs,
+    ComplianceStatsInput input,
+  ) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final todayStart = _startOfDay(now);
+    final weekStart = now - (7 * Duration.millisecondsPerDay);
+    final monthStart = now - (30 * Duration.millisecondsPerDay);
+
+    // Calculate scores
+    final dailyScore = _calculateScore(foodLogs, violations, todayStart, now);
+    final weeklyScore = _calculateScore(foodLogs, violations, weekStart, now);
+    final monthlyScore = _calculateScore(foodLogs, violations, monthStart, now);
+    final overallScore = _calculateScore(
+      foodLogs, violations, input.startDateEpoch, input.endDateEpoch);
+
+    // Calculate streak
+    final streak = _calculateStreak(foodLogs, violations);
+
+    // Compliance by rule type
+    final byRule = _calculateByRuleType(violations, diet.rules);
+
+    // Daily trend
+    final dailyTrend = _calculateDailyTrend(foodLogs, violations, input);
+
+    return ComplianceStats(
+      overallScore: overallScore,
+      dailyScore: dailyScore,
+      weeklyScore: weeklyScore,
+      monthlyScore: monthlyScore,
+      currentStreak: streak.current,
+      longestStreak: streak.longest,
+      totalViolations: violations.where((v) => v.wasDismissed != true).length,
+      totalWarnings: violations.where((v) => v.wasDismissed == true).length,
+      complianceByRule: byRule,
+      recentViolations: violations.take(10).toList(),
+      dailyTrend: dailyTrend,
+    );
+  }
+
+  double _calculateScore(
+    List<FoodLog> logs,
+    List<DietViolation> violations,
+    int start,
+    int end,
+  ) {
+    final logsInRange = logs.where((l) =>
+        l.logDate >= start && l.logDate <= end).length;
+    final violationsInRange = violations.where((v) =>
+        v.violatedAt >= start && v.violatedAt <= end).length;
+
+    if (logsInRange == 0) return 100.0;
+    return ((logsInRange - violationsInRange) / logsInRange * 100).clamp(0.0, 100.0);
+  }
+
+  int _startOfDay(int epochMs) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    return DateTime(dt.year, dt.month, dt.day).millisecondsSinceEpoch;
+  }
+
+  ({int current, int longest}) _calculateStreak(
+    List<FoodLog> logs,
+    List<DietViolation> violations,
+  ) {
+    // Implementation details: count consecutive days at 100%
+    // This is a simplified version
+    return (current: 0, longest: 0);
+  }
+
+  Map<DietRuleType, double> _calculateByRuleType(
+    List<DietViolation> violations,
+    List<DietRule> rules,
+  ) {
+    final result = <DietRuleType, double>{};
+    for (final ruleType in DietRuleType.values) {
+      final rulesOfType = rules.where((r) => r.ruleType == ruleType).length;
+      final violationsOfType = violations.where((v) =>
+          rules.any((r) => r.id == v.ruleId && r.ruleType == ruleType)).length;
+
+      if (rulesOfType > 0) {
+        result[ruleType] = ((rulesOfType - violationsOfType) / rulesOfType * 100)
+            .clamp(0.0, 100.0);
+      }
+    }
+    return result;
+  }
+
+  List<DailyCompliance> _calculateDailyTrend(
+    List<FoodLog> logs,
+    List<DietViolation> violations,
+    ComplianceStatsInput input,
+  ) {
+    final result = <DailyCompliance>[];
+    var current = input.startDateEpoch;
+
+    while (current < input.endDateEpoch) {
+      final dayEnd = current + Duration.millisecondsPerDay;
+      final dayLogs = logs.where((l) => l.logDate >= current && l.logDate < dayEnd);
+      final dayViolations = violations.where((v) =>
+          v.violatedAt >= current && v.violatedAt < dayEnd);
+
+      final score = dayLogs.isEmpty ? 100.0 :
+          ((dayLogs.length - dayViolations.length) / dayLogs.length * 100).clamp(0.0, 100.0);
+
+      result.add(DailyCompliance(
+        dateEpoch: current,
+        score: score,
+        violations: dayViolations.where((v) => v.wasDismissed != true).length,
+        warnings: dayViolations.where((v) => v.wasDismissed == true).length,
+      ));
+
+      current = dayEnd;
+    }
+
+    return result;
+  }
+}
+```
+
+#### 4.5.5 Intelligence Use Cases
+
+```dart
+// lib/domain/usecases/intelligence/detect_patterns_use_case.dart
+
+class DetectPatternsUseCase implements UseCaseWithInput<List<Pattern>, DetectPatternsInput> {
+  final PatternRepository _patternRepository;
+  final ConditionLogRepository _conditionLogRepository;
+  final FoodLogRepository _foodLogRepository;
+  final SleepEntryRepository _sleepRepository;
+  final PatternDetectionService _patternService;
+  final ProfileAuthorizationService _authService;
+
+  DetectPatternsUseCase(
+    this._patternRepository,
+    this._conditionLogRepository,
+    this._foodLogRepository,
+    this._sleepRepository,
+    this._patternService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<List<Pattern>, AppError>> call(DetectPatternsInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Calculate date range
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lookbackMs = input.lookbackDays * Duration.millisecondsPerDay;
+    final startDate = now - lookbackMs;
+
+    // 3. Fetch all relevant data
+    final conditionLogsResult = await _conditionLogRepository.getByProfile(
+      input.profileId,
+      startDate: startDate,
+      endDate: now,
+    );
+    if (conditionLogsResult.isFailure) {
+      return Failure(conditionLogsResult.errorOrNull!);
+    }
+
+    final foodLogsResult = await _foodLogRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    if (foodLogsResult.isFailure) {
+      return Failure(foodLogsResult.errorOrNull!);
+    }
+
+    final sleepResult = await _sleepRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    if (sleepResult.isFailure) {
+      return Failure(sleepResult.errorOrNull!);
+    }
+
+    // 4. Check minimum data requirements
+    final conditionLogs = conditionLogsResult.valueOrNull!;
+    if (conditionLogs.length < input.minimumDataPoints) {
+      // Not enough data - return empty (no patterns yet)
+      return const Success([]);
+    }
+
+    // 5. Detect patterns
+    final detectedPatterns = _patternService.detectPatterns(
+      conditionLogs: conditionLogs,
+      foodLogs: foodLogsResult.valueOrNull!,
+      sleepEntries: sleepResult.valueOrNull!,
+      patternTypes: input.patternTypes.isEmpty
+          ? PatternType.values
+          : input.patternTypes,
+      minimumConfidence: input.minimumConfidence,
+    );
+
+    // 6. Filter by requested conditions (if specified)
+    final filteredPatterns = input.conditionIds.isEmpty
+        ? detectedPatterns
+        : detectedPatterns.where((p) =>
+            input.conditionIds.contains(p.relatedConditionId)).toList();
+
+    // 7. Persist new patterns
+    for (final pattern in filteredPatterns) {
+      // Check if pattern already exists
+      final existing = await _patternRepository.findSimilar(pattern);
+      if (existing.isSuccess && existing.valueOrNull != null) {
+        // Update existing pattern's confidence/last observed
+        await _patternRepository.update(existing.valueOrNull!.copyWith(
+          confidence: pattern.confidence,
+          lastObservedAt: DateTime.now().millisecondsSinceEpoch,
+          observationCount: existing.valueOrNull!.observationCount + 1,
+        ));
+      } else {
+        // Create new pattern
+        await _patternRepository.create(pattern);
+      }
+    }
+
+    return Success(filteredPatterns);
+  }
+}
+
+// lib/domain/usecases/intelligence/analyze_triggers_use_case.dart
+
+class AnalyzeTriggersUseCase
+    implements UseCaseWithInput<List<TriggerCorrelation>, AnalyzeTriggersInput> {
+  final TriggerCorrelationRepository _correlationRepository;
+  final ConditionLogRepository _conditionLogRepository;
+  final FoodLogRepository _foodLogRepository;
+  final TriggerAnalysisService _analysisService;
+  final ProfileAuthorizationService _authService;
+
+  AnalyzeTriggersUseCase(
+    this._correlationRepository,
+    this._conditionLogRepository,
+    this._foodLogRepository,
+    this._analysisService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<List<TriggerCorrelation>, AppError>> call(AnalyzeTriggersInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Calculate date range
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lookbackMs = input.lookbackDays * Duration.millisecondsPerDay;
+    final startDate = now - lookbackMs;
+
+    // 3. Fetch condition logs
+    final conditionLogsResult = input.conditionId != null
+        ? await _conditionLogRepository.getByCondition(
+            input.conditionId!,
+            startDate: startDate,
+            endDate: now,
+          )
+        : await _conditionLogRepository.getByProfile(
+            input.profileId,
+            startDate: startDate,
+            endDate: now,
+          );
+    if (conditionLogsResult.isFailure) {
+      return Failure(conditionLogsResult.errorOrNull!);
+    }
+
+    // 4. Fetch food logs (potential triggers)
+    final foodLogsResult = await _foodLogRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    if (foodLogsResult.isFailure) {
+      return Failure(foodLogsResult.errorOrNull!);
+    }
+
+    // 5. Check minimum data requirements
+    final conditionLogs = conditionLogsResult.valueOrNull!;
+    if (conditionLogs.length < input.minimumOccurrences) {
+      return const Success([]);
+    }
+
+    // 6. Analyze correlations
+    final correlations = _analysisService.analyzeCorrelations(
+      conditionLogs: conditionLogs,
+      foodLogs: foodLogsResult.valueOrNull!,
+      timeWindows: input.timeWindowHours.isEmpty
+          ? [6, 12, 24, 48, 72]
+          : input.timeWindowHours,
+      minimumConfidence: input.minimumConfidence,
+      minimumOccurrences: input.minimumOccurrences,
+    );
+
+    // 7. Filter by significance
+    final significantCorrelations = correlations
+        .where((c) => c.pValue <= 0.05) // Statistical significance
+        .where((c) => c.confidence >= input.minimumConfidence)
+        .toList();
+
+    // 8. Persist correlations
+    for (final correlation in significantCorrelations) {
+      await _correlationRepository.upsert(correlation);
+    }
+
+    return Success(significantCorrelations);
+  }
+}
+
+// lib/domain/usecases/intelligence/generate_insights_use_case.dart
+
+class GenerateInsightsUseCase
+    implements UseCaseWithInput<List<HealthInsight>, GenerateInsightsInput> {
+  final HealthInsightRepository _insightRepository;
+  final PatternRepository _patternRepository;
+  final TriggerCorrelationRepository _correlationRepository;
+  final ConditionLogRepository _conditionLogRepository;
+  final InsightGeneratorService _insightService;
+  final ProfileAuthorizationService _authService;
+
+  GenerateInsightsUseCase(
+    this._insightRepository,
+    this._patternRepository,
+    this._correlationRepository,
+    this._conditionLogRepository,
+    this._insightService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<List<HealthInsight>, AppError>> call(GenerateInsightsInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch existing patterns and correlations
+    final patternsResult = await _patternRepository.getByProfile(input.profileId);
+    if (patternsResult.isFailure) {
+      return Failure(patternsResult.errorOrNull!);
+    }
+
+    final correlationsResult = await _correlationRepository.getByProfile(input.profileId);
+    if (correlationsResult.isFailure) {
+      return Failure(correlationsResult.errorOrNull!);
+    }
+
+    // 3. Fetch recent condition data for context
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final recentStart = now - (7 * Duration.millisecondsPerDay);
+    final recentLogsResult = await _conditionLogRepository.getByProfile(
+      input.profileId,
+      startDate: recentStart,
+      endDate: now,
+    );
+    if (recentLogsResult.isFailure) {
+      return Failure(recentLogsResult.errorOrNull!);
+    }
+
+    // 4. Generate insights
+    final insights = _insightService.generateInsights(
+      patterns: patternsResult.valueOrNull!,
+      correlations: correlationsResult.valueOrNull!,
+      recentLogs: recentLogsResult.valueOrNull!,
+      categories: input.categories.isEmpty
+          ? InsightCategory.values
+          : input.categories,
+      maxInsights: input.maxInsights,
+    );
+
+    // 5. Filter already dismissed insights
+    final existingResult = await _insightRepository.getByProfile(
+      input.profileId,
+      includeDismissed: false,
+    );
+    final existingIds = existingResult.isSuccess
+        ? existingResult.valueOrNull!.map((i) => i.insightKey).toSet()
+        : <String>{};
+
+    final newInsights = insights
+        .where((i) => !existingIds.contains(i.insightKey))
+        .toList();
+
+    // 6. Persist new insights
+    for (final insight in newInsights) {
+      await _insightRepository.create(insight);
+    }
+
+    // 7. Return all active insights (new + existing undismissed)
+    final allActiveResult = await _insightRepository.getActive(
+      input.profileId,
+      limit: input.maxInsights,
+    );
+
+    return allActiveResult;
+  }
+}
+
+// lib/domain/usecases/intelligence/generate_predictive_alerts_use_case.dart
+
+class GeneratePredictiveAlertsUseCase
+    implements UseCaseWithInput<List<PredictiveAlert>, GeneratePredictiveAlertsInput> {
+  final PredictiveAlertRepository _alertRepository;
+  final PatternRepository _patternRepository;
+  final TriggerCorrelationRepository _correlationRepository;
+  final ConditionLogRepository _conditionLogRepository;
+  final MLModelRepository _mlModelRepository;
+  final PredictionService _predictionService;
+  final RateLimitService _rateLimitService;
+  final ProfileAuthorizationService _authService;
+
+  GeneratePredictiveAlertsUseCase(
+    this._alertRepository,
+    this._patternRepository,
+    this._correlationRepository,
+    this._conditionLogRepository,
+    this._mlModelRepository,
+    this._predictionService,
+    this._rateLimitService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<List<PredictiveAlert>, AppError>> call(
+    GeneratePredictiveAlertsInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Rate limit check (max 1 per minute)
+    final rateLimitResult = await _rateLimitService.checkLimit(
+      input.profileId,
+      RateLimitOperation.prediction,
+    );
+    if (rateLimitResult.isFailure) {
+      return Failure(rateLimitResult.errorOrNull!);
+    }
+    if (!rateLimitResult.valueOrNull!.isAllowed) {
+      return Failure(RateLimitError(
+        'Prediction limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      ));
+    }
+
+    // 3. Load ML models
+    final modelsResult = await _mlModelRepository.getActiveModels(input.profileId);
+    if (modelsResult.isFailure) {
+      return Failure(modelsResult.errorOrNull!);
+    }
+
+    // 4. Fetch patterns and correlations
+    final patternsResult = await _patternRepository.getByProfile(input.profileId);
+    final correlationsResult = await _correlationRepository.getByProfile(input.profileId);
+
+    // 5. Fetch recent data for prediction
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final recentStart = now - (7 * Duration.millisecondsPerDay);
+    final recentLogsResult = await _conditionLogRepository.getByProfile(
+      input.profileId,
+      startDate: recentStart,
+      endDate: now,
+    );
+
+    if (recentLogsResult.isFailure) {
+      return Failure(recentLogsResult.errorOrNull!);
+    }
+
+    // 6. Generate predictions
+    final alerts = <PredictiveAlert>[];
+    final predictionWindow = Duration(hours: input.predictionWindowHours);
+
+    // Flare-up predictions
+    if (input.includeFlareUpPredictions) {
+      final flareAlerts = await _predictionService.predictFlareUps(
+        profileId: input.profileId,
+        models: modelsResult.valueOrNull!,
+        patterns: patternsResult.valueOrNull ?? [],
+        recentLogs: recentLogsResult.valueOrNull!,
+        predictionWindow: predictionWindow,
+        minimumConfidence: input.minimumConfidence,
+      );
+      alerts.addAll(flareAlerts);
+    }
+
+    // Menstrual predictions
+    if (input.includeMenstrualPredictions) {
+      final menstrualAlerts = await _predictionService.predictMenstrualCycle(
+        profileId: input.profileId,
+        predictionWindow: predictionWindow,
+      );
+      alerts.addAll(menstrualAlerts);
+    }
+
+    // Trigger warnings
+    if (input.includeTriggerWarnings) {
+      final triggerAlerts = await _predictionService.generateTriggerWarnings(
+        profileId: input.profileId,
+        correlations: correlationsResult.valueOrNull ?? [],
+        predictionWindow: predictionWindow,
+        minimumConfidence: input.minimumConfidence,
+      );
+      alerts.addAll(triggerAlerts);
+    }
+
+    // Missed supplement predictions
+    if (input.includeMissedSupplementPredictions) {
+      final supplementAlerts = await _predictionService.predictMissedSupplements(
+        profileId: input.profileId,
+        patterns: patternsResult.valueOrNull ?? [],
+      );
+      alerts.addAll(supplementAlerts);
+    }
+
+    // 7. Filter by confidence threshold
+    final filteredAlerts = alerts
+        .where((a) => a.probability >= input.minimumConfidence)
+        .toList();
+
+    // 8. Persist alerts
+    for (final alert in filteredAlerts) {
+      await _alertRepository.create(alert);
+    }
+
+    // 9. Record rate limit operation
+    await _rateLimitService.recordOperation(
+      input.profileId,
+      RateLimitOperation.prediction,
+    );
+
+    return Success(filteredAlerts);
+  }
+}
+
+// lib/domain/usecases/intelligence/assess_data_quality_use_case.dart
+
+class AssessDataQualityUseCase
+    implements UseCaseWithInput<DataQualityReport, AssessDataQualityInput> {
+  final ConditionLogRepository _conditionLogRepository;
+  final FoodLogRepository _foodLogRepository;
+  final SleepEntryRepository _sleepRepository;
+  final FluidsEntryRepository _fluidsRepository;
+  final IntakeLogRepository _intakeLogRepository;
+  final DataQualityService _qualityService;
+  final ProfileAuthorizationService _authService;
+
+  AssessDataQualityUseCase(
+    this._conditionLogRepository,
+    this._foodLogRepository,
+    this._sleepRepository,
+    this._fluidsRepository,
+    this._intakeLogRepository,
+    this._qualityService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<DataQualityReport, AppError>> call(AssessDataQualityInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Calculate date range
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lookbackMs = input.lookbackDays * Duration.millisecondsPerDay;
+    final startDate = now - lookbackMs;
+
+    // 3. Fetch all tracking data
+    final conditionLogs = await _conditionLogRepository.getByProfile(
+      input.profileId,
+      startDate: startDate,
+      endDate: now,
+    );
+    final foodLogs = await _foodLogRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    final sleepEntries = await _sleepRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    final fluidsEntries = await _fluidsRepository.getByDateRange(
+      input.profileId,
+      startDate,
+      now,
+    );
+    final intakeLogs = await _intakeLogRepository.getByProfile(
+      input.profileId,
+      startDate: startDate,
+      endDate: now,
+    );
+
+    // 4. Analyze data quality
+    final scores = <String, DataTypeQuality>{};
+    final gaps = <DataGap>[];
+    final recommendations = <String>[];
+
+    // Analyze each data type
+    if (input.dataTypes.isEmpty || input.dataTypes.contains('conditions')) {
+      if (conditionLogs.isSuccess) {
+        final quality = _qualityService.assessConditionLogging(
+          conditionLogs.valueOrNull!,
+          startDate,
+          now,
+        );
+        scores['conditions'] = quality;
+        if (input.includeGapAnalysis) {
+          gaps.addAll(_qualityService.findGaps(
+            conditionLogs.valueOrNull!.map((l) => l.logDate).toList(),
+            startDate,
+            now,
+            'conditions',
+          ));
+        }
+      }
+    }
+
+    if (input.dataTypes.isEmpty || input.dataTypes.contains('food')) {
+      if (foodLogs.isSuccess) {
+        final quality = _qualityService.assessFoodLogging(
+          foodLogs.valueOrNull!,
+          startDate,
+          now,
+        );
+        scores['food'] = quality;
+        if (input.includeGapAnalysis) {
+          gaps.addAll(_qualityService.findGaps(
+            foodLogs.valueOrNull!.map((l) => l.logDate).toList(),
+            startDate,
+            now,
+            'food',
+          ));
+        }
+      }
+    }
+
+    if (input.dataTypes.isEmpty || input.dataTypes.contains('sleep')) {
+      if (sleepEntries.isSuccess) {
+        final quality = _qualityService.assessSleepLogging(
+          sleepEntries.valueOrNull!,
+          startDate,
+          now,
+        );
+        scores['sleep'] = quality;
+        if (input.includeGapAnalysis) {
+          gaps.addAll(_qualityService.findGaps(
+            sleepEntries.valueOrNull!.map((s) => s.sleepStart).toList(),
+            startDate,
+            now,
+            'sleep',
+          ));
+        }
+      }
+    }
+
+    if (input.dataTypes.isEmpty || input.dataTypes.contains('fluids')) {
+      if (fluidsEntries.isSuccess) {
+        final quality = _qualityService.assessFluidsLogging(
+          fluidsEntries.valueOrNull!,
+          startDate,
+          now,
+        );
+        scores['fluids'] = quality;
+      }
+    }
+
+    if (input.dataTypes.isEmpty || input.dataTypes.contains('supplements')) {
+      if (intakeLogs.isSuccess) {
+        final quality = _qualityService.assessSupplementLogging(
+          intakeLogs.valueOrNull!,
+          startDate,
+          now,
+        );
+        scores['supplements'] = quality;
+      }
+    }
+
+    // 5. Calculate overall score
+    final overallScore = scores.values.isEmpty
+        ? 0.0
+        : scores.values.map((q) => q.score).reduce((a, b) => a + b) / scores.values.length;
+
+    // 6. Generate recommendations
+    if (input.includeRecommendations) {
+      recommendations.addAll(_qualityService.generateRecommendations(scores, gaps));
+    }
+
+    return Success(DataQualityReport(
+      overallScore: overallScore,
+      scoresByDataType: scores,
+      gaps: gaps,
+      recommendations: recommendations,
+      analyzedFromEpoch: startDate,
+      analyzedToEpoch: now,
+    ));
+  }
+}
+```
+
+#### 4.5.6 Notification Use Cases
+
+```dart
+// lib/domain/usecases/notifications/schedule_notification_use_case.dart
+
+class ScheduleNotificationUseCase
+    implements UseCase<ScheduleNotificationInput, NotificationSchedule> {
+  final NotificationScheduleRepository _repository;
+  final SupplementRepository _supplementRepository;
+  final ConditionRepository _conditionRepository;
+  final NotificationService _notificationService;
+  final ProfileAuthorizationService _authService;
+
+  ScheduleNotificationUseCase(
+    this._repository,
+    this._supplementRepository,
+    this._conditionRepository,
+    this._notificationService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<NotificationSchedule, AppError>> call(
+    ScheduleNotificationInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationError = await _validate(input);
+    if (validationError != null) {
+      return Failure(validationError);
+    }
+
+    // 3. Create schedule entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final schedule = NotificationSchedule(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      type: input.type,
+      entityId: input.entityId,
+      timesMinutesFromMidnight: input.timesMinutesFromMidnight,
+      weekdays: input.weekdays,
+      isEnabled: true,
+      customMessage: input.customMessage,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    // 4. Persist
+    final createResult = await _repository.create(schedule);
+    if (createResult.isFailure) {
+      return Failure(createResult.errorOrNull!);
+    }
+
+    // 5. Schedule with platform notification service
+    await _notificationService.scheduleNotifications(schedule);
+
+    return createResult;
+  }
+
+  Future<ValidationError?> _validate(ScheduleNotificationInput input) async {
+    final errors = <String, List<String>>{};
+
+    // Times validation (1-10 times, each 0-1439)
+    if (input.timesMinutesFromMidnight.isEmpty ||
+        input.timesMinutesFromMidnight.length > 10) {
+      errors['times'] = ['Must have 1-10 reminder times'];
+    } else {
+      for (final time in input.timesMinutesFromMidnight) {
+        final timeError = ValidationRules.minutesFromMidnight(time, 'time');
+        if (timeError != null) {
+          errors['times'] = [timeError];
+          break;
+        }
+      }
+    }
+
+    // Weekdays validation (1-7 days, each 0-6)
+    if (input.weekdays.isEmpty || input.weekdays.length > 7) {
+      errors['weekdays'] = ['Must have 1-7 weekdays selected'];
+    } else {
+      for (final day in input.weekdays) {
+        if (day < 0 || day > 6) {
+          errors['weekdays'] = ['Weekday must be 0-6 (Monday=0, Sunday=6)'];
+          break;
+        }
+      }
+    }
+
+    // Entity ID required for supplement/condition types
+    if ((input.type == NotificationType.supplement ||
+        input.type == NotificationType.conditionCheckIn) &&
+        input.entityId == null) {
+      errors['entityId'] = ['Entity ID required for ${input.type.name} notifications'];
+    }
+
+    // Verify entity exists
+    if (input.entityId != null) {
+      if (input.type == NotificationType.supplement) {
+        final supplementResult = await _supplementRepository.getById(input.entityId!);
+        if (supplementResult.isFailure) {
+          errors['entityId'] = ['Supplement not found'];
+        }
+      } else if (input.type == NotificationType.conditionCheckIn) {
+        final conditionResult = await _conditionRepository.getById(input.entityId!);
+        if (conditionResult.isFailure) {
+          errors['entityId'] = ['Condition not found'];
+        }
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+// lib/domain/usecases/notifications/get_pending_notifications_use_case.dart
+
+class GetPendingNotificationsUseCase
+    implements UseCase<GetPendingNotificationsInput, List<PendingNotification>> {
+  final NotificationScheduleRepository _repository;
+  final SupplementRepository _supplementRepository;
+  final NotificationService _notificationService;
+  final ProfileAuthorizationService _authService;
+
+  GetPendingNotificationsUseCase(
+    this._repository,
+    this._supplementRepository,
+    this._notificationService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<List<PendingNotification>, AppError>> call(
+    GetPendingNotificationsInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    if (input.windowStartEpoch >= input.windowEndEpoch) {
+      return Failure(ValidationError.fromFieldErrors({
+        'window': ['Window start must be before window end'],
+      }));
+    }
+
+    // 3. Fetch enabled schedules
+    final schedulesResult = await _repository.getByProfile(
+      input.profileId,
+      enabledOnly: true,
+    );
+    if (schedulesResult.isFailure) {
+      return Failure(schedulesResult.errorOrNull!);
+    }
+    final schedules = schedulesResult.valueOrNull!;
+
+    // 4. Calculate pending notifications in window
+    final pending = <PendingNotification>[];
+    for (final schedule in schedules) {
+      // Get occurrences in window
+      final occurrences = _calculateOccurrences(
+        schedule,
+        input.windowStartEpoch,
+        input.windowEndEpoch,
+      );
+
+      for (final occurrenceEpoch in occurrences) {
+        final notification = await _buildPendingNotification(schedule, occurrenceEpoch);
+        pending.add(notification);
+      }
+    }
+
+    // 5. Sort by scheduled time
+    pending.sort((a, b) => a.scheduledTimeEpoch.compareTo(b.scheduledTimeEpoch));
+
+    return Success(pending);
+  }
+
+  List<int> _calculateOccurrences(
+    NotificationSchedule schedule,
+    int windowStartEpoch,  // Epoch milliseconds
+    int windowEndEpoch,    // Epoch milliseconds
+  ) {
+    final occurrences = <int>[];
+    final windowStart = DateTime.fromMillisecondsSinceEpoch(windowStartEpoch);
+    final windowEnd = DateTime.fromMillisecondsSinceEpoch(windowEndEpoch);
+    var current = windowStart;
+
+    while (current.isBefore(windowEnd)) {
+      // Check if this day is in weekdays (0=Monday)
+      final weekday = current.weekday - 1; // Convert to 0-indexed Monday start
+      if (schedule.weekdays.contains(weekday)) {
+        // Add each scheduled time for this day
+        for (final minutes in schedule.timesMinutesFromMidnight) {
+          final occurrence = DateTime(
+            current.year,
+            current.month,
+            current.day,
+            minutes ~/ 60,
+            minutes % 60,
+          );
+          if (occurrence.isAfter(windowStart) && occurrence.isBefore(windowEnd)) {
+            occurrences.add(occurrence.millisecondsSinceEpoch);
+          }
+        }
+      }
+      current = current.add(const Duration(days: 1));
+    }
+
+    return occurrences;
+  }
+
+  Future<PendingNotification> _buildPendingNotification(
+    NotificationSchedule schedule,
+    int scheduledTimeEpoch,  // Epoch milliseconds
+  ) async {
+    String title;
+    String body;
+    String? deepLink;
+
+    switch (schedule.type) {
+      case NotificationType.supplement:
+        // Fetch supplement name
+        final supplementResult = await _supplementRepository.getById(schedule.entityId!);
+        final supplementName = supplementResult.isSuccess
+            ? supplementResult.valueOrNull!.name
+            : 'Supplement';
+        title = 'Supplement Reminder';
+        body = schedule.customMessage ?? 'Time to take your $supplementName';
+        deepLink = 'shadow://supplement/${schedule.entityId}/log';
+        break;
+      case NotificationType.food:
+        title = 'Meal Reminder';
+        body = schedule.customMessage ?? 'Time to log your meal';
+        deepLink = 'shadow://food/log';
+        break;
+      case NotificationType.fluids:
+        title = 'Fluids Reminder';
+        body = schedule.customMessage ?? 'Time to log your fluids';
+        deepLink = 'shadow://fluids/log';
+        break;
+      case NotificationType.water:
+        title = 'Water Reminder';
+        body = schedule.customMessage ?? 'Time to drink some water';
+        deepLink = 'shadow://fluids/water';
+        break;
+      case NotificationType.sleepBedtime:
+        title = 'Bedtime Reminder';
+        body = schedule.customMessage ?? 'Time to start winding down';
+        deepLink = 'shadow://sleep/log';
+        break;
+      case NotificationType.sleepWakeup:
+        title = 'Good Morning';
+        body = schedule.customMessage ?? 'Time to log how you slept';
+        deepLink = 'shadow://sleep/log';
+        break;
+      case NotificationType.conditionCheckIn:
+        title = 'Check-In Reminder';
+        body = schedule.customMessage ?? 'How are you feeling?';
+        deepLink = 'shadow://condition/${schedule.entityId}/log';
+        break;
+      default:
+        title = 'Reminder';
+        body = schedule.customMessage ?? 'You have a reminder';
+        deepLink = 'shadow://home';
+    }
+
+    return PendingNotification(
+      schedule: schedule,
+      scheduledTimeEpoch: scheduledTimeEpoch,
+      title: title,
+      body: body,
+      deepLink: deepLink,
+    );
+  }
+}
+
+// lib/domain/usecases/notifications/toggle_notification_use_case.dart
+
+@freezed
+class ToggleNotificationInput with _$ToggleNotificationInput {
+  const factory ToggleNotificationInput({
+    required String id,
+    required String profileId,
+    required bool enabled,
+  }) = _ToggleNotificationInput;
+}
+
+class ToggleNotificationUseCase
+    implements UseCase<ToggleNotificationInput, NotificationSchedule> {
+  final NotificationScheduleRepository _repository;
+  final NotificationService _notificationService;
+  final ProfileAuthorizationService _authService;
+
+  ToggleNotificationUseCase(
+    this._repository,
+    this._notificationService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<NotificationSchedule, AppError>> call(
+    ToggleNotificationInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch existing schedule
+    final existingResult = await _repository.getById(input.id);
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+    final existing = existingResult.valueOrNull!;
+
+    // 3. Verify ownership
+    if (existing.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 4. Update enabled status
+    final updated = existing.copyWith(
+      isEnabled: input.enabled,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    // 5. Persist
+    final updateResult = await _repository.update(updated);
+    if (updateResult.isFailure) {
+      return Failure(updateResult.errorOrNull!);
+    }
+
+    // 6. Update platform notifications
+    if (input.enabled) {
+      await _notificationService.scheduleNotifications(updated);
+    } else {
+      await _notificationService.cancelNotifications(updated.id);
+    }
+
+    return updateResult;
+  }
+}
+```
+
+#### 4.5.7 Wearable Use Cases
+
+```dart
+// lib/domain/usecases/wearables/connect_wearable_use_case.dart
+
+class ConnectWearableUseCase
+    implements UseCaseWithInput<WearableConnection, ConnectWearableInput> {
+  final WearableConnectionRepository _repository;
+  final WearablePlatformService _platformService;
+  final ProfileAuthorizationService _authService;
+
+  ConnectWearableUseCase(
+    this._repository,
+    this._platformService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<WearableConnection, AppError>> call(
+    ConnectWearableInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Check platform availability
+    final isAvailable = await _platformService.isAvailable(input.platform);
+    if (!isAvailable) {
+      return Failure(WearableError.platformNotAvailable(input.platform));
+    }
+
+    // 3. Request permissions
+    final permissionsResult = await _platformService.requestPermissions(
+      input.platform,
+      input.requestedPermissions,
+    );
+    if (permissionsResult.isFailure) {
+      return Failure(permissionsResult.errorOrNull!);
+    }
+    final grantedPermissions = permissionsResult.valueOrNull!;
+
+    if (grantedPermissions.isEmpty) {
+      return Failure(WearableError.permissionsDenied(input.platform));
+    }
+
+    // 4. Check for existing connection
+    final existingResult = await _repository.getByPlatform(
+      input.profileId,
+      input.platform,
+    );
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    WearableConnection connection;
+
+    if (existingResult.isSuccess && existingResult.valueOrNull != null) {
+      // Update existing connection
+      final existing = existingResult.valueOrNull!;
+      connection = existing.copyWith(
+        isConnected: true,
+        connectedAt: now,
+        disconnectedAt: null,
+        readPermissions: grantedPermissions.read,
+        writePermissions: grantedPermissions.write,
+        backgroundSyncEnabled: input.enableBackgroundSync,
+        lastSyncStatus: null,
+        lastSyncError: null,
+        syncMetadata: existing.syncMetadata.copyWith(
+          syncUpdatedAt: now,
+          syncVersion: existing.syncMetadata.syncVersion + 1,
+          syncIsDirty: true,
+        ),
+      );
+      return _repository.update(connection);
+    } else {
+      // Create new connection
+      final id = const Uuid().v4();
+      connection = WearableConnection(
+        id: id,
+        clientId: input.clientId,
+        profileId: input.profileId,
+        platform: input.platform.name,
+        isConnected: true,
+        connectedAt: now,
+        disconnectedAt: null,
+        readPermissions: grantedPermissions.read,
+        writePermissions: grantedPermissions.write,
+        backgroundSyncEnabled: input.enableBackgroundSync,
+        lastSyncAt: null,
+        lastSyncStatus: null,
+        lastSyncError: null,
+        oauthRefreshToken: null, // Will be set for cloud APIs
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: now,
+          syncUpdatedAt: now,
+          syncVersion: 1,
+          syncStatus: SyncStatus.pending,
+          syncDeviceId: '',
+          syncIsDirty: true,
+          syncDeletedAt: null,
+        ),
+      );
+      return _repository.create(connection);
+    }
+  }
+}
+
+// lib/domain/usecases/wearables/sync_wearable_data_use_case.dart
+
+class SyncWearableDataUseCase
+    implements UseCaseWithInput<SyncWearableDataOutput, SyncWearableDataInput> {
+  final WearableConnectionRepository _connectionRepository;
+  final WearablePlatformService _platformService;
+  final ImportedDataLogRepository _importLogRepository;
+  final ActivityLogRepository _activityLogRepository;
+  final SleepEntryRepository _sleepRepository;
+  final FluidsEntryRepository _fluidsRepository;
+  final RateLimitService _rateLimitService;
+  final ProfileAuthorizationService _authService;
+
+  SyncWearableDataUseCase(
+    this._connectionRepository,
+    this._platformService,
+    this._importLogRepository,
+    this._activityLogRepository,
+    this._sleepRepository,
+    this._fluidsRepository,
+    this._rateLimitService,
+    this._authService,
+  );
+
+  @override
+  Future<Result<SyncWearableDataOutput, AppError>> call(
+    SyncWearableDataInput input,
+  ) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Rate limit check (1 per 5 minutes per platform)
+    final rateLimitResult = await _rateLimitService.checkLimit(
+      '${input.profileId}_${input.platform.name}',
+      RateLimitOperation.wearableSync,
+    );
+    if (rateLimitResult.isFailure) {
+      return Failure(rateLimitResult.errorOrNull!);
+    }
+    if (!rateLimitResult.valueOrNull!.isAllowed) {
+      return Failure(RateLimitError(
+        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      ));
+    }
+
+    // 3. Get connection
+    final connectionResult = await _connectionRepository.getByPlatform(
+      input.profileId,
+      input.platform,
+    );
+    if (connectionResult.isFailure) {
+      return Failure(connectionResult.errorOrNull!);
+    }
+    final connection = connectionResult.valueOrNull;
+    if (connection == null || !connection.isConnected) {
+      return Failure(WearableError.notConnected(input.platform));
+    }
+
+    // 4. Calculate sync range
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final syncStart = input.startDate ?? connection.lastSyncAt ??
+        (now - (7 * Duration.millisecondsPerDay)); // Default 7 days
+    final syncEnd = input.endDate ?? now;
+
+    // 5. Fetch data from platform
+    final platformDataResult = await _platformService.fetchData(
+      platform: input.platform,
+      connection: connection,
+      startDate: syncStart,
+      endDate: syncEnd,
+      dataTypes: input.dataTypes.isEmpty
+          ? connection.readPermissions
+          : input.dataTypes,
+    );
+    if (platformDataResult.isFailure) {
+      // Update connection with error
+      await _updateConnectionStatus(connection, 'failed', platformDataResult.errorOrNull!.message);
+      return Failure(platformDataResult.errorOrNull!);
+    }
+    final platformData = platformDataResult.valueOrNull!;
+
+    // 6. Import data
+    var importedCount = 0;
+    var skippedCount = 0;
+    var errorCount = 0;
+
+    // Import activities (steps, workouts)
+    if (platformData.activities.isNotEmpty) {
+      for (final activity in platformData.activities) {
+        final result = await _importActivity(input.profileId, input.clientId, activity);
+        if (result.isSuccess) {
+          importedCount++;
+        } else if (result.errorOrNull is DuplicateError) {
+          skippedCount++;
+        } else {
+          errorCount++;
+        }
+      }
+    }
+
+    // Import sleep
+    if (platformData.sleepEntries.isNotEmpty) {
+      for (final sleep in platformData.sleepEntries) {
+        final result = await _importSleep(input.profileId, input.clientId, sleep);
+        if (result.isSuccess) {
+          importedCount++;
+        } else if (result.errorOrNull is DuplicateError) {
+          skippedCount++;
+        } else {
+          errorCount++;
+        }
+      }
+    }
+
+    // Import water intake
+    if (platformData.waterIntakes.isNotEmpty) {
+      for (final water in platformData.waterIntakes) {
+        final result = await _importWater(input.profileId, input.clientId, water);
+        if (result.isSuccess) {
+          importedCount++;
+        } else if (result.errorOrNull is DuplicateError) {
+          skippedCount++;
+        } else {
+          errorCount++;
+        }
+      }
+    }
+
+    // 7. Log import
+    final importLog = ImportedDataLog(
+      id: const Uuid().v4(),
+      clientId: input.clientId,
+      profileId: input.profileId,
+      source: input.platform.name,
+      importedAt: now,
+      recordCount: importedCount,
+      skippedCount: skippedCount,
+      errorCount: errorCount,
+      syncRangeStart: syncStart,
+      syncRangeEnd: syncEnd,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+    await _importLogRepository.create(importLog);
+
+    // 8. Update connection status
+    final status = errorCount == 0
+        ? 'success'
+        : (importedCount > 0 ? 'partial' : 'failed');
+    await _updateConnectionStatus(connection, status, null);
+
+    // 9. Record rate limit
+    await _rateLimitService.recordOperation(
+      '${input.profileId}_${input.platform.name}',
+      RateLimitOperation.wearableSync,
+    );
+
+    return Success(SyncWearableDataOutput(
+      importedCount: importedCount,
+      skippedCount: skippedCount,
+      errorCount: errorCount,
+      syncedRangeStart: syncStart,
+      syncedRangeEnd: syncEnd,
+    ));
+  }
+
+  Future<void> _updateConnectionStatus(
+    WearableConnection connection,
+    String status,
+    String? error,
+  ) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _connectionRepository.update(connection.copyWith(
+      lastSyncAt: now,
+      lastSyncStatus: status,
+      lastSyncError: error,
+      syncMetadata: connection.syncMetadata.copyWith(
+        syncUpdatedAt: now,
+        syncVersion: connection.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    ));
+  }
+
+  Future<Result<ActivityLog, AppError>> _importActivity(
+    String profileId,
+    String clientId,
+    WearableActivity activity,
+  ) async {
+    // Check for duplicate by external ID
+    final existing = await _activityLogRepository.getByExternalId(
+      profileId,
+      activity.externalId,
+    );
+    if (existing.isSuccess && existing.valueOrNull != null) {
+      return Failure(DuplicateError('Activity already imported'));
+    }
+
+    final log = ActivityLog(
+      id: const Uuid().v4(),
+      clientId: clientId,
+      profileId: profileId,
+      activityId: activity.mappedActivityId,
+      logDate: activity.startTime,
+      durationMinutes: activity.durationMinutes,
+      intensity: activity.intensity,
+      notes: 'Imported from ${activity.source}',
+      externalId: activity.externalId,
+      importSource: activity.source,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    return _activityLogRepository.create(log);
+  }
+
+  Future<Result<SleepEntry, AppError>> _importSleep(
+    String profileId,
+    String clientId,
+    WearableSleep sleep,
+  ) async {
+    // Similar pattern to _importActivity
+    final existing = await _sleepRepository.getByExternalId(
+      profileId,
+      sleep.externalId,
+    );
+    if (existing.isSuccess && existing.valueOrNull != null) {
+      return Failure(DuplicateError('Sleep entry already imported'));
+    }
+
+    final entry = SleepEntry(
+      id: const Uuid().v4(),
+      clientId: clientId,
+      profileId: profileId,
+      sleepStart: sleep.sleepStart,
+      sleepEnd: sleep.sleepEnd,
+      quality: sleep.quality,
+      notes: 'Imported from ${sleep.source}',
+      externalId: sleep.externalId,
+      importSource: sleep.source,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: 1,
+        syncStatus: SyncStatus.pending,
+        syncDeviceId: '',
+        syncIsDirty: true,
+        syncDeletedAt: null,
+      ),
+    );
+
+    return _sleepRepository.create(entry);
+  }
+
+  Future<Result<FluidsEntry, AppError>> _importWater(
+    String profileId,
+    String clientId,
+    WearableWaterIntake water,
+  ) async {
+    // For water, we merge into existing daily entries
+    final dayStart = _startOfDay(water.loggedAt);
+    final dayEnd = dayStart + Duration.millisecondsPerDay;
+
+    final existingResult = await _fluidsRepository.getByDateRange(
+      profileId,
+      dayStart,
+      dayEnd,
+    );
+
+    if (existingResult.isSuccess && existingResult.valueOrNull!.isNotEmpty) {
+      // Update existing entry
+      final existing = existingResult.valueOrNull!.first;
+      final currentWater = existing.waterIntakeMl ?? 0;
+      final updated = existing.copyWith(
+        waterIntakeMl: currentWater + water.amountMl,
+        syncMetadata: existing.syncMetadata.copyWith(
+          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncVersion: existing.syncMetadata.syncVersion + 1,
+          syncIsDirty: true,
+        ),
+      );
+      return _fluidsRepository.update(updated);
+    } else {
+      // Create new entry
+      final entry = FluidsEntry(
+        id: const Uuid().v4(),
+        clientId: clientId,
+        profileId: profileId,
+        entryDate: water.loggedAt,
+        waterIntakeMl: water.amountMl,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncVersion: 1,
+          syncStatus: SyncStatus.pending,
+          syncDeviceId: '',
+          syncIsDirty: true,
+          syncDeletedAt: null,
+        ),
+      );
+      return _fluidsRepository.create(entry);
+    }
+  }
+
+  int _startOfDay(int epochMs) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    return DateTime(dt.year, dt.month, dt.day).millisecondsSinceEpoch;
+  }
+}
+```
+
+#### 4.5.8 Auth Use Cases
+
+```dart
+// lib/domain/usecases/auth/sign_in_with_google_use_case.dart
+
+@freezed
+class SignInWithGoogleInput with _$SignInWithGoogleInput {
+  const factory SignInWithGoogleInput({
+    required String idToken,
+    required String accessToken,
+    String? serverAuthCode,
+  }) = _SignInWithGoogleInput;
+}
+
+@freezed
+class SignInResult with _$SignInResult {
+  const factory SignInResult({
+    required UserAccount user,
+    required List<Profile> profiles,
+    required bool isNewUser,
+  }) = _SignInResult;
+}
+
+class SignInWithGoogleUseCase implements UseCase<SignInWithGoogleInput, SignInResult> {
+  final UserAccountRepository _userRepository;
+  final ProfileRepository _profileRepository;
+  final AuthTokenService _tokenService;
+  final GoogleAuthService _googleService;
+  final DeviceInfoService _deviceService;
+
+  SignInWithGoogleUseCase(
+    this._userRepository,
+    this._profileRepository,
+    this._tokenService,
+    this._googleService,
+    this._deviceService,
+  );
+
+  @override
+  Future<Result<SignInResult, AppError>> call(SignInWithGoogleInput input) async {
+    // 1. Verify Google token
+    final verifyResult = await _googleService.verifyIdToken(input.idToken);
+    if (verifyResult.isFailure) {
+      return Failure(AuthError.invalidToken('Google token verification failed'));
+    }
+    final googleUser = verifyResult.valueOrNull!;
+
+    // 2. Look up or create user
+    final existingResult = await _userRepository.getByAuthProvider(
+      AuthProvider.google,
+      googleUser.id,
+    );
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    UserAccount user;
+    bool isNewUser;
+
+    if (existingResult.isSuccess && existingResult.valueOrNull != null) {
+      // Existing user - update last sign in
+      user = existingResult.valueOrNull!;
+      isNewUser = false;
+
+      // Check if account is active
+      if (!user.isActive) {
+        return Failure(AuthError.accountDeactivated(user.deactivatedReason));
+      }
+
+      await _userRepository.update(user.copyWith(
+        lastSignInAt: now,
+        syncMetadata: user.syncMetadata.copyWith(
+          syncUpdatedAt: now,
+          syncVersion: user.syncMetadata.syncVersion + 1,
+          syncIsDirty: true,
+        ),
+      ));
+    } else {
+      // New user - create account
+      final id = const Uuid().v4();
+      final clientId = const Uuid().v4();
+
+      user = UserAccount(
+        id: id,
+        clientId: clientId,
+        authProvider: AuthProvider.google,
+        authProviderId: googleUser.id,
+        email: googleUser.email,
+        displayName: googleUser.displayName,
+        avatarUrl: googleUser.avatarUrl,
+        isActive: true,
+        deactivatedReason: null,
+        createdAt: now,
+        lastSignInAt: now,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: now,
+          syncUpdatedAt: now,
+          syncVersion: 1,
+          syncStatus: SyncStatus.pending,
+          syncDeviceId: '',
+          syncIsDirty: true,
+          syncDeletedAt: null,
+        ),
+      );
+
+      final createResult = await _userRepository.create(user);
+      if (createResult.isFailure) {
+        return Failure(createResult.errorOrNull!);
+      }
+      user = createResult.valueOrNull!;
+      isNewUser = true;
+
+      // Create default profile for new user
+      final profileId = const Uuid().v4();
+      final profileClientId = const Uuid().v4();
+      final defaultProfile = Profile(
+        id: profileId,
+        clientId: profileClientId,
+        userId: user.id,
+        name: googleUser.displayName ?? 'My Profile',
+        isDefault: true,
+        avatarUrl: googleUser.avatarUrl,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: now,
+          syncUpdatedAt: now,
+          syncVersion: 1,
+          syncStatus: SyncStatus.pending,
+          syncDeviceId: '',
+          syncIsDirty: true,
+          syncDeletedAt: null,
+        ),
+      );
+      await _profileRepository.create(defaultProfile);
+    }
+
+    // 3. Register device
+    await _deviceService.registerCurrentDevice(user.id);
+
+    // 4. Generate auth tokens
+    await _tokenService.storeTokens(
+      userId: user.id,
+      accessToken: input.accessToken,
+      refreshToken: input.serverAuthCode,
+    );
+
+    // 5. Fetch profiles
+    final profilesResult = await _profileRepository.getByUser(user.id);
+    final profiles = profilesResult.isSuccess
+        ? profilesResult.valueOrNull!
+        : <Profile>[];
+
+    return Success(SignInResult(
+      user: user,
+      profiles: profiles,
+      isNewUser: isNewUser,
+    ));
+  }
+}
+
+// lib/domain/usecases/auth/sign_out_use_case.dart
+
+class SignOutUseCase implements UseCaseNoInput<void> {
+  final AuthTokenService _tokenService;
+  final NotificationService _notificationService;
+  final SyncService _syncService;
+  final DeviceInfoService _deviceService;
+
+  SignOutUseCase(
+    this._tokenService,
+    this._notificationService,
+    this._syncService,
+    this._deviceService,
+  );
+
+  @override
+  Future<Result<void, AppError>> call() async {
+    try {
+      // 1. Push any pending sync changes
+      await _syncService.pushPendingChanges();
+
+      // 2. Cancel all notifications
+      await _notificationService.cancelAllNotifications();
+
+      // 3. Unregister device
+      await _deviceService.unregisterCurrentDevice();
+
+      // 4. Clear auth tokens
+      await _tokenService.clearTokens();
+
+      // 5. Clear local cache (but keep encrypted DB)
+      // The DB remains for quick sign-in, but is re-synced
+
+      return const Success(null);
+    } catch (e, stack) {
+      return Failure(AuthError.signOutFailed(e.toString(), stack));
+    }
+  }
+}
+```
+
+#### 4.5.9 Sync Use Cases
+
+```dart
+// lib/domain/usecases/sync/push_changes_use_case.dart
+
+@freezed
+class PushChangesInput with _$PushChangesInput {
+  const factory PushChangesInput({
+    required String profileId,
+    @Default(500) int maxBatchSize,
+  }) = _PushChangesInput;
+}
+
+@freezed
+class PushChangesResult with _$PushChangesResult {
+  const factory PushChangesResult({
+    required int pushedCount,
+    required int failedCount,
+    required List<SyncConflict> conflicts,
+  }) = _PushChangesResult;
+}
+
+class PushChangesUseCase implements UseCase<PushChangesInput, PushChangesResult> {
+  final SyncService _syncService;
+  final ProfileAuthorizationService _authService;
+  final RateLimitService _rateLimitService;
+
+  PushChangesUseCase(
+    this._syncService,
+    this._authService,
+    this._rateLimitService,
+  );
+
+  @override
+  Future<Result<PushChangesResult, AppError>> call(PushChangesInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Rate limit check
+    final rateLimitResult = await _rateLimitService.checkLimit(
+      input.profileId,
+      RateLimitOperation.sync,
+    );
+    if (rateLimitResult.isFailure) {
+      return Failure(rateLimitResult.errorOrNull!);
+    }
+    if (!rateLimitResult.valueOrNull!.isAllowed) {
+      return Failure(RateLimitError(
+        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      ));
+    }
+
+    // 3. Get pending changes
+    final pendingResult = await _syncService.getPendingChanges(
+      input.profileId,
+      limit: input.maxBatchSize,
+    );
+    if (pendingResult.isFailure) {
+      return Failure(pendingResult.errorOrNull!);
+    }
+    final pending = pendingResult.valueOrNull!;
+
+    if (pending.isEmpty) {
+      return const Success(PushChangesResult(
+        pushedCount: 0,
+        failedCount: 0,
+        conflicts: [],
+      ));
+    }
+
+    // 4. Push to cloud
+    final pushResult = await _syncService.pushChanges(pending);
+    if (pushResult.isFailure) {
+      return Failure(pushResult.errorOrNull!);
+    }
+
+    // 5. Record rate limit
+    await _rateLimitService.recordOperation(
+      input.profileId,
+      RateLimitOperation.sync,
+    );
+
+    return Success(pushResult.valueOrNull!);
+  }
+}
+
+// lib/domain/usecases/sync/pull_changes_use_case.dart
+
+@freezed
+class PullChangesInput with _$PullChangesInput {
+  const factory PullChangesInput({
+    required String profileId,
+    int? sinceVersion,             // Pull changes since this version
+    @Default(500) int maxBatchSize,
+  }) = _PullChangesInput;
+}
+
+@freezed
+class PullChangesResult with _$PullChangesResult {
+  const factory PullChangesResult({
+    required int pulledCount,
+    required int appliedCount,
+    required int conflictCount,
+    required List<SyncConflict> conflicts,
+    required int latestVersion,
+  }) = _PullChangesResult;
+}
+
+class PullChangesUseCase implements UseCase<PullChangesInput, PullChangesResult> {
+  final SyncService _syncService;
+  final ProfileAuthorizationService _authService;
+  final RateLimitService _rateLimitService;
+
+  PullChangesUseCase(
+    this._syncService,
+    this._authService,
+    this._rateLimitService,
+  );
+
+  @override
+  Future<Result<PullChangesResult, AppError>> call(PullChangesInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Rate limit check
+    final rateLimitResult = await _rateLimitService.checkLimit(
+      input.profileId,
+      RateLimitOperation.sync,
+    );
+    if (rateLimitResult.isFailure) {
+      return Failure(rateLimitResult.errorOrNull!);
+    }
+    if (!rateLimitResult.valueOrNull!.isAllowed) {
+      return Failure(RateLimitError(
+        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      ));
+    }
+
+    // 3. Get last sync version if not provided
+    final sinceVersion = input.sinceVersion ??
+        await _syncService.getLastSyncVersion(input.profileId);
+
+    // 4. Pull from cloud
+    final pullResult = await _syncService.pullChanges(
+      input.profileId,
+      sinceVersion: sinceVersion,
+      limit: input.maxBatchSize,
+    );
+    if (pullResult.isFailure) {
+      return Failure(pullResult.errorOrNull!);
+    }
+    final remoteChanges = pullResult.valueOrNull!;
+
+    if (remoteChanges.isEmpty) {
+      return Success(PullChangesResult(
+        pulledCount: 0,
+        appliedCount: 0,
+        conflictCount: 0,
+        conflicts: [],
+        latestVersion: sinceVersion,
+      ));
+    }
+
+    // 5. Apply changes with conflict detection
+    final applyResult = await _syncService.applyChanges(
+      input.profileId,
+      remoteChanges,
+    );
+    if (applyResult.isFailure) {
+      return Failure(applyResult.errorOrNull!);
+    }
+
+    // 6. Record rate limit
+    await _rateLimitService.recordOperation(
+      input.profileId,
+      RateLimitOperation.sync,
+    );
+
+    return Success(applyResult.valueOrNull!);
+  }
+}
+
+// lib/domain/usecases/sync/resolve_conflict_use_case.dart
+
+@freezed
+class ResolveConflictInput with _$ResolveConflictInput {
+  const factory ResolveConflictInput({
+    required String profileId,
+    required String conflictId,
+    required ConflictResolution resolution,
+  }) = _ResolveConflictInput;
+}
+
+enum ConflictResolution {
+  keepLocal,   // Use local version, overwrite remote
+  keepRemote,  // Use remote version, overwrite local
+  merge,       // Merge both versions (for compatible changes)
+}
+
+class ResolveConflictUseCase implements UseCase<ResolveConflictInput, void> {
+  final SyncService _syncService;
+  final ProfileAuthorizationService _authService;
+
+  ResolveConflictUseCase(this._syncService, this._authService);
+
+  @override
+  Future<Result<void, AppError>> call(ResolveConflictInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Resolve conflict
+    return _syncService.resolveConflict(
+      input.conflictId,
+      input.resolution,
+    );
   }
 }
 ```
@@ -2061,6 +5798,12 @@ class FluidsEntry with _$FluidsEntry {
     String? importSource,            // 'healthkit', 'googlefit', etc.
     String? importExternalId,        // External record ID for deduplication
 
+    // File sync metadata (for bowel/urine photos)
+    String? cloudStorageUrl,
+    String? fileHash,
+    int? fileSizeBytes,
+    @Default(false) bool isFileUploaded,
+
     // General notes for the entire fluids entry (bowel/urine observations, etc.)
     // Use section-specific notes (waterIntakeNotes, otherFluidNotes) for targeted info
     @Default('') String notes,
@@ -2100,10 +5843,22 @@ ALL validation MUST use these exact rules:
 
 class ValidationRules {
   // ===== String length limits =====
-  static const int nameMinLength = 1;
-  static const int nameMaxLength = 100;
-  static const int notesMaxLength = 5000;
+  static const int nameMinLength = 2;             // Min for all name fields
+  static const int nameMaxLength = 100;           // Default max for names
+  static const int supplementNameMaxLength = 200; // Supplements can have longer names
+  static const int conditionNameMaxLength = 200;  // Conditions can have longer names
+  static const int activityNameMaxLength = 200;   // Activities can have longer names
+  static const int foodNameMaxLength = 200;       // Foods can have longer names
+  static const int dietNameMaxLength = 50;        // Diet names are shorter
+  static const int photoAreaNameMaxLength = 100;
+
+  // Notes and content limits
+  static const int notesMaxLength = 2000;         // Standard notes for most entities
+  static const int journalContentMinLength = 10;
+  static const int journalContentMaxLength = 50000; // Journals can be much longer
   static const int descriptionMaxLength = 500;
+
+  // Custom fluid naming
   static const int customFluidNameMinLength = 2;
   static const int customFluidNameMaxLength = 100;
   static const int otherFluidAmountMaxLength = 50;
@@ -2149,7 +5904,8 @@ class ValidationRules {
   static const int maxReminderIntervalMinutes = 1440;  // 24 hours
 
   // ===== Collection limits =====
-  static const int maxPhotosPerEntry = 10;
+  static const int maxPhotosPerEntry = 10;              // Default for fluids, journal
+  static const int maxPhotosPerConditionLog = 5;       // Condition logs more restrictive
   static const int maxConditionsPerProfile = 100;
   static const int maxSupplementsPerProfile = 200;
   static const int maxDietsPerProfile = 20;
@@ -2363,6 +6119,110 @@ class Validators {
     return null;
   }
 
+  static String? conditionLogPhotosCount(List? photoIds) {
+    if (photoIds != null && photoIds.length > ValidationRules.maxPhotosPerConditionLog) {
+      return 'Maximum ${ValidationRules.maxPhotosPerConditionLog} photos allowed for condition logs';
+    }
+    return null;
+  }
+
+  // ===== Entity Name Validators =====
+
+  static String? entityName(String? value, String fieldName, int maxLength) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    if (value.length < ValidationRules.nameMinLength) {
+      return '$fieldName must be at least ${ValidationRules.nameMinLength} characters';
+    }
+    if (value.length > maxLength) {
+      return '$fieldName must be $maxLength characters or less';
+    }
+    return null;
+  }
+
+  static String? supplementName(String? value) =>
+      entityName(value, 'Supplement name', ValidationRules.supplementNameMaxLength);
+
+  static String? conditionName(String? value) =>
+      entityName(value, 'Condition name', ValidationRules.conditionNameMaxLength);
+
+  static String? activityName(String? value) =>
+      entityName(value, 'Activity name', ValidationRules.activityNameMaxLength);
+
+  static String? foodName(String? value) =>
+      entityName(value, 'Food name', ValidationRules.foodNameMaxLength);
+
+  static String? dietName(String? value) =>
+      entityName(value, 'Diet name', ValidationRules.dietNameMaxLength);
+
+  static String? photoAreaName(String? value) =>
+      entityName(value, 'Photo area name', ValidationRules.photoAreaNameMaxLength);
+
+  static String? journalContent(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Journal content is required';
+    }
+    if (value.length < ValidationRules.journalContentMinLength) {
+      return 'Journal entry must be at least ${ValidationRules.journalContentMinLength} characters';
+    }
+    if (value.length > ValidationRules.journalContentMaxLength) {
+      return 'Journal entry must be ${ValidationRules.journalContentMaxLength} characters or less';
+    }
+    return null;
+  }
+
+  static String? notes(String? value) {
+    if (value != null && value.length > ValidationRules.notesMaxLength) {
+      return 'Notes must be ${ValidationRules.notesMaxLength} characters or less';
+    }
+    return null;
+  }
+
+  // ===== Date Validators =====
+
+  static String? notFutureDate(int? epochMs, String fieldName) {
+    if (epochMs == null) return null;
+    if (epochMs > DateTime.now().millisecondsSinceEpoch) {
+      return '$fieldName cannot be in the future';
+    }
+    return null;
+  }
+
+  static String? notPastDate(int? epochMs, String fieldName) {
+    if (epochMs == null) return null;
+    final today = DateTime.now();
+    final startOfToday = DateTime(today.year, today.month, today.day).millisecondsSinceEpoch;
+    if (epochMs < startOfToday) {
+      return '$fieldName cannot be in the past';
+    }
+    return null;
+  }
+
+  static String? mustBePastDate(int? epochMs, String fieldName) {
+    if (epochMs == null) return null;
+    if (epochMs >= DateTime.now().millisecondsSinceEpoch) {
+      return '$fieldName must be a past date';
+    }
+    return null;
+  }
+
+  // ===== Conditional Validators =====
+
+  static String? requiredIf(String? value, bool condition, String fieldName, String conditionDesc) {
+    if (condition && (value == null || value.trim().isEmpty)) {
+      return '$fieldName is required when $conditionDesc';
+    }
+    return null;
+  }
+
+  static String? atLeastOneRequired(List? items, String fieldName) {
+    if (items == null || items.isEmpty) {
+      return 'At least one $fieldName is required';
+    }
+    return null;
+  }
+
   // ===== Diet Validators =====
 
   static String? dateRange(int? startDate, int? endDate) {  // Epoch ms
@@ -2564,6 +6424,1456 @@ class SupplementList extends _$SupplementList {
 }
 ```
 
+### 7.1 Riverpod Framework Exceptions to Result Pattern
+
+> **IMPORTANT:** The `build()` and `refresh()` methods above do NOT return `Result<T, AppError>`.
+> This is NOT a violation of the coding standards. These methods are **framework-constrained**:
+>
+> - **`build()`**: Must return `Future<State>` per Riverpod's `@riverpod` code generation
+> - **`refresh()`**: Sets `state = AsyncLoading()` then `state = AsyncValue.guard(...)` per Riverpod patterns
+>
+> Errors are captured in the **state object's `AppError? error` field** instead of being returned.
+> The UI checks `state.value?.error` to display error states.
+>
+> All **custom action methods** (like `addSupplement`, `deleteSupplement`, etc.) MUST return
+> `Future<Result<T, AppError>>` and follow the standard Result pattern.
+
+### 7.2 Complete Provider Implementation Templates
+
+This section provides complete implementation examples for ALL Riverpod providers. Each provider follows the canonical pattern established in Section 7.
+
+#### 7.2.1 Entity List Provider Template
+
+```dart
+// lib/presentation/providers/entity_list_provider.dart
+//
+// TEMPLATE: Use this pattern for all entity list providers.
+// Replace "Entity" with actual entity name (Supplement, Condition, etc.)
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'entity_list_provider.g.dart';
+
+/// State for entity list operations
+@freezed
+class EntityListState with _$EntityListState {
+  const factory EntityListState({
+    @Default([]) List<Entity> items,
+    @Default(false) bool isLoading,
+    @Default(false) bool hasMore,        // For pagination
+    @Default(0) int currentPage,
+    AppError? error,
+  }) = _EntityListState;
+}
+
+/// Provider for managing a list of entities
+@riverpod
+class EntityList extends _$EntityList {
+  String? _profileId;  // Store for refresh
+
+  @override
+  Future<EntityListState> build(String profileId) async {
+    _profileId = profileId;
+    final useCase = ref.read(getEntitiesUseCaseProvider);
+    final result = await useCase(GetEntitiesInput(
+      profileId: profileId,
+      limit: 50,
+      offset: 0,
+    ));
+
+    return result.when(
+      success: (items) => EntityListState(
+        items: items,
+        hasMore: items.length == 50,
+        currentPage: 0,
+      ),
+      failure: (error) => EntityListState(error: error),
+    );
+  }
+
+  /// Refresh the entire list
+  Future<void> refresh() async {
+    if (_profileId == null) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(_profileId!));
+  }
+
+  /// Load next page (pagination)
+  Future<void> loadMore() async {
+    final current = state.valueOrNull;
+    if (current == null || current.isLoading || !current.hasMore) return;
+
+    state = AsyncData(current.copyWith(isLoading: true));
+
+    final useCase = ref.read(getEntitiesUseCaseProvider);
+    final result = await useCase(GetEntitiesInput(
+      profileId: _profileId!,
+      limit: 50,
+      offset: (current.currentPage + 1) * 50,
+    ));
+
+    result.when(
+      success: (newItems) {
+        state = AsyncData(current.copyWith(
+          items: [...current.items, ...newItems],
+          hasMore: newItems.length == 50,
+          currentPage: current.currentPage + 1,
+          isLoading: false,
+        ));
+      },
+      failure: (error) {
+        state = AsyncData(current.copyWith(
+          error: error,
+          isLoading: false,
+        ));
+      },
+    );
+  }
+
+  /// Create a new entity
+  Future<Result<Entity, AppError>> add(CreateEntityInput input) async {
+    final useCase = ref.read(createEntityUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      // Optimistic update: add to list
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncData(current.copyWith(
+          items: [result.valueOrNull!, ...current.items],
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  /// Update an existing entity
+  Future<Result<Entity, AppError>> update(UpdateEntityInput input) async {
+    final current = state.valueOrNull;
+
+    // Optimistic update
+    if (current != null) {
+      final index = current.items.indexWhere((e) => e.id == input.id);
+      if (index >= 0) {
+        final optimisticItems = List<Entity>.from(current.items);
+        // Apply partial update for optimistic UI
+        optimisticItems[index] = _applyOptimisticUpdate(
+          current.items[index],
+          input,
+        );
+        state = AsyncData(current.copyWith(items: optimisticItems));
+      }
+    }
+
+    final useCase = ref.read(updateEntityUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      // Replace with actual result
+      final updatedCurrent = state.valueOrNull;
+      if (updatedCurrent != null) {
+        final index = updatedCurrent.items.indexWhere((e) => e.id == input.id);
+        if (index >= 0) {
+          final items = List<Entity>.from(updatedCurrent.items);
+          items[index] = result.valueOrNull!;
+          state = AsyncData(updatedCurrent.copyWith(items: items));
+        }
+      }
+    } else {
+      // Rollback optimistic update on failure
+      if (current != null) {
+        state = AsyncData(current);
+      }
+    }
+
+    return result;
+  }
+
+  /// Delete an entity (soft delete)
+  Future<Result<void, AppError>> delete(String id) async {
+    final current = state.valueOrNull;
+
+    // Optimistic update: remove from list
+    if (current != null) {
+      final items = current.items.where((e) => e.id != id).toList();
+      state = AsyncData(current.copyWith(items: items));
+    }
+
+    final useCase = ref.read(deleteEntityUseCaseProvider);
+    final result = await useCase(DeleteEntityInput(id: id, profileId: _profileId!));
+
+    if (result.isFailure) {
+      // Rollback on failure
+      if (current != null) {
+        state = AsyncData(current);
+      }
+    }
+
+    return result;
+  }
+
+  Entity _applyOptimisticUpdate(Entity entity, UpdateEntityInput input) {
+    // Override in specific providers to apply partial updates
+    return entity;
+  }
+}
+```
+
+#### 7.2.2 Current Profile Provider
+
+```dart
+// lib/presentation/providers/profile_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'profile_provider.g.dart';
+
+/// State for profile operations
+@freezed
+class ProfileState with _$ProfileState {
+  const factory ProfileState({
+    Profile? currentProfile,
+    @Default([]) List<Profile> accessibleProfiles,
+    @Default(false) bool isLoading,
+    AppError? error,
+  }) = _ProfileState;
+}
+
+/// Provider for current profile management
+@riverpod
+class CurrentProfile extends _$CurrentProfile {
+  @override
+  Future<ProfileState> build() async {
+    final authState = ref.watch(authStateProvider);
+
+    // Not signed in
+    if (!authState.isSignedIn) {
+      return const ProfileState();
+    }
+
+    // Fetch accessible profiles
+    final useCase = ref.read(getAccessibleProfilesUseCaseProvider);
+    final result = await useCase();
+
+    return result.when(
+      success: (profiles) {
+        final defaultProfile = profiles.firstWhereOrNull((p) => p.isDefault);
+        return ProfileState(
+          currentProfile: defaultProfile ?? profiles.firstOrNull,
+          accessibleProfiles: profiles,
+        );
+      },
+      failure: (error) => ProfileState(error: error),
+    );
+  }
+
+  /// Switch to a different profile
+  Future<Result<void, AppError>> switchProfile(String profileId) async {
+    final current = state.valueOrNull;
+    if (current == null) {
+      return Failure(StateError('No profile state available'));
+    }
+
+    final profile = current.accessibleProfiles.firstWhereOrNull(
+      (p) => p.id == profileId,
+    );
+    if (profile == null) {
+      return Failure(AuthError.profileAccessDenied(profileId));
+    }
+
+    state = AsyncData(current.copyWith(currentProfile: profile));
+
+    // Persist selection
+    final useCase = ref.read(setCurrentProfileUseCaseProvider);
+    return useCase(profileId);
+  }
+
+  /// Create a new profile
+  Future<Result<Profile, AppError>> createProfile(CreateProfileInput input) async {
+    final useCase = ref.read(createProfileUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncData(current.copyWith(
+          accessibleProfiles: [...current.accessibleProfiles, result.valueOrNull!],
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  /// Delete profile (only owner can delete, must not be last profile)
+  Future<Result<void, AppError>> deleteProfile(String profileId) async {
+    final current = state.valueOrNull;
+    if (current == null) {
+      return Failure(StateError('No profile state available'));
+    }
+
+    if (current.accessibleProfiles.length <= 1) {
+      return Failure(ValidationError.fromFieldErrors({
+        'profile': ['Cannot delete the only remaining profile'],
+      }));
+    }
+
+    if (current.currentProfile?.id == profileId) {
+      return Failure(ValidationError.fromFieldErrors({
+        'profile': ['Cannot delete the currently active profile. Switch to another profile first.'],
+      }));
+    }
+
+    final useCase = ref.read(deleteProfileUseCaseProvider);
+    final result = await useCase(DeleteProfileInput(profileId: profileId));
+
+    if (result.isSuccess) {
+      state = AsyncData(current.copyWith(
+        accessibleProfiles: current.accessibleProfiles
+            .where((p) => p.id != profileId)
+            .toList(),
+      ));
+    }
+
+    return result;
+  }
+}
+
+/// Simple provider for just the current profile ID
+@riverpod
+String? currentProfileId(CurrentProfileIdRef ref) {
+  final profileState = ref.watch(currentProfileProvider);
+  return profileState.valueOrNull?.currentProfile?.id;
+}
+```
+
+#### 7.2.3 Supplement Provider (Enhanced)
+
+```dart
+// lib/presentation/providers/supplement_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'supplement_provider.g.dart';
+
+@freezed
+class SupplementListState with _$SupplementListState {
+  const factory SupplementListState({
+    @Default([]) List<Supplement> supplements,
+    @Default([]) List<Supplement> archivedSupplements,
+    @Default(false) bool isLoading,
+    @Default(false) bool showArchived,
+    AppError? error,
+  }) = _SupplementListState;
+
+  // Computed
+  List<Supplement> get activeSupplements =>
+      supplements.where((s) => !s.isArchived).toList();
+  List<Supplement> get displayedSupplements =>
+      showArchived ? supplements : activeSupplements;
+}
+
+@riverpod
+class SupplementList extends _$SupplementList {
+  String? _profileId;
+
+  @override
+  Future<SupplementListState> build(String profileId) async {
+    _profileId = profileId;
+    final useCase = ref.read(getSupplementsUseCaseProvider);
+    final result = await useCase(GetSupplementsInput(profileId: profileId));
+
+    return result.when(
+      success: (supplements) => SupplementListState(
+        supplements: supplements.where((s) => !s.isArchived).toList(),
+        archivedSupplements: supplements.where((s) => s.isArchived).toList(),
+      ),
+      failure: (error) => SupplementListState(error: error),
+    );
+  }
+
+  Future<void> refresh() async {
+    if (_profileId == null) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(_profileId!));
+  }
+
+  void toggleShowArchived() {
+    final current = state.valueOrNull;
+    if (current != null) {
+      state = AsyncData(current.copyWith(showArchived: !current.showArchived));
+    }
+  }
+
+  Future<Result<Supplement, AppError>> addSupplement(
+    CreateSupplementInput input,
+  ) async {
+    final useCase = ref.read(createSupplementUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncData(current.copyWith(
+          supplements: [result.valueOrNull!, ...current.supplements],
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<Supplement, AppError>> updateSupplement(
+    UpdateSupplementInput input,
+  ) async {
+    final useCase = ref.read(updateSupplementUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        final updated = result.valueOrNull!;
+        state = AsyncData(current.copyWith(
+          supplements: current.supplements
+              .map((s) => s.id == updated.id ? updated : s)
+              .toList(),
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<Supplement, AppError>> archiveSupplement(
+    String id, {
+    required bool archive,
+  }) async {
+    final useCase = ref.read(archiveSupplementUseCaseProvider);
+    final result = await useCase(ArchiveSupplementInput(
+      id: id,
+      profileId: _profileId!,
+      archive: archive,
+    ));
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        final supplement = result.valueOrNull!;
+        if (archive) {
+          // Move to archived
+          state = AsyncData(current.copyWith(
+            supplements: current.supplements.where((s) => s.id != id).toList(),
+            archivedSupplements: [supplement, ...current.archivedSupplements],
+          ));
+        } else {
+          // Move to active
+          state = AsyncData(current.copyWith(
+            supplements: [supplement, ...current.supplements],
+            archivedSupplements: current.archivedSupplements
+                .where((s) => s.id != id)
+                .toList(),
+          ));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<void, AppError>> deleteSupplement(String id) async {
+    final current = state.valueOrNull;
+
+    // Optimistic update
+    if (current != null) {
+      state = AsyncData(current.copyWith(
+        supplements: current.supplements.where((s) => s.id != id).toList(),
+        archivedSupplements: current.archivedSupplements
+            .where((s) => s.id != id)
+            .toList(),
+      ));
+    }
+
+    final useCase = ref.read(deleteSupplementUseCaseProvider);
+    final result = await useCase(DeleteEntityInput(
+      id: id,
+      profileId: _profileId!,
+    ));
+
+    if (result.isFailure && current != null) {
+      // Rollback
+      state = AsyncData(current);
+    }
+
+    return result;
+  }
+}
+
+/// Provider for a single supplement
+@riverpod
+Future<Supplement?> supplement(SupplementRef ref, String id) async {
+  final useCase = ref.read(getSupplementByIdUseCaseProvider);
+  final result = await useCase(id);
+  return result.valueOrNull;
+}
+```
+
+#### 7.2.4 Condition Provider
+
+```dart
+// lib/presentation/providers/condition_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'condition_provider.g.dart';
+
+@freezed
+class ConditionListState with _$ConditionListState {
+  const factory ConditionListState({
+    @Default([]) List<Condition> conditions,
+    @Default({}) Map<String, List<ConditionLog>> recentLogs, // Last 7 days per condition
+    @Default(false) bool isLoading,
+    String? selectedCategoryId,
+    AppError? error,
+  }) = _ConditionListState;
+}
+
+@riverpod
+class ConditionList extends _$ConditionList {
+  String? _profileId;
+
+  @override
+  Future<ConditionListState> build(String profileId) async {
+    _profileId = profileId;
+
+    // Fetch conditions
+    final conditionsUseCase = ref.read(getConditionsUseCaseProvider);
+    final conditionsResult = await conditionsUseCase(GetConditionsInput(
+      profileId: profileId,
+      activeOnly: true,
+    ));
+
+    if (conditionsResult.isFailure) {
+      return ConditionListState(error: conditionsResult.errorOrNull!);
+    }
+
+    final conditions = conditionsResult.valueOrNull!;
+
+    // Fetch recent logs for each condition
+    final recentLogs = <String, List<ConditionLog>>{};
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final weekAgo = now - (7 * Duration.millisecondsPerDay);
+
+    final logsUseCase = ref.read(getConditionLogsUseCaseProvider);
+    for (final condition in conditions) {
+      final logsResult = await logsUseCase(GetConditionLogsInput(
+        profileId: profileId,
+        conditionId: condition.id,
+        startDate: weekAgo,
+        endDate: now,
+      ));
+      if (logsResult.isSuccess) {
+        recentLogs[condition.id] = logsResult.valueOrNull!;
+      }
+    }
+
+    return ConditionListState(
+      conditions: conditions,
+      recentLogs: recentLogs,
+    );
+  }
+
+  Future<void> refresh() async {
+    if (_profileId == null) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(_profileId!));
+  }
+
+  void filterByCategory(String? categoryId) {
+    final current = state.valueOrNull;
+    if (current != null) {
+      state = AsyncData(current.copyWith(selectedCategoryId: categoryId));
+    }
+  }
+
+  Future<Result<Condition, AppError>> addCondition(
+    CreateConditionInput input,
+  ) async {
+    final useCase = ref.read(createConditionUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncData(current.copyWith(
+          conditions: [...current.conditions, result.valueOrNull!],
+          recentLogs: {
+            ...current.recentLogs,
+            result.valueOrNull!.id: [],
+          },
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<ConditionLog, AppError>> logCondition(
+    LogConditionInput input,
+  ) async {
+    final useCase = ref.read(logConditionUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        final conditionId = input.conditionId;
+        final existingLogs = current.recentLogs[conditionId] ?? [];
+        state = AsyncData(current.copyWith(
+          recentLogs: {
+            ...current.recentLogs,
+            conditionId: [result.valueOrNull!, ...existingLogs],
+          },
+        ));
+      }
+    }
+
+    return result;
+  }
+}
+
+/// Provider for condition trend data
+@riverpod
+Future<ConditionTrend?> conditionTrend(
+  ConditionTrendRef ref,
+  String conditionId, {
+  int days = 30,
+}) async {
+  final profileId = ref.watch(currentProfileIdProvider);
+  if (profileId == null) return null;
+
+  final now = DateTime.now().millisecondsSinceEpoch;
+  final startDate = now - (days * Duration.millisecondsPerDay);
+
+  final useCase = ref.read(getConditionTrendUseCaseProvider);
+  final result = await useCase(GetConditionTrendInput(
+    profileId: profileId,
+    conditionId: conditionId,
+    startDate: startDate,
+    endDate: now,
+  ));
+
+  return result.valueOrNull;
+}
+```
+
+#### 7.2.5 Fluids Entry Provider
+
+```dart
+// lib/presentation/providers/fluids_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'fluids_provider.g.dart';
+
+@freezed
+class FluidsState with _$FluidsState {
+  const factory FluidsState({
+    FluidsEntry? todayEntry,
+    @Default([]) List<FluidsEntry> weekEntries,
+    @Default(0) int todayWaterMl,
+    @Default(2500) int dailyWaterGoalMl,  // Default 2.5L goal
+    @Default(false) bool isLoading,
+    AppError? error,
+  }) = _FluidsState;
+
+  double get waterProgress => todayWaterMl / dailyWaterGoalMl;
+  int get waterRemaining => (dailyWaterGoalMl - todayWaterMl).clamp(0, dailyWaterGoalMl);
+}
+
+@riverpod
+class FluidsEntryList extends _$FluidsEntryList {
+  String? _profileId;
+
+  @override
+  Future<FluidsState> build(String profileId) async {
+    _profileId = profileId;
+
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+    final todayEnd = todayStart + Duration.millisecondsPerDay;
+    final weekStart = todayStart - (7 * Duration.millisecondsPerDay);
+
+    // Fetch today's entry
+    final todayUseCase = ref.read(getTodayFluidsEntryUseCaseProvider);
+    final todayResult = await todayUseCase(profileId);
+
+    // Fetch week's entries
+    final weekUseCase = ref.read(getFluidsEntriesUseCaseProvider);
+    final weekResult = await weekUseCase(GetFluidsEntriesInput(
+      profileId: profileId,
+      startDate: weekStart,
+      endDate: todayEnd,
+    ));
+
+    // Get water goal from profile settings
+    final profileProvider = ref.read(currentProfileProvider);
+    final waterGoal = profileProvider.valueOrNull?.currentProfile?.waterGoalMl ?? 2500;
+
+    return FluidsState(
+      todayEntry: todayResult.valueOrNull,
+      weekEntries: weekResult.valueOrNull ?? [],
+      todayWaterMl: todayResult.valueOrNull?.waterIntakeMl ?? 0,
+      dailyWaterGoalMl: waterGoal,
+    );
+  }
+
+  Future<void> refresh() async {
+    if (_profileId == null) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(_profileId!));
+  }
+
+  /// Quick add water (common amounts)
+  Future<Result<FluidsEntry, AppError>> addWater(int amountMl) async {
+    final current = state.valueOrNull;
+    if (current == null || _profileId == null) {
+      return Failure(StateError('No fluids state available'));
+    }
+
+    // Optimistic update
+    state = AsyncData(current.copyWith(
+      todayWaterMl: current.todayWaterMl + amountMl,
+    ));
+
+    final useCase = ref.read(logFluidsEntryUseCaseProvider);
+    final result = await useCase(LogFluidsEntryInput(
+      profileId: _profileId!,
+      clientId: const Uuid().v4(),
+      entryDate: DateTime.now().millisecondsSinceEpoch,
+      waterIntakeMl: (current.todayEntry?.waterIntakeMl ?? 0) + amountMl,
+    ));
+
+    if (result.isFailure) {
+      // Rollback
+      state = AsyncData(current);
+    } else {
+      // Update today's entry
+      state = AsyncData(current.copyWith(
+        todayEntry: result.valueOrNull,
+        todayWaterMl: result.valueOrNull?.waterIntakeMl ?? current.todayWaterMl,
+      ));
+    }
+
+    return result;
+  }
+
+  /// Log complete fluids entry
+  Future<Result<FluidsEntry, AppError>> logEntry(
+    LogFluidsEntryInput input,
+  ) async {
+    final useCase = ref.read(logFluidsEntryUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      await refresh(); // Refresh to get updated totals
+    }
+
+    return result;
+  }
+
+  /// Update water goal
+  Future<Result<void, AppError>> setWaterGoal(int goalMl) async {
+    final current = state.valueOrNull;
+    if (current == null) return Failure(StateError('No state'));
+
+    state = AsyncData(current.copyWith(dailyWaterGoalMl: goalMl));
+
+    // Persist to profile
+    final useCase = ref.read(updateProfileUseCaseProvider);
+    return useCase(UpdateProfileInput(
+      profileId: _profileId!,
+      waterGoalMl: goalMl,
+    ));
+  }
+}
+
+/// BBT chart data provider
+@riverpod
+Future<List<FluidsEntry>> bbtChartData(
+  BbtChartDataRef ref,
+  String profileId, {
+  int days = 30,
+}) async {
+  final now = DateTime.now().millisecondsSinceEpoch;
+  final startDate = now - (days * Duration.millisecondsPerDay);
+
+  final useCase = ref.read(getBBTEntriesUseCaseProvider);
+  final result = await useCase(GetBBTEntriesInput(
+    profileId: profileId,
+    startDate: startDate,
+    endDate: now,
+  ));
+
+  return result.valueOrNull ?? [];
+}
+```
+
+#### 7.2.6 Notification Schedule Provider
+
+```dart
+// lib/presentation/providers/notification_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'notification_provider.g.dart';
+
+@freezed
+class NotificationScheduleState with _$NotificationScheduleState {
+  const factory NotificationScheduleState({
+    @Default([]) List<NotificationSchedule> schedules,
+    @Default({}) Map<NotificationType, List<NotificationSchedule>> byType,
+    @Default(false) bool isLoading,
+    AppError? error,
+  }) = _NotificationScheduleState;
+}
+
+@riverpod
+class NotificationScheduleList extends _$NotificationScheduleList {
+  String? _profileId;
+
+  @override
+  Future<NotificationScheduleState> build(String profileId) async {
+    _profileId = profileId;
+
+    final useCase = ref.read(getNotificationSchedulesUseCaseProvider);
+    final result = await useCase(GetNotificationSchedulesInput(profileId: profileId));
+
+    return result.when(
+      success: (schedules) {
+        // Group by type
+        final byType = <NotificationType, List<NotificationSchedule>>{};
+        for (final schedule in schedules) {
+          byType.putIfAbsent(schedule.type, () => []).add(schedule);
+        }
+        return NotificationScheduleState(
+          schedules: schedules,
+          byType: byType,
+        );
+      },
+      failure: (error) => NotificationScheduleState(error: error),
+    );
+  }
+
+  Future<void> refresh() async {
+    if (_profileId == null) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(_profileId!));
+  }
+
+  Future<Result<NotificationSchedule, AppError>> createSchedule(
+    ScheduleNotificationInput input,
+  ) async {
+    final useCase = ref.read(scheduleNotificationUseCaseProvider);
+    final result = await useCase(input);
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        final schedule = result.valueOrNull!;
+        final byType = Map<NotificationType, List<NotificationSchedule>>.from(current.byType);
+        byType.putIfAbsent(schedule.type, () => []).add(schedule);
+
+        state = AsyncData(current.copyWith(
+          schedules: [...current.schedules, schedule],
+          byType: byType,
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<NotificationSchedule, AppError>> toggleEnabled(
+    String id, {
+    required bool enabled,
+  }) async {
+    final useCase = ref.read(toggleNotificationUseCaseProvider);
+    final result = await useCase(ToggleNotificationInput(
+      id: id,
+      profileId: _profileId!,
+      enabled: enabled,
+    ));
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        final updated = result.valueOrNull!;
+        state = AsyncData(current.copyWith(
+          schedules: current.schedules
+              .map((s) => s.id == id ? updated : s)
+              .toList(),
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  Future<Result<void, AppError>> deleteSchedule(String id) async {
+    final current = state.valueOrNull;
+
+    // Optimistic update
+    if (current != null) {
+      state = AsyncData(current.copyWith(
+        schedules: current.schedules.where((s) => s.id != id).toList(),
+      ));
+    }
+
+    final useCase = ref.read(deleteNotificationScheduleUseCaseProvider);
+    final result = await useCase(DeleteEntityInput(
+      id: id,
+      profileId: _profileId!,
+    ));
+
+    if (result.isFailure && current != null) {
+      state = AsyncData(current);
+    }
+
+    return result;
+  }
+}
+
+/// Pending notifications for today
+@riverpod
+Future<List<PendingNotification>> pendingNotifications(
+  PendingNotificationsRef ref,
+) async {
+  final profileId = ref.watch(currentProfileIdProvider);
+  if (profileId == null) return [];
+
+  final now = DateTime.now();
+  final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+  final useCase = ref.read(getPendingNotificationsUseCaseProvider);
+  final result = await useCase(GetPendingNotificationsInput(
+    profileId: profileId,
+    windowStartEpoch: now.millisecondsSinceEpoch,
+    windowEndEpoch: endOfDay.millisecondsSinceEpoch,
+  ));
+
+  return result.valueOrNull ?? [];
+}
+```
+
+#### 7.2.7 Auth State Provider
+
+```dart
+// lib/presentation/providers/auth_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'auth_provider.g.dart';
+
+@freezed
+class AuthState with _$AuthState {
+  const factory AuthState({
+    UserAccount? user,
+    @Default(false) bool isLoading,
+    @Default(false) bool isSignedIn,
+    AppError? error,
+  }) = _AuthState;
+}
+
+@riverpod
+class AuthStateNotifier extends _$AuthStateNotifier {
+  @override
+  Future<AuthState> build() async {
+    // Check for existing session
+    final tokenService = ref.read(authTokenServiceProvider);
+    final hasToken = await tokenService.hasValidToken();
+
+    if (!hasToken) {
+      return const AuthState(isSignedIn: false);
+    }
+
+    // Fetch user account
+    final useCase = ref.read(getCurrentUserUseCaseProvider);
+    final result = await useCase();
+
+    return result.when(
+      success: (user) => AuthState(
+        user: user,
+        isSignedIn: true,
+      ),
+      failure: (error) {
+        // Token invalid, clear it
+        tokenService.clearTokens();
+        return AuthState(error: error);
+      },
+    );
+  }
+
+  Future<Result<SignInResult, AppError>> signInWithGoogle(
+    SignInWithGoogleInput input,
+  ) async {
+    state = AsyncData(state.valueOrNull?.copyWith(isLoading: true) ??
+        const AuthState(isLoading: true));
+
+    final useCase = ref.read(signInWithGoogleUseCaseProvider);
+    final result = await useCase(input);
+
+    result.when(
+      success: (signInResult) {
+        state = AsyncData(AuthState(
+          user: signInResult.user,
+          isSignedIn: true,
+        ));
+
+        // Invalidate profile provider to refresh
+        ref.invalidate(currentProfileProvider);
+      },
+      failure: (error) {
+        state = AsyncData(AuthState(
+          isSignedIn: false,
+          error: error,
+        ));
+      },
+    );
+
+    return result;
+  }
+
+  Future<Result<SignInResult, AppError>> signInWithApple(
+    SignInWithAppleInput input,
+  ) async {
+    state = AsyncData(state.valueOrNull?.copyWith(isLoading: true) ??
+        const AuthState(isLoading: true));
+
+    final useCase = ref.read(signInWithAppleUseCaseProvider);
+    final result = await useCase(input);
+
+    result.when(
+      success: (signInResult) {
+        state = AsyncData(AuthState(
+          user: signInResult.user,
+          isSignedIn: true,
+        ));
+        ref.invalidate(currentProfileProvider);
+      },
+      failure: (error) {
+        state = AsyncData(AuthState(
+          isSignedIn: false,
+          error: error,
+        ));
+      },
+    );
+
+    return result;
+  }
+
+  Future<Result<void, AppError>> signOut() async {
+    final useCase = ref.read(signOutUseCaseProvider);
+    final result = await useCase();
+
+    if (result.isSuccess) {
+      state = const AsyncData(AuthState(isSignedIn: false));
+      ref.invalidate(currentProfileProvider);
+    }
+
+    return result;
+  }
+}
+
+/// Simple bool provider for checking auth status
+@riverpod
+bool isSignedIn(IsSignedInRef ref) {
+  return ref.watch(authStateNotifierProvider).valueOrNull?.isSignedIn ?? false;
+}
+```
+
+#### 7.2.8 Sync Provider
+
+```dart
+// lib/presentation/providers/sync_provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'sync_provider.g.dart';
+
+@freezed
+class SyncState with _$SyncState {
+  const factory SyncState({
+    @Default(false) bool isSyncing,
+    @Default(0) int pendingChanges,
+    @Default(0) int conflictCount,
+    int? lastSyncAt,
+    String? lastSyncStatus,
+    AppError? error,
+  }) = _SyncState;
+
+  bool get hasPendingChanges => pendingChanges > 0;
+  bool get hasConflicts => conflictCount > 0;
+}
+
+@riverpod
+class SyncNotifier extends _$SyncNotifier {
+  @override
+  Future<SyncState> build(String profileId) async {
+    // Check pending changes count
+    final syncService = ref.read(syncServiceProvider);
+    final pendingResult = await syncService.getPendingChangesCount(profileId);
+    final conflictResult = await syncService.getConflictCount(profileId);
+    final lastSync = await syncService.getLastSyncTime(profileId);
+
+    return SyncState(
+      pendingChanges: pendingResult.valueOrNull ?? 0,
+      conflictCount: conflictResult.valueOrNull ?? 0,
+      lastSyncAt: lastSync,
+    );
+  }
+
+  Future<Result<PushChangesResult, AppError>> pushChanges() async {
+    final current = state.valueOrNull;
+    if (current == null) return Failure(StateError('No sync state'));
+
+    state = AsyncData(current.copyWith(isSyncing: true, error: null));
+
+    final useCase = ref.read(pushChangesUseCaseProvider);
+    final result = await useCase(PushChangesInput(
+      profileId: ref.read(currentProfileIdProvider)!,
+    ));
+
+    result.when(
+      success: (pushResult) {
+        state = AsyncData(current.copyWith(
+          isSyncing: false,
+          pendingChanges: current.pendingChanges - pushResult.pushedCount,
+          conflictCount: current.conflictCount + pushResult.conflicts.length,
+          lastSyncAt: DateTime.now().millisecondsSinceEpoch,
+          lastSyncStatus: 'success',
+        ));
+      },
+      failure: (error) {
+        state = AsyncData(current.copyWith(
+          isSyncing: false,
+          lastSyncStatus: 'failed',
+          error: error,
+        ));
+      },
+    );
+
+    return result;
+  }
+
+  Future<Result<PullChangesResult, AppError>> pullChanges() async {
+    final current = state.valueOrNull;
+    if (current == null) return Failure(StateError('No sync state'));
+
+    state = AsyncData(current.copyWith(isSyncing: true, error: null));
+
+    final useCase = ref.read(pullChangesUseCaseProvider);
+    final result = await useCase(PullChangesInput(
+      profileId: ref.read(currentProfileIdProvider)!,
+    ));
+
+    result.when(
+      success: (pullResult) {
+        state = AsyncData(current.copyWith(
+          isSyncing: false,
+          conflictCount: current.conflictCount + pullResult.conflictCount,
+          lastSyncAt: DateTime.now().millisecondsSinceEpoch,
+          lastSyncStatus: 'success',
+        ));
+
+        // Invalidate entity providers to refresh with new data
+        ref.invalidate(supplementListProvider);
+        ref.invalidate(conditionListProvider);
+        // ... etc
+      },
+      failure: (error) {
+        state = AsyncData(current.copyWith(
+          isSyncing: false,
+          lastSyncStatus: 'failed',
+          error: error,
+        ));
+      },
+    );
+
+    return result;
+  }
+
+  Future<Result<void, AppError>> resolveConflict(
+    String conflictId,
+    ConflictResolution resolution,
+  ) async {
+    final useCase = ref.read(resolveConflictUseCaseProvider);
+    final result = await useCase(ResolveConflictInput(
+      profileId: ref.read(currentProfileIdProvider)!,
+      conflictId: conflictId,
+      resolution: resolution,
+    ));
+
+    if (result.isSuccess) {
+      final current = state.valueOrNull;
+      if (current != null) {
+        state = AsyncData(current.copyWith(
+          conflictCount: (current.conflictCount - 1).clamp(0, 999999),
+        ));
+      }
+    }
+
+    return result;
+  }
+
+  /// Full sync (push then pull)
+  Future<void> sync() async {
+    await pushChanges();
+    await pullChanges();
+  }
+}
+```
+
+### 7.3 UI Integration Patterns
+
+#### 7.3.1 Error Display Widget
+
+```dart
+// lib/presentation/widgets/error_display.dart
+
+/// Standard widget for displaying provider errors
+class ProviderErrorDisplay extends ConsumerWidget {
+  final AppError error;
+  final VoidCallback? onRetry;
+
+  const ProviderErrorDisplay({
+    required this.error,
+    this.onRetry,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _getIcon(error),
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              error.userMessage,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            if (error.recoveryAction != RecoveryAction.none) ...[
+              const SizedBox(height: 16),
+              _buildRecoveryButton(context, ref),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getIcon(AppError error) {
+    if (error is NetworkError) return Icons.wifi_off;
+    if (error is AuthError) return Icons.lock;
+    if (error is DatabaseError) return Icons.storage;
+    return Icons.error_outline;
+  }
+
+  Widget _buildRecoveryButton(BuildContext context, WidgetRef ref) {
+    switch (error.recoveryAction) {
+      case RecoveryAction.retry:
+        return ElevatedButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Retry'),
+        );
+      case RecoveryAction.reAuthenticate:
+        return ElevatedButton.icon(
+          onPressed: () {
+            ref.read(authStateNotifierProvider.notifier).signOut();
+            context.go('/sign-in');
+          },
+          icon: const Icon(Icons.login),
+          label: const Text('Sign In Again'),
+        );
+      case RecoveryAction.checkConnection:
+        return OutlinedButton.icon(
+          onPressed: () => AppSettings.openWifiSettings(),
+          icon: const Icon(Icons.settings),
+          label: const Text('Check Connection'),
+        );
+      case RecoveryAction.goToSettings:
+        return OutlinedButton.icon(
+          onPressed: () => context.go('/settings'),
+          icon: const Icon(Icons.settings),
+          label: const Text('Open Settings'),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+}
+```
+
+#### 7.3.2 List Screen Pattern
+
+```dart
+// lib/presentation/screens/supplements_screen.dart
+
+/// Example screen showing standard provider integration pattern
+class SupplementsScreen extends ConsumerWidget {
+  const SupplementsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileId = ref.watch(currentProfileIdProvider);
+    if (profileId == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final supplementsAsync = ref.watch(supplementListProvider(profileId));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Supplements'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => context.push('/supplements/add'),
+          ),
+        ],
+      ),
+      body: supplementsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => ProviderErrorDisplay(
+          error: error is AppError ? error : UnknownError(error.toString()),
+          onRetry: () => ref.invalidate(supplementListProvider(profileId)),
+        ),
+        data: (state) {
+          // Check for error in state
+          if (state.error != null) {
+            return ProviderErrorDisplay(
+              error: state.error!,
+              onRetry: () => ref.read(supplementListProvider(profileId).notifier).refresh(),
+            );
+          }
+
+          if (state.displayedSupplements.isEmpty) {
+            return const EmptyStateWidget(
+              icon: Icons.medication,
+              title: 'No Supplements',
+              subtitle: 'Add supplements to track your intake',
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => ref.read(supplementListProvider(profileId).notifier).refresh(),
+            child: ListView.builder(
+              itemCount: state.displayedSupplements.length,
+              itemBuilder: (context, index) {
+                final supplement = state.displayedSupplements[index];
+                return SupplementListTile(
+                  supplement: supplement,
+                  onTap: () => context.push('/supplements/${supplement.id}'),
+                  onArchive: () => _archiveSupplement(context, ref, profileId, supplement),
+                  onDelete: () => _deleteSupplement(context, ref, profileId, supplement.id),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _archiveSupplement(
+    BuildContext context,
+    WidgetRef ref,
+    String profileId,
+    Supplement supplement,
+  ) async {
+    final result = await ref
+        .read(supplementListProvider(profileId).notifier)
+        .archiveSupplement(supplement.id, archive: !supplement.isArchived);
+
+    if (result.isFailure && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.errorOrNull!.userMessage)),
+      );
+    }
+  }
+
+  Future<void> _deleteSupplement(
+    BuildContext context,
+    WidgetRef ref,
+    String profileId,
+    String id,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Supplement?'),
+        content: const Text('This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await ref
+          .read(supplementListProvider(profileId).notifier)
+          .deleteSupplement(id);
+
+      if (result.isFailure && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.errorOrNull!.userMessage)),
+        );
+      }
+    }
+  }
+}
+```
+
+### 7.4 Provider Reference Table
+
+| Provider | State Class | Primary Methods |
+|----------|-------------|-----------------|
+| `currentProfileProvider` | `ProfileState` | `switchProfile()`, `createProfile()`, `deleteProfile()` |
+| `supplementListProvider` | `SupplementListState` | `add()`, `update()`, `archive()`, `delete()`, `refresh()` |
+| `conditionListProvider` | `ConditionListState` | `add()`, `log()`, `refresh()`, `filterByCategory()` |
+| `fluidsEntryListProvider` | `FluidsState` | `addWater()`, `logEntry()`, `setWaterGoal()`, `refresh()` |
+| `foodLogListProvider` | `FoodLogListState` | `add()`, `update()`, `delete()`, `refresh()` |
+| `sleepEntryListProvider` | `SleepEntryListState` | `add()`, `update()`, `delete()`, `refresh()` |
+| `activityLogListProvider` | `ActivityLogListState` | `add()`, `update()`, `delete()`, `refresh()` |
+| `journalEntryListProvider` | `JournalEntryListState` | `add()`, `update()`, `delete()`, `refresh()` |
+| `photoEntryListProvider` | `PhotoEntryListState` | `add()`, `delete()`, `refresh()` |
+| `notificationScheduleListProvider` | `NotificationScheduleState` | `create()`, `toggleEnabled()`, `delete()`, `refresh()` |
+| `dietListProvider` | `DietListState` | `create()`, `activate()`, `delete()`, `refresh()` |
+| `dietComplianceProvider` | `DietComplianceState` | `checkFood()`, `getStats()`, `refresh()` |
+| `authStateNotifierProvider` | `AuthState` | `signInWithGoogle()`, `signInWithApple()`, `signOut()` |
+| `syncNotifierProvider` | `SyncState` | `pushChanges()`, `pullChanges()`, `resolveConflict()`, `sync()` |
+| `wearableConnectionListProvider` | `WearableConnectionState` | `connect()`, `disconnect()`, `sync()`, `refresh()` |
+| `patternListProvider` | `PatternListState` | `detect()`, `dismiss()`, `refresh()` |
+| `healthInsightListProvider` | `HealthInsightListState` | `generate()`, `dismiss()`, `refresh()` |
+| `predictiveAlertListProvider` | `PredictiveAlertListState` | `generate()`, `dismiss()`, `provideFeedback()`, `refresh()` |
+
 ---
 
 ## 7.5 Diet Entity Contracts
@@ -2582,13 +7892,14 @@ class Diet with _$Diet {
     required String clientId,
     required String profileId,
     required String name,
-    String? presetId,                     // NULL for custom diets
+    DietPresetType? presetType,           // NULL for custom diets, enum value for presets
     @Default(true) bool isActive,
     int? startDate,                       // Epoch milliseconds - For fixed-duration diets
     int? endDate,                         // Epoch milliseconds
-    TimeOfDay? eatingWindowStart,         // For IF diets
-    TimeOfDay? eatingWindowEnd,
+    int? eatingWindowStartMinutes,        // Minutes from midnight (for IF diets)
+    int? eatingWindowEndMinutes,          // Minutes from midnight
     @Default([]) List<DietRule> rules,    // Custom rules (preset rules loaded from code)
+    String? notes,
     required SyncMetadata syncMetadata,
   }) = _Diet;
 
@@ -2596,16 +7907,17 @@ class Diet with _$Diet {
       _$DietFromJson(json);
 
   // Computed properties
-  bool get isPreset => presetId != null;
-  bool get isCustom => presetId == null;
-  bool get hasEatingWindow => eatingWindowStart != null && eatingWindowEnd != null;
+  bool get isPreset => presetType != null;
+  bool get isCustom => presetType == null;
+  bool get hasEatingWindow => eatingWindowStartMinutes != null && eatingWindowEndMinutes != null;
   bool get isFixedDuration => endDate != null;
 
   Duration? get eatingWindowDuration {
     if (!hasEatingWindow) return null;
-    final startMinutes = eatingWindowStart!.hour * 60 + eatingWindowStart!.minute;
-    final endMinutes = eatingWindowEnd!.hour * 60 + eatingWindowEnd!.minute;
-    return Duration(minutes: endMinutes - startMinutes);
+    // Handle overnight windows (start > end means crosses midnight)
+    final diff = eatingWindowEndMinutes! - eatingWindowStartMinutes!;
+    final minutes = diff >= 0 ? diff : diff + 1440; // Add 24 hours if negative
+    return Duration(minutes: minutes);
   }
 
   Duration? get fastingDuration {
@@ -2893,7 +8205,16 @@ class Pattern with _$Pattern {
   }) = _Pattern;
 }
 
-enum PatternType { temporal, cyclical, sequential, cluster, dosage }
+enum PatternType {
+  temporal(0),
+  cyclical(1),
+  sequential(2),
+  cluster(3),
+  dosage(4);
+
+  final int value;
+  const PatternType(this.value);
+}
 ```
 
 ### TriggerCorrelation Entity
@@ -2959,7 +8280,7 @@ class HealthInsight with _$HealthInsight {
   }) = _HealthInsight;
 }
 
-enum InsightCategory { summary, pattern, trigger, progress, compliance, anomaly, milestone, recommendation }
+enum InsightCategory { daily, summary, pattern, trigger, progress, compliance, anomaly, milestone, recommendation }
 enum InsightPriority { high, medium, low }
 
 /// Evidence supporting a health insight
@@ -3034,6 +8355,13 @@ abstract class PatternRepository extends BaseRepository<Pattern, String> {
   });
   Future<Result<List<Pattern>, AppError>> getByEntity(String entityType, String entityId);
   Future<Result<void, AppError>> deactivate(String id);
+
+  /// Find similar patterns based on type and entities.
+  Future<Result<List<Pattern>, AppError>> findSimilar(
+    String patternId, {
+    double minSimilarity = 0.7,
+    int? limit,
+  });
 }
 
 abstract class TriggerCorrelationRepository extends BaseRepository<TriggerCorrelation, String> {
@@ -3494,7 +8822,7 @@ class NotificationSchedule with _$NotificationSchedule {
     required NotificationType type,
     String? entityId,                              // e.g., supplementId for supplement reminders
     required List<int> timesMinutesFromMidnight,   // [480, 720] = 8:00 AM, 12:00 PM
-    required List<int> weekdays,                   // [0-6] where 0=Sunday
+    required List<int> weekdays,                   // [0-6] where 0=Monday (matches DateTime.weekday - 1)
     @Default(true) bool isEnabled,
     String? customMessage,
     required SyncMetadata syncMetadata,
@@ -3512,8 +8840,8 @@ class NotificationSchedule with _$NotificationSchedule {
     return '${h.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')} $period';
   }).toList();
 
-  /// Whether reminder is active today
-  bool get isActiveToday => weekdays.contains(DateTime.now().weekday % 7);
+  /// Whether reminder is active today (weekday 0=Monday to 6=Sunday)
+  bool get isActiveToday => weekdays.contains(DateTime.now().weekday - 1);
 }
 ```
 
@@ -3736,6 +9064,7 @@ abstract class AuditLogService {
 class AuditLogEntry with _$AuditLogEntry {
   const factory AuditLogEntry({
     required String id,
+    required String clientId,     // Required for database merging
     required String userId,
     required String profileId,
     required AuditEventType eventType,
@@ -3745,6 +9074,7 @@ class AuditLogEntry with _$AuditLogEntry {
     String? entityId,
     String? ipAddress,
     Map<String, dynamic>? metadata,
+    required SyncMetadata syncMetadata,  // Required for all entities
   }) = _AuditLogEntry;
 
   factory AuditLogEntry.fromJson(Map<String, dynamic> json) =>
@@ -3818,33 +9148,42 @@ The `ProfileAccessLog` and `AuditLogService` serve complementary HIPAA audit pur
 
 **Example: Authorized Access Flow**:
 ```dart
-Future<void> accessSharedProfile(String profileId, String authorizationId) async {
+/// IMPORTANT: Use Result pattern - never throw exceptions (per 02_CODING_STANDARDS.md Section 7.2)
+Future<Result<void, AppError>> accessSharedProfile(String profileId, String authorizationId) async {
   // 1. Validate authorization exists and is not expired
-  final auth = await hipaaAuthorizationRepo.getById(authorizationId);
-  if (auth == null || auth.isExpired) {
-    await auditLogService.logAccess(AuditLogEntry(
-      eventType: AuditEventType.authorizationDenied,
-      profileId: profileId,
-      // ... other fields
-    ));
-    throw AccessDeniedException();
-  }
+  final authResult = await hipaaAuthorizationRepo.getById(authorizationId);
 
-  // 2. Log to ProfileAccessLog (for HIPAA tracking)
-  await profileAccessLogRepo.create(ProfileAccessLog(
-    authorizationId: authorizationId,
-    profileId: profileId,
-    action: ProfileAccessAction.view,
-    // ... other fields
-  ));
+  return authResult.when(
+    success: (auth) async {
+      if (auth == null || auth.isExpired) {
+        await auditLogService.logAccess(AuditLogEntry(
+          eventType: AuditEventType.authorizationDenied,
+          profileId: profileId,
+          // ... other fields
+        ));
+        return Failure(AuthError.profileAccessDenied(profileId));
+      }
 
-  // 3. Log to AuditLogService (for general audit)
-  await auditLogService.logAccess(AuditLogEntry(
-    eventType: AuditEventType.dataAccess,
-    profileId: profileId,
-    metadata: {'authorizationId': authorizationId},
-    // ... other fields
-  ));
+      // 2. Log to ProfileAccessLog (for HIPAA tracking)
+      await profileAccessLogRepo.create(ProfileAccessLog(
+        authorizationId: authorizationId,
+        profileId: profileId,
+        action: ProfileAccessAction.view,
+        // ... other fields
+      ));
+
+      // 3. Log to AuditLogService (for general audit)
+      await auditLogService.logAccess(AuditLogEntry(
+        eventType: AuditEventType.dataAccess,
+        profileId: profileId,
+        metadata: {'authorizationId': authorizationId},
+        // ... other fields
+      ));
+
+      return Success(null);
+    },
+    failure: (error) => Failure(error),
+  );
 }
 ```
 
@@ -3963,6 +9302,7 @@ enum AuthorizationDuration {
 class ProfileAccessLog with _$ProfileAccessLog {
   const factory ProfileAccessLog({
     required String id,
+    required String clientId,              // Required for database merging
     required String authorizationId,       // Reference to HipaaAuthorization
     required String profileId,
     required String accessedByUserId,      // User who accessed
@@ -3972,6 +9312,7 @@ class ProfileAccessLog with _$ProfileAccessLog {
     String? entityId,                      // Specific entity if applicable
     required int accessedAt,               // Epoch milliseconds
     required String ipAddress,             // Required for HIPAA audit
+    required SyncMetadata syncMetadata,    // Required for all entities
   }) = _ProfileAccessLog;
 
   factory ProfileAccessLog.fromJson(Map<String, dynamic> json) =>
@@ -4194,6 +9535,9 @@ class Profile with _$Profile {
 abstract class ProfileRepository implements EntityRepository<Profile, String> {
   Future<Result<List<Profile>, AppError>> getByOwner(String ownerId);
   Future<Result<Profile?, AppError>> getDefault(String ownerId);
+
+  /// Get all profiles for a user (alias for getByOwner for clarity in user context).
+  Future<Result<List<Profile>, AppError>> getByUser(String userId);
 }
 ```
 
@@ -4283,6 +9627,16 @@ class ConditionLog with _$ConditionLog {
 }
 
 abstract class ConditionLogRepository implements EntityRepository<ConditionLog, String> {
+  /// Get all condition logs for a profile.
+  Future<Result<List<ConditionLog>, AppError>> getByProfile(
+    String profileId, {
+    int? startDate,      // Epoch ms
+    int? endDate,        // Epoch ms
+    int? limit,
+    int? offset,
+  });
+
+  /// Get condition logs for a specific condition.
   Future<Result<List<ConditionLog>, AppError>> getByCondition(
     String conditionId, {
     int? limit,
@@ -4421,6 +9775,14 @@ abstract class FoodItemRepository implements EntityRepository<FoodItem, String> 
     int limit = 20,
   });
   Future<Result<void, AppError>> archive(String id);
+
+  /// Search food items excluding specific categories.
+  Future<Result<List<FoodItem>, AppError>> searchExcludingCategories(
+    String profileId,
+    String query, {
+    required List<String> excludeCategories,
+    int limit = 20,
+  });
 }
 ```
 
@@ -4460,6 +9822,13 @@ abstract class FoodLogRepository implements EntityRepository<FoodLog, String> {
   Future<Result<List<FoodLog>, AppError>> getForDate(
     String profileId,
     int date,  // Epoch ms (start of day)
+  );
+
+  /// Get food logs within a date range.
+  Future<Result<List<FoodLog>, AppError>> getByDateRange(
+    String profileId,
+    int startDate,  // Epoch ms
+    int endDate,    // Epoch ms
   );
 }
 ```
@@ -4536,6 +9905,13 @@ abstract class ActivityLogRepository implements EntityRepository<ActivityLog, St
   Future<Result<List<ActivityLog>, AppError>> getForDate(
     String profileId,
     int date,  // Epoch ms (start of day)
+  );
+
+  /// Get activity log by external import ID (for deduplication of wearable data).
+  Future<Result<ActivityLog?, AppError>> getByExternalId(
+    String profileId,
+    String importSource,
+    String importExternalId,
   );
 }
 ```
@@ -4622,6 +9998,8 @@ abstract class SleepEntryRepository implements EntityRepository<SleepEntry, Stri
 
 @freezed
 class JournalEntry with _$JournalEntry implements Syncable {
+  const JournalEntry._();
+
   const factory JournalEntry({
     required String id,
     required String clientId,
@@ -4629,6 +10007,7 @@ class JournalEntry with _$JournalEntry implements Syncable {
     required int timestamp,          // Epoch milliseconds
     required String content,
     String? title,
+    int? mood,                       // Mood rating 1-10, optional
     List<String>? tags,
     String? audioUrl,
     required SyncMetadata syncMetadata,
@@ -4644,6 +10023,7 @@ abstract class JournalEntryRepository implements EntityRepository<JournalEntry, 
     int? startDate,      // Epoch ms
     int? endDate,        // Epoch ms
     List<String>? tags,
+    int? mood,           // Filter by mood rating
     int? limit,
     int? offset,
   });
@@ -4651,6 +10031,11 @@ abstract class JournalEntryRepository implements EntityRepository<JournalEntry, 
     String profileId,
     String query,
   );
+  Future<Result<Map<int, int>, AppError>> getMoodDistribution(
+    String profileId, {
+    required int startDate,  // Epoch ms
+    required int endDate,    // Epoch ms
+  });
 }
 ```
 
@@ -4661,12 +10046,17 @@ abstract class JournalEntryRepository implements EntityRepository<JournalEntry, 
 
 @freezed
 class PhotoArea with _$PhotoArea implements Syncable {
+  const PhotoArea._();
+
   const factory PhotoArea({
     required String id,
     required String clientId,
     required String profileId,
     required String name,
+    String? description,             // Area description
     String? consistencyNotes,        // Guidance for consistent photo positioning
+    @Default(0) int sortOrder,       // Display order
+    @Default(false) bool isArchived, // Soft delete flag
     required SyncMetadata syncMetadata,
   }) = _PhotoArea;
 
@@ -4675,7 +10065,14 @@ class PhotoArea with _$PhotoArea implements Syncable {
 }
 
 abstract class PhotoAreaRepository implements EntityRepository<PhotoArea, String> {
-  Future<Result<List<PhotoArea>, AppError>> getByProfile(String profileId);
+  Future<Result<List<PhotoArea>, AppError>> getByProfile(
+    String profileId, {
+    bool includeArchived = false,
+  });
+  Future<Result<void, AppError>> reorder(
+    String profileId,
+    List<String> areaIds,  // Ordered list of area IDs
+  );
 }
 ```
 
@@ -4686,11 +10083,13 @@ abstract class PhotoAreaRepository implements EntityRepository<PhotoArea, String
 
 @freezed
 class PhotoEntry with _$PhotoEntry implements Syncable {
+  const PhotoEntry._();
+
   const factory PhotoEntry({
     required String id,
     required String clientId,
     required String profileId,
-    required String areaId,
+    required String photoAreaId,     // FK to PhotoArea
     required int timestamp,          // Epoch milliseconds
     required String filePath,
     String? notes,
@@ -4708,7 +10107,7 @@ class PhotoEntry with _$PhotoEntry implements Syncable {
 
 abstract class PhotoEntryRepository implements EntityRepository<PhotoEntry, String> {
   Future<Result<List<PhotoEntry>, AppError>> getByArea(
-    String areaId, {
+    String photoAreaId, {
     int? startDate,      // Epoch ms
     int? endDate,        // Epoch ms
     int? limit,
@@ -4732,29 +10131,39 @@ abstract class PhotoEntryRepository implements EntityRepository<PhotoEntry, Stri
 
 @freezed
 class FlareUp with _$FlareUp implements Syncable {
+  const FlareUp._();
+
   const factory FlareUp({
     required String id,
     required String clientId,
     required String profileId,
-    required int timestamp,          // Epoch milliseconds
     required String conditionId,
-    String? activityId,              // Activity that may have triggered flare-up
-    required List<String> triggers,  // Trigger descriptions
+    required int startDate,          // Epoch milliseconds - flare-up start
+    int? endDate,                    // Epoch milliseconds - flare-up end (null = ongoing)
     required int severity,           // 1-10 scale
     String? notes,
+    required List<String> triggers,  // Trigger descriptions
+    String? activityId,              // Activity that may have triggered flare-up
     String? photoPath,
     required SyncMetadata syncMetadata,
   }) = _FlareUp;
 
   factory FlareUp.fromJson(Map<String, dynamic> json) =>
       _$FlareUpFromJson(json);
+
+  /// Duration in milliseconds, null if ongoing
+  int? get durationMs => endDate != null ? endDate! - startDate : null;
+
+  /// Whether the flare-up is currently active
+  bool get isOngoing => endDate == null;
 }
 
 abstract class FlareUpRepository implements EntityRepository<FlareUp, String> {
   Future<Result<List<FlareUp>, AppError>> getByCondition(
     String conditionId, {
-    int? startDate,      // Epoch ms
-    int? endDate,        // Epoch ms
+    int? startDate,      // Epoch ms - filter by flare-up startDate
+    int? endDate,        // Epoch ms - filter by flare-up startDate
+    bool? ongoingOnly,   // Filter to only ongoing flare-ups
     int? limit,
     int? offset,
   });
@@ -4762,6 +10171,7 @@ abstract class FlareUpRepository implements EntityRepository<FlareUp, String> {
     String profileId, {
     int? startDate,      // Epoch ms
     int? endDate,        // Epoch ms
+    bool? ongoingOnly,   // Filter to only ongoing flare-ups
     int? limit,
     int? offset,
   });
@@ -4770,6 +10180,7 @@ abstract class FlareUpRepository implements EntityRepository<FlareUp, String> {
     required int startDate,  // Epoch ms
     required int endDate,    // Epoch ms
   });
+  Future<Result<List<FlareUp>, AppError>> getOngoing(String profileId);
 }
 ```
 
@@ -4950,6 +10361,7 @@ class MLModel with _$MLModel {
     required int modelSizeBytes,
     required String modelPath,             // Local file path to TFLite model
     String? trainingNotes,
+    required SyncMetadata syncMetadata,   // Required per 02_CODING_STANDARDS.md Section 5.1
   }) = _MLModel;
 
   factory MLModel.fromJson(Map<String, dynamic> json) =>
@@ -5005,6 +10417,7 @@ class PredictionFeedback with _$PredictionFeedback {
     required int feedbackRecordedAt,       // Epoch milliseconds
     String? userNotes,
     @Default(false) bool usedForRetraining,
+    required SyncMetadata syncMetadata,   // Required per 02_CODING_STANDARDS.md Section 5.1
   }) = _PredictionFeedback;
 
   factory PredictionFeedback.fromJson(Map<String, dynamic> json) =>
@@ -5090,6 +10503,61 @@ class BowelUrineLog with _$BowelUrineLog {
 abstract class BowelUrineLogRepository {
   Future<Result<List<BowelUrineLog>, AppError>> getAll(String profileId);
   Future<Result<int, AppError>> getCount(String profileId);
+}
+```
+
+### 10.26 ProfileAccess Entity (P0 - Core)
+
+```dart
+// lib/domain/entities/profile_access.dart
+
+/// Represents a user's access grant to a profile.
+/// This is the database entity - distinct from the ProfileAccess DTO in Section 9.1.
+/// Matches database table: profile_access
+@freezed
+class ProfileAccessEntity with _$ProfileAccessEntity {
+  const ProfileAccessEntity._();
+
+  const factory ProfileAccessEntity({
+    required String id,
+    required String clientId,
+    required String profileId,           // FK to profiles
+    required String userId,              // FK to user_accounts
+    required AccessLevel accessLevel,    // read_only, read_write, owner
+    required int grantedAt,              // Epoch milliseconds
+    int? expiresAt,                       // Epoch milliseconds, null = no expiry
+    required SyncMetadata syncMetadata,
+  }) = _ProfileAccessEntity;
+
+  factory ProfileAccessEntity.fromJson(Map<String, dynamic> json) =>
+      _$ProfileAccessEntityFromJson(json);
+
+  /// Check if access has expired
+  bool get isExpired =>
+      expiresAt != null && expiresAt! < DateTime.now().millisecondsSinceEpoch;
+
+  /// Check if access is currently valid
+  bool get isValid => !isExpired;
+}
+
+abstract class ProfileAccessRepository implements EntityRepository<ProfileAccessEntity, String> {
+  /// Get all access grants for a profile
+  Future<Result<List<ProfileAccessEntity>, AppError>> getByProfile(String profileId);
+
+  /// Get all profiles a user has access to
+  Future<Result<List<ProfileAccessEntity>, AppError>> getByUser(String userId);
+
+  /// Get specific access grant for user-profile combination
+  Future<Result<ProfileAccessEntity?, AppError>> getByUserAndProfile(
+    String userId,
+    String profileId,
+  );
+
+  /// Revoke access (soft delete via syncMetadata.isDeleted)
+  Future<Result<void, AppError>> revoke(String id);
+
+  /// Get all valid (non-expired) access grants for a user
+  Future<Result<List<ProfileAccessEntity>, AppError>> getValidAccessByUser(String userId);
 }
 ```
 
@@ -5252,14 +10720,21 @@ double calculateImpact(String profileId, String dietId, FoodItem food) {
 **When `holdUntilEnd` is selected:**
 
 ```dart
+/// Ephemeral entity for quiet hours notification queuing.
+/// NOTE: This is a transient/volatile entity stored in memory or temporary table.
+/// It does NOT persist long-term and is exempt from full entity requirements
+/// per its ephemeral nature (similar to pairing_sessions).
 @freezed
 class QueuedNotification with _$QueuedNotification {
   const factory QueuedNotification({
     required String id,
+    required String clientId,            // For consistency with entity pattern
+    required String profileId,           // Profile that owns this queued notification
     required NotificationType type,
     required int originalScheduledTime,  // Epoch milliseconds
     required int queuedAt,               // Epoch milliseconds
     required Map<String, dynamic> payload,
+    // NOTE: No syncMetadata - ephemeral entity, cleared when quiet hours end
   }) = _QueuedNotification;
 
   factory QueuedNotification.fromJson(Map<String, dynamic> json) =>
@@ -5268,32 +10743,44 @@ class QueuedNotification with _$QueuedNotification {
 
 class QuietHoursQueueService {
   /// Queue a notification for delivery after quiet hours
-  Future<void> queue(QueuedNotification notification) async {
-    await _queuedNotificationsTable.insert(notification);
+  /// Returns Result per 02_CODING_STANDARDS.md Section 7
+  Future<Result<void, AppError>> queue(QueuedNotification notification) async {
+    try {
+      await _queuedNotificationsTable.insert(notification);
+      return Success(null);
+    } catch (e, stack) {
+      return Failure(DatabaseError.insertFailed('queued_notifications', e, stack));
+    }
   }
 
   /// Process queue when quiet hours end
-  Future<void> processQueue() async {
-    final queued = await _queuedNotificationsTable.getAll();
+  /// Returns Result per 02_CODING_STANDARDS.md Section 7
+  Future<Result<int, AppError>> processQueue() async {
+    try {
+      final queued = await _queuedNotificationsTable.getAll();
 
-    // Sort by original scheduled time (oldest first)
-    queued.sort((a, b) => a.originalScheduledTime.compareTo(b.originalScheduledTime));
+      // Sort by original scheduled time (oldest first)
+      queued.sort((a, b) => a.originalScheduledTime.compareTo(b.originalScheduledTime));
 
-    // Collapse duplicates of same type within 15 minutes
-    final collapsed = _collapseDuplicates(queued);
+      // Collapse duplicates of same type within 15 minutes
+      final collapsed = _collapseDuplicates(queued);
 
-    // Discard stale notifications (> 24 hours old)
-    final fresh = collapsed.where((n) =>
-      DateTime.now().difference(n.originalScheduledTime).inHours < 24
-    );
+      // Discard stale notifications (> 24 hours old)
+      final fresh = collapsed.where((n) =>
+        DateTime.now().millisecondsSinceEpoch - n.originalScheduledTime < 24 * 60 * 60 * 1000
+      ).toList();
 
-    // Deliver with 2-second spacing to avoid flood
-    for (final notification in fresh) {
-      await _notificationService.showNow(notification);
-      await Future.delayed(Duration(seconds: 2));
+      // Deliver with 2-second spacing to avoid flood
+      for (final notification in fresh) {
+        await _notificationService.showNow(notification);
+        await Future.delayed(Duration(seconds: 2));
+      }
+
+      await _queuedNotificationsTable.deleteAll();
+      return Success(fresh.length);  // Return count of processed notifications
+    } catch (e, stack) {
+      return Failure(NotificationError.scheduleFailed('processQueue', e, stack));
     }
-
-    await _queuedNotificationsTable.deleteAll();
   }
 
   List<QueuedNotification> _collapseDuplicates(List<QueuedNotification> queue) {
@@ -5412,7 +10899,7 @@ bool shouldIncludeInCompliance(Diet diet) {
 | waterIntakeMl | 0 | 10000 | milliliters |
 | basalBodyTemperature | 95.0 | 105.0 | Fahrenheit |
 | timesMinutesFromMidnight | 0 | 1439 | minutes |
-| weekdays (each value) | 0 | 6 | 0=Sunday |
+| weekdays (each value) | 0 | 6 | 0=Monday, 6=Sunday |
 | snoozeMinutes | 1 | 480 | minutes (8 hours max) |
 | offsetMinutes | -1440 | 1440 | minutes (±24 hours) |
 
@@ -5431,12 +10918,13 @@ bool shouldIncludeInCompliance(Diet diet) {
 ```dart
 /// Get logs for a specific local date
 /// Note: date parameter is epoch ms representing start of day in local timezone
-Future<List<FoodLog>> getLogsForDate(String profileId, int date) {  // Epoch ms
+Future<Result<List<FoodLog>, AppError>> getLogsForDate(String profileId, int date) {  // Epoch ms
   // Calculate end of day (24 hours later)
   final endOfDay = date + (24 * 60 * 60 * 1000);  // +24 hours in ms
 
+  // IMPORTANT: Always include sync_deleted_at IS NULL for soft delete filtering
   return query(
-    'SELECT * FROM food_logs WHERE profile_id = ? AND timestamp >= ? AND timestamp < ?',
+    'SELECT * FROM food_logs WHERE profile_id = ? AND timestamp >= ? AND timestamp < ? AND sync_deleted_at IS NULL',
     [profileId, date, endOfDay],
   );
 }
@@ -5511,17 +10999,15 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | Direct |
-| timestamp | timestamp | int | INTEGER | Epoch ms |
+| entryDate | timestamp | int | INTEGER | Epoch ms |
 | waterIntakeMl | water_intake_ml | int? | INTEGER | Direct |
 | waterIntakeNotes | water_intake_notes | String? | TEXT | Direct |
-| hasBowelMovement | has_bowel_movement | bool | INTEGER | 0/1 |
+| (computed) hasBowelData | has_bowel_movement | bool | INTEGER | bowelCondition != null |
 | bowelCondition | bowel_condition | BowelCondition? | INTEGER | .value |
-| bowelCustomCondition | bowel_custom_condition | String? | TEXT | Direct |
 | bowelSize | bowel_size | MovementSize? | INTEGER | .value |
 | bowelPhotoPath | bowel_photo_path | String? | TEXT | Direct |
-| hasUrineMovement | has_urine_movement | bool | INTEGER | 0/1 |
+| (computed) hasUrineData | has_urine_movement | bool | INTEGER | urineCondition != null |
 | urineCondition | urine_condition | UrineCondition? | INTEGER | .value |
-| urineCustomCondition | urine_custom_condition | String? | TEXT | Direct |
 | urineSize | urine_size | MovementSize? | INTEGER | .value |
 | urinePhotoPath | urine_photo_path | String? | TEXT | Direct |
 | menstruationFlow | menstruation_flow | MenstruationFlow? | INTEGER | .value |
@@ -5530,7 +11016,19 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | otherFluidName | other_fluid_name | String? | TEXT | Direct |
 | otherFluidAmount | other_fluid_amount | String? | TEXT | Direct |
 | otherFluidNotes | other_fluid_notes | String? | TEXT | Direct |
+| importSource | import_source | String? | TEXT | Direct |
+| importExternalId | import_external_id | String? | TEXT | Direct |
+| cloudStorageUrl | cloud_storage_url | String? | TEXT | File sync |
+| fileHash | file_hash | String? | TEXT | SHA-256 hash |
+| fileSizeBytes | file_size_bytes | int? | INTEGER | Direct |
+| isFileUploaded | is_file_uploaded | bool | INTEGER | 0/1 |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
+
+**Notes:**
+- `entryDate` in entity maps to `timestamp` column in DB
+- `hasBowelData` and `hasUrineData` are computed getters in entity, stored as `has_bowel_movement`/`has_urine_movement` in DB
+- `bowelCustomCondition` and `urineCustomCondition` DB columns exist for "custom" enum values but are not in current entity
+- File sync fields are for bowel/urine photo uploads
 
 ### 13.4 Diet Entity ↔ diets Table
 
@@ -5555,12 +11053,22 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 |--------------|-----------|-------------|---------|------------|
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
+| profileId | profile_id | String | TEXT | FK to profiles |
 | dietId | diet_id | String | TEXT | FK to diets |
-| ruleType | rule_type | DietRuleType | INTEGER | .value |
+| type | rule_type | DietRuleType | INTEGER | .value |
+| severity | severity | RuleSeverity | INTEGER | .value |
 | category | category | FoodCategory? | INTEGER | .value |
-| maxValue | max_value | double? | REAL | Direct |
-| unit | unit | String? | TEXT | Direct |
+| ingredientName | ingredient_name | String? | TEXT | Direct |
+| numericValue | numeric_value | double? | REAL | Direct |
+| timeValue | time_value | TimeOfDay? | INTEGER | Minutes from midnight |
+| daysOfWeek | days_of_week | List<int>? | TEXT | Comma-separated 0-6 |
+| description | description | String? | TEXT | Direct |
+| violationMessage | violation_message | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
+
+**Notes:**
+- `timeValue` is a Flutter `TimeOfDay` in entity, stored as INTEGER minutes from midnight in DB
+- `daysOfWeek` is `List<int>` in entity (0=Monday to 6=Sunday), stored as comma-separated TEXT in DB
 
 ### 13.6 DietViolation Entity ↔ diet_violations Table
 
@@ -5644,15 +11152,22 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 |--------------|-----------|-------------|---------|------------|
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
-| userId | user_id | String | TEXT | FK to user_accounts |
+| userAccountId | user_account_id | String | TEXT | FK to user_accounts |
 | deviceId | device_id | String | TEXT | Unique device identifier |
 | deviceName | device_name | String | TEXT | User-friendly name |
-| platform | platform | String | TEXT | 'ios' \| 'android' \| 'macos' \| 'web' |
-| pushToken | push_token | String? | TEXT | FCM/APNs token |
+| deviceType | device_type | DeviceType | TEXT | .name ('ios', 'android', 'macos', 'web') |
+| deviceModel | device_model | String? | TEXT | e.g., "iPhone 15 Pro" |
+| osVersion | os_version | String? | TEXT | e.g., "iOS 17.2" |
+| appVersion | app_version | String? | TEXT | e.g., "1.2.3" |
 | registeredAt | registered_at | int | INTEGER | Epoch ms |
 | lastSeenAt | last_seen_at | int | INTEGER | Epoch ms |
 | isActive | is_active | bool | INTEGER | 0/1 |
+| pushToken | push_token | String? | TEXT | FCM/APNs token |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
+
+**Notes:**
+- `deviceType` is an enum in entity, stored as TEXT name in DB
+- Entity field `userAccountId` matches DB column `user_account_id`
 
 ### 13.12 IntakeLog Entity ↔ intake_logs Table
 
@@ -6468,6 +11983,160 @@ group('Archive Impact on Compliance', () {
 
 ---
 
+## 15. Edge Cases and Exceptions
+
+This section documents all exceptions to standard patterns. Engineers MUST understand these exceptions to avoid incorrect implementations.
+
+### 15.1 Sync Method Soft-Delete Exceptions
+
+**Standard Rule:** All `getAll()`, `getById()`, and list methods MUST include `WHERE sync_deleted_at IS NULL` to filter soft-deleted records.
+
+**EXCEPTION:** Sync-specific methods MUST NOT filter soft-deleted records because tombstones must propagate:
+
+| Method | Behavior | Rationale |
+|--------|----------|-----------|
+| `getModifiedSince(timestamp)` | Includes soft-deleted | Sync must send deletion tombstones |
+| `getPendingSync()` | Includes soft-deleted | Dirty deletions must sync to cloud |
+
+```dart
+// CORRECT: Sync method includes all records
+Future<Result<List<T>, AppError>> getModifiedSince(int since) async {
+  return _query(
+    'SELECT * FROM $table WHERE sync_updated_at > ?', // NO sync_deleted_at filter
+    [since],
+  );
+}
+
+// CORRECT: Standard method filters soft-deleted
+Future<Result<List<T>, AppError>> getAll(String profileId) async {
+  return _query(
+    'SELECT * FROM $table WHERE profile_id = ? AND sync_deleted_at IS NULL',
+    [profileId],
+  );
+}
+```
+
+### 15.2 Entity Type Classification
+
+**Rule:** Only standalone persisted entities need the 4 required fields (id, clientId, profileId, syncMetadata).
+
+| Type | Requires 4 Fields? | Examples |
+|------|-------------------|----------|
+| **Standalone Entity** (own DB table) | YES | Supplement, Condition, FluidsEntry, Diet, DietRule |
+| **Embedded/Value Type** (JSON in parent) | NO | SupplementIngredient, SupplementSchedule, InsightEvidence, PredictionFactor |
+| **Input DTO** (use case input) | NO | GetSupplementsInput, LogFluidsEntryInput, CheckComplianceInput |
+| **Output/Result Type** (computed) | NO | ComplianceCheckResult, DataQualityReport, ComplianceStats |
+| **UI State Class** | NO | SupplementListState |
+| **Ephemeral Entity** (no persistence) | NO | QueuedNotification, PendingNotification |
+
+**Decision Rule:** If the type has its own database table → standalone entity. If stored as JSON within parent → embedded type.
+
+### 15.3 Input vs Output vs Entity Classification
+
+```dart
+// INPUT DTO: @freezed, no syncMetadata, for passing data INTO use cases
+@freezed
+class CreateDietInput with _$CreateDietInput {
+  const factory CreateDietInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    // NO id, NO syncMetadata
+  }) = _CreateDietInput;
+}
+
+// OUTPUT/RESULT: @freezed, no syncMetadata, computed/returned from use cases
+@freezed
+class ComplianceCheckResult with _$ComplianceCheckResult {
+  const factory ComplianceCheckResult({
+    required bool isCompliant,
+    required double compliancePercentage,
+    // NO id, NO syncMetadata - not persisted
+  }) = _ComplianceCheckResult;
+}
+
+// PERSISTED ENTITY: @freezed, MUST have 4 required fields
+@freezed
+class Diet with _$Diet {
+  const factory Diet({
+    required String id,              // REQUIRED
+    required String clientId,        // REQUIRED
+    required String profileId,       // REQUIRED
+    required String name,
+    // ... other fields
+    required SyncMetadata syncMetadata, // REQUIRED
+  }) = _Diet;
+}
+```
+
+### 15.4 Foreign Key ON DELETE Behaviors
+
+| Parent → Child | ON DELETE | Rationale |
+|----------------|-----------|-----------|
+| profiles → supplements | CASCADE | Delete profile = delete all health data |
+| profiles → conditions | CASCADE | Privacy: remove all related data |
+| profiles → food_items | CASCADE | Privacy |
+| profiles → activities | CASCADE | Privacy |
+| profiles → diets | CASCADE | Privacy |
+| user_accounts → profiles | SET NULL | Keep orphaned profiles for recovery |
+| supplements → intake_logs | CASCADE | Delete supplement = delete intake history |
+| conditions → condition_logs | CASCADE | Delete condition = delete logs |
+| conditions → flare_ups | CASCADE | Delete condition = delete flare records |
+| diets → diet_rules | CASCADE | Delete diet = delete rules |
+| diets → diet_violations | CASCADE | Delete diet = delete violation history |
+| photo_areas → photo_entries | CASCADE | Delete area = delete all photos |
+| hipaa_authorizations → profile_access_logs | CASCADE | Authorization deleted = logs deleted |
+
+### 15.5 Riverpod Framework Exceptions
+
+**Rule:** All use case and repository methods return `Result<T, AppError>`.
+
+**EXCEPTION:** Riverpod `@riverpod` annotated provider methods have framework-constrained signatures:
+
+| Method | Returns | Where Errors Go |
+|--------|---------|-----------------|
+| `build()` | `Future<State>` or `State` | `state = AsyncError(error)` |
+| `refresh()` | `void` | `state = AsyncError(error)` |
+| Custom actions (`addItem()`, etc.) | `Future<Result<T, AppError>>` | Standard Result pattern |
+
+```dart
+@riverpod
+class SupplementList extends _$SupplementList {
+  @override
+  Future<SupplementListState> build(String profileId) async {
+    // build() cannot return Result - framework requirement
+    final result = await _useCase.call(GetSupplementsInput(profileId: profileId));
+    return result.when(
+      success: (supplements) => SupplementListState(supplements: supplements),
+      failure: (error) => throw error, // AsyncValue handles this
+    );
+  }
+
+  // Custom actions CAN and MUST return Result
+  Future<Result<Supplement, AppError>> addSupplement(Supplement s) async {
+    return _useCase.call(CreateSupplementInput(...));
+  }
+}
+```
+
+### 15.6 Weekday Convention
+
+**All weekday values use 0=Monday to 6=Sunday** (matches `DateTime.weekday - 1`).
+
+| Day | Value |
+|-----|-------|
+| Monday | 0 |
+| Tuesday | 1 |
+| Wednesday | 2 |
+| Thursday | 3 |
+| Friday | 4 |
+| Saturday | 5 |
+| Sunday | 6 |
+
+Used in: `NotificationSchedule.weekdays`, `SupplementSchedule.weekdays`, `DietRule.daysOfWeek`
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
@@ -6477,3 +12146,4 @@ group('Archive Impact on Compliance', () {
 | 1.2 | 2026-02-01 | Added 6 missing entity contracts: UserAccount, DeviceRegistration, Document, MLModel, PredictionFeedback, BowelUrineLog (Round 5 Audit) |
 | 1.3 | 2026-02-01 | Added complete error factory methods for all error types; added comprehensive notification type documentation with snooze behavior; added Section 12 Behavioral Specifications resolving all ambiguities (Round 7 Audit) |
 | 1.4 | 2026-02-01 | Converted ALL use case inputs to @freezed format; Added Section 13 Entity-Database Alignment Reference; Added Section 14 Test Scenarios for Behavioral Specifications (Complete 100% Audit) |
+| 1.5 | 2026-02-01 | Added Section 15 Edge Cases and Exceptions; Fixed weekday convention (0=Monday); Fixed Diet/DietRule/DeviceRegistration entity-DB alignment; Fixed FluidsEntry entryDate mapping |
