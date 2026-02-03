@@ -1,20 +1,22 @@
 {
-  "lastInstanceId": "phase1-foundation-001",
+  "lastInstanceId": "phase1-domain-002",
   "lastAction": "completed",
-  "taskId": "PHASE1-CORE-TYPES",
+  "taskId": "PHASE1-SYNC-ENUMS",
   "status": "complete",
-  "timestamp": "2026-02-03T17:45:00Z",
+  "timestamp": "2026-02-03T18:30:00Z",
   "filesModified": [
-    "lib/core/types/result.dart",
-    "lib/core/types/types.dart",
-    "lib/core/errors/app_error.dart",
-    "lib/core/errors/errors.dart",
-    "lib/core/core.dart",
-    "lib/l10n/app_en.arb",
-    "lib/main.dart",
-    "test/unit/core/result_test.dart"
+    "lib/domain/entities/sync_metadata.dart",
+    "lib/domain/entities/sync_metadata.freezed.dart",
+    "lib/domain/entities/sync_metadata.g.dart",
+    "lib/domain/entities/entities.dart",
+    "lib/domain/enums/health_enums.dart",
+    "lib/domain/enums/enums.dart",
+    "lib/domain/domain.dart",
+    "test/unit/domain/entities/sync_metadata_test.dart",
+    "test/unit/domain/enums/health_enums_test.dart",
+    "analysis_options.yaml"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "COMPLETED: Phase 1 core types. Result<T,E> sealed class with Success/Failure per 22_API_CONTRACTS.md Section 1. All 11 AppError subtypes (Database, Auth, Network, Validation, Sync, Wearable, Diet, Intelligence, Business, Notification) with exact error codes from spec. Consolidated into single file (Dart sealed class requirement). Clean Architecture folder structure created. 15 Result tests passing. flutter analyze: 0 errors. Compliance verified. NEXT: SyncMetadata entity, core enums per 22_API_CONTRACTS.md."
+  "notes": "COMPLETED: Phase 1 SyncMetadata entity and health enums. SyncMetadata freezed class with JSON serialization (snake_case keys), factory methods (create, empty), state transitions (markModified, markSynced, markDeleted). 17 domain enums per 22_API_CONTRACTS.md Section 3.3. ConditionSeverity has storage scale conversion (1-10). NotificationType has allowsSnooze and defaultSnoozeMinutes getters. 75 new tests (90 total). All passing. flutter analyze: 0 issues. NEXT: Continue Phase 1 per 05_IMPLEMENTATION_ROADMAP.md (UserProfile entity, base repository interfaces)."
 }
