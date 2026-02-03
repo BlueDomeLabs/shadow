@@ -1,21 +1,19 @@
 {
-  "lastInstanceId": "phase1-domain-002",
+  "lastInstanceId": "phase1-domain-003",
   "lastAction": "completed",
-  "taskId": "PHASE1-SYNC-ENUMS-SPEC-REVIEW",
+  "taskId": "SHADOW-011-007",
   "status": "complete",
-  "timestamp": "2026-02-03T19:05:00Z",
+  "timestamp": "2026-02-03T19:45:00Z",
   "filesModified": [
-    "lib/domain/entities/sync_metadata.dart",
-    "lib/domain/enums/health_enums.dart",
-    "test/unit/domain/entities/sync_metadata_test.dart",
-    "test/unit/domain/enums/health_enums_test.dart",
-    "22_API_CONTRACTS.md",
-    "02_CODING_STANDARDS.md",
-    "37_NOTIFICATIONS.md",
-    "35_QR_DEVICE_PAIRING.md",
-    "17_PRIVACY_COMPLIANCE.md"
+    "lib/core/services/device_info_service.dart",
+    "lib/core/services/services.dart",
+    "lib/core/repositories/base_repository.dart",
+    "lib/core/repositories/repositories.dart",
+    "lib/core/core.dart",
+    "test/unit/core/services/device_info_service_test.dart",
+    "test/unit/core/repositories/base_repository_test.dart"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "COMPLETED: Phase 1 SyncMetadata + enums. REVIEWED: Spec changes from previous instance - all compliant. Key changes verified: (1) BowelCondition now uses Bristol Stool Scale (approved), (2) All DateTime fields use int (epoch ms) throughout, (3) All enums have explicit integer values, (4) ~6000 lines of UseCase/DataSource patterns compliant with coding standards. 90 tests passing. NEXT: Continue Phase 1 per 05_IMPLEMENTATION_ROADMAP.md."
+  "notes": "COMPLETED: SHADOW-011 (DeviceInfoService) and SHADOW-007 (BaseRepository). DeviceInfoService provides device ID, name, platform for sync metadata. BaseRepository provides sync helpers (prepareForCreate, prepareForUpdate, prepareForDelete) per 05_IMPLEMENTATION_ROADMAP.md Sections 2.3 and 2.6. All tests passing. flutter analyze: 0 issues. NEXT: Continue Phase 1 - SHADOW-008 (Database Helper) or SHADOW-010 (LoggerService)."
 }
