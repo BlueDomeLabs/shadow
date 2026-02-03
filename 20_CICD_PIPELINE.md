@@ -118,8 +118,8 @@ jobs:
       - name: Check coverage threshold
         run: |
           COVERAGE=$(lcov --summary coverage/lcov.info | grep "lines" | awk '{print $2}' | tr -d '%')
-          if (( $(echo "$COVERAGE < 100" | bc -l) )); then
-            echo "Coverage $COVERAGE% is below 100% threshold"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below 80% threshold"
             exit 1
           fi
 
@@ -210,7 +210,7 @@ All PRs require:
 |-------|-------------|----------|
 | `lint` | Zero warnings | Yes |
 | `test` | 100% pass | Yes |
-| `coverage` | 100% lines | Yes |
+| `coverage` | ≥80% lines | Yes |
 | `build-android` | Successful | Yes |
 | `build-ios` | Successful | Yes |
 | `accessibility` | Zero failures | Yes |

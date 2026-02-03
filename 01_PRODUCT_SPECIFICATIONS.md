@@ -416,11 +416,11 @@ See `41_DIET_SYSTEM.md` for complete diet specification including rule engine, c
 - `mealBreakfast` (2) - Breakfast meal reminders
 - `mealLunch` (3) - Lunch meal reminders
 - `mealDinner` (4) - Dinner meal reminders
-- `mealSnacks` (5) - Snack reminders (covers morning, afternoon, and evening snacks)
+- `mealSnacks` (5) - Snack reminders
 - `waterInterval` (6) - Water reminders at regular intervals (every 1-2 hours)
 - `waterFixed` (7) - Water reminders at specific times (e.g., 9am, 12pm, 3pm)
 - `waterSmart` (8) - Smart water reminders based on current intake vs daily goal
-- `bbtMorning` (9) - Basal body temperature recording reminders (time-sensitive, no snooze)
+- `bbtMorning` (9) - Basal body temperature recording reminders (time-sensitive)
 - `menstruationTracking` (10) - Period/flow tracking reminders
 - `sleepBedtime` (11) - Bedtime/wind-down reminders
 - `sleepWakeup` (12) - Morning check-in reminders
@@ -431,16 +431,11 @@ See `41_DIET_SYSTEM.md` for complete diet specification including rule engine, c
 - `fastingWindowOpen` (17) - Alert when eating window begins
 - `fastingWindowClose` (18) - Warning before eating window ends (15-30 min)
 - `fastingWindowClosed` (19) - Alert when fasting period begins
-- `dietStreak` (20) - Celebration of diet compliance milestones (7, 14, 30 days, no snooze)
-- `dietWeeklySummary` (21) - Weekly diet compliance summary (no snooze)
+- `dietStreak` (20) - Celebration of diet compliance milestones (7, 14, 30 days)
+- `dietWeeklySummary` (21) - Weekly diet compliance summary
 - `fluidsGeneral` (22) - General fluids tracking reminders
 - `fluidsBowel` (23) - Bowel movement tracking reminders
-- `inactivity` (24) - Re-engagement reminders after extended absence (no snooze)
-
-**Water Notification Modes** (3 distinct behaviors):
-- `waterInterval` (6): Reminds at regular intervals (e.g., every 2 hours) within active hours
-- `waterFixed` (7): Reminds at user-specified fixed times (e.g., 9am, 12pm, 3pm, 6pm)
-- `waterSmart` (8): Dynamic reminders calculated based on remaining daily goal and time left in active hours. Formula: `nextInterval = max(30min, remainingMinutes / glassesRemaining)`
+- `inactivity` (24) - Re-engagement reminders after extended absence
 
 **Schedule Options**:
 - Times of day (multiple per schedule)
@@ -1276,7 +1271,6 @@ See [43_WEARABLE_INTEGRATION.md](43_WEARABLE_INTEGRATION.md) for complete specif
 | 1.2 | 2026-01-31 | Development Team | Added client_id for database merging support; Expanded Fluids to include water intake and customizable "other" fluid tracking |
 | 1.3 | 2026-01-31 | Development Team | Phase 3 Intelligence System fully specified; Fixed iCloud "future" inconsistency |
 | 1.4 | 2026-01-31 | Development Team | Phase 4 Health Data Integration fully specified; Removed healthcare provider sharing; Added HIPAA authorization to profile sharing |
-| 1.5 | 2026-02-02 | Development Team | Aligned NotificationType names with canonical 22_API_CONTRACTS.md; Added water notification mode documentation (3 modes: interval, fixed, smart) |
 
 ---
 

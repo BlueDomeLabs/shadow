@@ -40,7 +40,7 @@ This document tracks specification gaps identified during the fifth comprehensiv
 
 **Problem:** Three completely different definitions:
 
-**22_API_CONTRACTS.md (CANONICAL - 25 values):**
+**22_API_CONTRACTS.md (lines 557-582):**
 ```dart
 enum NotificationType {
   supplementIndividual(0), supplementGrouped(1),
@@ -50,15 +50,35 @@ enum NotificationType {
   sleepBedtime(11), sleepWakeup(12),
   conditionCheckIn(13), photoReminder(14), journalPrompt(15),
   syncReminder(16),
-  fastingWindowOpen(17), fastingWindowClose(18), fastingWindowClosed(19),
-  dietStreak(20), dietWeeklySummary(21),
-  fluidsGeneral(22), fluidsBowel(23), inactivity(24);
+  fastingWindowOpen(17), fastingWindowClose(18),
+  dietStreak(19), dietWeeklySummary(20);
 }
 ```
 
-**Resolution:** [COMPLETED] All documents now use the canonical 25-value enum from 22_API_CONTRACTS.md:
-- [x] 37_NOTIFICATIONS.md - Updated to match canonical definition
-- [x] 46_AUDIT_FIXES_ROUND3.md - Updated to match canonical definition
+**37_NOTIFICATIONS.md (lines 123-146):**
+```dart
+enum NotificationType {
+  supplement, supplementGroup,
+  foodMeal, foodGeneral,
+  water, fluidsBowel, fluidsGeneral,
+  bbt, menstruation,
+  sleepBedtime, sleepWakeup,
+  condition, photo, journal, sync, inactivity,
+  fastingWindowOpen, fastingWindowClosing, fastingWindowClosed,
+  dietStreak, dietWeekly,
+}
+```
+
+**Issues:**
+- Different names: `supplementIndividual` vs `supplement`
+- Different meal types: 4 specific meals vs `foodMeal/foodGeneral`
+- Different water types: 3 types vs single `water`
+- Missing `inactivity` in API Contracts
+- `fastingWindowClose` vs `fastingWindowClosing/fastingWindowClosed`
+
+**Resolution:** Standardize on API Contracts version (has numeric values):
+- [ ] Update `37_NOTIFICATIONS.md` to match 22_API_CONTRACTS.md exactly
+- [ ] Update `04_ARCHITECTURE.md` notification type references
 
 ---
 

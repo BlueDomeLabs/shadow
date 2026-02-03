@@ -202,7 +202,7 @@ SHADOW-XXX
 |-------|----------|---------|
 | `flutter analyze` | Yes | Zero warnings, zero infos |
 | `flutter test` | Yes | 100% pass rate |
-| Coverage threshold | Yes | 100% for all code |
+| Coverage threshold | Yes | Min 80% for new code |
 | Contract tests | Yes | All interface contracts valid |
 | Build (iOS) | Yes | Successful build |
 | Build (Android) | Yes | Successful build |

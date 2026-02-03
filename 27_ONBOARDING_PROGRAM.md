@@ -192,8 +192,8 @@ Q: What columns must every syncable table have?
 A: id, client_id, profile_id, sync_created_at, sync_updated_at, sync_deleted_at,
    sync_last_synced_at, sync_status, sync_version, sync_device_id, sync_is_dirty, conflict_data
 
-Q: What 8 values does the RecoveryAction enum have?
-A: none, retry, refreshToken, reAuthenticate, goToSettings, contactSupport, checkConnection, freeStorage
+Q: What 6 values does the RecoveryAction enum have?
+A: none, retry, refreshToken, reAuthenticate, goToSettings, contactSupport
 ```
 
 ---

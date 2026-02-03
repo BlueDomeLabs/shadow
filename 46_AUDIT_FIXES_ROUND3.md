@@ -56,20 +56,10 @@ sealed class AppError {
   RecoveryAction? get recoveryAction => null;
 }
 
-/// CANONICAL: See 22_API_CONTRACTS.md
-enum RecoveryAction {
-  none,            // No recovery possible - user must accept the error
-  retry,           // Retry the operation (transient failure)
-  refreshToken,    // Refresh the authentication token
-  reAuthenticate,  // User must re-authenticate (sign in again)
-  goToSettings,    // User should check app settings
-  contactSupport,  // User should contact support
-  checkConnection, // User should check network connection
-  freeStorage,     // User should free up storage space
-}
+enum RecoveryAction { retry, refresh, login, contactSupport, none }
 ```
 
-**Action:** [COMPLETED] All documents now use the canonical 8-value enum from 22_API_CONTRACTS.md.
+**Action:** Update 16_ERROR_HANDLING.md and 02_CODING_STANDARDS.md to reference 22_API_CONTRACTS.md definition.
 
 ---
 
@@ -163,12 +153,8 @@ enum NotificationType {
   syncReminder(16),
   fastingWindowOpen(17),
   fastingWindowClose(18),
-  fastingWindowClosed(19),   // Alert when fasting period begins
-  dietStreak(20),
-  dietWeeklySummary(21),
-  fluidsGeneral(22),         // General fluids tracking reminders
-  fluidsBowel(23),           // Bowel movement tracking reminders
-  inactivity(24);            // Re-engagement after extended absence
+  dietStreak(19),
+  dietWeeklySummary(20);
 
   final int value;
   const NotificationType(this.value);

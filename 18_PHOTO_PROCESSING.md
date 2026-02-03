@@ -341,7 +341,7 @@ class ProcessedPhoto with _$ProcessedPhoto {
     required int fileSizeBytes,
     required int encryptedSizeBytes,
     required String hash,
-    required int processedAt,            // Epoch milliseconds
+    required DateTime processedAt,
   }) = _ProcessedPhoto;
 }
 ```

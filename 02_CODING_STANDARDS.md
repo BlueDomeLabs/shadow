@@ -161,11 +161,6 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
 | Delete (soft) | `delete` | `Result<void, AppError>` | `NotFoundError` |
 | Delete (hard) | `hardDelete` | `Result<void, AppError>` | `NotFoundError` |
 
-**Method Naming Patterns:**
-- **Pattern A (Specific):** `getAllSupplements()` - when type is part of method name
-- **Pattern B (Generic):** `getAll()` - when implementing `EntityRepository<T>`
-- **Recommendation:** Use Pattern B with generic interface for consistency across repositories
-
 **Handling Results:**
 ```dart
 // CORRECT: Use Result pattern
@@ -326,9 +321,6 @@ Future<Result<void, AppError>> delete(String id) async {
 - **Repositories MUST catch exceptions** and wrap in `Result<T, AppError>`
 - Data sources deal with raw database operations; repositories handle business error semantics
 
-**Validation Responsibility:**
-Data source methods trust input validity (repository validates). Data sources handle raw database operations only. Exception: Defensive null checks acceptable.
-
 ### 4.1 Interface Pattern
 
 Every data source MUST have an abstract interface:
@@ -438,26 +430,6 @@ class Supplement with _$Supplement {
 }
 ```
 
-**The `const Entity._()` private constructor is REQUIRED to support computed properties/getters. Without it, you cannot define custom methods on the frozen class.**
-
-```dart
-// CORRECT: With private constructor - can add getters
-@freezed
-class Diet with _$Diet {
-  const Diet._();  // Enables custom getters below
-  const factory Diet({...}) = _Diet;
-
-  bool get isPreset => presetId != null;  // Works!
-}
-
-// INCORRECT: Without private constructor - cannot add getters
-@freezed
-class Diet with _$Diet {
-  const factory Diet({...}) = _Diet;
-  // bool get isPreset => presetId != null;  // Compile error!
-}
-```
-
 **Benefits:**
 - `copyWith` generated automatically
 - Immutability enforced at compile time
@@ -475,8 +447,6 @@ All entities in `lib/domain/entities/` MUST include:
 | `clientId` | `String` | Client identifier for database merging |
 | `profileId` | `String` | Profile scope identifier |
 | `syncMetadata` | `SyncMetadata` | Sync tracking data |
-
-**CRITICAL: Every health data entity MUST include `clientId` field. This is required for multi-device database merging. Entities without clientId are rejected at code review.**
 
 ```dart
 @freezed
@@ -500,15 +470,9 @@ class Supplement with _$Supplement {
 | Optional String | `String?` | `String? brand` |
 | Required List (always loaded) | `@Default([])` | `@Default([]) List<Ingredient> ingredients` |
 | Optional List (loaded on demand) | `List?` | `List<IntakeLog>? recentLogs` |
-| Required timestamp | `required int` | `required int scheduledAt` (epoch ms) |
-| Optional timestamp | `int?` | `int? completedAt` (epoch ms) |
+| Required DateTime | `required DateTime` | `required DateTime scheduledAt` |
+| Optional DateTime | `DateTime?` | `DateTime? completedAt` |
 | Enum with default | `@Default(EnumType.value)` | `@Default(SupplementForm.capsule) SupplementForm form` |
-
-> **IMPORTANT: Date/Time Standard**
-> All date/time values MUST be stored as `int` (epoch milliseconds UTC). Never use `DateTime` in entity fields.
-> - Storage: `int` epoch milliseconds
-> - Conversion: Use `DateTime.now().millisecondsSinceEpoch` to create, `DateTime.fromMillisecondsSinceEpoch(value, isUtc: true)` to display
-> - Timezone: Always UTC for storage; convert to local only in UI layer
 
 ```dart
 @freezed
@@ -530,15 +494,6 @@ class Diet with _$Diet {
 Every syncable entity MUST include SyncMetadata.
 
 > **CANONICAL:** See `22_API_CONTRACTS.md` Section 3.1 for authoritative @freezed definition.
-
-**Naming Convention: Dart vs Database**
-- Dart entity fields use camelCase (e.g., `syncCreatedAt`)
-- Database columns use snake_case (e.g., `sync_created_at`)
-- Models handle conversion via `@JsonKey` annotations:
-  ```dart
-  @JsonKey(name: 'sync_created_at')
-  required int syncCreatedAt,
-  ```
 
 ```dart
 @freezed
@@ -636,20 +591,6 @@ class Diet with _$Diet {
 2. Never perform async operations
 3. Never access repositories or services
 4. Document what they compute
-
-**O(1) time complexity only** - no loops or expensive calculations. Only simple field access or arithmetic:
-
-```dart
-// CORRECT: O(1) operations
-bool get isPreset => presetId != null;           // Simple null check
-bool get isActive => !isArchived && !isDeleted;  // Simple boolean logic
-int get totalDosage => dosageAmount * frequency; // Simple arithmetic
-
-// INCORRECT: O(n) operations - move to UseCase or Service
-int get ingredientCount => ingredients.length;   // List access - OK but borderline
-bool get hasExpiredItems => items.any((i) => i.isExpired);  // WRONG - O(n) loop
-String get formattedIngredients => ingredients.join(', ');  // WRONG - O(n) operation
-```
 
 ---
 
@@ -773,10 +714,6 @@ class SupplementList extends _$SupplementList {
 - Single source of business logic
 - Easier testing with UseCase mocks
 
-**UseCase Patterns for Void Operations:**
-- Use `UseCase<String, void>` for delete operations returning `Result<void, AppError>`
-- `UseCaseNoOutput` is only for non-Result void returns (rare - most operations should return Result)
-
 ### 6.3 Result Pattern in Providers
 
 Handle `Result<T, AppError>` from UseCases:
@@ -835,14 +772,7 @@ Future<void> addSupplement(Supplement supplement) async {
 }
 ```
 
-**Authorization Checks - Defense in Depth:**
-
-Authorization checks occur at THREE levels (defense-in-depth):
-1. **Provider (UI gate)** - prevents UI action
-2. **UseCase (business logic)** - validates request
-3. **Data Source/SQL (data gate)** - final verification
-
-All three are required. See Section 11.5 for SQL-level authorization details.
+**Note:** Authorization is also checked in UseCase layer for defense-in-depth.
 
 ### 6.5 Profile Filtering (MANDATORY)
 
@@ -864,8 +794,6 @@ class SupplementList extends _$SupplementList {
 // In UI: Pass profile ID explicitly
 final supplements = ref.watch(supplementListProvider(currentProfileId));
 ```
-
-**ProfileId MUST be a required build parameter (never optional). Use Dart's `required` keyword. At compile time, any provider factory call without profileId will fail.**
 
 ### 6.6 Provider Rules Summary
 
@@ -891,7 +819,6 @@ Define error types in `lib/core/errors/app_error.dart`:
 
 ```dart
 /// Recovery action to suggest to users
-/// CANONICAL: Must match 22_API_CONTRACTS.md exactly
 enum RecoveryAction {
   none,           // No recovery possible
   retry,          // User can retry the operation
@@ -899,8 +826,6 @@ enum RecoveryAction {
   reAuthenticate, // Need full re-authentication
   goToSettings,   // User should go to settings
   contactSupport, // User should contact support
-  checkConnection, // User should check network connection
-  freeStorage,    // User should free up storage space
 }
 
 /// Base sealed class for all application errors
@@ -1176,7 +1101,7 @@ try {
 | SYNC_001 | SyncError | Conflict detected |
 | SYNC_002 | SyncError | Merge failed |
 
-> **Canonical Source:** See `22_API_CONTRACTS.md` Section 2 for the complete, authoritative error code registry.
+> **Canonical Source:** See `22_API_CONTRACTS.md` Section 7 for the complete error code registry (62+ codes) with all validation rules, field-specific codes, and error payloads.
 
 ---
 
@@ -1205,7 +1130,7 @@ CREATE TABLE supplements (
   sync_updated_at INTEGER NOT NULL,
   sync_deleted_at INTEGER,
   sync_last_synced_at INTEGER,
-  sync_status INTEGER NOT NULL DEFAULT 0,  -- 0=pending, 1=synced, 2=modified, 3=conflict, 4=deleted
+  sync_status INTEGER NOT NULL DEFAULT 0,  -- 0=pending, 1=synced, 2=conflict, 3=error
   sync_version INTEGER NOT NULL DEFAULT 1,
   sync_is_dirty INTEGER NOT NULL DEFAULT 1,
   sync_device_id TEXT NOT NULL,            -- Last device to modify
@@ -1232,48 +1157,34 @@ The following tables are local-only and do NOT require sync metadata:
 
 ### 8.3 Date Storage
 
-> **MANDATORY**: All date/time values use `int` (epoch milliseconds UTC) throughout the entire codebase.
-> Never use `DateTime` type in entities, models, or database operations.
-
-- **Type**: `int` (epoch milliseconds)
-- **Storage**: INTEGER columns
-- **Timezone**: Always UTC (convert to local only for display)
+- **Format**: Epoch milliseconds (INTEGER)
+- **Storage**: INTEGER columns for performance
+- **Timezone**: Always UTC
 
 ```dart
-// Entity - uses int directly
-@freezed
-class Supplement with _$Supplement {
-  const factory Supplement({
-    required int createdAt,    // Epoch milliseconds UTC
-    int? completedAt,          // Epoch milliseconds UTC (nullable)
-    // ...
-  }) = _Supplement;
-}
+// CORRECT: Convert DateTime to epoch milliseconds
+int dateToEpoch(DateTime dt) => dt.toUtc().millisecondsSinceEpoch;
 
-// Creating timestamps
-final now = DateTime.now().millisecondsSinceEpoch;
+// CORRECT: Convert epoch milliseconds to DateTime
+DateTime epochToDate(int epoch) =>
+    DateTime.fromMillisecondsSinceEpoch(epoch, isUtc: true);
 
-// Model - direct int mapping (no conversion needed)
+// Usage in Model
 class SupplementModel {
   static SupplementModel fromMap(Map<String, dynamic> map) {
     return SupplementModel(
-      createdAt: map['sync_created_at'] as int,
+      createdAt: epochToDate(map['sync_created_at'] as int),
       // ...
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'sync_created_at': createdAt,  // Already int
+      'sync_created_at': dateToEpoch(createdAt),
       // ...
     };
   }
 }
-
-// UI display only - convert to DateTime for formatting
-Text(DateFormat.yMMMd().format(
-  DateTime.fromMillisecondsSinceEpoch(entity.createdAt, isUtc: true).toLocal(),
-))
 ```
 
 ### 8.4 Index Guidelines

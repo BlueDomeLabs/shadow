@@ -312,16 +312,15 @@ The following tables are **exempt** from standard sync metadata columns and do N
 | `refresh_token_usage` | Security artifact - device-local token tracking | All sync_* columns |
 | `pairing_sessions` | Ephemeral - device-local session management | All sync_* columns |
 | `fhir_exports` | Export metadata - device-specific record | All sync_* columns |
-| `food_item_categories` | Junction table - syncs via parent food_items | All sync_* columns |
-
-**Note:** `ml_models` and `prediction_feedback` tables DO have sync metadata columns and are syncable. They were previously listed here in error but are standard syncable tables.
+| `ml_models` | Local ML models - device-specific optimization | All sync_* columns |
+| `prediction_feedback` | Local feedback - used to improve device models | All sync_* columns |
 
 **Rationale:**
 - **Security tables** (`refresh_token_usage`, `pairing_sessions`): Security artifacts must not leave the device
 - **Audit tables** (`profile_access_logs`): Immutable compliance records, write-once
 - **Export tables** (`fhir_exports`): Records of what was exported from this device
 - **Import tables** (`imported_data_log`): Deduplication for imports to this device
-- **Junction tables** (`food_item_categories`): Follows parent entity sync via CASCADE delete
+- **ML tables** (`ml_models`, `prediction_feedback`): Device-specific model optimization
 
 **Code Review Requirement:** Any new table without sync metadata MUST be added to this list with justification.
 
@@ -336,16 +335,13 @@ Stores user authentication and account information.
 ```sql
 CREATE TABLE user_accounts (
   id TEXT PRIMARY KEY,
-  client_id TEXT NOT NULL,           -- Client identifier for database merging support
   email TEXT NOT NULL UNIQUE,
-  display_name TEXT,
+  display_name TEXT NOT NULL,
+  role TEXT NOT NULL,              -- 'counselor' | 'client'
   photo_url TEXT,
-  auth_provider INTEGER NOT NULL,    -- 0: google, 1: apple
-  auth_provider_id TEXT NOT NULL,    -- External provider's user ID
-  created_at INTEGER NOT NULL,       -- Milliseconds since epoch
-  last_login_at INTEGER,
-  is_active INTEGER DEFAULT 1,       -- Account active status
-  deactivated_reason TEXT,           -- Reason if deactivated
+  organization_id TEXT,
+  created_at INTEGER NOT NULL,     -- Milliseconds since epoch
+  last_login_at INTEGER NOT NULL,
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -445,15 +441,12 @@ Tracks devices registered for multi-device access control.
 ```sql
 CREATE TABLE device_registrations (
   id TEXT PRIMARY KEY,
-  client_id TEXT NOT NULL,           -- Client identifier for database merging support
   user_account_id TEXT NOT NULL,
   device_id TEXT NOT NULL,
   device_name TEXT NOT NULL,
-  device_type TEXT NOT NULL,         -- 'ios' | 'android' | 'macos' | 'web'
-  device_model TEXT,                 -- e.g., "iPhone 15 Pro", "Pixel 8"
-  os_version TEXT,                   -- e.g., "iOS 17.2", "Android 14"
-  app_version TEXT,                  -- e.g., "1.2.3" - Shadow app version
-  push_token TEXT,                   -- FCM/APNs token for push notifications
+  device_type TEXT NOT NULL,
+  device_model TEXT,
+  os_version TEXT,
   registered_at INTEGER NOT NULL,
   last_seen_at INTEGER NOT NULL,
   is_active INTEGER DEFAULT 1,
@@ -472,8 +465,6 @@ CREATE TABLE device_registrations (
   UNIQUE(user_account_id, device_id),
   FOREIGN KEY (user_account_id) REFERENCES user_accounts(id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_device_registrations_client ON device_registrations(client_id);
 
 CREATE INDEX idx_device_registrations_user ON device_registrations(user_account_id, is_active);
 CREATE INDEX idx_device_registrations_device ON device_registrations(device_id);
@@ -809,16 +800,17 @@ Medical documents and files.
 ```sql
 CREATE TABLE documents (
   id TEXT PRIMARY KEY,
-  client_id TEXT NOT NULL,           -- Client identifier for database merging support
+  client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
-  name TEXT NOT NULL,                -- User-friendly document name
-  document_type INTEGER NOT NULL,    -- DocumentType enum: 0: medical, 1: prescription, 2: lab, 3: insurance, 4: other
-  notes TEXT,
-  document_date INTEGER,             -- Date of the document (Epoch ms)
-  uploaded_at INTEGER NOT NULL,      -- When uploaded to app (Epoch ms)
-  file_path TEXT NOT NULL,           -- Local file path
+  filename TEXT NOT NULL,
+  type INTEGER NOT NULL,           -- 0: medical, 1: prescription, 2: lab, 3: other
+  description TEXT,
+  uploaded_at INTEGER NOT NULL,
+  local_path TEXT NOT NULL,
+  cloud_url TEXT,
   file_size_bytes INTEGER,
   mime_type TEXT,
+  tags TEXT,
 
   -- File sync metadata
   cloud_storage_url TEXT,
@@ -1217,7 +1209,7 @@ CREATE TABLE notification_schedules (
   id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
-  type INTEGER NOT NULL,           -- NotificationType enum (25 values, see below)
+  type INTEGER NOT NULL,           -- NotificationType enum (21 values, see below)
   entity_id TEXT,                  -- Optional: linked entity (e.g., supplement_id for supplement reminders)
   times_minutes TEXT NOT NULL,     -- JSON array of minutes from midnight: [480, 720] = 8am, 12pm
   weekdays TEXT NOT NULL,          -- JSON array of weekdays: [0,1,2,3,4,5,6] = all days (0=Mon)
@@ -1239,31 +1231,27 @@ CREATE TABLE notification_schedules (
 );
 
 -- NotificationType enum values (MUST match 22_API_CONTRACTS.md exactly):
--- 0  = supplementIndividual   -- Individual supplement reminder
--- 1  = supplementGrouped      -- Grouped supplement reminder (all due at same time)
--- 2  = mealBreakfast          -- Breakfast reminder
--- 3  = mealLunch              -- Lunch reminder
--- 4  = mealDinner             -- Dinner reminder
--- 5  = mealSnacks             -- Snack reminder
--- 6  = waterInterval          -- Water reminder at regular intervals
--- 7  = waterFixed             -- Water reminder at fixed times
--- 8  = waterSmart             -- Smart water reminder based on intake
--- 9  = bbtMorning             -- Basal body temperature reminder
--- 10 = menstruationTracking   -- Menstruation tracking reminder
--- 11 = sleepBedtime           -- Bedtime reminder
--- 12 = sleepWakeup            -- Wake-up reminder
--- 13 = conditionCheckIn       -- Condition severity check-in
--- 14 = photoReminder          -- Photo documentation reminder
--- 15 = journalPrompt          -- Journal entry prompt
--- 16 = syncReminder           -- Cloud sync reminder
--- 17 = fastingWindowOpen      -- Eating window opening (IF diets)
--- 18 = fastingWindowClose     -- Eating window closing (IF diets)
--- 19 = fastingWindowClosed    -- Alert when fasting period begins
--- 20 = dietStreak             -- Diet compliance streak notification
--- 21 = dietWeeklySummary      -- Weekly diet compliance summary
--- 22 = fluidsGeneral          -- General fluids tracking reminders
--- 23 = fluidsBowel            -- Bowel movement tracking reminders
--- 24 = inactivity             -- Re-engagement after extended absence
+-- 0  = supplement           -- Individual supplement reminder
+-- 1  = supplementGrouped    -- Grouped supplement reminder (all due at same time)
+-- 2  = mealBreakfast        -- Breakfast reminder
+-- 3  = mealLunch            -- Lunch reminder
+-- 4  = mealDinner           -- Dinner reminder
+-- 5  = mealSnacks           -- Snack reminder
+-- 6  = waterInterval        -- Water reminder at regular intervals
+-- 7  = waterFixed           -- Water reminder at fixed times
+-- 8  = waterSmart           -- Smart water reminder based on intake
+-- 9  = bbtMorning           -- Basal body temperature reminder
+-- 10 = menstruationTracking -- Menstruation tracking reminder
+-- 11 = sleepBedtime         -- Bedtime reminder
+-- 12 = sleepWakeup          -- Wake-up reminder
+-- 13 = conditionCheckIn     -- Condition severity check-in
+-- 14 = photoReminder        -- Photo documentation reminder
+-- 15 = journalPrompt        -- Journal entry prompt
+-- 16 = syncReminder         -- Cloud sync reminder
+-- 17 = fastingWindowOpen    -- Eating window opening (IF diets)
+-- 18 = fastingWindowClose   -- Eating window closing (IF diets)
+-- 19 = dietStreak           -- Diet compliance streak notification
+-- 20 = dietWeeklySummary    -- Weekly diet compliance summary
 
 CREATE INDEX idx_notification_schedules_profile ON notification_schedules(profile_id, type);
 CREATE INDEX idx_notification_schedules_enabled ON notification_schedules(profile_id, is_enabled)
@@ -1805,10 +1793,9 @@ CREATE INDEX idx_authorizations_active ON hipaa_authorizations(profile_id, expir
   WHERE revoked_at IS NULL;
 CREATE INDEX idx_authorizations_client ON hipaa_authorizations(client_id);
 
--- Access audit log for shared profiles (immutable, no sync metadata per Section 2.7)
+-- Access audit log for shared profiles
 CREATE TABLE profile_access_logs (
   id TEXT PRIMARY KEY,
-  client_id TEXT NOT NULL,            -- Client identifier for audit trail ownership
   authorization_id TEXT NOT NULL,
   profile_id TEXT NOT NULL,
   accessed_by_user_id TEXT NOT NULL,
@@ -1820,8 +1807,6 @@ CREATE TABLE profile_access_logs (
   ip_address TEXT NOT NULL,
   FOREIGN KEY (authorization_id) REFERENCES hipaa_authorizations(id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_access_logs_client ON profile_access_logs(client_id);
 
 CREATE INDEX idx_access_logs_authorization ON profile_access_logs(authorization_id, accessed_at DESC);
 CREATE INDEX idx_access_logs_profile ON profile_access_logs(profile_id, accessed_at DESC);
@@ -2402,7 +2387,6 @@ Tracks QR code device pairing sessions for single-use enforcement.
 ```sql
 CREATE TABLE pairing_sessions (
   session_id TEXT PRIMARY KEY,
-  client_id TEXT NOT NULL,               -- Client identifier for audit trail
   initiating_device_id TEXT NOT NULL,
   initiating_user_id TEXT NOT NULL,
   private_key_encrypted TEXT NOT NULL,   -- Encrypted with device key

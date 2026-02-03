@@ -83,9 +83,9 @@ class TemporalPattern with _$TemporalPattern {
     required Map<int, double> distribution,  // {0: 0.15, 1: 0.23, ...} frequency by unit
     required double confidence,        // 0.0 - 1.0
     required int sampleSize,           // Number of data points analyzed
-    required int detectedAt,           // Epoch milliseconds
-    required int dataRangeStart,       // Epoch milliseconds
-    required int dataRangeEnd,         // Epoch milliseconds
+    required DateTime detectedAt,
+    required DateTime dataRangeStart,
+    required DateTime dataRangeEnd,
   }) = _TemporalPattern;
 }
 
@@ -333,10 +333,10 @@ class CyclicalPattern with _$CyclicalPattern {
     required double standardDeviationDays,
     required double regularity,           // 0.0 - 1.0
     required List<CyclePhase> phases,
-    required int? predictedNextStart,  // Epoch milliseconds
+    required DateTime? predictedNextStart,
     required double confidence,
     required int cycleCount,
-    required int detectedAt,           // Epoch milliseconds
+    required DateTime detectedAt,
   }) = _CyclicalPattern;
 }
 
@@ -369,16 +369,16 @@ class SequentialPatternDetector {
 
   Future<List<SequentialPattern>> detectPatterns({
     required String profileId,
-    required int startDateEpoch,    // Epoch milliseconds
-    required int endDateEpoch,      // Epoch milliseconds
+    required DateTime startDate,
+    required DateTime endDate,
   }) async {
     final patterns = <SequentialPattern>[];
 
     // Get all timestamped events
-    final foods = await _foodRepository.getByDateRange(profileId, startDateEpoch, endDateEpoch);
-    final conditions = await _conditionLogRepository.getByDateRange(profileId, startDateEpoch, endDateEpoch);
-    final activities = await _activityLogRepository.getByDateRange(profileId, startDateEpoch, endDateEpoch);
-    final supplements = await _intakeLogRepository.getByDateRange(profileId, startDateEpoch, endDateEpoch);
+    final foods = await _foodRepository.getByDateRange(profileId, startDate, endDate);
+    final conditions = await _conditionLogRepository.getByDateRange(profileId, startDate, endDate);
+    final activities = await _activityLogRepository.getByDateRange(profileId, startDate, endDate);
+    final supplements = await _intakeLogRepository.getByDateRange(profileId, startDate, endDate);
 
     // Check food → condition relationships
     for (final food in _groupByFoodItem(foods)) {
@@ -470,7 +470,7 @@ class SequentialPattern with _$SequentialPattern {
     required int consequentCount,
     required int cooccurrenceCount,
     required double confidence,
-    required int detectedAt,           // Epoch milliseconds
+    required DateTime detectedAt,
   }) = _SequentialPattern;
 }
 ```
@@ -487,11 +487,11 @@ class ClusterPatternDetector {
 
   Future<List<ClusterPattern>> detectPatterns({
     required String profileId,
-    required int startDateEpoch,    // Epoch milliseconds
-    required int endDateEpoch,      // Epoch milliseconds
+    required DateTime startDate,
+    required DateTime endDate,
   }) async {
     final conditionLogs = await _conditionLogRepository.getByDateRange(
-      profileId, startDateEpoch, endDateEpoch,
+      profileId, startDate, endDate,
     );
 
     // Group logs by day
@@ -528,7 +528,7 @@ class ClusterPattern with _$ClusterPattern {
     required int dayCount,
     required int clusterDayCount,
     required double confidence,
-    required int detectedAt,           // Epoch milliseconds
+    required DateTime detectedAt,
   }) = _ClusterPattern;
 }
 ```
@@ -571,9 +571,9 @@ class TriggerCorrelation with _$TriggerCorrelation {
     required int timeWindowHours,
     required double averageLatencyHours, // Average time from trigger to outcome
     required double confidence,          // Overall confidence score
-    required int detectedAt,             // Epoch milliseconds
-    required int dataRangeStart,         // Epoch milliseconds
-    required int dataRangeEnd,           // Epoch milliseconds
+    required DateTime detectedAt,
+    required DateTime dataRangeStart,
+    required DateTime dataRangeEnd,
     String? doseResponseEquation,        // e.g., "severity = 2.3 * dose + 1.2"
   }) = _TriggerCorrelation;
 }
@@ -845,17 +845,16 @@ class HealthInsight with _$HealthInsight {
     required String description,
     required String? actionableRecommendation,
     required List<InsightEvidence> evidence,
-    required int generatedAt,            // Epoch milliseconds
-    required int? expiresAt,             // Epoch milliseconds
+    required DateTime generatedAt,
+    required DateTime? expiresAt,
     required bool isDismissed,
-    required int? dismissedAt,           // Epoch milliseconds
+    required DateTime? dismissedAt,
     String? relatedEntityType,
     String? relatedEntityId,
   }) = _HealthInsight;
 }
 
 enum InsightCategory {
-  daily,          // Daily summary insights
   summary,
   pattern,
   trigger,
@@ -878,7 +877,7 @@ class InsightEvidence with _$InsightEvidence {
     required String description,
     required String entityType,
     required String? entityId,
-    required int? timestamp,             // Epoch milliseconds
+    required DateTime? timestamp,
     required Map<String, dynamic>? data,
   }) = _InsightEvidence;
 }
@@ -1103,14 +1102,14 @@ class PredictiveAlert with _$PredictiveAlert {
     required String title,
     required String description,
     required double probability,           // 0.0 - 1.0
-    required int predictedEventTime,       // Epoch milliseconds
-    required int alertGeneratedAt,         // Epoch milliseconds
+    required DateTime predictedEventTime,
+    required DateTime alertGeneratedAt,
     required List<PredictionFactor> factors,
     required String? preventiveAction,
     required bool isAcknowledged,
-    required int? acknowledgedAt,          // Epoch milliseconds
+    required DateTime? acknowledgedAt,
     required bool eventOccurred,          // For model feedback
-    required int? eventOccurredAt,         // Epoch milliseconds
+    required DateTime? eventOccurredAt,
   }) = _PredictiveAlert;
 }
 
@@ -1859,8 +1858,8 @@ abstract class PredictiveAlertRepository {
 
   Future<Result<List<PredictiveAlert>, AppError>> getByDateRange(
     String profileId,
-    int startDate, // Epoch milliseconds
-    int endDate, // Epoch milliseconds
+    DateTime startDate,
+    DateTime endDate,
   );
 
   Future<Result<PredictiveAlert, AppError>> create(PredictiveAlert alert);
@@ -1868,7 +1867,7 @@ abstract class PredictiveAlertRepository {
   Future<Result<void, AppError>> recordOutcome(
     String id,
     bool occurred,
-    int? occurredAt, // Epoch milliseconds
+    DateTime? occurredAt,
   );
 }
 ```

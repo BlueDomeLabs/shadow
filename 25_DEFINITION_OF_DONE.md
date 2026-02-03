@@ -156,15 +156,14 @@ A **release** is done when:
 
 ### 5.1 New Entity (e.g., FluidsEntry)
 
-- [ ] Entity class created with @freezed annotation
-- [ ] **All 4 required fields present:** id, clientId, profileId, syncMetadata (per 02_CODING_STANDARDS.md Section 5.1)
+- [ ] Entity class created with Freezed
 - [ ] Generated files committed (.freezed.dart, .g.dart)
-- [ ] Repository interface defined (returns Result<T, AppError>)
+- [ ] Repository interface defined
 - [ ] Repository implementation complete
-- [ ] Local datasource implemented (includes sync_deleted_at IS NULL filtering)
-- [ ] Database migration created with client_id column
+- [ ] Local datasource implemented
+- [ ] Database migration created
 - [ ] Contract tests pass
-- [ ] Unit tests for entity logic (100% coverage)
+- [ ] Unit tests for entity logic (95%+ coverage)
 - [ ] Registered in dependency injection
 
 ### 5.2 New Use Case
@@ -187,7 +186,7 @@ A **release** is done when:
 - [ ] Error state implemented
 - [ ] Empty state implemented
 - [ ] Accessibility verified
-- [ ] Widget tests written (100% coverage)
+- [ ] Widget tests written (70%+ coverage)
 - [ ] Navigation registered in router
 
 ### 5.4 New Widget

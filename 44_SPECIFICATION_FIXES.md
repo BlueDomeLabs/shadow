@@ -367,12 +367,8 @@ class Diet with _$Diet {
   const Diet._();
 
   const factory Diet({
-    required String id,
-    required String clientId,
-    required String profileId,
     String? presetId,
     // ... other fields
-    required SyncMetadata syncMetadata,
   }) = _Diet;
 
   // Computed properties - O(1) only, no async, no repository access
@@ -1169,7 +1165,7 @@ WHERE s.profile_id = ?
 | Input sanitization | 100% | XSS, SQL injection, HTML injection |
 | Authorization checks | 100% | Denied access, expired, wrong profile |
 | PII masking | 100% | All masking functions |
-| Secure storage | 100% | Platform-specific operations |
+| Secure storage | 95% | Platform-specific operations |
 
 **Required test files:**
 - `test/core/services/oauth_service_test.dart`

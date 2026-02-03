@@ -120,23 +120,18 @@ class QRPairingService {
   final SecureStorage _secureStorage;
   final AuditLogService _auditLogService;  // REQUIRED: Audit logging for HIPAA
 
-  Future<PairingSession> createPairingSession({
-    required DeviceInfo deviceInfo,
-    required String cloudProvider,
-  }) async {
+  Future<PairingSession> createPairingSession() async {
     // Generate session
     final sessionId = const Uuid().v4();
-    final expiresAt = DateTime.now().add(sessionExpiry);
 
-    // SEC-02: AUDIT LOG - Device pairing initiated (HIPAA CRITICAL)
-    // Log BEFORE session creation to capture all attempts including failures
-    await _auditLog.log(AuditEventType.devicePairingInitiated, {
-      'sessionId': sessionId,
-      'deviceId': deviceInfo.deviceId,
-      'deviceName': deviceInfo.deviceName,
-      'cloudProvider': cloudProvider,
-      'expiresAt': expiresAt.toIso8601String(),
-    });
+    // AUDIT LOG: QR code generation (HIPAA requirement)
+    await _auditLogService.log(AuditEntry(
+      action: AuditAction.devicePairingInitiated,
+      entityType: 'PairingSession',
+      entityId: sessionId,
+      metadata: {'expiresAt': DateTime.now().add(sessionExpiry).toIso8601String()},
+    ));
+    final expiresAt = DateTime.now().add(sessionExpiry);
 
     // Generate ephemeral X25519 key pair
     final keyPair = await _cryptoService.generateX25519KeyPair();
@@ -482,26 +477,21 @@ class KeyExchangeService {
   final AuditLogService _auditLogService;  // REQUIRED: Audit logging for HIPAA
 
   /// X25519 Diffie-Hellman key exchange
-  /// SEC-03: All key exchange operations MUST be audit logged for HIPAA compliance
   Future<SharedSecret> performKeyExchange({
     required String sessionId,
     required String localDeviceId,
     required String remoteDeviceId,
     required Uint8List localPrivateKey,
     required Uint8List remotePublicKey,
-    required Uint8List sessionSalt,
   }) async {
-    // SEC-03: AUDIT LOG - Key exchange initiated (HIPAA CRITICAL)
-    // Log BEFORE exchange to capture all attempts including failures
+    // AUDIT LOG: Key exchange initiated
     await _auditLogService.log(AuditEntry(
       action: AuditAction.keyExchangeInitiated,
       entityType: 'PairingSession',
       entityId: sessionId,
-      timestamp: DateTime.now(),
       metadata: {
         'localDeviceId': localDeviceId,
         'remoteDeviceId': remoteDeviceId,
-        'exchangeProtocol': 'X25519-DH',
       },
     ));
 
@@ -529,47 +519,23 @@ class KeyExchangeService {
       length: 32,
     );
 
-    // SEC-03: AUDIT LOG - Key exchange completed successfully
+    // AUDIT LOG: Key exchange completed
     await _auditLogService.log(AuditEntry(
       action: AuditAction.keyExchangeCompleted,
       entityType: 'PairingSession',
       entityId: sessionId,
-      timestamp: DateTime.now(),
       metadata: {
         'localDeviceId': localDeviceId,
         'remoteDeviceId': remoteDeviceId,
-        // SECURITY: Never log the actual keys!
+        // Never log the actual keys!
         'keyDerivationAlgorithm': 'HKDF-SHA256',
-        'keyLength': 256,
       },
     ));
 
     return SharedSecret(
       encryptionKey: derivedKey,
-      authenticationKey: authKey,
       createdAt: DateTime.now(),
     );
-  }
-
-  /// SEC-03: Log failed key exchange attempts
-  Future<void> _logKeyExchangeFailure({
-    required String sessionId,
-    required String localDeviceId,
-    required String? remoteDeviceId,
-    required String failureReason,
-  }) async {
-    await _auditLogService.log(AuditEntry(
-      action: AuditAction.keyExchangeFailed,
-      entityType: 'PairingSession',
-      entityId: sessionId,
-      timestamp: DateTime.now(),
-      result: AuditResult.failure,
-      metadata: {
-        'localDeviceId': localDeviceId,
-        'remoteDeviceId': remoteDeviceId,
-        'failureReason': failureReason,
-      },
-    ));
   }
 }
 ```
@@ -677,30 +643,23 @@ class PairingTimeouts {
 ### 6.2 Secure Transfer
 
 ```dart
-/// SEC-04: Credential transfer with comprehensive audit logging
-/// All credential transfers MUST be logged for HIPAA compliance
 Future<void> transferCredentials({
   required SharedSecret sharedSecret,
   required PairingCredentials credentials,
   required String sessionId,
   required String targetDeviceId,
-  required String sourceDeviceId,
 }) async {
-  // SEC-04: AUDIT LOG - Credential transfer initiated (HIPAA CRITICAL)
+  // AUDIT LOG: Credential transfer initiated (HIPAA CRITICAL)
   // Log BEFORE transfer - captures attempt even if transfer fails
   await _auditLogService.log(AuditEntry(
     action: AuditAction.credentialTransferInitiated,
     entityType: 'PairingSession',
     entityId: sessionId,
-    timestamp: DateTime.now(),
     metadata: {
-      'sourceDeviceId': sourceDeviceId,
       'targetDeviceId': targetDeviceId,
       'profileCount': credentials.profileIds.length,
-      'profileIds': credentials.profileIds,  // Log which profiles are being transferred
-      'hasEncryptionKey': true,  // SECURITY: Never log the actual key!
-      'hasOAuthTokens': true,    // SECURITY: Never log the actual tokens!
-      'transferProtocol': 'AES-256-GCM',
+      'hasEncryptionKey': true,  // Never log the actual key!
+      'hasOAuthTokens': true,    // Never log the actual tokens!
     },
   ));
 
@@ -719,38 +678,14 @@ Future<void> transferCredentials({
     payload: base64Encode(encrypted),
   ));
 
-  // SEC-04: AUDIT LOG - Credential transfer completed successfully
+  // AUDIT LOG: Credential transfer completed
   await _auditLogService.log(AuditEntry(
     action: AuditAction.credentialTransferCompleted,
     entityType: 'PairingSession',
     entityId: sessionId,
-    timestamp: DateTime.now(),
     metadata: {
-      'sourceDeviceId': sourceDeviceId,
       'targetDeviceId': targetDeviceId,
       'transferredProfiles': credentials.profileIds,
-      'encryptedPayloadSize': encrypted.length,
-    },
-  ));
-}
-
-/// SEC-04: Log failed credential transfer attempts
-Future<void> _logCredentialTransferFailure({
-  required String sessionId,
-  required String sourceDeviceId,
-  required String targetDeviceId,
-  required String failureReason,
-}) async {
-  await _auditLogService.log(AuditEntry(
-    action: AuditAction.credentialTransferFailed,
-    entityType: 'PairingSession',
-    entityId: sessionId,
-    timestamp: DateTime.now(),
-    result: AuditResult.failure,
-    metadata: {
-      'sourceDeviceId': sourceDeviceId,
-      'targetDeviceId': targetDeviceId,
-      'failureReason': failureReason,
     },
   ));
 }
@@ -771,13 +706,9 @@ The following `AuditAction` enum values MUST be defined in `22_API_CONTRACTS.md`
 | `devicePairingCompleted` | Full pairing complete | sessionId, newDeviceId, newDeviceName |
 | `devicePairingFailed` | Any pairing failure | sessionId, errorCode, errorMessage |
 | `deviceRevoked` | Device removed by user | deviceId, deviceName, revokedBy |
-| `keyExchangeFailed` | Key exchange failure | sessionId, localDeviceId, remoteDeviceId, failureReason |
-| `credentialTransferFailed` | Credential transfer failure | sessionId, sourceDeviceId, targetDeviceId, failureReason |
-| `hipaaAuthorizationGranted` | HIPAA authorization created | authorizationId, profileId, grantedToUserId, scope, expiresAt |
-| `hipaaAuthorizationRevoked` | HIPAA authorization revoked | authorizationId, profileId, revokedByUserId, revocationReason |
-| `hipaaAuthorizationExpired` | HIPAA authorization auto-expired | authorizationId, profileId, expiredAt |
-| `authorizationAccessDenied` | Failed authorization attempt | profileId, attemptedUserId, reason, attemptedAction |
-| `authorizationCheckFailed` | Authorization validation error | profileId, userId, errorType |
+| `hipaaAuthorizationGranted` | HIPAA authorization created | authorizationId, profileId, grantedToUserId, scope |
+| `hipaaAuthorizationRevoked` | HIPAA authorization revoked | authorizationId, profileId, revokedByUserId |
+| `authorizationAccessDenied` | Failed authorization attempt | profileId, attemptedUserId, reason |
 
 ---
 
@@ -797,23 +728,14 @@ class DeviceRegistration with _$DeviceRegistration {
     required DeviceType deviceType,   // ios, android, macos
     required String osVersion,
     required String appVersion,
-    required int registeredAt,        // Epoch milliseconds
-    required int lastSeenAt,          // Epoch milliseconds
+    required DateTime registeredAt,
+    required DateTime lastSeenAt,
     required bool isActive,
     required String pushToken,        // For notifications
   }) = _DeviceRegistration;
 }
 
-/// CANONICAL: See 22_API_CONTRACTS.md
-enum DeviceType {
-  iOS(0),
-  android(1),
-  macOS(2),
-  web(3);
-
-  final int value;
-  const DeviceType(this.value);
-}
+enum DeviceType { ios, android, macos, windows, linux, web }
 ```
 
 ### 7.2 Sync Coordination
@@ -852,11 +774,10 @@ enum DeviceType {
 When two devices modify the same entity:
 
 ```dart
-/// CANONICAL: See 22_API_CONTRACTS.md
 enum ConflictResolution {
-  keepLocal,   // Use local version, overwrite remote
-  keepRemote,  // Use remote version, overwrite local
-  merge,       // Merge both versions (for compatible changes)
+  lastWriteWins,    // Default: most recent modifiedAt wins
+  keepBoth,         // Create duplicate with conflict marker
+  askUser,          // Queue for manual resolution
 }
 
 class ConflictResolver {
@@ -866,26 +787,26 @@ class ConflictResolver {
     required ConflictResolution strategy,
   }) async {
     switch (strategy) {
-      case ConflictResolution.keepLocal:
-        return local; // Use local version, overwrite remote
+      case ConflictResolution.lastWriteWins:
+        return local.modifiedAt.isAfter(remote.modifiedAt) ? local : remote;
 
-      case ConflictResolution.keepRemote:
-        return remote; // Use remote version, overwrite local
+      case ConflictResolution.keepBoth:
+        // Create conflict copy
+        final conflictCopy = local.copyWith(
+          id: const Uuid().v4(),
+          name: '${local.name} (Conflict ${_formatDate(DateTime.now())})',
+        );
+        await _repository.insert(conflictCopy);
+        return remote; // Accept remote as canonical
 
-      case ConflictResolution.merge:
-        // Merge both versions (for compatible changes)
-        // Implementation depends on entity type - merge non-conflicting fields
-        return _mergeEntities(local, remote);
+      case ConflictResolution.askUser:
+        await _conflictQueue.add(ConflictRecord(
+          localEntity: local,
+          remoteEntity: remote,
+          detectedAt: DateTime.now(),
+        ));
+        return remote; // Temporarily use remote
     }
-  }
-
-  SyncEntity _mergeEntities(SyncEntity local, SyncEntity remote) {
-    // Merge strategy: take most recent value for each field
-    // Use remote as base, override with newer local fields
-    if (local.modifiedAt.isAfter(remote.modifiedAt)) {
-      return local;
-    }
-    return remote;
   }
 }
 ```
@@ -1064,11 +985,10 @@ class HipaaAuthorization with _$HipaaAuthorization {
       _$HipaaAuthorizationFromJson(json);
 }
 
-/// Access level for profile sharing - CANONICAL: See 22_API_CONTRACTS.md
+/// Access level for profile sharing
 enum AccessLevel {
-  readOnly,   // Can only view data within scope
-  readWrite,  // Can view and create/update data (no delete)
-  owner,      // Full access (profile owner)
+  readOnly,   // Can view data but not modify
+  readWrite,  // Can view and add/edit entries
 }
 
 /// Write operation types for authorization checks
@@ -1127,7 +1047,7 @@ class ProfileAccessLog with _$ProfileAccessLog {
     required AccessAction action,
     required String entityType,               // 'condition', 'supplement', etc.
     required String? entityId,
-    required int accessedAt,                  // Epoch milliseconds
+    required DateTime accessedAt,
     required String ipAddress,
   }) = _ProfileAccessLog;
 }
@@ -1186,300 +1106,6 @@ enum AccessAction {
 │  5. Audit log records revocation event                             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
-```
-
-#### 8.4.4a SEC-07: HIPAA Authorization Audit Logging Requirements
-
-> **CRITICAL SECURITY REQUIREMENT (SEC-07):**
-> ALL HIPAA authorization grant and revoke operations MUST be comprehensively logged.
-> This is a legal requirement under HIPAA for tracking access to PHI.
-
-**Grant Authorization Audit Logging:**
-
-```dart
-/// SEC-07: Grant HIPAA authorization with comprehensive audit logging
-class HipaaAuthorizationService {
-  final AuditLogService _auditLog;
-  final HipaaAuthorizationRepository _repository;
-
-  /// Grant authorization - MUST log before and after for HIPAA compliance
-  Future<Result<HipaaAuthorization, AppError>> grantAuthorization({
-    required String profileId,
-    required String grantedToUserId,
-    required String grantedByUserId,
-    required List<DataScope> scope,
-    required String purpose,
-    required AuthorizationDuration duration,
-    required String signatureDeviceId,
-    required String signatureIpAddress,
-    required bool photosIncluded,
-  }) async {
-    final authorizationId = const Uuid().v4();
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    // SEC-07: AUDIT LOG - Authorization grant attempt (log BEFORE)
-    await _auditLog.log(AuditEntry(
-      action: AuditAction.hipaaAuthorizationGrantInitiated,
-      entityType: 'HipaaAuthorization',
-      entityId: authorizationId,
-      timestamp: DateTime.now(),
-      metadata: {
-        'profileId': profileId,
-        'grantedToUserId': grantedToUserId,
-        'grantedByUserId': grantedByUserId,
-        'scope': scope.map((s) => s.name).toList(),
-        'purpose': purpose,
-        'duration': duration.name,
-        'photosIncluded': photosIncluded,
-        'signatureDeviceId': signatureDeviceId,
-        'signatureIpAddress': signatureIpAddress,
-      },
-    ));
-
-    try {
-      // Calculate expiration
-      final expiresAt = _calculateExpiration(duration, now);
-
-      // Create authorization record
-      final authorization = HipaaAuthorization(
-        id: authorizationId,
-        clientId: _clientId,
-        profileId: profileId,
-        grantedToUserId: grantedToUserId,
-        grantedByUserId: grantedByUserId,
-        accessLevel: AccessLevel.readWrite,
-        scope: scope,
-        purpose: purpose,
-        duration: duration,
-        authorizedAt: now,
-        expiresAt: expiresAt,
-        signatureDeviceId: signatureDeviceId,
-        signatureIpAddress: signatureIpAddress,
-        photosIncluded: photosIncluded,
-        syncMetadata: SyncMetadata.create(),
-      );
-
-      await _repository.create(authorization);
-
-      // SEC-07: AUDIT LOG - Authorization granted successfully
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.hipaaAuthorizationGranted,
-        entityType: 'HipaaAuthorization',
-        entityId: authorizationId,
-        timestamp: DateTime.now(),
-        result: AuditResult.success,
-        metadata: {
-          'profileId': profileId,
-          'grantedToUserId': grantedToUserId,
-          'grantedByUserId': grantedByUserId,
-          'scope': scope.map((s) => s.name).toList(),
-          'purpose': purpose,
-          'expiresAt': expiresAt,
-          'photosIncluded': photosIncluded,
-        },
-      ));
-
-      return Success(authorization);
-
-    } catch (e) {
-      // SEC-07 & SEC-11: AUDIT LOG - Authorization grant failed
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.hipaaAuthorizationGrantFailed,
-        entityType: 'HipaaAuthorization',
-        entityId: authorizationId,
-        timestamp: DateTime.now(),
-        result: AuditResult.failure,
-        metadata: {
-          'profileId': profileId,
-          'grantedToUserId': grantedToUserId,
-          'grantedByUserId': grantedByUserId,
-          'failureReason': e.toString(),
-        },
-      ));
-      rethrow;
-    }
-  }
-}
-```
-
-**Revoke Authorization Audit Logging:**
-
-```dart
-/// SEC-07: Revoke HIPAA authorization with comprehensive audit logging
-Future<Result<void, AppError>> revokeAuthorization({
-  required String authorizationId,
-  required String revokedByUserId,
-  String? revocationReason,
-}) async {
-  // Fetch existing authorization
-  final existing = await _repository.getById(authorizationId);
-  if (existing == null) {
-    // SEC-11: Log failed attempt to revoke non-existent authorization
-    await _auditLog.log(AuditEntry(
-      action: AuditAction.hipaaAuthorizationRevokeFailed,
-      entityType: 'HipaaAuthorization',
-      entityId: authorizationId,
-      timestamp: DateTime.now(),
-      result: AuditResult.failure,
-      metadata: {
-        'revokedByUserId': revokedByUserId,
-        'failureReason': 'authorization_not_found',
-      },
-    ));
-    return Failure(NotFoundError.authorization(authorizationId));
-  }
-
-  // SEC-07: AUDIT LOG - Revocation attempt (log BEFORE)
-  await _auditLog.log(AuditEntry(
-    action: AuditAction.hipaaAuthorizationRevokeInitiated,
-    entityType: 'HipaaAuthorization',
-    entityId: authorizationId,
-    timestamp: DateTime.now(),
-    metadata: {
-      'profileId': existing.profileId,
-      'grantedToUserId': existing.grantedToUserId,
-      'revokedByUserId': revokedByUserId,
-      'revocationReason': revocationReason,
-      'originalGrantedAt': existing.authorizedAt,
-      'originalScope': existing.scope.map((s) => s.name).toList(),
-    },
-  ));
-
-  try {
-    // Mark as revoked
-    final now = DateTime.now().millisecondsSinceEpoch;
-    await _repository.markRevoked(
-      authorizationId: authorizationId,
-      revokedAt: now,
-      revocationReason: revocationReason,
-    );
-
-    // SEC-07: AUDIT LOG - Authorization revoked successfully
-    await _auditLog.log(AuditEntry(
-      action: AuditAction.hipaaAuthorizationRevoked,
-      entityType: 'HipaaAuthorization',
-      entityId: authorizationId,
-      timestamp: DateTime.now(),
-      result: AuditResult.success,
-      metadata: {
-        'profileId': existing.profileId,
-        'grantedToUserId': existing.grantedToUserId,
-        'revokedByUserId': revokedByUserId,
-        'revocationReason': revocationReason,
-        'revokedAt': now,
-        'durationActiveMs': now - existing.authorizedAt,
-      },
-    ));
-
-    // Notify recipient of revocation
-    await _notificationService.notifyAuthorizationRevoked(
-      userId: existing.grantedToUserId,
-      profileName: await _getProfileName(existing.profileId),
-    );
-
-    return Success(null);
-
-  } catch (e) {
-    // SEC-07 & SEC-11: AUDIT LOG - Revocation failed
-    await _auditLog.log(AuditEntry(
-      action: AuditAction.hipaaAuthorizationRevokeFailed,
-      entityType: 'HipaaAuthorization',
-      entityId: authorizationId,
-      timestamp: DateTime.now(),
-      result: AuditResult.failure,
-      metadata: {
-        'profileId': existing.profileId,
-        'revokedByUserId': revokedByUserId,
-        'failureReason': e.toString(),
-      },
-    ));
-    rethrow;
-  }
-}
-```
-
-**SEC-10: Authorization Expiration Checking:**
-
-> **CRITICAL (SEC-10):** ALL data access points MUST check authorization expiration
-> before allowing access. Expired authorizations MUST be treated as revoked.
-
-```dart
-/// SEC-10: Check authorization expiration at EVERY data access point
-Future<HipaaAuthorization?> getActiveAuthorization(
-  String profileId,
-  String userId,
-) async {
-  final now = DateTime.now().millisecondsSinceEpoch;
-
-  final auth = await _repository.getByProfileAndUser(profileId, userId);
-
-  if (auth == null) return null;
-
-  // SEC-10: Check revocation
-  if (auth.revokedAt != null) return null;
-
-  // SEC-10: Check expiration - CRITICAL
-  if (auth.expiresAt != null && auth.expiresAt! <= now) {
-    // Log expiration event (first time detected)
-    await _auditLog.log(AuditEntry(
-      action: AuditAction.hipaaAuthorizationExpired,
-      entityType: 'HipaaAuthorization',
-      entityId: auth.id,
-      timestamp: DateTime.now(),
-      metadata: {
-        'profileId': profileId,
-        'grantedToUserId': userId,
-        'expiredAt': auth.expiresAt,
-        'detectedAt': now,
-      },
-    ));
-    return null;
-  }
-
-  return auth;
-}
-```
-
-**SEC-11: Failed Authorization Attempt Logging:**
-
-> **CRITICAL (SEC-11):** ALL failed authorization attempts MUST be logged,
-> not just successful accesses. This is essential for security monitoring
-> and HIPAA audit requirements.
-
-```dart
-/// SEC-11: Log ALL failed authorization attempts
-Future<void> logFailedAuthorizationAttempt({
-  required String profileId,
-  required String attemptedUserId,
-  required String attemptedAction,
-  required AuthorizationFailureReason reason,
-  Map<String, dynamic>? additionalMetadata,
-}) async {
-  await _auditLog.log(AuditEntry(
-    action: AuditAction.authorizationAccessDenied,
-    entityType: 'Profile',
-    entityId: profileId,
-    timestamp: DateTime.now(),
-    result: AuditResult.failure,
-    metadata: {
-      'attemptedUserId': attemptedUserId,
-      'attemptedAction': attemptedAction,
-      'reason': reason.name,
-      ...?additionalMetadata,
-    },
-  ));
-}
-
-/// Reasons for authorization failure
-enum AuthorizationFailureReason {
-  noAuthorization,         // No authorization record exists
-  authorizationRevoked,    // Authorization was revoked
-  authorizationExpired,    // Authorization has expired
-  insufficientScope,       // Authorization doesn't cover requested data type
-  insufficientAccessLevel, // readOnly trying to write
-  ownerOnlyOperation,      // Non-owner attempting owner-only action
-  profileNotFound,         // Profile doesn't exist
-}
 ```
 
 #### 8.4.5 Notification to Data Owner
@@ -1803,176 +1429,6 @@ Future<Result<void, AppError>> archiveCondition(String conditionId) async {
 }
 ```
 
-#### 8.4.8 SEC-05: Scope Filtering Requirements for ALL Write Operations
-
-> **CRITICAL SECURITY REQUIREMENT (SEC-05):**
-> ALL write operations (create, update, delete) on shared profile data MUST verify
-> BOTH authorization AND scope BEFORE any database modification.
-
-**Mandatory Scope Checks for Write Operations:**
-
-Every repository method that modifies data for shared profiles MUST:
-
-1. **Verify active authorization exists** - Check `hipaa_authorizations` table
-2. **Check authorization not expired** - `expires_at IS NULL OR expires_at > now`
-3. **Check authorization not revoked** - `revoked_at IS NULL`
-4. **Verify scope includes data type** - `scope` JSON array contains required DataScope
-5. **Verify access level permits operation** - `readWrite` for create/update, `owner` for hard delete
-6. **Log the authorization check** - Audit both success AND failure
-
-**Write Operation Scope Matrix:**
-
-| Operation | Required Access Level | Scope Check Required | Audit Log |
-|-----------|----------------------|---------------------|-----------|
-| Create | `readWrite` or `owner` | YES - scope must include data type | YES - log before AND after |
-| Update | `readWrite` or `owner` | YES - scope must include data type | YES - log before AND after |
-| Soft Delete | `readWrite` or `owner` | YES - scope must include data type | YES - log before AND after |
-| Hard Delete | `owner` ONLY | YES - owners have full scope | YES - log before AND after |
-
-**Implementation Pattern for ALL Write Operations:**
-
-```dart
-/// SEC-05: Standard pattern for write operations on shared profiles
-/// MUST be used by ALL repository write methods
-Future<Result<T, AppError>> secureWriteOperation<T>({
-  required String profileId,
-  required String currentUserId,
-  required DataScope requiredScope,
-  required WriteOperation operation,
-  required Future<Result<T, AppError>> Function() performWrite,
-}) async {
-  // 1. Check ownership first (owners bypass scope checks)
-  final isOwner = await _authService.isProfileOwner(profileId, currentUserId);
-
-  if (!isOwner) {
-    // 2. Get and validate authorization for non-owners
-    final auth = await _getActiveAuthorization(profileId, currentUserId);
-
-    if (auth == null) {
-      // SEC-11: Log failed authorization attempt
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.authorizationAccessDenied,
-        entityType: 'Profile',
-        entityId: profileId,
-        result: AuditResult.failure,
-        metadata: {
-          'attemptedUserId': currentUserId,
-          'attemptedOperation': operation.name,
-          'reason': 'no_active_authorization',
-        },
-      ));
-      return Failure(AuthError.profileAccessDenied(profileId));
-    }
-
-    // 3. Check access level
-    if (auth.accessLevel == AccessLevel.readOnly) {
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.authorizationAccessDenied,
-        entityType: 'Profile',
-        entityId: profileId,
-        result: AuditResult.failure,
-        metadata: {
-          'attemptedUserId': currentUserId,
-          'attemptedOperation': operation.name,
-          'reason': 'read_only_access',
-          'authorizationId': auth.id,
-        },
-      ));
-      return Failure(AuthError.writeAccessRequired());
-    }
-
-    // 4. Hard delete restricted to owners
-    if (operation == WriteOperation.hardDelete) {
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.authorizationAccessDenied,
-        entityType: 'Profile',
-        entityId: profileId,
-        result: AuditResult.failure,
-        metadata: {
-          'attemptedUserId': currentUserId,
-          'attemptedOperation': 'hardDelete',
-          'reason': 'owner_only_operation',
-          'authorizationId': auth.id,
-        },
-      ));
-      return Failure(AuthError.hardDeleteNotAllowed(profileId));
-    }
-
-    // 5. Check scope includes required data type
-    if (!auth.scope.contains(requiredScope)) {
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.authorizationAccessDenied,
-        entityType: 'Profile',
-        entityId: profileId,
-        result: AuditResult.failure,
-        metadata: {
-          'attemptedUserId': currentUserId,
-          'attemptedOperation': operation.name,
-          'attemptedScope': requiredScope.name,
-          'authorizedScopes': auth.scope.map((s) => s.name).toList(),
-          'reason': 'insufficient_scope',
-          'authorizationId': auth.id,
-        },
-      ));
-      return Failure(AuthError.insufficientScope(requiredScope.name));
-    }
-
-    // SEC-10: Check authorization expiration (defense in depth)
-    if (auth.expiresAt != null &&
-        DateTime.now().millisecondsSinceEpoch > auth.expiresAt!) {
-      await _auditLog.log(AuditEntry(
-        action: AuditAction.hipaaAuthorizationExpired,
-        entityType: 'HipaaAuthorization',
-        entityId: auth.id,
-        metadata: {
-          'profileId': profileId,
-          'expiredAt': auth.expiresAt,
-        },
-      ));
-      return Failure(AuthError.authorizationExpired());
-    }
-  }
-
-  // 6. Log authorized write attempt
-  await _auditLog.log(AuditEntry(
-    action: AuditAction.profileDataModification,
-    entityType: 'Profile',
-    entityId: profileId,
-    metadata: {
-      'userId': currentUserId,
-      'operation': operation.name,
-      'scope': requiredScope.name,
-      'isOwner': isOwner,
-    },
-  ));
-
-  // 7. Perform the actual write operation
-  return performWrite();
-}
-```
-
-**Tables Requiring Scope-Checked Write Operations:**
-
-| Table | DataScope Required | Notes |
-|-------|-------------------|-------|
-| `conditions` | `DataScope.conditions` | |
-| `condition_logs` | `DataScope.conditions` | |
-| `flare_ups` | `DataScope.conditions` | |
-| `supplements` | `DataScope.supplements` | |
-| `intake_logs` | `DataScope.supplements` | |
-| `food_items` | `DataScope.food` | |
-| `food_logs` | `DataScope.food` | |
-| `sleep_entries` | `DataScope.sleep` | |
-| `activities` | `DataScope.activities` | |
-| `activity_logs` | `DataScope.activities` | |
-| `fluids_entries` | `DataScope.fluids` | |
-| `photo_areas` | `DataScope.photos` | Requires explicit photo consent |
-| `photo_entries` | `DataScope.photos` | Requires explicit photo consent |
-| `journal_entries` | `DataScope.journal` | |
-| `patterns` | `DataScope.insights` | |
-| `trigger_correlations` | `DataScope.insights` | |
-| `health_insights` | `DataScope.insights` | |
-
 ---
 
 ## 9. Device Management
@@ -2040,4 +1496,3 @@ When a device is removed:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-31 | Initial release - QR pairing, multi-device sync, profile sharing |
-| 1.1 | 2026-02-02 | SEC-02: Added audit logging to createPairingSession; SEC-03: Enhanced key exchange audit logging; SEC-04: Added credential transfer audit logging with failure tracking; SEC-05: Added scope filtering requirements for ALL write operations; SEC-07: Added comprehensive HIPAA authorization grant/revoke audit logging; SEC-10: Added authorization expiration checking requirements; SEC-11: Added failed authorization attempt logging |

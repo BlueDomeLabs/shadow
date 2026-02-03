@@ -452,182 +452,9 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 
 ---
 
-## 14. Conditional Field Validation Rules
+## 14. Common Field Behaviors
 
-This section clarifies the behavior of conditional fields throughout the application.
-
-### Conditional Field Validation Rules
-
-When a conditional field becomes visible:
-1. REQUIRED conditional fields MUST be validated immediately on visibility change
-2. If conditional field has a default value, pre-populate it
-3. Validation error shows if required field is visible but empty on form submit
-4. When parent field changes making conditional hidden, clear conditional field value
-
-Example: Supplement Timing
-- IF timingType = 'beforeEvent' OR 'afterEvent', THEN offsetMinutes is REQUIRED
-- IF timingType = 'specificTime', THEN specificTimeMinutes is REQUIRED
-- IF timingType = 'withEvent', THEN neither is required
-
-### 14.1 Conditional Field Visibility
-
-Conditional fields are shown or hidden based on parent field values:
-
-| Parent Field | Parent Value | Conditional Field | Behavior |
-|--------------|--------------|-------------------|----------|
-| Form | "Other" | Custom Form | SHOWN |
-| Form | Any other value | Custom Form | HIDDEN |
-| Dosage Unit | "custom" | Custom Unit | SHOWN |
-| Dosage Unit | Any other value | Custom Unit | HIDDEN |
-| Frequency | "Every X Days" | Every X Days | SHOWN |
-| Frequency | "Specific Days" | Specific Days | SHOWN |
-| Timing | "Before" or "After" | Offset Minutes | SHOWN |
-| Timing | "With" | Offset Minutes | HIDDEN |
-| Anchor Event | "Specific Time" | Specific Time | SHOWN |
-| Diet Type | "Other" | Diet Description | SHOWN |
-| Had Bowel Movement | true | Condition, Size, Photo | SHOWN |
-| Had Urination | true | Color, Size, Urgency | SHOWN |
-| App Lock | true | Lock Method, PIN, Lock Timeout | SHOWN |
-| Enable Eating Window | true | Window Start, Window End | SHOWN |
-| Enable Carb Limit | true | Max Carbs | SHOWN |
-| Enable Calorie Limit | true | Max Calories | SHOWN |
-
-### 14.2 Validation When Parent Condition is False
-
-When a conditional field's parent condition evaluates to false:
-
-1. **Validation is SKIPPED** - The field is not validated regardless of its value
-2. **Field is not required** - Even if marked as "required when shown", the requirement is waived
-3. **Server-side validation** - Backend ignores conditional fields when parent condition is false
-
-**Example:**
-- If `Form = "Capsule"`, the `Custom Form` field is hidden
-- Even if `Custom Form` contains invalid data, the form saves successfully
-- The invalid data in `Custom Form` is ignored during validation
-
-### 14.3 Value Preservation vs Clearing
-
-When a conditional field is hidden:
-
-| Behavior | Fields | Rationale |
-|----------|--------|-----------|
-| **PRESERVED** | Custom Form, Custom Unit, Custom Condition, Custom Color, Diet Description, Custom Reason | User may switch back; preserves work |
-| **CLEARED** | Offset Minutes (when switching to "With"), Specific Time (when switching away from "Specific Time"), Window Start/End (when disabling eating window) | Values become invalid in new context |
-
-**Implementation Rule:**
-- Text fields with user-entered custom values: PRESERVE
-- Numeric/time fields that become contextually invalid: CLEAR
-- On form submission: Only submit values for VISIBLE conditional fields
-
-### 14.4 Field Requirement States
-
-Fields have three possible requirement states:
-
-| State | Symbol | Description | Validation Behavior |
-|-------|--------|-------------|---------------------|
-| **REQUIRED** | * | Must have value to save | Block save if empty; show error message |
-| **OPTIONAL** | (none) | May be empty | No validation; save proceeds with null/empty |
-| **CONDITIONAL_REQUIRED** | *† | Required IF condition met | Validate only when condition is true |
-
-**CONDITIONAL_REQUIRED Field Specifications:**
-
-| Field | Condition | Required When |
-|-------|-----------|---------------|
-| Custom Form | Form = "Other" | Always when visible |
-| Custom Unit | Dosage Unit = "custom" | Always when visible |
-| Every X Days | Frequency = "Every X Days" | Always when visible |
-| Specific Days | Frequency = "Specific Days" | At least 1 day selected |
-| Offset Minutes | Timing = "Before" OR "After" | Always when visible |
-| Specific Time | Anchor Event = "Specific Time" | Always when visible |
-| Diet Description | Diet Type = "Other" | Always when visible |
-| Condition (bowel) | Had Bowel Movement = true | Always when visible |
-| Color (urine) | Had Urination = true | Always when visible |
-| Ingredients | Food Type = "Composed" | At least 1 ingredient |
-| PIN | Lock Method = "PIN" OR "Both" | Always when visible |
-| Window Start/End | Enable Eating Window = true | Always when visible |
-| Max Carbs | Enable Carb Limit = true | Always when visible |
-| Max Calories | Enable Calorie Limit = true | Always when visible |
-
----
-
-## 15. Supplement Timing Field Dependencies
-
-This section specifies the exact field dependencies for supplement scheduling based on timing type.
-
-### 15.1 Timing Type Definitions
-
-| timingType Value | Description | UI Label |
-|------------------|-------------|----------|
-| `withEvent` | Take at the same time as anchor event | "With" |
-| `beforeEvent` | Take before anchor event | "Before" |
-| `afterEvent` | Take after anchor event | "After" |
-| `specificTime` | Take at a specific clock time | "At Specific Time" |
-
-### 15.2 Field Requirements by Timing Type
-
-#### When timingType = "withEvent"
-```
-anchorEvent:     REQUIRED (Breakfast/Lunch/Dinner/Morning/Evening/Bedtime)
-offsetMinutes:   OPTIONAL (defaults to 0, field hidden in UI)
-specificTimeMinutes: IGNORED (not applicable)
-```
-
-#### When timingType = "beforeEvent" or "afterEvent"
-```
-anchorEvent:     REQUIRED (Breakfast/Lunch/Dinner/Morning/Evening/Bedtime)
-offsetMinutes:   REQUIRED (5-120 minutes, step of 5)
-specificTimeMinutes: IGNORED (not applicable)
-```
-
-#### When timingType = "specificTime"
-```
-anchorEvent:     IGNORED (field hidden, value not used in scheduling)
-offsetMinutes:   IGNORED (not applicable)
-specificTimeMinutes: REQUIRED (0-1439, represents minutes from midnight)
-```
-
-### 15.3 Validation Rules
-
-```dart
-void validateSupplementTiming(Supplement supplement) {
-  switch (supplement.timingType) {
-    case TimingType.withEvent:
-      assert(supplement.anchorEvent != null, 'anchorEvent required for withEvent');
-      // offsetMinutes defaults to 0 if not provided
-      break;
-
-    case TimingType.beforeEvent:
-    case TimingType.afterEvent:
-      assert(supplement.anchorEvent != null, 'anchorEvent required for before/afterEvent');
-      assert(supplement.offsetMinutes != null, 'offsetMinutes required for before/afterEvent');
-      assert(supplement.offsetMinutes! >= 5 && supplement.offsetMinutes! <= 120,
-             'offsetMinutes must be 5-120');
-      break;
-
-    case TimingType.specificTime:
-      assert(supplement.specificTimeMinutes != null, 'specificTimeMinutes required for specificTime');
-      assert(supplement.specificTimeMinutes! >= 0 && supplement.specificTimeMinutes! < 1440,
-             'specificTimeMinutes must be 0-1439');
-      // anchorEvent value is ignored even if present
-      break;
-  }
-}
-```
-
-### 15.4 UI Behavior
-
-| User Selects | Fields Shown | Fields Hidden |
-|--------------|--------------|---------------|
-| "With Breakfast" | (none additional) | Offset Minutes, Specific Time |
-| "30 min Before Lunch" | Offset Minutes dropdown | Specific Time |
-| "15 min After Dinner" | Offset Minutes dropdown | Specific Time |
-| "At Specific Time" | Time Picker | Anchor Event, Offset Minutes |
-
----
-
-## 16. Common Field Behaviors
-
-### 16.1 Date/Time Picker Defaults
+### 14.1 Date/Time Picker Defaults
 
 | Context | Date Default | Time Default |
 |---------|--------------|--------------|
@@ -637,13 +464,13 @@ void validateSupplementTiming(Supplement supplement) {
 | Sleep (wake time) | Today | 6:30 AM |
 | BBT | Today | Current time |
 
-### 16.2 Validation Timing
+### 14.2 Validation Timing
 
 - **On blur:** Validate when user leaves field
 - **On submit:** Full form validation
 - **Real-time:** Character counts, format hints
 
-### 16.3 Error Display
+### 14.3 Error Display
 
 - Red border on invalid field
 - Error message below field
@@ -652,7 +479,7 @@ void validateSupplementTiming(Supplement supplement) {
 
 ---
 
-## 17. Diet Screens
+## 15. Diet Screens
 
 ### 15.1 Diet Selection Screen
 
@@ -673,7 +500,7 @@ void validateSupplementTiming(Supplement supplement) {
 
 See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 
-### 17.2 Custom Diet Builder Screen
+### 15.2 Custom Diet Builder Screen
 
 **Purpose:** Create or edit custom diet
 
@@ -687,7 +514,7 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 | Window Start | Time | Conditional* | Valid time | 12:00 PM | "Select time" | - |
 | Window End | Time | Conditional* | After start | 8:00 PM | "Select time" | - |
 
-*Required if "Enable Eating Window" is on (see Section 14.4 CONDITIONAL_REQUIRED)
+*Required if "Enable Eating Window" is on
 
 **Food Exclusion Section:**
 
@@ -715,7 +542,7 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 | Enable Calorie Limit | Switch | No | None | Off | - |
 | Max Calories | Number | Conditional | 500-5000 | 2000 | kcal |
 
-### 17.3 Diet Compliance Dashboard Screen
+### 15.3 Diet Compliance Dashboard Screen
 
 **Purpose:** View diet compliance stats
 
@@ -730,7 +557,7 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 | Rule Breakdown | List | Per-rule compliance bars |
 | Recent Violations | List | Last 10 violations with dates |
 
-### 17.4 Fasting Timer Screen
+### 15.4 Fasting Timer Screen
 
 **Purpose:** Intermittent fasting status and timer
 
@@ -744,7 +571,7 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 | End Fast Button | Button | Only during fasting, ends fast early |
 | Weekly Log | Grid | Mon-Sun with checkmarks/times |
 
-### 17.5 Diet Violation Alert (Modal)
+### 15.5 Diet Violation Alert (Modal)
 
 **Purpose:** Warn before logging violating food
 
@@ -759,7 +586,7 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 | Log Anyway Button | Button | Secondary, proceeds with log |
 | Find Alternatives | Button | Opens compliant alternatives |
 
-### 17.6 Add Custom Diet Rule Screen
+### 15.6 Add Custom Diet Rule Screen
 
 **Purpose:** Create individual diet rules
 
@@ -775,15 +602,15 @@ See 41_DIET_SYSTEM.md Section 2.2 for complete preset library.
 
 ---
 
-## 18. Accessibility Field Specifications
+## 16. Accessibility Field Specifications
 
 **MANDATORY:** All interactive elements MUST have semantic labels for screen reader support per WCAG 2.1 Level AA (4.1.2 Name, Role, Value).
 
-### 18.1 Semantic Label Pattern
+### 16.1 Semantic Label Pattern
 
 Format: `"{Field name}, {required|optional}, {context if needed}"`
 
-### 18.2 Profile Screen Semantic Labels
+### 16.2 Profile Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -798,7 +625,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Save Button | "Save profile" |
 | Cancel Button | "Cancel and discard changes" |
 
-### 18.3 Supplement Screen Semantic Labels
+### 16.3 Supplement Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -815,7 +642,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Notes | "Supplement notes, optional" |
 | Is Archived | "Archive supplement, hides from active list" |
 
-### 18.4 Food Screen Semantic Labels
+### 16.4 Food Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -833,7 +660,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Date/Time | "When eaten, required" |
 | Meal Type | "Meal type, optional" |
 
-### 18.5 Fluids Screen Semantic Labels
+### 16.5 Fluids Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -856,7 +683,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Other Fluid Amount | "Other fluid amount, optional" |
 | Other Fluid Notes | "Other fluid notes, optional" |
 
-### 18.6 Sleep Screen Semantic Labels
+### 16.6 Sleep Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -867,7 +694,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Dreams | "Dream notes, optional" |
 | Notes | "Sleep notes, optional" |
 
-### 18.7 Condition Screen Semantic Labels
+### 16.7 Condition Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -882,7 +709,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Flare Notes | "Flare-up notes, optional" |
 | Log Notes | "Condition log notes, optional" |
 
-### 18.8 Activity Screen Semantic Labels
+### 16.8 Activity Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -896,7 +723,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Notes | "Activity notes, optional" |
 | Date/Time | "When activity occurred, required" |
 
-### 18.9 Journal Screen Semantic Labels
+### 16.9 Journal Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -905,7 +732,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Tags | "Entry tags, optional, add multiple" |
 | Date | "Entry date, defaults to today" |
 
-### 18.10 Photo Screen Semantic Labels
+### 16.10 Photo Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -916,7 +743,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Photo Notes | "Photo notes, optional" |
 | Photo Date | "Photo date, required" |
 
-### 18.11 Notification Screen Semantic Labels
+### 16.11 Notification Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -931,7 +758,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Quiet Start | "Quiet hours start time" |
 | Quiet End | "Quiet hours end time" |
 
-### 18.12 Diet Screen Semantic Labels
+### 16.12 Diet Screen Semantic Labels
 
 | Field | Semantic Label |
 |-------|----------------|
@@ -951,7 +778,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Fasting Timer | "Fasting timer, {hours} hours {minutes} minutes elapsed" |
 | End Fast Button | "End fast early" |
 
-### 18.13 Touch Target Requirements
+### 16.13 Touch Target Requirements
 
 **MANDATORY:** All interactive elements minimum 48x48 dp per WCAG 2.1 Level AA.
 
@@ -965,7 +792,7 @@ Format: `"{Field name}, {required|optional}, {context if needed}"`
 | Form fields | 48 dp height | Standard `TextField` is compliant |
 | Dropdown items | 48 dp height | Per Material Design |
 
-### 18.14 Focus Order by Screen
+### 16.14 Focus Order by Screen
 
 Focus traversal must follow logical reading order. Use `FocusTraversalGroup` with `OrderedTraversalPolicy`.
 

@@ -125,18 +125,6 @@ Future<Result<Unit, DatabaseError>> deleteEntry(String id);
 
 ## 2. Error Categorization
 
-> **IMPORTANT - Architecture Pattern:**
->
-> The **canonical implementation** is in [22_API_CONTRACTS.md](22_API_CONTRACTS.md) Section 2.
->
-> **Required Pattern:** Flat hierarchy with factory methods
-> - `final class DatabaseError extends AppError` with `DatabaseError.notFound()`, `DatabaseError.queryFailed()`, etc.
-> - `final class AuthError extends AppError` with `AuthError.tokenExpired()`, `AuthError.unauthorized()`, etc.
->
-> **Property Naming:** The canonical property is `message` (not `technicalMessage`). Examples below use `technicalMessage` for conceptual clarity, but implementations must use `message` per 22_API_CONTRACTS.md.
->
-> The code examples below show conceptual patterns. For exact implementation, always reference 22_API_CONTRACTS.md.
-
 ### 2.1 Error Type Hierarchy
 
 > **Note:** The canonical AppError definition with exact error codes is in [22_API_CONTRACTS.md](22_API_CONTRACTS.md) Section 2. This section shows the behavioral interface; contracts shows the implementation.
@@ -169,7 +157,6 @@ sealed class AppError {
   RecoveryAction get recoveryAction;
 }
 
-/// CANONICAL: Must match 22_API_CONTRACTS.md exactly (8 values)
 enum RecoveryAction {
   none,           // No recovery possible
   retry,          // User can retry the operation
@@ -177,92 +164,79 @@ enum RecoveryAction {
   reAuthenticate, // Need full re-authentication
   goToSettings,   // User should go to settings
   contactSupport, // User should contact support
-  checkConnection, // User should check network connection
-  freeStorage,    // User should free up storage space
 }
 ```
 
 ### 2.2 Network Errors
 
-> **CANONICAL SOURCE:** See [22_API_CONTRACTS.md](22_API_CONTRACTS.md) Section 2 for the exact implementation.
-> The API Contracts document uses a **flat hierarchy** with factory methods (e.g., `NetworkError.timeout()`, `NetworkError.noInternet()`).
-> The code below shows conceptual error handling; implement using the factory pattern from API Contracts.
-
 ```dart
 // lib/core/errors/network_error.dart
-// EXACT IMPLEMENTATION: See 22_API_CONTRACTS.md Section 2.3
 
-final class NetworkError extends AppError {
-  final bool _isRecoverable;
-  final RecoveryAction _recoveryAction;
-
-  const NetworkError._({
-    required super.code,
-    required super.message,
-    required super.userMessage,
-    super.originalError,
-    super.stackTrace,
-    bool isRecoverable = true,
-    RecoveryAction recoveryAction = RecoveryAction.retry,
-  }) : _isRecoverable = isRecoverable,
-       _recoveryAction = recoveryAction;
+sealed class NetworkError extends AppError {
+  @override
+  bool get isRecoverable => true;
 
   @override
-  bool get isRecoverable => _isRecoverable;
+  RecoveryAction get recoveryAction => RecoveryAction.retry;
+}
+
+final class ConnectionTimeoutError extends NetworkError {
+  final Duration timeout;
+  const ConnectionTimeoutError(this.timeout);
 
   @override
-  RecoveryAction get recoveryAction => _recoveryAction;
+  String get userMessage => 'Connection timed out. Please try again.';
 
-  // Use factory methods for specific error types
-  factory NetworkError.timeout(Duration timeout, [dynamic error, StackTrace? stack]) =>
-    NetworkError._(
-      code: 'NET_TIMEOUT',
-      message: 'Connection timeout after ${timeout.inSeconds}s',
-      userMessage: 'Connection timed out. Please try again.',
-      originalError: error,
-      stackTrace: stack,
-    );
+  @override
+  String get technicalMessage => 'Connection timeout after ${timeout.inSeconds}s';
+}
 
-  factory NetworkError.noInternet([dynamic error, StackTrace? stack]) =>
-    NetworkError._(
-      code: 'NET_NO_INTERNET',
-      message: 'No network connectivity detected',
-      userMessage: 'No internet connection. Your changes are saved locally.',
-      originalError: error,
-      stackTrace: stack,
-      recoveryAction: RecoveryAction.checkConnection,
-    );
+final class NoInternetError extends NetworkError {
+  const NoInternetError();
 
-  factory NetworkError.serverError(int statusCode, [String? serverMessage, dynamic error, StackTrace? stack]) =>
-    NetworkError._(
-      code: 'NET_SERVER_ERROR',
-      message: 'HTTP $statusCode: ${serverMessage ?? "Unknown"}',
-      userMessage: 'Server error. Please try again later.',
-      originalError: error,
-      stackTrace: stack,
-      isRecoverable: statusCode >= 500,
-    );
+  @override
+  String get userMessage => 'No internet connection. Your changes are saved locally.';
 
-  factory NetworkError.rateLimited([Duration? retryAfter, dynamic error, StackTrace? stack]) =>
-    NetworkError._(
-      code: 'NET_RATE_LIMITED',
-      message: 'Rate limited${retryAfter != null ? ", retry after ${retryAfter.inSeconds}s" : ""}',
-      userMessage: 'Too many requests. Please wait a moment.',
-      originalError: error,
-      stackTrace: stack,
-    );
+  @override
+  String get technicalMessage => 'No network connectivity detected';
+}
+
+final class ServerError extends NetworkError {
+  final int statusCode;
+  final String? serverMessage;
+
+  const ServerError(this.statusCode, [this.serverMessage]);
+
+  @override
+  String get userMessage => 'Server error. Please try again later.';
+
+  @override
+  String get technicalMessage => 'HTTP $statusCode: ${serverMessage ?? "Unknown"}';
+
+  @override
+  bool get isRecoverable => statusCode >= 500; // 5xx errors are retryable
+}
+
+final class RateLimitError extends NetworkError {
+  final Duration? retryAfter;
+
+  const RateLimitError([this.retryAfter]);
+
+  @override
+  String get userMessage => 'Too many requests. Please wait a moment.';
+
+  @override
+  String get technicalMessage =>
+    'Rate limited${retryAfter != null ? ", retry after ${retryAfter!.inSeconds}s" : ""}';
 }
 ```
 
 ### 2.3 Authentication Errors
 
-> **CANONICAL SOURCE:** See [22_API_CONTRACTS.md](22_API_CONTRACTS.md) Section 2.2 for the exact implementation.
-
 ```dart
 // lib/core/errors/auth_error.dart
-// EXACT IMPLEMENTATION: See 22_API_CONTRACTS.md Section 2.2
 
-final class AuthError extends AppError {
+sealed class AuthError extends AppError {}
 
 final class TokenExpiredError extends AuthError {
   const TokenExpiredError();
@@ -654,9 +628,9 @@ class SaveFluidsEntryUseCase {
   ValidationError? _validate(FluidsEntry entry) {
     if (entry.basalBodyTemperature != null) {
       final temp = entry.basalBodyTemperature!;
-      // Use ValidationError.outOfRange per line 478 guidance
+      // Assuming Fahrenheit for this example
       if (temp < 95.0 || temp > 105.0) {
-        return ValidationError.outOfRange('basalBodyTemperature', temp, 95.0, 105.0);
+        return BBTOutOfRangeError(temp, isFahrenheit: true);
       }
     }
     return null;
@@ -966,18 +940,18 @@ Quick reference for error handling:
 
 void main() {
   group('SaveFluidsEntryUseCase', () {
-    test('returns ValidationError when temperature out of range', () async {
+    test('returns BBTOutOfRangeError when temperature too low', () async {
       final useCase = SaveFluidsEntryUseCase(mockRepo, mockAuth);
       final entry = FluidsEntry(
-        basalBodyTemperature: 94.0, // Too low (valid range: 95-105°F)
+        basalBodyTemperature: 94.0, // Too low
         // ... other fields
       );
 
       final result = await useCase.execute(entry);
 
       expect(result.isFailure, true);
-      expect(result.error, isA<ValidationError>());
-      expect(result.error.code, ValidationError.codeOutOfRange);
+      expect(result.error, isA<BBTOutOfRangeError>());
+      expect(result.error.userMessage, contains('95°F'));
     });
 
     test('returns ProfileAccessDeniedError when no write permission', () async {
