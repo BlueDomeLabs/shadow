@@ -1,0 +1,29 @@
+{
+  "@@locale": "en",
+  "appTitle": "Shadow",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "homeTab": "Home",
+  "conditionsTab": "Conditions",
+  "supplementsTab": "Supplements",
+  "foodTab": "Food",
+  "activitiesTab": "Activities",
+  "sleepTab": "Sleep",
+  "fluidsTab": "Fluids",
+  "photosTab": "Photos",
+  "journalTab": "Journal",
+  "profilesTab": "Profiles",
+  "settingsTab": "Settings",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "add": "Add",
+  "loading": "Loading...",
+  "error": "Error",
+  "retry": "Retry",
+  "noData": "No data available",
+  "required": "Required",
+  "optional": "Optional"
+}

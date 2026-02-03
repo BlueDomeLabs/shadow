@@ -1,0 +1,77 @@
+name: shadow_app
+description: "Shadow - Multi-platform health tracking application"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+
+  # State Management (Riverpod)
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+
+  # Code Generation
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+
+  # Database (Drift - type-safe SQL)
+  drift: ^2.14.1
+  sqlite3_flutter_libs: ^0.5.18
+  path_provider: ^2.1.1
+  path: ^1.8.3
+
+  # Security
+  flutter_secure_storage: ^9.0.0
+  encrypt: ^5.0.3
+  crypto: ^3.0.3
+  pointycastle: ^3.7.3
+
+  # Utilities
+  uuid: ^4.2.1
+  intl: ^0.20.2
+  logger: ^2.0.2
+  equatable: ^2.0.5
+  collection: ^1.18.0
+  device_info_plus: ^10.1.0
+
+  # Google Sign-In & Drive
+  google_sign_in: ^6.1.6
+  googleapis: ^12.0.0
+  googleapis_auth: ^1.4.1
+  http: ^1.1.2
+
+  # UI Components
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.4
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mockito: ^5.4.3
+  build_runner: ^2.4.7
+  freezed: ^2.4.5
+  json_serializable: ^6.7.1
+  drift_dev: ^2.14.1
+  riverpod_generator: ^2.3.9
+
+flutter:
+  uses-material-design: true
+  generate: true  # Enable l10n generation
+
+  assets:
+    - assets/images/
+    - assets/icons/
