@@ -11,7 +11,7 @@ import flutter_local_notifications
 import flutter_secure_storage_macos
 import google_sign_in_ios
 import sqflite_darwin
-import sqlite3_flutter_libs
+import sqlcipher_flutter_libs
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))

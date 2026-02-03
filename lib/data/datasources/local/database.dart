@@ -1,29 +1,32 @@
 // lib/data/datasources/local/database.dart - SHADOW-008 Implementation
-// Implements AppDatabase with Drift ORM per 05_IMPLEMENTATION_ROADMAP.md and 10_DATABASE_SCHEMA.md
+// Implements AppDatabase with Drift ORM and SQLCipher encryption
+// per 05_IMPLEMENTATION_ROADMAP.md and 10_DATABASE_SCHEMA.md
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
 
-/// Shadow App Database using Drift ORM.
+/// Shadow App Database using Drift ORM with SQLCipher AES-256 encryption.
 ///
 /// Schema version follows 10_DATABASE_SCHEMA.md: Version 7.
 /// Tables are added incrementally as entities are implemented.
 ///
 /// Security:
-/// - Database encryption key stored in secure storage
-/// - SQLCipher can be enabled by replacing sqlite3_flutter_libs with sqlcipher_flutter_libs
+/// - AES-256 encryption via SQLCipher
+/// - Encryption key stored in platform secure storage (Keychain/KeyStore)
 /// - Foreign key constraints enabled
 ///
 /// Usage:
 /// ```dart
-/// final database = AppDatabase(openConnection());
+/// final database = AppDatabase(await DatabaseConnection.openConnection());
 /// ```
 @DriftDatabase(tables: [])
 class AppDatabase extends _$AppDatabase {
@@ -31,12 +34,12 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// For production use:
   /// ```dart
-  /// final db = AppDatabase(await openDatabaseConnection());
+  /// final db = AppDatabase(await DatabaseConnection.openConnection());
   /// ```
   ///
   /// For testing:
   /// ```dart
-  /// final db = AppDatabase(NativeDatabase.memory());
+  /// final db = AppDatabase(DatabaseConnection.inMemory());
   /// ```
   AppDatabase(super.e);
 
@@ -68,12 +71,6 @@ class AppDatabase extends _$AppDatabase {
       beforeOpen: (details) async {
         // Enable foreign key constraints per 10_DATABASE_SCHEMA.md Section 1.2
         await customStatement('PRAGMA foreign_keys = ON');
-
-        // Log database details for debugging
-        // Production: Consider removing or using conditional logging
-        if (details.wasCreated) {
-          // Fresh database created
-        }
       },
     );
   }
@@ -86,42 +83,72 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-/// Database connection configuration.
+/// Database connection configuration with SQLCipher encryption.
 ///
-/// Provides platform-specific database file paths and connection setup.
+/// Provides platform-specific database file paths and encrypted connection setup.
+/// Per 10_DATABASE_SCHEMA.md Section 1.1: SQLCipher with AES-256 encryption.
 class DatabaseConnection {
   static const _databaseName = 'shadow.db';
   static const _encryptionKeyName = 'shadow_db_encryption_key';
 
-  /// Opens a database connection for the current platform.
+  /// Opens an encrypted database connection for the current platform.
   ///
   /// Supports iOS, Android, and macOS per SHADOW-008 requirements.
+  /// Uses SQLCipher for AES-256 encryption with key stored in secure storage.
+  ///
   /// Returns a lazy database connection that opens on first query.
   static LazyDatabase openConnection() {
     return LazyDatabase(() async {
       final dbFolder = await _getDatabaseDirectory();
       final file = File(p.join(dbFolder, _databaseName));
+      final encryptionKey = await getOrCreateEncryptionKey();
 
-      // Note: For SQLCipher encryption, replace NativeDatabase with:
-      // NativeDatabase.createInBackground(
-      //   file,
-      //   setup: (database) {
-      //     final key = await _getOrCreateEncryptionKey();
-      //     database.execute("PRAGMA key = '$key'");
-      //   },
-      // );
-
-      return NativeDatabase.createInBackground(file);
+      return NativeDatabase.createInBackground(
+        file,
+        setup: (database) {
+          // Apply SQLCipher encryption key
+          // Per 10_DATABASE_SCHEMA.md: AES-256 encryption
+          database.execute("PRAGMA key = '$encryptionKey'");
+        },
+      );
     });
   }
 
+  /// Opens an encrypted database connection synchronously.
+  ///
+  /// Use this when you already have the encryption key.
+  /// Prefer [openConnection] for lazy initialization.
+  static NativeDatabase openConnectionSync(String encryptionKey) {
+    // This is for cases where async initialization is not possible
+    // In most cases, use openConnection() instead
+    throw UnimplementedError(
+      'Use openConnection() for async initialization with secure key storage',
+    );
+  }
+
   /// Creates an in-memory database for testing.
+  ///
+  /// Note: In-memory databases use a fixed test key for encryption
+  /// to verify SQLCipher is working correctly.
   ///
   /// Usage in tests:
   /// ```dart
   /// final testDb = AppDatabase(DatabaseConnection.inMemory());
   /// ```
   static QueryExecutor inMemory() {
+    return NativeDatabase.memory(
+      setup: (database) {
+        // Use a fixed key for testing - NOT for production
+        database.execute("PRAGMA key = 'test_encryption_key_for_unit_tests'");
+      },
+    );
+  }
+
+  /// Creates an unencrypted in-memory database for testing.
+  ///
+  /// Use this only when testing non-encryption-related functionality
+  /// and SQLCipher setup causes issues.
+  static QueryExecutor inMemoryUnencrypted() {
     return NativeDatabase.memory();
   }
 
@@ -151,8 +178,7 @@ class DatabaseConnection {
   /// - Android: EncryptedSharedPreferences (Keystore-backed)
   /// - macOS: Keychain
   ///
-  /// Note: Currently unused as SQLCipher is not yet enabled.
-  /// Will be activated when sqlcipher_flutter_libs is added.
+  /// Per 10_DATABASE_SCHEMA.md: 256-bit (32 bytes) key stored in Keychain/KeyStore.
   static Future<String> getOrCreateEncryptionKey() async {
     const storage = FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -164,35 +190,61 @@ class DatabaseConnection {
 
     if (key == null) {
       // Generate new 256-bit key (32 bytes = 64 hex chars)
-      key = _generateEncryptionKey();
+      key = _generateSecureKey();
       await storage.write(key: _encryptionKeyName, value: key);
     }
 
     return key;
   }
 
-  /// Generates a secure 256-bit encryption key.
+  /// Generates a cryptographically secure 256-bit encryption key.
   ///
-  /// Uses Dart's secure random number generator.
-  static String _generateEncryptionKey() {
-    final random = List<int>.generate(32, (_) {
-      // Use DateTime-based seed combined with index for pseudo-randomness
-      // In production, use crypto package's SecureRandom
-      return DateTime.now().microsecondsSinceEpoch % 256;
-    });
-
-    // Convert to hex string
-    return random.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  /// Uses Dart's secure random number generator for key generation.
+  /// Returns a 64-character hex string (32 bytes = 256 bits).
+  static String _generateSecureKey() {
+    final secureRandom = Random.secure();
+    final keyBytes = List<int>.generate(32, (_) => secureRandom.nextInt(256));
+    return keyBytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
   }
 
   /// Deletes the database file (for testing or reset).
   ///
   /// Warning: This permanently deletes all data.
+  /// The encryption key in secure storage is NOT deleted.
   static Future<void> deleteDatabase() async {
     final dbFolder = await _getDatabaseDirectory();
     final file = File(p.join(dbFolder, _databaseName));
     if (await file.exists()) {
       await file.delete();
+    }
+  }
+
+  /// Deletes both the database file and the encryption key.
+  ///
+  /// Warning: This permanently deletes all data and the key.
+  /// A new key will be generated on next database open.
+  static Future<void> deleteDatabaseAndKey() async {
+    await deleteDatabase();
+
+    const storage = FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    );
+    await storage.delete(key: _encryptionKeyName);
+  }
+
+  /// Verifies that SQLCipher encryption is active.
+  ///
+  /// Returns true if the database is using SQLCipher encryption.
+  /// Useful for debugging and verification.
+  static Future<bool> verifyEncryption(Database database) async {
+    try {
+      final result = database.select('PRAGMA cipher_version');
+      // If cipher_version returns a value, SQLCipher is active
+      return result.isNotEmpty && result.first['cipher_version'] != null;
+    } catch (e) {
+      // If the pragma fails, SQLCipher is not available
+      return false;
     }
   }
 }
