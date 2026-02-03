@@ -20,29 +20,36 @@ Shadow provides comprehensive notification support to help users maintain their 
 
 ### 2.1 Complete Notification Type List
 
-| Type ID | Category | Name | Default Message | Deep Link Target |
-|---------|----------|------|-----------------|------------------|
-| `supplement` | Health | Supplement Reminder | "Time to take {supplement_name}" | Supplement intake screen |
-| `supplement_group` | Health | Supplement Group | "Time to take your {time_of_day} supplements" | Supplement list |
-| `food_meal` | Health | Meal Logging | "Don't forget to log your {meal_type}" | Log food screen |
-| `food_general` | Health | Food Reminder | "Remember to log what you've eaten" | Log food screen |
-| `water` | Health | Water Intake | "Stay hydrated! Log your water intake" | Fluids tab |
-| `fluids_bowel` | Health | Bowel Tracking | "Have you logged your bowel movements today?" | Add fluids screen |
-| `fluids_general` | Health | Fluids Reminder | "Time to update your fluids log" | Fluids tab |
-| `bbt` | Health | BBT Reminder | "Record your basal body temperature" | Add fluids screen (BBT) |
-| `menstruation` | Health | Period Tracking | "Log your menstrual flow for today" | Add fluids screen |
-| `sleep_bedtime` | Health | Bedtime Reminder | "Time to start winding down for bed" | Add sleep screen |
-| `sleep_wakeup` | Health | Wake-up Check-in | "Good morning! How did you sleep?" | Add sleep screen |
-| `condition` | Health | Condition Check-in | "How is your {condition_name} today?" | Log condition screen |
-| `photo` | Health | Photo Reminder | "Time to take your {area_name} photos" | Photo capture |
-| `journal` | Health | Journal Prompt | "Take a moment to reflect on your day" | Add journal screen |
-| `sync` | System | Sync Reminder | "Your data hasn't synced in {days} days" | Sync settings |
-| `inactivity` | System | Activity Reminder | "We haven't seen you in a while" | Home screen |
-| `fasting_window_open` | Diet | Eating Window Open | "Your eating window is now open" | Food tab |
-| `fasting_window_closing` | Diet | Window Closing Soon | "Your eating window closes in 30 minutes" | Food tab |
-| `fasting_window_closed` | Diet | Fasting Started | "Fasting period has begun. Stay strong!" | Food tab |
-| `diet_streak` | Diet | Compliance Milestone | "Amazing! {streak} days at 100% compliance!" | Diet compliance |
-| `diet_weekly` | Diet | Weekly Summary | "Last week: {score}% diet compliance" | Diet compliance |
+> **CANONICAL SOURCE:** The `NotificationType` enum is defined authoritatively in `22_API_CONTRACTS.md` Section 3.2.
+> This table documents implementation details; the enum values and names in the API contracts are the source of truth.
+
+| Enum Value | Type ID | Category | Name | Default Message | Deep Link Target |
+|------------|---------|----------|------|-----------------|------------------|
+| 0 | `supplementIndividual` | Health | Supplement Reminder | "Time to take {supplement_name}" | Supplement intake screen |
+| 1 | `supplementGrouped` | Health | Supplement Group | "Time to take your {time_of_day} supplements" | Supplement list |
+| 2 | `mealBreakfast` | Health | Breakfast Reminder | "Don't forget to log your breakfast" | Log food screen |
+| 3 | `mealLunch` | Health | Lunch Reminder | "Don't forget to log your lunch" | Log food screen |
+| 4 | `mealDinner` | Health | Dinner Reminder | "Don't forget to log your dinner" | Log food screen |
+| 5 | `mealSnacks` | Health | Snack Reminder | "Log your snack" | Log food screen |
+| 6 | `waterInterval` | Health | Water (Interval) | "Stay hydrated! Time for water" | Fluids tab |
+| 7 | `waterFixed` | Health | Water (Fixed) | "Stay hydrated! Log your water intake" | Fluids tab |
+| 8 | `waterSmart` | Health | Water (Smart) | "You're behind on water - drink up!" | Fluids tab |
+| 9 | `bbtMorning` | Health | BBT Reminder | "Record your basal body temperature" | Add fluids screen (BBT) |
+| 10 | `menstruationTracking` | Health | Period Tracking | "Log your menstrual flow for today" | Add fluids screen |
+| 11 | `sleepBedtime` | Health | Bedtime Reminder | "Time to start winding down for bed" | Add sleep screen |
+| 12 | `sleepWakeup` | Health | Wake-up Check-in | "Good morning! How did you sleep?" | Add sleep screen |
+| 13 | `conditionCheckIn` | Health | Condition Check-in | "How is your {condition_name} today?" | Log condition screen |
+| 14 | `photoReminder` | Health | Photo Reminder | "Time to take your {area_name} photos" | Photo capture |
+| 15 | `journalPrompt` | Health | Journal Prompt | "Take a moment to reflect on your day" | Add journal screen |
+| 16 | `syncReminder` | System | Sync Reminder | "Your data hasn't synced in {days} days" | Sync settings |
+| 17 | `fastingWindowOpen` | Diet | Eating Window Open | "Your eating window is now open" | Food tab |
+| 18 | `fastingWindowClose` | Diet | Window Closing Soon | "Your eating window closes in 30 minutes" | Food tab |
+| 19 | `fastingWindowClosed` | Diet | Fasting Started | "Fasting period has begun. Stay strong!" | Food tab |
+| 20 | `dietStreak` | Diet | Compliance Milestone | "Amazing! {streak} days at 100% compliance!" | Diet compliance |
+| 21 | `dietWeeklySummary` | Diet | Weekly Summary | "Last week: {score}% diet compliance" | Diet compliance |
+| 22 | `fluidsGeneral` | Health | Fluids Reminder | "Time to update your fluids log" | Fluids tab |
+| 23 | `fluidsBowel` | Health | Bowel Tracking | "Have you logged your bowel movements today?" | Add fluids screen |
+| 24 | `inactivity` | System | Activity Reminder | "We haven't seen you in a while" | Home screen |
 
 ### 2.2 Notification Categories (iOS)
 
@@ -102,6 +109,10 @@ UNNotificationCategory(
 
 ### 3.1 Schedule Configuration
 
+> **CANONICAL SOURCE:** The `NotificationType` enum is defined authoritatively in `22_API_CONTRACTS.md` Section 3.2.
+> The definition below must remain synchronized with that source. Any changes to notification types
+> must be made in `22_API_CONTRACTS.md` first, then propagated here.
+
 ```dart
 @freezed
 class NotificationSchedule with _$NotificationSchedule {
@@ -120,18 +131,19 @@ class NotificationSchedule with _$NotificationSchedule {
   }) = _NotificationSchedule;
 }
 
-/// CANONICAL: Must match 22_API_CONTRACTS.md exactly (25 values)
+/// CANONICAL: Defined in 22_API_CONTRACTS.md Section 3.2 (25 values, 0-24)
+/// See that document for snooze behavior, default durations, and full documentation.
 enum NotificationType {
   supplementIndividual(0),      // Individual supplement reminder
   supplementGrouped(1),         // Grouped supplement reminder (e.g., "morning supplements")
   mealBreakfast(2),             // Breakfast reminder
   mealLunch(3),                 // Lunch reminder
   mealDinner(4),                // Dinner reminder
-  mealSnacks(5),                // Snacks reminder
+  mealSnacks(5),                // Snacks reminder (covers morning, afternoon, evening snacks)
   waterInterval(6),             // Water reminder at intervals
   waterFixed(7),                // Water reminder at fixed times
-  waterSmart(8),                // Smart water reminder based on activity
-  bbtMorning(9),                // BBT morning measurement reminder
+  waterSmart(8),                // Smart water reminder based on intake vs goal
+  bbtMorning(9),                // BBT morning measurement (NO SNOOZE - medical accuracy)
   menstruationTracking(10),     // Menstruation tracking reminder
   sleepBedtime(11),             // Bedtime reminder
   sleepWakeup(12),              // Wake-up/morning check-in reminder
@@ -142,11 +154,11 @@ enum NotificationType {
   fastingWindowOpen(17),        // Eating window begins
   fastingWindowClose(18),       // Eating window ending soon (warning)
   fastingWindowClosed(19),      // Fasting period begins (window closed)
-  dietStreak(20),               // Diet compliance milestone
-  dietWeeklySummary(21),        // Weekly diet compliance summary
+  dietStreak(20),               // Diet compliance milestone (NO SNOOZE - informational)
+  dietWeeklySummary(21),        // Weekly diet compliance summary (NO SNOOZE - informational)
   fluidsGeneral(22),            // General fluids tracking reminder
   fluidsBowel(23),              // Bowel movement tracking reminder
-  inactivity(24);               // Re-engagement after extended absence
+  inactivity(24);               // Re-engagement after extended absence (NO SNOOZE)
 
   final int value;
   const NotificationType(this.value);
@@ -225,16 +237,23 @@ Instead of individual notifications per supplement, users can create grouped rem
 
 ## 4. Meal Reminders
 
-### 4.1 Meal Types
+### 4.1 Meal Notification Types
 
-| Meal Type | Default Time | Message |
-|-----------|--------------|---------|
-| Breakfast | 8:00 AM | "Don't forget to log your breakfast" |
-| Morning Snack | 10:30 AM | "Log your morning snack" |
-| Lunch | 12:30 PM | "Don't forget to log your lunch" |
-| Afternoon Snack | 3:30 PM | "Log your afternoon snack" |
-| Dinner | 6:30 PM | "Don't forget to log your dinner" |
-| Evening Snack | 9:00 PM | "Log your evening snack" |
+> **API to UI Mapping:** The `NotificationType` enum has 4 meal values (storage/scheduling),
+> while the UI supports 6 meal times for user convenience. The mapping is:
+> - `mealBreakfast` (2) -> Breakfast
+> - `mealLunch` (3) -> Lunch
+> - `mealDinner` (4) -> Dinner
+> - `mealSnacks` (5) -> Morning Snack, Afternoon Snack, Evening Snack (all use same type)
+
+| NotificationType | UI Meal Times | Default Times | Message |
+|------------------|---------------|---------------|---------|
+| `mealBreakfast` (2) | Breakfast | 8:00 AM | "Don't forget to log your breakfast" |
+| `mealLunch` (3) | Lunch | 12:30 PM | "Don't forget to log your lunch" |
+| `mealDinner` (4) | Dinner | 6:30 PM | "Don't forget to log your dinner" |
+| `mealSnacks` (5) | Morning Snack | 10:30 AM | "Log your snack" |
+| `mealSnacks` (5) | Afternoon Snack | 3:30 PM | "Log your snack" |
+| `mealSnacks` (5) | Evening Snack | 9:00 PM | "Log your snack" |
 
 ### 4.2 Meal Reminder Configuration
 
@@ -242,14 +261,20 @@ Instead of individual notifications per supplement, users can create grouped rem
 @freezed
 class MealReminder with _$MealReminder {
   const factory MealReminder({
-    required MealType mealType,
-    required int timeMinutes,        // Minutes from midnight
+    required MealType mealType,          // UI-level meal type (6 values)
+    required int timeMinutes,            // Minutes from midnight
     required bool isEnabled,
     required List<int> weekdays,
     String? customMessage,
   }) = _MealReminder;
 }
 
+/// UI-level meal types (6 values) for user configuration
+/// When persisting, map to NotificationType:
+/// - breakfast -> mealBreakfast(2)
+/// - morningSnack, afternoonSnack, eveningSnack -> mealSnacks(5)
+/// - lunch -> mealLunch(3)
+/// - dinner -> mealDinner(4)
 enum MealType {
   breakfast,
   morningSnack,
@@ -270,13 +295,35 @@ System can detect when meals haven't been logged:
 
 ## 5. Water Intake Reminders
 
-### 5.1 Water Reminder Modes
+### 5.1 Water Reminder Modes (3 Types)
 
-| Mode | Description | Configuration |
-|------|-------------|---------------|
-| **Interval** | Remind every X hours | Every 2 hours, 8 AM - 8 PM |
-| **Specific Times** | Remind at set times | 8 AM, 12 PM, 3 PM, 6 PM |
-| **Smart** | Based on intake vs goal | Remind when behind on goal |
+> **Three distinct notification types** handle water reminders, each with different scheduling logic.
+> Users select ONE mode at a time in the UI, which determines which `NotificationType` is used.
+
+| NotificationType | Mode | Description | Configuration |
+|------------------|------|-------------|---------------|
+| `waterInterval` (6) | **Interval** | Remind at regular intervals during active hours | Every 1-4 hours, within start/end time range |
+| `waterFixed` (7) | **Fixed Times** | Remind at specific user-defined times | List of exact times (e.g., 8 AM, 12 PM, 3 PM, 6 PM) |
+| `waterSmart` (8) | **Smart** | Dynamic reminders based on intake vs goal | Calculates next reminder based on remaining goal and time |
+
+**Mode Behaviors:**
+
+1. **waterInterval (6)** - Fixed interval between reminders
+   - User sets interval (1, 2, 3, or 4 hours)
+   - User sets active hours window (e.g., 7 AM - 9 PM)
+   - Reminders fire every X hours within the window
+   - Example: Every 2 hours from 8 AM-8 PM = 6 reminders/day
+
+2. **waterFixed (7)** - Specific times only
+   - User specifies exact times: [480, 720, 900, 1080] (8am, 12pm, 3pm, 6pm)
+   - No calculation; fires at listed times only
+   - Useful for aligning with meals or breaks
+
+3. **waterSmart (8)** - Goal-aware dynamic reminders
+   - Calculates next reminder based on: daily goal, consumed today, time remaining
+   - Formula: `nextInterval = max(30, remainingMinutes / glassesRemaining)`
+   - Reminds more frequently if behind on goal, less if ahead
+   - See Section 5.3 for full algorithm
 
 ### 5.2 Interval Configuration
 
@@ -343,6 +390,66 @@ class SmartWaterReminderService {
 }
 ```
 
+### Smart Water Reminder Calculation
+
+remainingMl = dailyGoal - consumedToday
+remainingMinutes = activeEndTime - now
+glassesRemaining = ceil(remainingMl / 237)  // 237mL = 8oz
+rawInterval = remainingMinutes / glassesRemaining
+interval = clamp(rawInterval, 30, 120)  // min 30min, max 120min
+
+If remainingMinutes < 30: Do NOT schedule (would fire after active hours)
+
+### 5.4 Smart Water Reminder Formula
+
+The smart water reminder calculates optimal reminder intervals to help users meet their daily hydration goal.
+
+**Exact Formula:**
+```dart
+/// Calculate the interval between water reminders
+int calculateSmartWaterInterval({
+  required int remainingMl,      // Water remaining to reach goal
+  required int remainingMinutes, // Minutes until active hours end
+}) {
+  // Step 1: Calculate glasses remaining (8oz = 237ml per glass)
+  final glassesRemaining = (remainingMl / 237).ceil();
+
+  // Step 2: Calculate raw interval
+  final intervalMinutes = remainingMinutes ~/ glassesRemaining;
+
+  // Step 3: Clamp to 30-120 minute range
+  final clampedInterval = max(30, min(intervalMinutes, 120));
+
+  return clampedInterval;
+}
+```
+
+**Formula Summary:**
+```
+glassesRemaining = ceil(remainingMl / 237)
+intervalMinutes = remainingMinutes ~/ glassesRemaining  // integer division
+clampedInterval = max(30, min(intervalMinutes, 120))    // 30-120 min range
+```
+
+**Interval Clamping Rationale:**
+- **Minimum 30 minutes:** Prevents notification spam; gives user time to drink and log
+- **Maximum 120 minutes:** Ensures at least some reminders even if user is on track
+
+**Example Calculations:**
+
+| Scenario | Remaining | Time Left | Glasses | Raw Interval | Clamped |
+|----------|-----------|-----------|---------|--------------|---------|
+| Behind on goal | 1422ml (48oz) | 240 min | 7 | 34 min | 34 min |
+| Very behind | 1896ml (64oz) | 180 min | 8 | 22 min | **30 min** |
+| On track | 474ml (16oz) | 300 min | 2 | 150 min | **120 min** |
+| Almost done | 237ml (8oz) | 120 min | 1 | 120 min | 120 min |
+| Goal met | 0ml | 180 min | 0 | N/A | No reminder |
+
+**Active Hours Consideration:**
+- Reminders only fire during user-configured active hours (default: 7 AM - 9 PM)
+- `remainingMinutes` is calculated as minutes until `activeEnd` time
+- If current time is past `activeEnd`, no reminders are scheduled until next day
+
 ---
 
 ## 6. BBT (Basal Body Temperature) Reminders
@@ -390,6 +497,76 @@ BBT must be taken:
 - **No snooze** - BBT timing is critical; snoozing defeats purpose
 - **Quick action** - "Record Now" opens directly to BBT input
 - **Persistent** - Remains until dismissed or temperature recorded
+
+### BBT Notification Actions
+
+BBT notifications have special handling:
+- Actions: "Record Now", "Dismiss" ONLY
+- NO snooze action available (timing critical)
+- If dismissed without recording, reminder reappears in 15 minutes (max 3 times)
+
+### 6.4 BBT Reminder Notification Specification
+
+**Notification Content:**
+```dart
+const bbtNotification = NotificationContent(
+  title: "BBT Reminder",
+  body: "BBT timing is critical - record within 30 minutes of waking",
+  category: "BBT_REMINDER",
+);
+```
+
+**Available Actions (NO Snooze):**
+```swift
+// iOS Notification Category
+UNNotificationCategory(
+  identifier: "BBT_REMINDER",
+  actions: [
+    UNNotificationAction(
+      identifier: "RECORD_NOW",
+      title: "Record Now",
+      options: [.foreground]  // Opens app to BBT input
+    ),
+    UNNotificationAction(
+      identifier: "DISMISS",
+      title: "Dismiss",
+      options: [.destructive]  // Clears notification
+    ),
+    // NOTE: NO "Snooze" action - intentionally omitted
+  ],
+  intentIdentifiers: [],
+  options: [.customDismissAction]
+)
+```
+
+```dart
+// Android Notification Actions
+const bbtActions = [
+  AndroidNotificationAction(
+    'RECORD_NOW',
+    'Record Now',
+    showsUserInterface: true,
+    cancelNotification: true,
+  ),
+  AndroidNotificationAction(
+    'DISMISS',
+    'Dismiss',
+    cancelNotification: true,
+  ),
+  // NOTE: NO "Snooze" action - intentionally omitted
+];
+```
+
+**Rationale for No Snooze:**
+- BBT must be taken immediately upon waking, before any activity
+- A snoozed reminder would fire after the user has already gotten up
+- Temperature taken after getting up is medically invalid for cycle tracking
+- Users who want to skip should use "Dismiss" explicitly
+
+**Notification Persistence:**
+- Notification remains visible until explicitly dismissed or BBT is recorded
+- If user records BBT through app (not via notification), notification auto-clears
+- Auto-expires after 2 hours (if still not acted upon, measurement window passed)
 
 ---
 
@@ -769,6 +946,14 @@ class NotificationSettings with _$NotificationSettings {
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+### Quiet Hours Behavior
+
+When notification scheduled during quiet hours:
+1. BBT notifications: DELIVER IMMEDIATELY (time-critical exception)
+2. All other notifications: QUEUE until quiet hours end
+3. Queued notifications delivered at quiet hours end time in original scheduled order
+4. Maximum queue: 50 notifications; oldest dropped if exceeded
+
 ### 12.3 Quiet Hours Exception Handling
 
 The following logic determines whether a notification bypasses quiet hours:
@@ -846,6 +1031,74 @@ When `holdUntilEnd` is selected:
 3. If multiple of same type are queued, they are collapsed into one summary notification
 4. Held notifications older than 24 hours are discarded (they're stale)
 
+### 12.4 Quiet Hours Behavior by Notification Priority
+
+Notifications are categorized into three priority levels with distinct quiet hours behavior:
+
+| Priority | Notification Types | Quiet Hours Behavior |
+|----------|-------------------|---------------------|
+| **Critical** | BBT reminder (`bbtMorning`) | Deliver immediately, bypass quiet hours |
+| **Time-Sensitive** | Supplements, Fasting window alerts | Queue, deliver when quiet hours end |
+| **Non-Critical** | Water, Meals, Journal, Conditions, Photos | Queue, deliver after quiet hours |
+
+**Critical Notifications (Bypass Quiet Hours):**
+```dart
+/// Critical notifications are delivered immediately regardless of quiet hours
+/// because missing them defeats their medical/health purpose.
+///
+/// Currently only BBT qualifies as critical:
+/// - BBT must be taken at consistent time for accurate cycle tracking
+/// - A delayed reminder renders the measurement invalid
+/// - User explicitly opted into BBT tracking knowing timing requirements
+
+final criticalTypes = {
+  NotificationType.bbtMorning,
+};
+
+bool isCriticalNotification(NotificationType type) {
+  return criticalTypes.contains(type);
+}
+```
+
+**Time-Sensitive Notifications (Queue Until End):**
+```dart
+/// Time-sensitive notifications are important but can wait until quiet hours end.
+/// They are delivered immediately when quiet hours end, in priority order.
+
+final timeSensitiveTypes = {
+  NotificationType.supplementIndividual,
+  NotificationType.supplementGrouped,
+  NotificationType.fastingWindowOpen,
+  NotificationType.fastingWindowClose,
+  NotificationType.fastingWindowClosed,
+  NotificationType.sleepBedtime,
+};
+```
+
+**Non-Critical Notifications (Queue, Batch Deliver):**
+```dart
+/// Non-critical notifications can be batched and delivered after quiet hours.
+/// Multiple notifications of same type are collapsed into summary.
+
+final nonCriticalTypes = {
+  NotificationType.waterInterval,
+  NotificationType.waterFixed,
+  NotificationType.waterSmart,
+  NotificationType.mealBreakfast,
+  NotificationType.mealLunch,
+  NotificationType.mealDinner,
+  NotificationType.mealSnacks,
+  NotificationType.journalPrompt,
+  NotificationType.conditionCheckIn,
+  NotificationType.photoReminder,
+  NotificationType.fluidsGeneral,
+  NotificationType.fluidsBowel,
+  NotificationType.syncReminder,
+  NotificationType.dietStreak,
+  NotificationType.dietWeeklySummary,
+};
+```
+
 ---
 
 ## 13. Notification History & Analytics
@@ -889,6 +1142,128 @@ enum NotificationEvent {
   expired,
 }
 ```
+
+### 13.3 Sync Reminder Specification
+
+The sync reminder notifies users when their data hasn't been synchronized for an extended period.
+
+**Trigger Condition:**
+```dart
+/// Sync reminder triggers when:
+/// last_successful_sync < NOW - 3 DAYS (72 hours)
+
+bool shouldShowSyncReminder({
+  required DateTime? lastSuccessfulSync,
+  required DateTime now,
+}) {
+  if (lastSuccessfulSync == null) {
+    // Never synced - show reminder after 24 hours of first use
+    return true;
+  }
+
+  final daysSinceSync = now.difference(lastSuccessfulSync).inDays;
+  return daysSinceSync >= 3;
+}
+```
+
+**Timer Reset Behavior:**
+```dart
+/// The sync reminder timer ONLY resets on successful sync completion.
+/// Failed syncs, partial syncs, or sync attempts do NOT reset the timer.
+
+void onSyncCompleted(SyncResult result) {
+  if (result.status == SyncStatus.success) {
+    // Reset the timer - update last_successful_sync
+    _preferences.setLastSuccessfulSync(DateTime.now());
+
+    // Cancel any pending sync reminder notifications
+    _notificationService.cancel(NotificationType.syncReminder);
+  }
+  // Failed syncs do NOT reset the timer
+}
+```
+
+**Check Schedule:**
+```dart
+/// Sync reminder check runs daily at 8:00 AM local time.
+/// This is implemented via WorkManager (Android) / BGTaskScheduler (iOS).
+
+const syncReminderCheckTime = TimeOfDay(hour: 8, minute: 0);
+
+void scheduleDailySyncCheck() {
+  // Schedule daily background task at 8:00 AM
+  _workManager.registerPeriodicTask(
+    'sync_reminder_check',
+    'checkSyncReminder',
+    frequency: Duration(days: 1),
+    initialDelay: _calculateDelayUntil8AM(),
+    constraints: Constraints(
+      networkType: NetworkType.not_required,
+    ),
+  );
+}
+```
+
+**Notification Content:**
+```dart
+const syncReminderNotification = NotificationContent(
+  title: "Sync Reminder",
+  body: "Your data hasn't synced in 3 days. Tap to sync now.",
+  category: "SYNC_REMINDER",
+);
+```
+
+**Specification Summary:**
+| Parameter | Value |
+|-----------|-------|
+| Trigger threshold | 3 days (72 hours) since last successful sync |
+| Timer reset | Only on successful sync completion |
+| Check schedule | Daily at 8:00 AM local time |
+| Deep link | Opens sync settings screen |
+
+### 13.4 Notification History Retention
+
+Notification history is stored locally and follows a rolling retention policy.
+
+**Storage Location:**
+```dart
+/// Notification history is LOCAL ONLY.
+/// It is NOT synced to cloud storage for privacy reasons.
+/// Each device maintains its own notification history independently.
+
+const notificationHistoryStorage = StorageLocation.localOnly;
+```
+
+**Retention Policy:**
+```dart
+/// Rolling 90-day retention window.
+/// Notifications older than 90 days are automatically purged.
+
+const notificationHistoryRetentionDays = 90;
+
+void purgeOldNotificationHistory() {
+  final cutoffDate = DateTime.now().subtract(Duration(days: 90));
+
+  _database.delete(
+    'notification_history',
+    where: 'scheduled_time < ?',
+    whereArgs: [cutoffDate.millisecondsSinceEpoch],
+  );
+}
+```
+
+**Purge Schedule:**
+- Runs automatically on app launch (if last purge > 24 hours ago)
+- Runs as part of daily maintenance background task
+- Does not require user action
+
+**Specification Summary:**
+| Parameter | Value |
+|-----------|-------|
+| Storage location | Local device only (not synced to cloud) |
+| Retention period | 90 days rolling window |
+| Purge trigger | App launch or daily maintenance |
+| Privacy | History never leaves device |
 
 ---
 
@@ -956,8 +1331,67 @@ CREATE INDEX idx_notification_history_schedule ON notification_history(schedule_
 
 ---
 
+## 15. Entity Mapping Reference
+
+### 15.1 Notification Types to Data Entry Screens
+
+This section clarifies how notification types map to the underlying data entities and entry screens.
+
+| NotificationType | Target Entity | Target Table | Deep Link |
+|------------------|---------------|--------------|-----------|
+| `supplementIndividual` (0) | SupplementIntakeLog | supplement_intake_logs | shadow://supplement/{id}/log |
+| `supplementGrouped` (1) | SupplementIntakeLog | supplement_intake_logs | shadow://supplements |
+| `mealBreakfast/Lunch/Dinner/Snacks` (2-5) | FoodLog | food_logs | shadow://food/log |
+| `waterInterval/Fixed/Smart` (6-8) | FluidsEntry | fluids_entries | shadow://fluids/water |
+| `bbtMorning` (9) | FluidsEntry | fluids_entries | shadow://fluids/bbt |
+| `menstruationTracking` (10) | FluidsEntry | fluids_entries | shadow://fluids/menstruation |
+| `sleepBedtime/Wakeup` (11-12) | SleepEntry | sleep_entries | shadow://sleep/log |
+| `conditionCheckIn` (13) | ConditionLog | condition_logs | shadow://condition/{id}/log |
+| `photoReminder` (14) | PhotoEntry | photo_entries | shadow://photos/capture |
+| `journalPrompt` (15) | JournalEntry | journal_entries | shadow://journal/add |
+| `syncReminder` (16) | N/A (system) | N/A | shadow://settings/sync |
+| `fastingWindowOpen/Close/Closed` (17-19) | FoodLog | food_logs | shadow://food |
+| `dietStreak/WeeklySummary` (20-21) | N/A (informational) | N/A | shadow://diet/compliance |
+| `fluidsGeneral` (22) | FluidsEntry | fluids_entries | shadow://fluids |
+| `fluidsBowel` (23) | FluidsEntry | fluids_entries | shadow://fluids/bowel |
+| `inactivity` (24) | N/A (re-engagement) | N/A | shadow://home |
+
+### 15.2 FluidsEntry Column Mapping
+
+> **Single Table Design:** The `fluids_entries` table uses a single-row-per-entry design with multiple
+> nullable column groups. Different notification types lead to different columns being populated.
+
+| NotificationType | FluidsEntry Columns Used |
+|------------------|-------------------------|
+| `waterInterval/Fixed/Smart` (6-8) | `water_ml`, `water_notes` |
+| `bbtMorning` (9) | `basal_body_temperature`, `bbt_recorded_time` |
+| `menstruationTracking` (10) | `menstruation_flow` |
+| `fluidsGeneral` (22) | Any/all columns (user choice) |
+| `fluidsBowel` (23) | `bowel_condition`, `bowel_size`, `bowel_photo_path` |
+
+**FluidsEntry Column Groups:**
+
+```
+fluids_entries
+├── Water: water_ml, water_notes
+├── Bowel: bowel_condition, bowel_size, bowel_photo_path, has_bowel_movement
+├── Urine: urine_condition, urine_size, urine_photo_path, has_urine_movement
+├── Menstruation: menstruation_flow
+├── BBT: basal_body_temperature, bbt_recorded_time
+├── Other: other_fluid_name, other_fluid_amount, other_fluid_notes
+└── Sync: sync_* columns
+```
+
+A single `FluidsEntry` row can contain data from multiple groups (e.g., water AND bowel in same entry),
+though notifications typically prompt for one type at a time.
+
+See `22_API_CONTRACTS.md` Section 13.3 for the complete FluidsEntry entity-to-database mapping.
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-31 | Initial release - comprehensive notification specification |
+| 1.1 | 2026-02-02 | Aligned NotificationType enum with canonical source (22_API_CONTRACTS.md); Updated meal types to use 4 API values with 6 UI mappings; Documented 3 water notification modes; Added FluidsEntry mapping reference |

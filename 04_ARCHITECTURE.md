@@ -652,10 +652,11 @@ See `15_APPLE_INTEGRATION.md` for iCloud/CloudKit implementation details.
 ### 6.3 Conflict Resolution
 
 ```dart
+/// CANONICAL: See 22_API_CONTRACTS.md
 enum ConflictResolution {
-  localWins,    // Keep local version
-  remoteWins,   // Keep remote version
-  lastWriteWins // Most recent updatedAt wins (default)
+  keepLocal,   // Use local version, overwrite remote
+  keepRemote,  // Use remote version, overwrite local
+  merge,       // Merge both versions (for compatible changes)
 }
 
 class ConflictResolver {
@@ -711,16 +712,24 @@ class ConflictResolver {
 
 // See 22_API_CONTRACTS.md and 37_NOTIFICATIONS.md for complete notification specification
 
-class NotificationSchedule extends Equatable implements Syncable {
-  final String id;
-  final String? profileId;
-  final NotificationType type;
-  final String? entityId;           // e.g., supplement_id for supplement notifications
-  final List<int> timesMinutesFromMidnight;  // [480, 720] = 8am, 12pm
-  final List<int> weekdays;         // [0,1,2,3,4,5,6] = all days
-  final bool isEnabled;
-  final String? customMessage;
-  final SyncMetadata syncMetadata;
+/// NotificationSchedule entity - uses @freezed per 02_CODING_STANDARDS.md Section 5
+@freezed
+class NotificationSchedule with _$NotificationSchedule {
+  const factory NotificationSchedule({
+    required String id,
+    required String clientId,
+    String? profileId,
+    required NotificationType type,
+    String? entityId,           // e.g., supplement_id for supplement notifications
+    required List<int> timesMinutesFromMidnight,  // [480, 720] = 8am, 12pm
+    required List<int> weekdays,         // [0,1,2,3,4,5,6] = all days
+    required bool isEnabled,
+    String? customMessage,
+    required SyncMetadata syncMetadata,
+  }) = _NotificationSchedule;
+
+  factory NotificationSchedule.fromJson(Map<String, dynamic> json) =>
+      _$NotificationScheduleFromJson(json);
 }
 ```
 

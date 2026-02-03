@@ -4,6 +4,14 @@
 **Last Updated:** January 30, 2026
 **Purpose:** Meeting cadence, communication protocols, and coordination mechanisms
 
+> **CANONICAL SOURCE:** All implementation decisions must align with [02_CODING_STANDARDS.md](02_CODING_STANDARDS.md).
+>
+> **Key Patterns:**
+> - Error Handling: All domain operations return `Result<T, AppError>` - never throw exceptions
+> - Entities: Must have 4 required fields (id, clientId, profileId, syncMetadata)
+> - Encryption: AES-256-GCM (not CBC)
+> - Test Coverage: 100% required for all code
+
 ---
 
 ## 1. Organizational Structure
@@ -390,7 +398,7 @@ risks:
 | PR Review Time | <24 hours | PR open to first review |
 | PR Merge Time | <48 hours | PR open to merge |
 | Bug Escape Rate | <5% | Bugs found post-release |
-| Test Coverage | >85% | Overall code coverage |
+| Test Coverage | 100% | Overall code coverage (see 02_CODING_STANDARDS.md Section 10.3) |
 
 ### 8.2 Reporting Cadence
 
@@ -416,7 +424,7 @@ risks:
 │  PR Stats (This Week)               Build Health               │
 │  ├── Open: 12                       ├── Main: ✅ Passing        │
 │  ├── Avg Review Time: 18 hrs        ├── Develop: ✅ Passing     │
-│  └── Avg Merge Time: 32 hrs         └── Coverage: 87%          │
+│  └── Avg Merge Time: 32 hrs         └── Coverage: 100%         │
 │                                                                 │
 │  Dependencies                       Risks                       │
 │  ├── 🟢 On Track: 4                 ├── 🟢 Low: 3              │

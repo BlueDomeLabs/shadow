@@ -286,7 +286,7 @@ static String duplicateMessage(String field) =>
 | 38_UI_FIELD_SPECS | 157 | "Auto-detect by time" | Define exact time ranges |
 | 38_UI_FIELD_SPECS | 256 | Overnight sleep handling | Clarify date refers to night started |
 | 24_CODE_REVIEW | 44 | "ticket reference" format | Specify: `// TODO(SHADOW-123):` |
-| 25_DEFINITION_OF_DONE | 32 | "80% coverage" type | Specify: line AND branch coverage |
+| 25_DEFINITION_OF_DONE | 32 | "80% coverage" type | ✅ FIXED: Changed to 100% line AND branch coverage |
 
 ---
 

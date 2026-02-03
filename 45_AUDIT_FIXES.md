@@ -184,6 +184,9 @@ abstract class WearableConnectionRepository
 @freezed
 class FluidsEntry with _$FluidsEntry {
   const factory FluidsEntry({
+    required String id,
+    required String clientId,
+    required String profileId,
     // ... existing fields ...
 
     // ADD: Tracking presence flags (required, match database)
@@ -195,6 +198,7 @@ class FluidsEntry with _$FluidsEntry {
     required bool hasOtherFluidData,
 
     // ... rest of fields ...
+    required SyncMetadata syncMetadata,
   }) = _FluidsEntry;
 }
 ```

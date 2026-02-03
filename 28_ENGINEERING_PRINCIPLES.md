@@ -22,7 +22,7 @@ These principles define how we work, make decisions, and treat each other. They 
 - We don't skip tests to meet deadlines
 - We don't accumulate tech debt without a plan
 - We fix bugs before building features
-- We maintain high code coverage (85%+)
+- We maintain 100% code coverage (see 02_CODING_STANDARDS.md Section 10.3)
 
 **In Practice:**
 - Definition of Done is enforced, not optional
