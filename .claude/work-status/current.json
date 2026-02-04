@@ -1,11 +1,14 @@
 {
   "lastInstanceId": "remediation-001",
-  "lastAction": "starting",
+  "lastAction": "completed",
   "taskId": "SPEC-REMEDIATION",
-  "status": "in_progress",
-  "timestamp": "2026-02-04T01:15:00Z",
-  "filesModified": [],
+  "status": "complete",
+  "timestamp": "2026-02-04T01:30:00Z",
+  "filesModified": [
+    "scripts/pre-commit",
+    ".github/workflows/pr-checks.yml"
+  ],
   "testsStatus": "passing",
-  "complianceStatus": "unverified",
-  "notes": "Starting remediation of SHADOW-013 and SHADOW-014 compliance issues. Will update pre-commit hook and CI/CD pipeline to match 23_ENGINEERING_GOVERNANCE.md exactly."
+  "complianceStatus": "verified",
+  "notes": "Completed remediation of SHADOW-013 and SHADOW-014. Both now match 23_ENGINEERING_GOVERNANCE.md exactly. Pre-commit hook has all 5 checks. CI/CD has analyzer flags and contract tests. All 209 tests passing. Ready for next task."
 }
