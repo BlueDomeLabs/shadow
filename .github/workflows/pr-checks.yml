@@ -1,5 +1,5 @@
 # .github/workflows/pr-checks.yml - SHADOW-013 Implementation
-# CI/CD Pipeline per 20_CICD_PIPELINE.md
+# CI/CD Pipeline per 23_ENGINEERING_GOVERNANCE.md Section 5.1
 
 name: PR Checks
 
@@ -35,7 +35,7 @@ jobs:
         run: dart format --set-exit-if-changed .
 
       - name: Analyze code
-        run: flutter analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
 
   generated-files:
     name: Check Generated Files
@@ -80,7 +80,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run tests with coverage
+      - name: Run contract tests
+        run: flutter test --tags=contract
+
+      - name: Run all tests with coverage
         run: flutter test --coverage
 
       - name: Upload coverage to Codecov

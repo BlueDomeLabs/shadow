@@ -1,6 +1,6 @@
 #!/bin/bash
-# scripts/pre-commit - SHADOW-014 Implementation
-# Pre-commit hook per 23_ENGINEERING_GOVERNANCE.md Section 6.1
+# .git/hooks/pre-commit
+# EXACT IMPLEMENTATION per 23_ENGINEERING_GOVERNANCE.md Section 6.1
 
 set -e
 
@@ -8,41 +8,43 @@ echo "Running pre-commit checks..."
 
 # 1. Ensure generated files are up to date
 echo "Checking generated files..."
-dart run build_runner build --delete-conflicting-outputs 2>/dev/null || {
-  echo "WARNING: build_runner failed, skipping generated files check"
-}
+dart run build_runner build --delete-conflicting-outputs
 
-# Check if generated files have uncommitted changes
-if [[ -n $(git status --porcelain | grep -E '\.(freezed|g)\.dart$') ]]; then
-  echo ""
-  echo "ERROR: Generated files are out of date."
-  echo "The following generated files have uncommitted changes:"
-  git status --porcelain | grep -E '\.(freezed|g)\.dart$'
-  echo ""
-  echo "Please stage and commit these generated files."
+# Check for UNSTAGED changes to generated files
+# git status --porcelain format: XY filename
+#   X = index/staged status, Y = working tree status
+# Only fail if Y (column 2) indicates unstaged changes (not a space)
+# This allows committing newly staged generated files
+if git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -qE '^.[^ ]'; then
+  echo "ERROR: Generated files have unstaged changes."
+  echo "Run: git add <files> to stage them"
+  git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -E '^.[^ ]'
   exit 1
 fi
 
 # 2. Run analyzer
 echo "Running analyzer..."
-flutter analyze || {
-  echo ""
-  echo "ERROR: flutter analyze found issues."
-  echo "Please fix the issues above before committing."
-  exit 1
-}
+flutter analyze --fatal-infos --fatal-warnings
 
 # 3. Run format check
 echo "Checking format..."
-if ! dart format --set-exit-if-changed lib/ test/ 2>/dev/null; then
-  echo ""
-  echo "ERROR: Code is not properly formatted."
-  echo "The following files need formatting:"
-  dart format --output=none lib/ test/ 2>/dev/null | grep "Changed" || true
-  echo ""
-  echo "Run 'dart format lib/ test/' to fix formatting."
+dart format --set-exit-if-changed lib/ test/
+
+# 4. Run contract tests
+echo "Running contract tests..."
+flutter test --tags=contract
+
+# 5. Check commit message format
+echo "Checking commit message..."
+commit_msg=$(cat "$1" 2>/dev/null || git log -1 --format=%B)
+if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|test|docs|style|perf|chore)\(.+\): .+'; then
+  echo "ERROR: Commit message must follow format: type(scope): subject"
   exit 1
 fi
 
-echo ""
+if ! echo "$commit_msg" | grep -qE 'SHADOW-[0-9]+'; then
+  echo "ERROR: Commit message must reference a ticket (SHADOW-XXX)"
+  exit 1
+fi
+
 echo "All pre-commit checks passed!"
