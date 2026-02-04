@@ -20,7 +20,8 @@ class Supplements extends Table {
   TextColumn get name => text()();
   IntColumn get form => integer()(); // SupplementForm enum
   IntColumn get dosageQuantity => integer().named('dosage_quantity')();
-  IntColumn get dosageUnit => integer().named('dosage_unit')(); // DosageUnit enum
+  IntColumn get dosageUnit =>
+      integer().named('dosage_unit')(); // DosageUnit enum
 
   // Optional fields with defaults
   TextColumn get customForm => text().named('custom_form').nullable()();
@@ -37,8 +38,10 @@ class Supplements extends Table {
 
   // Sync metadata columns (required on all syncable entities)
   IntColumn get syncCreatedAt => integer().named('sync_created_at')();
-  IntColumn get syncUpdatedAt => integer().named('sync_updated_at').nullable()();
-  IntColumn get syncDeletedAt => integer().named('sync_deleted_at').nullable()();
+  IntColumn get syncUpdatedAt =>
+      integer().named('sync_updated_at').nullable()();
+  IntColumn get syncDeletedAt =>
+      integer().named('sync_deleted_at').nullable()();
   IntColumn get syncLastSyncedAt =>
       integer().named('sync_last_synced_at').nullable()();
   IntColumn get syncStatus =>

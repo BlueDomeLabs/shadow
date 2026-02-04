@@ -29,8 +29,7 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
     String? profileId,
     int? limit,
     int? offset,
-  }) =>
-      _dao.getAll(profileId: profileId, limit: limit, offset: offset);
+  }) => _dao.getAll(profileId: profileId, limit: limit, offset: offset);
 
   @override
   Future<Result<Supplement, AppError>> getById(String id) => _dao.getById(id);
@@ -83,13 +82,12 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
     bool? activeOnly,
     int? limit,
     int? offset,
-  }) =>
-      _dao.getByProfile(
-        profileId,
-        activeOnly: activeOnly,
-        limit: limit,
-        offset: offset,
-      );
+  }) => _dao.getByProfile(
+    profileId,
+    activeOnly: activeOnly,
+    limit: limit,
+    offset: offset,
+  );
 
   @override
   Future<Result<List<Supplement>, AppError>> getDueAt(
@@ -117,8 +115,7 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
     String profileId,
     String query, {
     int limit = 20,
-  }) =>
-      _dao.search(profileId, query, limit: limit);
+  }) => _dao.search(profileId, query, limit: limit);
 
   /// Determines if a supplement is due at the specified time.
   ///

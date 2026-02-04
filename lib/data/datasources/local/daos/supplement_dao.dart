@@ -85,9 +85,7 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
           DatabaseError.constraintViolation('Duplicate ID: ${entity.id}'),
         );
       }
-      return Failure(
-        DatabaseError.insertFailed('supplements', e, stack),
-      );
+      return Failure(DatabaseError.insertFailed('supplements', e, stack));
     }
   }
 
@@ -103,8 +101,9 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
       }
 
       final companion = _entityToCompanion(entity);
-      await (update(supplements)..where((s) => s.id.equals(entity.id)))
-          .write(companion);
+      await (update(
+        supplements,
+      )..where((s) => s.id.equals(entity.id))).write(companion);
 
       return getById(entity.id);
     } on Exception catch (e, stack) {
@@ -118,16 +117,17 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
   Future<Result<void, AppError>> softDelete(String id) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected = await (update(supplements)
-            ..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull()))
-          .write(
-        SupplementsCompanion(
-          syncDeletedAt: Value(now),
-          syncUpdatedAt: Value(now),
-          syncIsDirty: const Value(true),
-          syncStatus: Value(SyncStatus.deleted.value),
-        ),
-      );
+      final rowsAffected =
+          await (update(
+            supplements,
+          )..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull())).write(
+            SupplementsCompanion(
+              syncDeletedAt: Value(now),
+              syncUpdatedAt: Value(now),
+              syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.deleted.value),
+            ),
+          );
 
       if (rowsAffected == 0) {
         return Failure(DatabaseError.notFound('Supplement', id));
@@ -135,17 +135,16 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
 
       return const Success(null);
     } on Exception catch (e, stack) {
-      return Failure(
-        DatabaseError.deleteFailed('supplements', id, e, stack),
-      );
+      return Failure(DatabaseError.deleteFailed('supplements', id, e, stack));
     }
   }
 
   /// Hard delete a supplement (permanent removal).
   Future<Result<void, AppError>> hardDelete(String id) async {
     try {
-      final rowsAffected =
-          await (delete(supplements)..where((s) => s.id.equals(id))).go();
+      final rowsAffected = await (delete(
+        supplements,
+      )..where((s) => s.id.equals(id))).go();
 
       if (rowsAffected == 0) {
         return Failure(DatabaseError.notFound('Supplement', id));
@@ -153,9 +152,7 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
 
       return const Success(null);
     } on Exception catch (e, stack) {
-      return Failure(
-        DatabaseError.deleteFailed('supplements', id, e, stack),
-      );
+      return Failure(DatabaseError.deleteFailed('supplements', id, e, stack));
     }
   }
 
@@ -202,9 +199,7 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
   }) async {
     try {
       var query = select(supplements)
-        ..where(
-          (s) => s.profileId.equals(profileId) & s.syncDeletedAt.isNull(),
-        )
+        ..where((s) => s.profileId.equals(profileId) & s.syncDeletedAt.isNull())
         ..orderBy([(s) => OrderingTerm.asc(s.name)]);
 
       if (activeOnly ?? false) {
@@ -289,35 +284,35 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
   /// Convert domain Supplement entity to database companion.
   SupplementsCompanion _entityToCompanion(domain.Supplement entity) =>
       SupplementsCompanion(
-      id: Value(entity.id),
-      clientId: Value(entity.clientId),
-      profileId: Value(entity.profileId),
-      name: Value(entity.name),
-      form: Value(entity.form.value),
-      customForm: Value(entity.customForm),
-      dosageQuantity: Value(entity.dosageQuantity),
-      dosageUnit: Value(entity.dosageUnit.value),
-      brand: Value(entity.brand),
-      notes: Value(entity.notes),
-      ingredients: Value(
-        jsonEncode(entity.ingredients.map((i) => i.toJson()).toList()),
-      ),
-      schedules: Value(
-        jsonEncode(entity.schedules.map((s) => s.toJson()).toList()),
-      ),
-      startDate: Value(entity.startDate),
-      endDate: Value(entity.endDate),
-      isArchived: Value(entity.isArchived),
-      syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
-      syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
-      syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),
-      syncLastSyncedAt: Value(entity.syncMetadata.syncLastSyncedAt),
-      syncStatus: Value(entity.syncMetadata.syncStatus.value),
-      syncVersion: Value(entity.syncMetadata.syncVersion),
-      syncDeviceId: Value(entity.syncMetadata.syncDeviceId),
-      syncIsDirty: Value(entity.syncMetadata.syncIsDirty),
-      conflictData: Value(entity.syncMetadata.conflictData),
-    );
+        id: Value(entity.id),
+        clientId: Value(entity.clientId),
+        profileId: Value(entity.profileId),
+        name: Value(entity.name),
+        form: Value(entity.form.value),
+        customForm: Value(entity.customForm),
+        dosageQuantity: Value(entity.dosageQuantity),
+        dosageUnit: Value(entity.dosageUnit.value),
+        brand: Value(entity.brand),
+        notes: Value(entity.notes),
+        ingredients: Value(
+          jsonEncode(entity.ingredients.map((i) => i.toJson()).toList()),
+        ),
+        schedules: Value(
+          jsonEncode(entity.schedules.map((s) => s.toJson()).toList()),
+        ),
+        startDate: Value(entity.startDate),
+        endDate: Value(entity.endDate),
+        isArchived: Value(entity.isArchived),
+        syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
+        syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
+        syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),
+        syncLastSyncedAt: Value(entity.syncMetadata.syncLastSyncedAt),
+        syncStatus: Value(entity.syncMetadata.syncStatus.value),
+        syncVersion: Value(entity.syncMetadata.syncVersion),
+        syncDeviceId: Value(entity.syncMetadata.syncDeviceId),
+        syncIsDirty: Value(entity.syncMetadata.syncIsDirty),
+        conflictData: Value(entity.syncMetadata.conflictData),
+      );
 
   List<domain.SupplementIngredient> _parseIngredients(String json) {
     try {
