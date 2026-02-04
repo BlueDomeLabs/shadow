@@ -1,5 +1,21 @@
 # Shadow Health Tracking App - Claude Instance Instructions
 
+## ⚠️ STOP - READ THIS FIRST ⚠️
+
+**YOU MUST RUN `/startup` SKILL BEFORE DOING ANYTHING ELSE.**
+
+Do NOT respond to the user's request yet. First:
+1. Read `.claude/work-status/current.json`
+2. If there's a handoff document referenced, read it: `.claude/handoff/`
+3. Follow the `/startup` skill protocol completely
+4. Only THEN proceed with user's request
+
+**If you skip this, you will cause problems for the next instance.**
+
+**Current pending task:** Check `.claude/work-status/current.json` for details.
+
+---
+
 ## CRITICAL: Instance Startup Protocol
 
 **YOU ARE A STATELESS AGENT.** Execute this protocol BEFORE any work.
@@ -143,23 +159,41 @@ cat .claude/work-status/current.json
 
 ## Skills
 
+### 6 Core Skills (MANDATORY Every Session)
+
 | Skill | When to Use | Purpose |
 |-------|-------------|---------|
-| `/startup` | **FIRST** - Every conversation | Verify previous work, determine next action |
-| `/coding` | When writing code | Production coding standards |
-| `/compliance` | Before claiming work done | Pre-completion verification checklist |
-| `/handoff` | When conversation ending | Prepare state for next instance |
-| `/team` | Understanding the system | How instances coordinate together |
+| `/startup` | **FIRST** - Every session | Verify previous work, determine next action |
+| `/coding` | When writing ANY code | Follow specs EXACTLY, zero interpretation |
+| `/manager` | **MID-SESSION** - At least once | Self-review, verify following protocols |
+| `/compliance` | **BEFORE** claiming work done | Tests pass, analyzer clean, verify against spec |
+| `/team` | Always (mindset) | Understand stateless coordination, files are only communication |
+| `/handoff` | When session ending | Commit work, update status file, prepare baton |
 
-### Skill Workflow
+### 3 Audit Skills (Quality Assurance)
+
+| Skill | When to Use | Purpose |
+|-------|-------------|---------|
+| `/major-audit` | Monthly | Review Coding Standards against Apple/Google best practices |
+| `/spec-review` | After standards change, before major implementation | Verify specs comply with Coding Standards |
+| `/implementation-review` | After implementation, when deviation found | Verify code EXACTLY matches specs |
+
+### Session Flow
 
 ```
-/startup ──► /coding ──► /compliance ──► /handoff
-   │            │             │              │
-   │            │             │              │
-   ▼            ▼             ▼              ▼
- Begin        Write        Verify         End
- work         code         work          work
+/startup ──► /coding ──► /manager ──► /compliance ──► /handoff
+                ↑            │
+                └────────────┘ (iterate as needed)
+```
+
+### Audit Flow (When Triggered)
+
+```
+/major-audit ──► /spec-review ──► /implementation-review
+     │                │                    │
+     ▼                ▼                    ▼
+  Standards        Specs              Code matches
+  current?         compliant?         specs EXACTLY?
 ```
 
 ---

@@ -1,27 +1,22 @@
 {
-  "lastInstanceId": "data-layer-010",
+  "lastInstanceId": "data-layer-020",
   "lastAction": "handoff",
-  "taskId": "IMPLEMENT-SUPPLEMENT-DATA-LAYER",
-  "status": "complete",
-  "timestamp": "2026-02-03T22:45:00Z",
+  "taskId": "COMPREHENSIVE-AUDIT",
+  "status": "pending",
+  "timestamp": "2026-02-04T13:30:00Z",
   "filesModified": [
-    "lib/domain/repositories/entity_repository.dart",
-    "lib/domain/repositories/supplement_repository.dart",
-    "lib/data/datasources/local/tables/supplements_table.dart",
-    "lib/data/datasources/local/tables/tables.dart",
-    "lib/data/datasources/local/daos/supplement_dao.dart",
-    "lib/data/datasources/local/daos/supplement_dao.g.dart",
-    "lib/data/datasources/local/database.dart",
-    "lib/data/datasources/local/database.g.dart",
-    "lib/data/repositories/supplement_repository_impl.dart",
-    "scripts/pre-commit",
-    ".git/hooks/pre-commit",
-    "10_DATABASE_SCHEMA.md",
-    "22_API_CONTRACTS.md",
-    "23_ENGINEERING_GOVERNANCE.md",
-    "53_SPEC_CLARIFICATIONS.md"
+    ".claude/skills/major-audit/SKILL.md",
+    ".claude/skills/spec-review/SKILL.md",
+    ".claude/skills/implementation-review/SKILL.md",
+    ".claude/skills/manager/SKILL.md",
+    ".claude/handoff/2026-02-04-comprehensive-audit.md",
+    "lib/domain/usecases/supplements/supplement_inputs.dart",
+    "lib/domain/usecases/supplements/create_supplement_use_case.dart",
+    "lib/domain/usecases/supplements/update_supplement_use_case.dart",
+    "lib/domain/usecases/supplements/archive_supplement_use_case.dart",
+    "test/unit/domain/usecases/supplements/supplement_usecases_test.dart"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "SESSION HANDOFF - 2026-02-03\n\nCOMPLETED THIS SESSION:\n1. Supplement data layer implementation (IMPLEMENT-SUPPLEMENT-DATA-LAYER):\n   - EntityRepository interface (lib/domain/repositories/entity_repository.dart)\n   - SupplementRepository interface (lib/domain/repositories/supplement_repository.dart)\n   - SupplementsTable Drift table (lib/data/datasources/local/tables/)\n   - SupplementDao with all CRUD operations (lib/data/datasources/local/daos/)\n   - SupplementRepositoryImpl (lib/data/repositories/)\n   - Updated database.dart to register table and DAO\n\n2. Fixed pre-commit hook bug (FIX-PRECOMMIT-HOOK):\n   - Hook incorrectly flagged staged generated files as 'uncommitted'\n   - Fixed detection to only catch UNSTAGED changes\n   - Updated scripts/pre-commit and .git/hooks/pre-commit\n   - Updated spec in 23_ENGINEERING_GOVERNANCE.md Section 6.1\n\n3. Spec updates:\n   - 10_DATABASE_SCHEMA.md: Fixed supplements table to match entity\n   - 22_API_CONTRACTS.md: Renamed typedef BaseRepository to BaseRepositoryContract\n   - 53_SPEC_CLARIFICATIONS.md: Documented resolved ambiguities\n\nVERIFICATION STATUS:\n- flutter analyze: No issues\n- flutter test: All tests passing\n- Pre-commit hook: Working correctly\n- All implementations verified against specs\n\nNEXT TASKS (in priority order):\n1. Write tests for SupplementDao (test CRUD operations, error handling)\n2. Write tests for SupplementRepositoryImpl\n3. Implement Supplement UseCases per 22_API_CONTRACTS.md\n4. Implement Supplement providers per spec\n\nIMPORTANT NOTES FOR NEXT INSTANCE:\n- All 5 skills MUST be used: /startup, /coding, /compliance, /team, /handoff\n- Implementation MUST match spec EXACTLY - no interpretation\n- Pre-commit hook now works correctly - commits should pass\n- iOS project files show as modified but are unrelated to our work"
+  "notes": "HANDOFF: Created 4 new skills (major-audit, spec-review, implementation-review, manager). Fixed supplement use case spec deviations. NEXT SESSION TASK: Run comprehensive audit - see .claude/handoff/2026-02-04-comprehensive-audit.md for full details. User wants Apple/Google quality level review of Coding Standards, spec compliance check, and implementation verification. All current tests passing, analyzer clean."
 }
