@@ -1354,38 +1354,44 @@ enum PatternType {
 
 /// Diet preset types - predefined diet configurations
 enum DietPresetType {
-  vegan,
-  vegetarian,
-  pescatarian,
-  paleo,
-  keto,
-  ketoStrict,
-  lowCarb,
-  mediterranean,
-  whole30,
-  aip,              // Autoimmune Protocol
-  lowFodmap,
-  glutenFree,
-  dairyFree,
-  if168,            // Intermittent Fasting 16:8
-  if186,            // Intermittent Fasting 18:6
-  if204,            // Intermittent Fasting 20:4
-  omad,             // One Meal A Day
-  fiveTwoDiet,      // 5:2 Fasting
-  zone,
-  custom,
+  vegan(0),
+  vegetarian(1),
+  pescatarian(2),
+  paleo(3),
+  keto(4),
+  ketoStrict(5),
+  lowCarb(6),
+  mediterranean(7),
+  whole30(8),
+  aip(9),              // Autoimmune Protocol
+  lowFodmap(10),
+  glutenFree(11),
+  dairyFree(12),
+  if168(13),           // Intermittent Fasting 16:8
+  if186(14),           // Intermittent Fasting 18:6
+  if204(15),           // Intermittent Fasting 20:4
+  omad(16),            // One Meal A Day
+  fiveTwoDiet(17),     // 5:2 Fasting
+  zone(18),
+  custom(19);
+
+  final int value;
+  const DietPresetType(this.value);
 }
 
 enum InsightCategory {
-  daily,
-  summary,         // Weekly/monthly summaries
-  pattern,
-  trigger,
-  progress,
-  compliance,
-  anomaly,
-  milestone,
-  recommendation,  // Actionable recommendations
+  daily(0),
+  summary(1),         // Weekly/monthly summaries
+  pattern(2),
+  trigger(3),
+  progress(4),
+  compliance(5),
+  anomaly(6),
+  milestone(7),
+  recommendation(8);  // Actionable recommendations
+
+  final int value;
+  const InsightCategory(this.value);
 }
 
 enum AlertPriority {
@@ -1593,40 +1599,60 @@ enum DocumentType {
 
 /// DataScope defines which data types can be accessed via a HIPAA authorization
 enum DataScope {
-  conditions,        // Health conditions and symptom logs
-  supplements,       // Supplement definitions and intake logs
-  food,              // Food items and meal logs
-  sleep,             // Sleep entries
-  activities,        // Activity definitions and logs
-  fluids,            // Fluids tracking (water, bowel, urine, menstruation, BBT)
-  photos,            // Photo documentation (requires explicit consent)
-  journal,           // Journal entries
-  reports,           // Generated reports
-  insights,          // Intelligence system insights and patterns
+  conditions(0),        // Health conditions and symptom logs
+  supplements(1),       // Supplement definitions and intake logs
+  food(2),              // Food items and meal logs
+  sleep(3),             // Sleep entries
+  activities(4),        // Activity definitions and logs
+  fluids(5),            // Fluids tracking (water, bowel, urine, menstruation, BBT)
+  photos(6),            // Photo documentation (requires explicit consent)
+  journal(7),           // Journal entries
+  reports(8),           // Generated reports
+  insights(9);          // Intelligence system insights and patterns
+
+  final int value;
+  const DataScope(this.value);
 }
 
 /// AccessLevel defines what operations are allowed on shared profiles
 enum AccessLevel {
-  readOnly,          // Can only view data within scope
-  readWrite,         // Can view and create/update data (no delete)
-  owner,             // Full access (profile owner)
+  readOnly(0),          // Can only view data within scope
+  readWrite(1),         // Can view and create/update data (no delete)
+  owner(2);             // Full access (profile owner)
+
+  final int value;
+  const AccessLevel(this.value);
 }
 
 /// AuthorizationDuration defines how long a HIPAA authorization is valid
 enum AuthorizationDuration {
-  untilRevoked,      // No expiration
-  days30,            // 30 days
-  days90,            // 90 days
-  days180,           // 6 months
-  days365,           // 1 year
+  untilRevoked(0),      // No expiration
+  days30(1),            // 30 days
+  days90(2),            // 90 days
+  days180(3),           // 6 months
+  days365(4);           // 1 year
+
+  final int value;
+  const AuthorizationDuration(this.value);
+
+  int? get daysOrNull => switch (this) {
+    AuthorizationDuration.untilRevoked => null,
+    AuthorizationDuration.days30 => 30,
+    AuthorizationDuration.days90 => 90,
+    AuthorizationDuration.days180 => 180,
+    AuthorizationDuration.days365 => 365,
+  };
 }
 
 /// WriteOperation types for authorization checking
 enum WriteOperation {
-  create,
-  update,
-  softDelete,
-  hardDelete,
+  create(0),
+  update(1),
+  softDelete(2),
+  hardDelete(3);
+
+  final int value;
+  const WriteOperation(this.value);
 }
 ```
 
@@ -7994,13 +8020,23 @@ class Diet with _$Diet {
 // lib/domain/entities/diet_rule.dart
 // NOTE: DietRuleType enum defined in Section 3.2 above
 
-enum RuleSeverity { violation, warning, info }
+enum RuleSeverity {
+  violation(0),
+  warning(1),
+  info(2);
+
+  final int value;
+  const RuleSeverity(this.value);
+}
 
 enum FoodCategory {
-  meat, poultry, fish, eggs, dairy,
-  vegetables, fruits, grains, legumes, nuts, seeds,
-  gluten, nightshades, fodmaps, sugar, alcohol, caffeine,
-  processedFoods, artificialSweeteners, friedFoods, rawFoods,
+  meat(0), poultry(1), fish(2), eggs(3), dairy(4),
+  vegetables(5), fruits(6), grains(7), legumes(8), nuts(9), seeds(10),
+  gluten(11), nightshades(12), fodmaps(13), sugar(14), alcohol(15), caffeine(16),
+  processedFoods(17), artificialSweeteners(18), friedFoods(19), rawFoods(20);
+
+  final int value;
+  const FoodCategory(this.value);
 }
 
 @freezed
@@ -8344,8 +8380,7 @@ class HealthInsight with _$HealthInsight {
   }) = _HealthInsight;
 }
 
-enum InsightCategory { daily, summary, pattern, trigger, progress, compliance, anomaly, milestone, recommendation }
-enum InsightPriority { high, medium, low }
+// NOTE: InsightCategory and InsightPriority enums are defined in Section 3.2 above
 
 /// Evidence supporting a health insight
 @freezed
@@ -9336,25 +9371,7 @@ class HipaaAuthorization with _$HipaaAuthorization {
       (expiresAt == null || expiresAt! > DateTime.now().millisecondsSinceEpoch);
 }
 
-/// Duration options for HIPAA authorization
-enum AuthorizationDuration {
-  untilRevoked(0),   // No expiration, revoke manually
-  days30(1),         // 30 days
-  days90(2),         // 90 days
-  days180(3),        // 180 days
-  days365(4);        // 1 year
-
-  final int value;
-  const AuthorizationDuration(this.value);
-
-  int? get daysOrNull => switch (this) {
-    AuthorizationDuration.untilRevoked => null,
-    AuthorizationDuration.days30 => 30,
-    AuthorizationDuration.days90 => 90,
-    AuthorizationDuration.days180 => 180,
-    AuthorizationDuration.days365 => 365,
-  };
-}
+// NOTE: AuthorizationDuration enum is defined in Section 3.2 above
 ```
 
 ### 10.4 ProfileAccessLog Entity

@@ -881,248 +881,46 @@ final supplements = ref.watch(supplementListProvider(currentProfileId));
 
 ## 7. Error Handling Standards
 
-> **Complete Implementation:** See `16_ERROR_HANDLING.md` for full error handling patterns including recovery strategies, UI integration, and logging. This section provides the canonical interface definition.
+> **Canonical Implementation:** See `22_API_CONTRACTS.md` Section 2 for the complete, authoritative error type definitions, factory methods, and error codes. This section defines the principles; that document defines the exact implementations.
 
-### 7.1 Result Pattern and AppError Hierarchy
+### 7.1 Core Principles
 
 **All domain operations use `Result<T, AppError>` - never throw exceptions.**
 
-Define error types in `lib/core/errors/app_error.dart`:
+#### Error Hierarchy
 
-```dart
-/// Recovery action to suggest to users
-/// CANONICAL: Must match 22_API_CONTRACTS.md exactly
-enum RecoveryAction {
-  none,           // No recovery possible
-  retry,          // User can retry the operation
-  refreshToken,   // Need to refresh auth token
-  reAuthenticate, // Need full re-authentication
-  goToSettings,   // User should go to settings
-  contactSupport, // User should contact support
-  checkConnection, // User should check network connection
-  freeStorage,    // User should free up storage space
-}
+All errors extend the sealed `AppError` base class, which provides:
+- `code` - Semantic error code (e.g., `DB_QUERY_FAILED`, `AUTH_TOKEN_EXPIRED`)
+- `message` - Technical message for logging
+- `userMessage` - User-friendly message for display
+- `isRecoverable` - Whether automatic retry is appropriate
+- `recoveryAction` - Suggested recovery action for UI
 
-/// Base sealed class for all application errors
-sealed class AppError {
-  String get code;
-  String get message;
-  String get userMessage;
-  StackTrace? get stackTrace;
-  dynamic get originalError;
-  bool get isRecoverable;
-  RecoveryAction get recoveryAction;
+#### Error Categories
 
-  /// Factory to create appropriate error from exception
-  static AppError fromException(dynamic e, [StackTrace? stackTrace]) {
-    if (e is AppError) return e;
-    return UnknownError(message: e.toString(), stackTrace: stackTrace);
-  }
-}
+| Error Class | Purpose | Default Recovery |
+|-------------|---------|------------------|
+| DatabaseError | Local database operations | retry |
+| AuthError | Authentication/authorization | reAuthenticate |
+| NetworkError | API/network operations | retry |
+| ValidationError | Input validation failures | none (user must fix) |
+| SyncError | Cloud sync operations | retry |
+| WearableError | Wearable device integration | retry |
+| DietError | Diet rule violations | none |
+| IntelligenceError | AI/ML analysis failures | retry |
+| BusinessError | Business rule violations | none |
+| NotificationError | Notification system errors | goToSettings |
 
-/// Database operation errors
-final class DatabaseError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override bool get isRecoverable => true;
-  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
-  final String? operation;
-
-  DatabaseError({
-    required this.code,
-    required this.message,
-    this.userMessage = 'A database error occurred. Please try again.',
-    this.stackTrace,
-    this.originalError,
-    this.operation,
-  });
-
-  factory DatabaseError.fromException(dynamic e, [StackTrace? st]) =>
-    DatabaseError(code: 'DB_001', message: e.toString(), stackTrace: st, originalError: e);
-}
-
-/// Entity not found error
-final class NotFoundError extends AppError {
-  @override final String code = 'DB_002';
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override dynamic get originalError => null;
-  @override bool get isRecoverable => false;
-  @override RecoveryAction get recoveryAction => RecoveryAction.none;
-  final String entityType;
-  final String entityId;
-
-  NotFoundError({
-    required this.entityType,
-    required this.entityId,
-    this.stackTrace,
-  }) : message = '$entityType with id $entityId not found',
-       userMessage = '$entityType not found.';
-}
-
-/// Network/API errors
-final class NetworkError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override bool get isRecoverable => true;
-  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
-
-  NetworkError({
-    required this.code,
-    required this.message,
-    this.userMessage = 'Network error. Check your connection.',
-    this.stackTrace,
-    this.originalError,
-  });
-}
-
-/// Authentication/authorization errors
-final class AuthError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override final bool isRecoverable;
-  @override final RecoveryAction recoveryAction;
-
-  AuthError({
-    required this.code,
-    required this.message,
-    this.userMessage = 'Authentication required.',
-    this.stackTrace,
-    this.originalError,
-    this.isRecoverable = true,
-    this.recoveryAction = RecoveryAction.reAuthenticate,
-  });
-}
-
-/// Input validation errors
-final class ValidationError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override dynamic get originalError => null;
-  @override bool get isRecoverable => true;
-  @override RecoveryAction get recoveryAction => RecoveryAction.none;
-
-  /// Field-specific errors: field name -> list of error messages
-  final Map<String, List<String>> fieldErrors;
-
-  // Standard validation error codes
-  static const String codeRequired = 'VAL_REQUIRED';
-  static const String codeInvalidFormat = 'VAL_INVALID_FORMAT';
-  static const String codeOutOfRange = 'VAL_OUT_OF_RANGE';
-  static const String codeTooLong = 'VAL_TOO_LONG';
-  static const String codeTooShort = 'VAL_TOO_SHORT';
-  static const String codeDuplicate = 'VAL_DUPLICATE';
-
-  ValidationError({
-    required this.code,
-    required this.message,
-    required this.userMessage,
-    this.fieldErrors = const {},
-    this.stackTrace,
-  });
-
-  /// Factory for required field validation
-  factory ValidationError.required(String fieldName) => ValidationError(
-    code: codeRequired,
-    message: '$fieldName is required',
-    userMessage: 'Please provide $fieldName.',
-    fieldErrors: {fieldName: ['Required']},
-  );
-
-  /// Factory for out of range validation
-  factory ValidationError.outOfRange(String fieldName, num value, num min, num max) => ValidationError(
-    code: codeOutOfRange,
-    message: '$fieldName value $value is out of range [$min, $max]',
-    userMessage: '$fieldName must be between $min and $max.',
-    fieldErrors: {fieldName: ['Must be between $min and $max']},
-  );
-}
-
-/// Sync-related errors
-final class SyncError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override bool get isRecoverable => true;
-  @override RecoveryAction get recoveryAction => RecoveryAction.retry;
-
-  SyncError({
-    required this.code,
-    required this.message,
-    this.userMessage = 'Sync failed. Will retry automatically.',
-    this.stackTrace,
-    this.originalError,
-  });
-}
-
-/// Notification-related errors
-final class NotificationError extends AppError {
-  @override final String code;
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override final bool isRecoverable;
-  @override final RecoveryAction recoveryAction;
-
-  NotificationError({
-    required this.code,
-    required this.message,
-    this.userMessage = 'Notification error.',
-    this.stackTrace,
-    this.originalError,
-    this.isRecoverable = true,
-    this.recoveryAction = RecoveryAction.goToSettings,
-  });
-
-  factory NotificationError.permissionDenied() => NotificationError(
-    code: 'NOTIF_PERMISSION_DENIED',
-    message: 'Notification permissions not granted',
-    userMessage: 'Please enable notifications in Settings.',
-    recoveryAction: RecoveryAction.goToSettings,
-  );
-}
-
-/// Unknown/unexpected errors
-final class UnknownError extends AppError {
-  @override final String code = 'UNKNOWN';
-  @override final String message;
-  @override final String userMessage;
-  @override final StackTrace? stackTrace;
-  @override final dynamic originalError;
-  @override bool get isRecoverable => false;
-  @override RecoveryAction get recoveryAction => RecoveryAction.contactSupport;
-
-  UnknownError({
-    required this.message,
-    this.userMessage = 'An unexpected error occurred.',
-    this.stackTrace,
-    this.originalError,
-  });
-}
-```
+> **Complete Definitions:** See `22_API_CONTRACTS.md` Section 2 for all error classes, factory methods, and error codes.
 
 ### 7.2 Error Handling Rules
 
 1. **Use Result Pattern**: All repository/usecase methods return `Result<T, AppError>`
 2. **Never Throw from Repositories**: Wrap exceptions and return as `Result.failure`
-3. **User-Friendly Messages**: `userMessage` is shown to users, `message` is for logs
-4. **Log with Context**: Include operation, entity type, IDs in log calls
-5. **Recover When Possible**: Provide fallback behavior for non-critical errors
+3. **Use Semantic Factory Methods**: Use `DatabaseError.queryFailed()` not generic constructors
+4. **User-Friendly Messages**: `userMessage` is shown to users, `message` is for logs
+5. **Log with Context**: Include operation, entity type, IDs in log calls
+6. **Recover When Possible**: Check `isRecoverable` and `recoveryAction` for guidance
 
 ```dart
 // CORRECT: Handle Result pattern
@@ -1146,9 +944,14 @@ Future<Result<void, AppError>> logIntake(String supplementId) async {
       final log = IntakeLog(supplementId: supplement.id, ...);
       return await intakeLogRepository.create(log);
     },
-    failure: (error) => Result.failure(error),
+    failure: Failure.new,
   );
 }
+
+// CORRECT: Use semantic factory methods
+return Failure(DatabaseError.queryFailed('supplements', e, stackTrace));
+return Failure(AuthError.profileAccessDenied(profileId));
+return Failure(ValidationError.required('name'));
 
 // INCORRECT: Never use try-catch with Result-returning methods
 try {
@@ -1158,25 +961,24 @@ try {
 }
 ```
 
-### 7.3 Error Code Registry
+### 7.3 Error Code Reference
 
-**Common error codes** (quick reference):
+Error codes use semantic naming for clarity and self-documentation:
 
-| Code | Type | Description |
-|------|------|-------------|
-| DB_001 | DatabaseError | Query execution failed |
-| DB_002 | NotFoundError | Entity not found |
-| DB_003 | DatabaseError | Constraint violation |
-| NET_001 | NetworkError | Connection timeout |
-| NET_002 | NetworkError | No internet connection |
-| AUTH_001 | AuthError | Token expired |
-| AUTH_002 | AuthError | Unauthorized profile access |
-| VAL_001 | ValidationError | Required field missing |
-| VAL_002 | ValidationError | Value out of range |
-| SYNC_001 | SyncError | Conflict detected |
-| SYNC_002 | SyncError | Merge failed |
+| Category | Code Pattern | Examples |
+|----------|--------------|----------|
+| Database | `DB_*` | `DB_QUERY_FAILED`, `DB_NOT_FOUND`, `DB_CONSTRAINT_VIOLATION` |
+| Auth | `AUTH_*` | `AUTH_UNAUTHORIZED`, `AUTH_TOKEN_EXPIRED`, `AUTH_PROFILE_ACCESS_DENIED` |
+| Network | `NET_*` | `NET_NO_CONNECTION`, `NET_TIMEOUT`, `NET_SERVER_ERROR` |
+| Validation | `VAL_*` | `VAL_REQUIRED`, `VAL_INVALID_FORMAT`, `VAL_OUT_OF_RANGE` |
+| Sync | `SYNC_*` | `SYNC_CONFLICT`, `SYNC_UPLOAD_FAILED`, `SYNC_CORRUPTED` |
+| Wearable | `WEARABLE_*` | `WEARABLE_AUTH_FAILED`, `WEARABLE_SYNC_FAILED` |
+| Diet | `DIET_*` | `DIET_RULE_CONFLICT`, `DIET_MULTIPLE_ACTIVE` |
+| Intelligence | `INTEL_*` | `INTEL_INSUFFICIENT_DATA`, `INTEL_ANALYSIS_FAILED` |
+| Business | `BUS_*` | `BUS_INVALID_STATE`, `BUS_PRECONDITION_FAILED` |
+| Notification | `NOTIF_*` | `NOTIF_PERMISSION_DENIED`, `NOTIF_SCHEDULE_FAILED` |
 
-> **Canonical Source:** See `22_API_CONTRACTS.md` Section 2 for the complete, authoritative error code registry.
+> **Complete Registry:** See `22_API_CONTRACTS.md` Section 2 for the full list of error codes and their factory methods.
 
 ---
 
