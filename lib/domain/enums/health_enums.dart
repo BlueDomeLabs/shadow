@@ -325,3 +325,80 @@ enum NotificationType {
     _ => 0, // No snooze types
   };
 }
+
+// === Supplement Enums (22_API_CONTRACTS.md Section 3.3) ===
+
+enum SupplementForm {
+  capsule(0),
+  powder(1),
+  liquid(2),
+  tablet(3),
+  other(4);
+
+  final int value;
+  const SupplementForm(this.value);
+
+  static SupplementForm fromValue(int value) => SupplementForm.values
+      .firstWhere((e) => e.value == value, orElse: () => capsule);
+}
+
+enum DosageUnit {
+  g(0, 'g'),
+  mg(1, 'mg'),
+  mcg(2, 'mcg'),
+  iu(3, 'IU'),
+  hdu(4, 'HDU'),
+  ml(5, 'mL'),
+  drops(6, 'drops'),
+  tsp(7, 'tsp'),
+  custom(8, '');
+
+  final int value;
+  final String abbreviation;
+  const DosageUnit(this.value, this.abbreviation);
+
+  static DosageUnit fromValue(int value) =>
+      DosageUnit.values.firstWhere((e) => e.value == value, orElse: () => mg);
+}
+
+enum SupplementTimingType {
+  withEvent(0),
+  beforeEvent(1),
+  afterEvent(2),
+  specificTime(3);
+
+  final int value;
+  const SupplementTimingType(this.value);
+
+  static SupplementTimingType fromValue(int value) => SupplementTimingType
+      .values
+      .firstWhere((e) => e.value == value, orElse: () => withEvent);
+}
+
+enum SupplementFrequencyType {
+  daily(0),
+  everyXDays(1),
+  specificWeekdays(2);
+
+  final int value;
+  const SupplementFrequencyType(this.value);
+
+  static SupplementFrequencyType fromValue(int value) => SupplementFrequencyType
+      .values
+      .firstWhere((e) => e.value == value, orElse: () => daily);
+}
+
+enum SupplementAnchorEvent {
+  wake(0),
+  breakfast(1),
+  lunch(2),
+  dinner(3),
+  bed(4);
+
+  final int value;
+  const SupplementAnchorEvent(this.value);
+
+  static SupplementAnchorEvent fromValue(int value) => SupplementAnchorEvent
+      .values
+      .firstWhere((e) => e.value == value, orElse: () => wake);
+}
