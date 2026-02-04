@@ -1,22 +1,15 @@
 {
   "lastInstanceId": "data-layer-010",
   "lastAction": "completed",
-  "taskId": "IMPLEMENT-SUPPLEMENT-DATA-LAYER",
+  "taskId": "FIX-PRECOMMIT-HOOK",
   "status": "complete",
-  "timestamp": "2026-02-03T22:10:00Z",
+  "timestamp": "2026-02-03T22:30:00Z",
   "filesModified": [
-    "lib/domain/repositories/entity_repository.dart",
-    "lib/domain/repositories/supplement_repository.dart",
-    "lib/data/datasources/local/tables/supplements_table.dart",
-    "lib/data/datasources/local/tables/tables.dart",
-    "lib/data/datasources/local/daos/supplement_dao.dart",
-    "lib/data/datasources/local/database.dart",
-    "lib/data/repositories/supplement_repository_impl.dart",
-    "10_DATABASE_SCHEMA.md",
-    "22_API_CONTRACTS.md",
-    "53_SPEC_CLARIFICATIONS.md"
+    ".git/hooks/pre-commit",
+    "scripts/pre-commit",
+    "23_ENGINEERING_GOVERNANCE.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "COMPLETED Supplement data layer implementation. All components verified against spec: EntityRepository interface, SupplementRepository interface, SupplementsTable (Drift), SupplementDao, SupplementRepositoryImpl. All 5 skills used. Analyzer clean, tests passing. NEXT: Write tests for SupplementDao and SupplementRepositoryImpl, then implement UseCase layer for supplements."
+  "notes": "COMPLETED: Fixed pre-commit hook to only detect unstaged generated files. The hook now correctly allows committing staged generated files while catching unstaged changes. Updated spec in 23_ENGINEERING_GOVERNANCE.md Section 6.1 to match implementation. Pre-commit hook verified working via successful commit. PREVIOUS: Supplement data layer complete. NEXT: Write tests for SupplementDao and SupplementRepositoryImpl."
 }
