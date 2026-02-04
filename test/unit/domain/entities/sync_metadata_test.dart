@@ -298,7 +298,7 @@ void main() {
       });
 
       test('round-trip serialization preserves data', () {
-        final original = SyncMetadata(
+        const original = SyncMetadata(
           syncCreatedAt: 1000,
           syncUpdatedAt: 2000,
           syncDeletedAt: 3000,
@@ -306,7 +306,6 @@ void main() {
           syncStatus: SyncStatus.conflict,
           syncVersion: 10,
           syncDeviceId: 'device-xyz',
-          syncIsDirty: true,
           conflictData: '{"key": "value"}',
         );
 

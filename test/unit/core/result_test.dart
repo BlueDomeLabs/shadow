@@ -87,7 +87,7 @@ void main() {
     group('Type safety', () {
       test('Result can be used with AppError types', () {
         // This test verifies the type system works as expected
-        Result<String, String> createResult(bool succeed) {
+        Result<String, String> createResult({required bool succeed}) {
           if (succeed) {
             return const Success('data');
           } else {
@@ -95,8 +95,8 @@ void main() {
           }
         }
 
-        final success = createResult(true);
-        final failure = createResult(false);
+        final success = createResult(succeed: true);
+        final failure = createResult(succeed: false);
 
         expect(success.isSuccess, isTrue);
         expect(failure.isFailure, isTrue);

@@ -14,17 +14,15 @@ class ShadowApp extends StatelessWidget {
   const ShadowApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Shadow',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(child: Text('Shadow - Phase 1 Foundation')),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Shadow',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      useMaterial3: true,
+    ),
+    home: const Scaffold(
+      body: Center(child: Text('Shadow - Phase 1 Foundation')),
+    ),
+  );
 }

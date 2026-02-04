@@ -28,7 +28,7 @@ part 'database.g.dart';
 /// ```dart
 /// final database = AppDatabase(await DatabaseConnection.openConnection());
 /// ```
-@DriftDatabase(tables: [])
+@DriftDatabase()
 class AppDatabase extends _$AppDatabase {
   /// Creates an AppDatabase with the given query executor.
   ///
@@ -53,27 +53,25 @@ class AppDatabase extends _$AppDatabase {
   /// Migrations are defined per version increment.
   /// See 02_CODING_STANDARDS.md Section 8.5 for migration requirements.
   @override
-  MigrationStrategy get migration {
-    return MigrationStrategy(
-      onCreate: (Migrator m) async {
-        // Create all tables for fresh install
-        await m.createAll();
-      },
-      onUpgrade: (Migrator m, int from, int to) async {
-        // Migrations will be added as schema evolves
-        // Each migration should be idempotent per 02_CODING_STANDARDS.md
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) async {
+      // Create all tables for fresh install
+      await m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      // Migrations will be added as schema evolves
+      // Each migration should be idempotent per 02_CODING_STANDARDS.md
 
-        // Example migration pattern (add when needed):
-        // if (from < 2) {
-        //   await m.addColumn(supplements, supplements.newColumn);
-        // }
-      },
-      beforeOpen: (details) async {
-        // Enable foreign key constraints per 10_DATABASE_SCHEMA.md Section 1.2
-        await customStatement('PRAGMA foreign_keys = ON');
-      },
-    );
-  }
+      // Example migration pattern (add when needed):
+      // if (from < 2) {
+      //   await m.addColumn(supplements, supplements.newColumn);
+      // }
+    },
+    beforeOpen: (details) async {
+      // Enable foreign key constraints per 10_DATABASE_SCHEMA.md Section 1.2
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+  );
 
   /// Close the database connection.
   ///
@@ -97,22 +95,20 @@ class DatabaseConnection {
   /// Uses SQLCipher for AES-256 encryption with key stored in secure storage.
   ///
   /// Returns a lazy database connection that opens on first query.
-  static LazyDatabase openConnection() {
-    return LazyDatabase(() async {
-      final dbFolder = await _getDatabaseDirectory();
-      final file = File(p.join(dbFolder, _databaseName));
-      final encryptionKey = await getOrCreateEncryptionKey();
+  static LazyDatabase openConnection() => LazyDatabase(() async {
+    final dbFolder = await _getDatabaseDirectory();
+    final file = File(p.join(dbFolder, _databaseName));
+    final encryptionKey = await getOrCreateEncryptionKey();
 
-      return NativeDatabase.createInBackground(
-        file,
-        setup: (database) {
-          // Apply SQLCipher encryption key
-          // Per 10_DATABASE_SCHEMA.md: AES-256 encryption
-          database.execute("PRAGMA key = '$encryptionKey'");
-        },
-      );
-    });
-  }
+    return NativeDatabase.createInBackground(
+      file,
+      setup: (database) {
+        // Apply SQLCipher encryption key
+        // Per 10_DATABASE_SCHEMA.md: AES-256 encryption
+        database.execute("PRAGMA key = '$encryptionKey'");
+      },
+    );
+  });
 
   /// Opens an encrypted database connection synchronously.
   ///
@@ -135,22 +131,18 @@ class DatabaseConnection {
   /// ```dart
   /// final testDb = AppDatabase(DatabaseConnection.inMemory());
   /// ```
-  static QueryExecutor inMemory() {
-    return NativeDatabase.memory(
-      setup: (database) {
-        // Use a fixed key for testing - NOT for production
-        database.execute("PRAGMA key = 'test_encryption_key_for_unit_tests'");
-      },
-    );
-  }
+  static QueryExecutor inMemory() => NativeDatabase.memory(
+    setup: (database) {
+      // Use a fixed key for testing - NOT for production
+      database.execute("PRAGMA key = 'test_encryption_key_for_unit_tests'");
+    },
+  );
 
   /// Creates an unencrypted in-memory database for testing.
   ///
   /// Use this only when testing non-encryption-related functionality
   /// and SQLCipher setup causes issues.
-  static QueryExecutor inMemoryUnencrypted() {
-    return NativeDatabase.memory();
-  }
+  static QueryExecutor inMemoryUnencrypted() => NativeDatabase.memory();
 
   /// Gets the platform-specific database directory.
   ///
@@ -186,7 +178,7 @@ class DatabaseConnection {
     );
 
     // Try to read existing key
-    String? key = await storage.read(key: _encryptionKeyName);
+    var key = await storage.read(key: _encryptionKeyName);
 
     if (key == null) {
       // Generate new 256-bit key (32 bytes = 64 hex chars)
@@ -242,7 +234,7 @@ class DatabaseConnection {
       final result = database.select('PRAGMA cipher_version');
       // If cipher_version returns a value, SQLCipher is active
       return result.isNotEmpty && result.first['cipher_version'] != null;
-    } catch (e) {
+    } on Exception {
       // If the pragma fails, SQLCipher is not available
       return false;
     }

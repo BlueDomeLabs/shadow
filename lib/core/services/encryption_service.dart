@@ -116,7 +116,7 @@ class EncryptionService {
     offset += cipher.doFinal(ciphertextWithTag, offset);
 
     // GCM appends the tag to the ciphertext, split them
-    final tagLength = _tagLengthBits ~/ 8;
+    const tagLength = _tagLengthBits ~/ 8;
     final ciphertext = ciphertextWithTag.sublist(0, offset - tagLength);
     final tag = ciphertextWithTag.sublist(offset - tagLength, offset);
 
@@ -153,7 +153,7 @@ class EncryptionService {
       nonce = Uint8List.fromList(base64Decode(parts[0]));
       ciphertext = Uint8List.fromList(base64Decode(parts[1]));
       tag = Uint8List.fromList(base64Decode(parts[2]));
-    } catch (e) {
+    } on FormatException {
       throw DecryptionException('Invalid base64 encoding');
     }
 

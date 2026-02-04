@@ -3,10 +3,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:uuid/uuid.dart';
 import 'package:shadow_app/core/repositories/base_repository.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
+import 'package:uuid/uuid.dart';
 
 @GenerateMocks([DeviceInfoService])
 import 'base_repository_test.mocks.dart';
@@ -28,13 +28,11 @@ class TestEntity {
     required this.syncMetadata,
   });
 
-  TestEntity copyWithIdAndSync(String id, SyncMetadata syncMetadata) {
-    return TestEntity(id: id, name: name, syncMetadata: syncMetadata);
-  }
+  TestEntity copyWithIdAndSync(String id, SyncMetadata syncMetadata) =>
+      TestEntity(id: id, name: name, syncMetadata: syncMetadata);
 
-  TestEntity copyWithSync(SyncMetadata syncMetadata) {
-    return TestEntity(id: id, name: name, syncMetadata: syncMetadata);
-  }
+  TestEntity copyWithSync(SyncMetadata syncMetadata) =>
+      TestEntity(id: id, name: name, syncMetadata: syncMetadata);
 }
 
 void main() {
@@ -134,7 +132,7 @@ void main() {
 
         final result = await repository.prepareForCreate<TestEntity>(
           entity,
-          (id, syncMetadata) => entity.copyWithIdAndSync(id, syncMetadata),
+          entity.copyWithIdAndSync,
         );
 
         expect(result.id, isNotEmpty);
@@ -153,7 +151,7 @@ void main() {
 
         final result = await repository.prepareForCreate<TestEntity>(
           entity,
-          (id, syncMetadata) => entity.copyWithIdAndSync(id, syncMetadata),
+          entity.copyWithIdAndSync,
           existingId: existingId,
         );
 
@@ -172,7 +170,7 @@ void main() {
 
         final result = await repository.prepareForUpdate<TestEntity>(
           entity,
-          (syncMetadata) => entity.copyWithSync(syncMetadata),
+          entity.copyWithSync,
           getSyncMetadata: (e) => e.syncMetadata,
         );
 
@@ -195,7 +193,7 @@ void main() {
 
         final result = await repository.prepareForUpdate<TestEntity>(
           entity,
-          (syncMetadata) => entity.copyWithSync(syncMetadata),
+          entity.copyWithSync,
           markDirty: false,
           getSyncMetadata: (e) => e.syncMetadata,
         );
@@ -216,7 +214,7 @@ void main() {
 
         final result = await repository.prepareForDelete<TestEntity>(
           entity,
-          (syncMetadata) => entity.copyWithSync(syncMetadata),
+          entity.copyWithSync,
           getSyncMetadata: (e) => e.syncMetadata,
         );
 
@@ -240,7 +238,7 @@ void main() {
         final before = DateTime.now().millisecondsSinceEpoch;
         final result = await repository.prepareForDelete<TestEntity>(
           entity,
-          (syncMetadata) => entity.copyWithSync(syncMetadata),
+          entity.copyWithSync,
           getSyncMetadata: (e) => e.syncMetadata,
         );
         final after = DateTime.now().millisecondsSinceEpoch;

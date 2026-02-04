@@ -61,9 +61,8 @@ class SyncMetadata with _$SyncMetadata {
 
   /// Create empty sync metadata (for entity construction before persisting)
   /// IMPORTANT: Must call create() with deviceId before saving to database
-  factory SyncMetadata.empty() {
-    return SyncMetadata(syncCreatedAt: 0, syncUpdatedAt: 0, syncDeviceId: '');
-  }
+  factory SyncMetadata.empty() =>
+      const SyncMetadata(syncCreatedAt: 0, syncUpdatedAt: 0, syncDeviceId: '');
 
   /// Mark as modified (updates timestamp, dirty flag, AND increments version)
   /// IMPORTANT: syncVersion is incremented to detect conflicts during sync

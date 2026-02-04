@@ -227,7 +227,7 @@ final class AuthError extends AppError {
     userMessage: 'You do not have access to this profile.',
   );
 
-  factory AuthError.tokenExpired() => AuthError._(
+  factory AuthError.tokenExpired() => const AuthError._(
     code: codeTokenExpired,
     message: 'Authentication token has expired',
     userMessage: 'Your session has expired. Please sign in again.',
@@ -302,7 +302,7 @@ final class NetworkError extends AppError {
   static const String codeServerError = 'NET_SERVER_ERROR';
   static const String codeSslError = 'NET_SSL_ERROR';
 
-  factory NetworkError.noConnection() => NetworkError._(
+  factory NetworkError.noConnection() => const NetworkError._(
     code: codeNoConnection,
     message: 'No network connection available',
     userMessage:
@@ -453,7 +453,7 @@ final class ValidationError extends AppError {
         },
       );
 
-  factory ValidationError.customFluidNameRequired() => ValidationError._(
+  factory ValidationError.customFluidNameRequired() => const ValidationError._(
     code: codeCustomFluidNameRequired,
     message: 'Custom fluid name required when providing amount or notes',
     userMessage: 'Please provide a name for the fluid.',
@@ -706,7 +706,7 @@ final class DietError extends AppError {
     userMessage: 'These diet rules conflict with each other.',
   );
 
-  factory DietError.multipleActiveDiets() => DietError._(
+  factory DietError.multipleActiveDiets() => const DietError._(
     code: codeMultipleActiveDiets,
     message: 'Multiple active diets detected',
     userMessage: 'Only one diet can be active at a time.',
@@ -983,7 +983,7 @@ final class NotificationError extends AppError {
     stackTrace: stack,
   );
 
-  factory NotificationError.permissionDenied() => NotificationError._(
+  factory NotificationError.permissionDenied() => const NotificationError._(
     code: codePermissionDenied,
     message: 'Notification permission denied by user',
     userMessage: 'Notification permission required. Please enable in Settings.',

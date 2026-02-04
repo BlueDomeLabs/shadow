@@ -1,9 +1,8 @@
 // lib/core/repositories/base_repository.dart - EXACT IMPLEMENTATION FROM 05_IMPLEMENTATION_ROADMAP.md Section 2.6
 
+import 'package:shadow_app/core/services/device_info_service.dart';
+import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../domain/entities/sync_metadata.dart';
-import '../services/device_info_service.dart';
 
 /// Base class for all repositories with sync support.
 /// ALL repository implementations MUST extend this class.
@@ -14,9 +13,8 @@ abstract class BaseRepository<T> {
   BaseRepository(this._uuid, this._deviceInfoService);
 
   /// Generate ID if not provided or empty
-  String generateId(String? existingId) {
-    return existingId?.isNotEmpty == true ? existingId! : _uuid.v4();
-  }
+  String generateId(String? existingId) =>
+      (existingId?.isNotEmpty ?? false) ? existingId! : _uuid.v4();
 
   /// Create fresh SyncMetadata for new entities
   Future<SyncMetadata> createSyncMetadata() async {
