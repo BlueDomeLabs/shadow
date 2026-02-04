@@ -36,8 +36,9 @@ void main() {
     group('foreign keys', () {
       test('foreign key constraints are enabled', () async {
         // PRAGMA foreign_keys should return 1 when enabled
-        final result =
-            await database.customSelect('PRAGMA foreign_keys').getSingle();
+        final result = await database
+            .customSelect('PRAGMA foreign_keys')
+            .getSingle();
         expect(result.read<int>('foreign_keys'), equals(1));
       });
     });

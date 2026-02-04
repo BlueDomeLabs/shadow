@@ -29,8 +29,10 @@ fi
 
 # 2. Run analyzer (fail on errors/warnings, allow infos per 02_CODING_STANDARDS.md)
 echo "Running analyzer..."
+set +e  # Temporarily disable exit-on-error to capture analyzer output
 ANALYZE_OUTPUT=$(flutter analyze 2>&1)
 ANALYZE_EXIT=$?
+set -e  # Re-enable exit-on-error
 
 # Count errors and warnings (not infos)
 ERROR_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "error •" || true)
