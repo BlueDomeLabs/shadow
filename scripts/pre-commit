@@ -12,14 +12,18 @@ dart run build_runner build --delete-conflicting-outputs 2>/dev/null || {
   echo "WARNING: build_runner failed, skipping generated files check"
 }
 
-# Check if generated files have uncommitted changes
-if [[ -n $(git status --porcelain | grep -E '\.(freezed|g)\.dart$') ]]; then
+# Check if generated files have unstaged changes (not yet added to commit)
+# git status --porcelain format: XY filename
+# X = staged status, Y = unstaged status
+# We only care about files with unstaged changes (Y column has M, ?, or D)
+UNSTAGED_GENERATED=$(git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -E '^.[^ ]' || true)
+if [[ -n "$UNSTAGED_GENERATED" ]]; then
   echo ""
   echo "ERROR: Generated files are out of date."
-  echo "The following generated files have uncommitted changes:"
-  git status --porcelain | grep -E '\.(freezed|g)\.dart$'
+  echo "The following generated files have unstaged changes:"
+  echo "$UNSTAGED_GENERATED"
   echo ""
-  echo "Please stage and commit these generated files."
+  echo "Please stage and commit these generated files with: git add <files>"
   exit 1
 fi
 
