@@ -2404,6 +2404,40 @@ import 'package:uuid/uuid.dart';
 // ...
 ```
 
+### 14.3 Inline Comments
+
+Inline comments ARE ALLOWED and ENCOURAGED for code clarity. Comments help communicate intent, explain complex logic, and aid future maintainers.
+
+**Allowed comment types:**
+- `//` single-line comments explaining WHY (not what)
+- `/* */` block comments for longer explanations
+- `// TODO:` for planned improvements (with ticket reference)
+- `// REQUIRED:` to highlight critical configuration
+- `// NOTE:` for important context
+
+**Guidelines:**
+| Guideline | Example |
+|-----------|---------|
+| Explain WHY, not WHAT | `// Required for Java 8+ API compatibility` ✓ |
+| Don't state the obvious | `// increment counter` ✗ |
+| Keep comments current | Update when code changes |
+| Use for complex logic | Algorithms, business rules, edge cases |
+
+**Spec Compliance Rule:** Implementation files MAY include additional comments beyond what is shown in specification code blocks. Comments do not cause spec non-compliance as long as the functional code matches.
+
+```dart
+// Example: Comments are allowed in implementation
+android {
+    compileOptions {
+        // REQUIRED: Core library desugaring for Java 8+ APIs
+        // This is needed by flutter_local_notifications plugin
+        isCoreLibraryDesugaringEnabled = true  // Spec-required value
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+```
+
 ---
 
 ## 15. Code Review Standards

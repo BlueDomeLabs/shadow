@@ -527,6 +527,122 @@ jobs:
           ./scripts/check_coverage.sh 100
 ```
 
+### 6.4 Coverage Check Script
+
+```bash
+#!/bin/bash
+# scripts/check_coverage.sh
+# Validates code coverage meets required threshold
+
+set -e
+
+THRESHOLD=${1:-100}
+COVERAGE_FILE="coverage/lcov.info"
+
+if [[ ! -f "$COVERAGE_FILE" ]]; then
+  echo "ERROR: Coverage file not found: $COVERAGE_FILE"
+  echo "Run 'flutter test --coverage' first"
+  exit 1
+fi
+
+# Parse lcov.info to calculate coverage percentage
+# LF = lines found (total), LH = lines hit (covered)
+LINES_FOUND=$(grep -E "^LF:" "$COVERAGE_FILE" | cut -d: -f2 | awk '{sum += $1} END {print sum}')
+LINES_HIT=$(grep -E "^LH:" "$COVERAGE_FILE" | cut -d: -f2 | awk '{sum += $1} END {print sum}')
+
+if [[ -z "$LINES_FOUND" || "$LINES_FOUND" -eq 0 ]]; then
+  echo "ERROR: No coverage data found in $COVERAGE_FILE"
+  exit 1
+fi
+
+# Calculate percentage (integer math, floor)
+COVERAGE=$((LINES_HIT * 100 / LINES_FOUND))
+
+echo "Coverage: $COVERAGE% ($LINES_HIT/$LINES_FOUND lines)"
+echo "Threshold: $THRESHOLD%"
+
+if [[ "$COVERAGE" -lt "$THRESHOLD" ]]; then
+  echo "FAILED: Coverage $COVERAGE% is below threshold $THRESHOLD%"
+  exit 1
+fi
+
+echo "PASSED: Coverage meets threshold"
+exit 0
+```
+
+### 6.5 Platform Build Configuration
+
+Platform-specific build files MUST be configured exactly as specified below to ensure consistent builds across all environments.
+
+#### Android Configuration
+
+**File:** `android/app/build.gradle.kts`
+
+```kotlin
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
+android {
+    namespace = "com.bluedomecolorado.shadow_app"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        // REQUIRED: Core library desugaring for Java 8+ APIs on older Android versions
+        // This is required by flutter_local_notifications and other plugins
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    defaultConfig {
+        applicationId = "com.bluedomecolorado.shadow_app"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    // REQUIRED: Desugaring library for Java 8+ API compatibility
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+}
+```
+
+**Key Requirements:**
+| Setting | Value | Reason |
+|---------|-------|--------|
+| `isCoreLibraryDesugaringEnabled` | `true` | Required for flutter_local_notifications |
+| `coreLibraryDesugaring` | `2.0.4+` | Provides Java 8+ APIs on older Android |
+| `JavaVersion` | `VERSION_17` | Flutter 3.x requirement |
+| `namespace` | `com.bluedomecolorado.shadow_app` | Matches applicationId |
+
+#### iOS Configuration
+
+iOS build settings are managed via Xcode and CocoaPods. Key requirements:
+- Minimum iOS version: Defined in `ios/Podfile`
+- Swift version: 5.0+
+- Enable required capabilities in Xcode project
+
 ---
 
 ## 7. Documentation Requirements
@@ -638,3 +754,4 @@ New engineers MUST complete:
 |---------|------|---------|
 | 1.0 | 2026-01-30 | Initial release |
 | 1.1 | 2026-02-04 | Fixed pre-commit hook to only fail on unstaged generated file changes (Section 6.1) |
+| 1.2 | 2026-02-04 | Added coverage check script specification (Section 6.4) |

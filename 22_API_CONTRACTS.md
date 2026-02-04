@@ -1178,6 +1178,9 @@ enum BowelCondition {
 
   final int value;
   const BowelCondition(this.value);
+
+  static BowelCondition fromValue(int value) =>
+    BowelCondition.values.firstWhere((e) => e.value == value, orElse: () => normal);
 }
 
 enum UrineCondition {
@@ -1191,6 +1194,9 @@ enum UrineCondition {
 
   final int value;
   const UrineCondition(this.value);
+
+  static UrineCondition fromValue(int value) =>
+    UrineCondition.values.firstWhere((e) => e.value == value, orElse: () => lightYellow);
 }
 
 enum MovementSize {
@@ -1216,6 +1222,9 @@ enum MenstruationFlow {
 
   final int value;
   const MenstruationFlow(this.value);
+
+  static MenstruationFlow fromValue(int value) =>
+    MenstruationFlow.values.firstWhere((e) => e.value == value, orElse: () => none);
 }
 
 enum SleepQuality {
@@ -1227,6 +1236,9 @@ enum SleepQuality {
 
   final int value;
   const SleepQuality(this.value);
+
+  static SleepQuality fromValue(int value) =>
+    SleepQuality.values.firstWhere((e) => e.value == value, orElse: () => fair);
 }
 
 enum ActivityIntensity {
@@ -1236,6 +1248,9 @@ enum ActivityIntensity {
 
   final int value;
   const ActivityIntensity(this.value);
+
+  static ActivityIntensity fromValue(int value) =>
+    ActivityIntensity.values.firstWhere((e) => e.value == value, orElse: () => moderate);
 }
 
 enum ConditionSeverity {
@@ -1247,6 +1262,9 @@ enum ConditionSeverity {
 
   final int value;
   const ConditionSeverity(this.value);
+
+  static ConditionSeverity fromValue(int value) =>
+    ConditionSeverity.values.firstWhere((e) => e.value == value, orElse: () => none);
 
   /// Convert 5-level enum to 1-10 storage scale
   /// Mapping: none=1, mild=2-3, moderate=4-5, severe=6-8, extreme=9-10
@@ -1277,6 +1295,9 @@ enum MoodLevel {
 
   final int value;
   const MoodLevel(this.value);
+
+  static MoodLevel fromValue(int value) =>
+    MoodLevel.values.firstWhere((e) => e.value == value, orElse: () => neutral);
 }
 
 enum DietRuleType {
@@ -1312,6 +1333,9 @@ enum DietRuleType {
 
   final int value;
   const DietRuleType(this.value);
+
+  static DietRuleType fromValue(int value) =>
+    DietRuleType.values.firstWhere((e) => e.value == value, orElse: () => excludeCategory);
 }
 
 enum PatternType {
@@ -1323,6 +1347,9 @@ enum PatternType {
 
   final int value;
   const PatternType(this.value);
+
+  static PatternType fromValue(int value) =>
+    PatternType.values.firstWhere((e) => e.value == value, orElse: () => temporal);
 }
 
 /// Diet preset types - predefined diet configurations
@@ -1369,6 +1396,9 @@ enum AlertPriority {
 
   final int value;
   const AlertPriority(this.value);
+
+  static AlertPriority fromValue(int value) =>
+    AlertPriority.values.firstWhere((e) => e.value == value, orElse: () => low);
 }
 
 enum WearablePlatform {
@@ -1446,6 +1476,9 @@ enum NotificationType {
   final int value;
   const NotificationType(this.value);
 
+  static NotificationType fromValue(int value) =>
+    NotificationType.values.firstWhere((e) => e.value == value, orElse: () => supplementIndividual);
+
   /// Whether this notification type allows snooze action
   bool get allowsSnooze => switch (this) {
     bbtMorning => false,        // Medical accuracy
@@ -1466,14 +1499,19 @@ enum NotificationType {
     waterInterval => 30,
     waterFixed => 30,
     waterSmart => 30,
+    menstruationTracking => 60,
     sleepBedtime => 15,
     sleepWakeup => 5,
+    conditionCheckIn => 60,
+    photoReminder => 60,
+    journalPrompt => 60,
+    syncReminder => 120,
     fastingWindowOpen => 15,
     fastingWindowClose => 15,
     fastingWindowClosed => 15,
-    fluidsGeneral => 60,
+    fluidsGeneral => 30,
     fluidsBowel => 60,
-    _ => 60,  // Default for flexible types
+    _ => 0,  // Non-snoozable types (bbtMorning, dietStreak, dietWeeklySummary, inactivity)
   };
 }
 
@@ -1487,6 +1525,9 @@ enum SupplementForm {
 
   final int value;
   const SupplementForm(this.value);
+
+  static SupplementForm fromValue(int value) =>
+    SupplementForm.values.firstWhere((e) => e.value == value, orElse: () => capsule);
 }
 
 enum DosageUnit {
@@ -1503,6 +1544,9 @@ enum DosageUnit {
   final int value;
   final String abbreviation;
   const DosageUnit(this.value, this.abbreviation);
+
+  static DosageUnit fromValue(int value) =>
+    DosageUnit.values.firstWhere((e) => e.value == value, orElse: () => mg);
 }
 
 enum SupplementTimingType {
@@ -1513,6 +1557,9 @@ enum SupplementTimingType {
 
   final int value;
   const SupplementTimingType(this.value);
+
+  static SupplementTimingType fromValue(int value) =>
+    SupplementTimingType.values.firstWhere((e) => e.value == value, orElse: () => withEvent);
 }
 
 enum SupplementFrequencyType {
@@ -1522,6 +1569,9 @@ enum SupplementFrequencyType {
 
   final int value;
   const SupplementFrequencyType(this.value);
+
+  static SupplementFrequencyType fromValue(int value) =>
+    SupplementFrequencyType.values.firstWhere((e) => e.value == value, orElse: () => daily);
 }
 
 // Document type enum
@@ -1533,6 +1583,9 @@ enum DocumentType {
 
   final int value;
   const DocumentType(this.value);
+
+  static DocumentType fromValue(int value) =>
+    DocumentType.values.firstWhere((e) => e.value == value, orElse: () => other);
 }
 
 // Authorization and scope enums (for profile sharing)
@@ -5754,6 +5807,9 @@ enum SupplementAnchorEvent {
 
   final int value;
   const SupplementAnchorEvent(this.value);
+
+  static SupplementAnchorEvent fromValue(int value) =>
+    SupplementAnchorEvent.values.firstWhere((e) => e.value == value, orElse: () => wake);
 }
 
 // lib/domain/entities/fluids_entry.dart
@@ -8214,6 +8270,9 @@ enum PatternType {
 
   final int value;
   const PatternType(this.value);
+
+  static PatternType fromValue(int value) =>
+    PatternType.values.firstWhere((e) => e.value == value, orElse: () => temporal);
 }
 ```
 

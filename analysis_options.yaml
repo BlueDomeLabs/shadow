@@ -60,7 +60,9 @@ linter:
 
     # === Style & Consistency ===
     always_declare_return_types: true
-    always_put_required_named_parameters_first: true
+    # always_put_required_named_parameters_first: false - Disabled: Coding Standards Section 5.0
+    # shows logical grouping (form + customForm together, dosage + dosageUnit together).
+    # Philosophy "Explicit Over Implicit" favors domain grouping over strict required-first.
     always_use_package_imports: true     # Consistent imports
     avoid_bool_literals_in_conditional_expressions: true
     avoid_catches_without_on_clauses: true
@@ -115,8 +117,11 @@ linter:
     require_trailing_commas: true
     sized_box_for_whitespace: true
     sized_box_shrink_expand: true
-    sort_constructors_first: true
-    sort_unnamed_constructors_first: true
+    # sort_constructors_first: false - Disabled: Coding Standards Section 7.1 shows error
+    # classes with fields before constructors. This is intentional for sealed class patterns.
+    # sort_unnamed_constructors_first: false - Disabled: Freezed REQUIRES const Entity._()
+    # (named private constructor) BEFORE const factory Entity(...) (unnamed factory) to
+    # support custom getters. See Coding Standards Section 5.0 "Code Generation Requirement".
     tighten_type_of_initializing_formals: true
     type_annotate_public_apis: true
     unawaited_futures: true
