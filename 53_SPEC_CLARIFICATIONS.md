@@ -43,6 +43,32 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 
 ---
 
+### RESOLVED-2026-02-03-002: Supplements Table Schema Mismatch
+
+**Found in:** 10_DATABASE_SCHEMA.md Section 4.1
+**Found by:** Instance during task IMPLEMENT-SUPPLEMENT-DATA-LAYER
+**Issue:** The supplements table schema did not match the Supplement entity definition in 22_API_CONTRACTS.md:
+- Missing `name` column (required in entity)
+- Missing `notes` column (optional in entity)
+- `brand` was NOT NULL but entity has @Default('')
+- `ingredients` was NOT NULL but entity has @Default([])
+- Schedule columns were denormalized but entity uses `schedules` JSON array
+- Enum fields used TEXT instead of INTEGER
+
+**Resolution:** Updated 10_DATABASE_SCHEMA.md supplements table to match entity definition:
+- Added `name TEXT NOT NULL`
+- Added `notes TEXT DEFAULT ''`
+- Changed `brand` to `TEXT DEFAULT ''`
+- Changed `ingredients` to `TEXT DEFAULT '[]'`
+- Added `schedules TEXT DEFAULT '[]'`
+- Changed enum columns to INTEGER type with enum values
+- Removed denormalized schedule columns (using JSON array instead)
+
+**Resolution Date:** 2026-02-03
+**Spec Updated:** Yes - 10_DATABASE_SCHEMA.md Section 4.1
+
+---
+
 ### RESOLVED-2026-02-03-001: BaseRepository Typedef Naming Conflict
 
 **Found in:** 22_API_CONTRACTS.md Section 4.1

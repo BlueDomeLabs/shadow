@@ -10,6 +10,8 @@ import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
+import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
@@ -28,7 +30,7 @@ part 'database.g.dart';
 /// ```dart
 /// final database = AppDatabase(await DatabaseConnection.openConnection());
 /// ```
-@DriftDatabase()
+@DriftDatabase(tables: [Supplements], daos: [SupplementDao])
 class AppDatabase extends _$AppDatabase {
   /// Creates an AppDatabase with the given query executor.
   ///

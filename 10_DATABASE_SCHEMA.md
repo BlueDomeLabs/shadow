@@ -492,22 +492,18 @@ CREATE TABLE supplements (
   id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
-  brand TEXT NOT NULL,
-  ingredients TEXT NOT NULL,       -- JSON array
-  form TEXT NOT NULL,              -- 'capsule' | 'powder' | 'liquid' | 'tablet' | 'other'
-  custom_form TEXT,
-  dosage_quantity INTEGER NOT NULL,
-  dosage_unit TEXT,                -- 'g' | 'mg' | 'mcg' | 'IU' | 'HDU' | 'ml' | 'drops' | 'tsp' | 'custom'
-  anchor_events TEXT NOT NULL,     -- Comma-separated list
-  timing_type INTEGER NOT NULL,    -- 0: withEvent, 1: beforeEvent, 2: afterEvent, 3: specificTime
-  offset_minutes INTEGER,
-  specific_time_minutes INTEGER,   -- Minutes from midnight
-  frequency_type INTEGER NOT NULL, -- 0: daily, 1: everyXDays, 2: specificWeekdays
-  every_x_days INTEGER,
-  weekdays TEXT,                   -- Comma-separated: 0=Mon, 6=Sun
-  start_date INTEGER,
-  end_date INTEGER,
-  is_archived INTEGER DEFAULT 0,   -- 0: active, 1: archived (temporarily stopped, can reactivate)
+  name TEXT NOT NULL,              -- Supplement name (e.g., "Vitamin D3", "Magnesium Glycinate")
+  form INTEGER NOT NULL,           -- SupplementForm enum: 0=capsule, 1=powder, 2=liquid, 3=tablet, 4=other
+  custom_form TEXT,                -- User-defined form when form=4 (other)
+  dosage_quantity INTEGER NOT NULL,-- Number of units per dose (e.g., 2 capsules)
+  dosage_unit INTEGER NOT NULL,    -- DosageUnit enum: 0=g, 1=mg, 2=mcg, 3=IU, 4=HDU, 5=ml, 6=drops, 7=tsp, 8=custom
+  brand TEXT DEFAULT '',           -- Brand name (optional)
+  notes TEXT DEFAULT '',           -- User notes (optional)
+  ingredients TEXT DEFAULT '[]',   -- JSON array of SupplementIngredient
+  schedules TEXT DEFAULT '[]',     -- JSON array of SupplementSchedule
+  start_date INTEGER,              -- Epoch ms - When to start taking (null = immediately)
+  end_date INTEGER,                -- Epoch ms - When to stop taking (null = ongoing)
+  is_archived INTEGER DEFAULT 0,   -- 0: active, 1: archived (temporarily stopped)
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
