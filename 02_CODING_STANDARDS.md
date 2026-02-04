@@ -504,6 +504,10 @@ class Supplement with _$Supplement {
 | Optional timestamp | `int?` | `int? completedAt` (epoch ms) |
 | Enum with default | `@Default(EnumType.value)` | `@Default(SupplementForm.capsule) SupplementForm form` |
 
+> **Construction Behavior:** When constructing entities, omit fields that have `@Default` annotations.
+> The `analysis_options.yaml` enforces `avoid_redundant_argument_values: true`, so writing explicit
+> default values causes lint errors. Freezed handles default injection automatically.
+
 > **IMPORTANT: Date/Time Standard**
 > All date/time values MUST be stored as `int` (epoch milliseconds UTC). Never use `DateTime` in entity fields.
 > - Storage: `int` epoch milliseconds
