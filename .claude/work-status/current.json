@@ -1,16 +1,25 @@
 {
-  "lastInstanceId": "compliance-final-006",
-  "lastAction": "spec_and_implementation_verified",
-  "taskId": "SPEC-COMPLIANCE-AND-BUILD-FIX",
+  "lastInstanceId": "lint-fix-007",
+  "lastAction": "lint_fixes_committed",
+  "taskId": "LINT-FIX-43-ISSUES",
   "status": "complete",
-  "timestamp": "2026-02-03T21:30:00Z",
+  "timestamp": "2026-02-03T20:55:00Z",
   "filesModified": [
-    "22_API_CONTRACTS.md",
-    "23_ENGINEERING_GOVERNANCE.md",
-    "android/app/build.gradle.kts",
-    "analysis_options.yaml"
+    "lib/core/errors/app_error.dart",
+    "lib/core/repositories/base_repository.dart",
+    "lib/core/services/encryption_service.dart",
+    "lib/core/services/logger_service.dart",
+    "lib/data/datasources/local/database.dart",
+    "lib/domain/entities/sync_metadata.dart",
+    "lib/main.dart",
+    "test/unit/core/repositories/base_repository_test.dart",
+    "test/unit/core/result_test.dart",
+    "test/unit/core/services/encryption_service_test.dart",
+    "test/unit/data/datasources/local/database_test.dart",
+    "test/unit/domain/entities/supplement_test.dart",
+    "test/unit/domain/entities/sync_metadata_test.dart"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "All implementations verified against specs. Updates made: (1) 22_API_CONTRACTS.md - added fromValue() to all enums per Coding Standards Section 9. (2) 23_ENGINEERING_GOVERNANCE.md Section 6.5 - added Platform Build Configuration spec for Android build.gradle.kts. (3) android/app/build.gradle.kts - desugaring config matches spec. (4) analysis_options.yaml - lint rules aligned with Coding Standards. All 209 tests pass. Both iOS and Android builds succeed. Ready for commit."
+  "notes": "Fixed all 43 info-level lint issues. Pre-commit hooks now pass. Changes: (1) Expression bodies where appropriate. (2) const constructors added. (3) Lambdas replaced with tear-offs. (4) Package imports used. (5) Redundant defaults removed. (6) Specific exception types caught. (7) Named bool parameters. All tests pass. flutter analyze --fatal-infos returns 'No issues found!'. Commit: 77df3aa. Using all 5 skills: /startup, /coding, /compliance, /team, /handoff. Implementation matches spec EXACTLY per 22_API_CONTRACTS.md verification."
 }
