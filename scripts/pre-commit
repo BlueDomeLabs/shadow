@@ -1,6 +1,5 @@
 #!/bin/bash
 # .git/hooks/pre-commit
-# EXACT IMPLEMENTATION per 23_ENGINEERING_GOVERNANCE.md Section 6.1
 
 set -e
 
