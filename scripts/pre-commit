@@ -27,14 +27,28 @@ if [[ -n "$UNSTAGED_GENERATED" ]]; then
   exit 1
 fi
 
-# 2. Run analyzer
+# 2. Run analyzer (fail on errors/warnings, allow infos per 02_CODING_STANDARDS.md)
 echo "Running analyzer..."
-flutter analyze || {
+ANALYZE_OUTPUT=$(flutter analyze 2>&1)
+ANALYZE_EXIT=$?
+
+# Count errors and warnings (not infos)
+ERROR_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "error •" || true)
+WARNING_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "warning •" || true)
+
+if [[ $ERROR_COUNT -gt 0 || $WARNING_COUNT -gt 0 ]]; then
+  echo "$ANALYZE_OUTPUT"
   echo ""
-  echo "ERROR: flutter analyze found issues."
+  echo "ERROR: flutter analyze found $ERROR_COUNT error(s) and $WARNING_COUNT warning(s)."
   echo "Please fix the issues above before committing."
   exit 1
-}
+fi
+
+# Show info summary if any
+INFO_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "info •" || true)
+if [[ $INFO_COUNT -gt 0 ]]; then
+  echo "  Analyzer: $INFO_COUNT info(s) found (allowed per coding standards)"
+fi
 
 # 3. Run format check
 echo "Checking format..."
