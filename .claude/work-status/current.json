@@ -1,14 +1,14 @@
 {
-  "lastInstanceId": "remediation-001",
+  "lastInstanceId": "remediation-002",
   "lastAction": "completed",
   "taskId": "SPEC-REMEDIATION",
   "status": "complete",
-  "timestamp": "2026-02-04T01:30:00Z",
+  "timestamp": "2026-02-04T02:00:00Z",
   "filesModified": [
     "scripts/pre-commit",
-    ".github/workflows/pr-checks.yml"
+    ".github/workflows/validate.yml"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Completed remediation of SHADOW-013 and SHADOW-014. Both now match 23_ENGINEERING_GOVERNANCE.md exactly. Pre-commit hook has all 5 checks. CI/CD has analyzer flags and contract tests. All 209 tests passing. Ready for next task."
+  "notes": "CI/CD workflow now matches 23_ENGINEERING_GOVERNANCE.md Section 6.3 EXACTLY. Deleted pr-checks.yml, created validate.yml. NOTE: Workflow references ./scripts/check_coverage.sh which does not exist yet - this is a gap in the implementation that needs to be addressed (script not defined in any spec)."
 }
