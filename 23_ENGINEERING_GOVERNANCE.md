@@ -397,8 +397,16 @@ echo "Running pre-commit checks..."
 # 1. Ensure generated files are up to date
 echo "Checking generated files..."
 dart run build_runner build --delete-conflicting-outputs
-if [[ -n $(git status --porcelain | grep -E '\.(freezed|g)\.dart$') ]]; then
-  echo "ERROR: Generated files are out of date. Please commit the changes."
+
+# Check for UNSTAGED changes to generated files
+# git status --porcelain format: XY filename
+#   X = index/staged status, Y = working tree status
+# Only fail if Y (column 2) indicates unstaged changes (not a space)
+# This allows committing newly staged generated files
+if git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -qE '^.[^ ]'; then
+  echo "ERROR: Generated files have unstaged changes."
+  echo "Run: git add <files> to stage them"
+  git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -E '^.[^ ]'
   exit 1
 fi
 
@@ -629,3 +637,4 @@ New engineers MUST complete:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-30 | Initial release |
+| 1.1 | 2026-02-04 | Fixed pre-commit hook to only fail on unstaged generated file changes (Section 6.1) |
