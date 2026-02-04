@@ -43,6 +43,25 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 
 ---
 
+### RESOLVED-2026-02-03-001: BaseRepository Typedef Naming Conflict
+
+**Found in:** 22_API_CONTRACTS.md Section 4.1
+**Found by:** Instance during task IMPLEMENT-REPOSITORY-INTERFACES
+**Issue:** The spec defined `typedef BaseRepository<T, ID> = EntityRepository<T, ID>` but a class named `BaseRepository<T>` already exists in `lib/core/repositories/base_repository.dart` (helper class with generateId, createSyncMetadata methods). These cannot coexist with the same name.
+
+**Possible interpretations:**
+1. Rename the typedef to avoid conflict
+2. Rename the existing helper class
+3. Move one to a different namespace
+
+**Blocking:** IMPLEMENT-REPOSITORY-INTERFACES
+**Status:** RESOLVED
+**Resolution:** Renamed typedef from `BaseRepository` to `BaseRepositoryContract` in the spec. The existing helper class in core/repositories keeps its name since it's already in use.
+**Resolution Date:** 2026-02-03
+**Spec Updated:** Yes - 22_API_CONTRACTS.md Section 4.1
+
+---
+
 ## Resolved Ambiguities
 
 ### EXAMPLE-2026-02-02-001: Notification Type Count

@@ -1682,10 +1682,12 @@ abstract class EntityRepository<T, ID> {
 }
 
 /// Alias for EntityRepository used by intelligence and other subsystems.
-/// IMPORTANT: BaseRepository and EntityRepository are interchangeable.
-/// Use EntityRepository for new code; BaseRepository exists for consistency
+/// IMPORTANT: BaseRepositoryContract and EntityRepository are interchangeable.
+/// Use EntityRepository for new code; BaseRepositoryContract exists for consistency
 /// with patterns used in intelligence repositories.
-typedef BaseRepository<T, ID> = EntityRepository<T, ID>;
+/// NOTE: Named BaseRepositoryContract (not BaseRepository) to avoid conflict with
+/// the helper class in lib/core/repositories/base_repository.dart.
+typedef BaseRepositoryContract<T, ID> = EntityRepository<T, ID>;
 ```
 
 ### 4.2 Base Repository SQL Implementation
