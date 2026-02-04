@@ -2602,6 +2602,12 @@ This section provides complete implementation examples for ALL use cases. Each i
 4. **Repository Call** - Execute operation
 5. **Result Wrapping** - Return `Success` or `Failure`
 
+> **@Default Values Policy:** When constructing entities, implementations MAY omit fields
+> that have `@Default` annotations in the entity definition. The Dart analyzer enforces
+> `avoid_redundant_argument_values`, so explicit default values should NOT be written.
+> Code examples in this spec may show conceptual values for documentation clarity, but
+> implementations should rely on Freezed `@Default` annotations where defined.
+
 #### 4.5.1 CRUD Use Case Templates
 
 These templates apply to ALL entities. Each entity MUST have corresponding use cases.
@@ -2786,6 +2792,8 @@ class CreateSupplementUseCase implements UseCase<CreateSupplementInput, Suppleme
     final id = const Uuid().v4();
     final now = DateTime.now().millisecondsSinceEpoch;
 
+    // Note: isArchived uses @Default(false) from Supplement entity
+    // SyncMetadata fields use @Default values: syncVersion=1, syncStatus=pending, syncIsDirty=true
     final supplement = Supplement(
       id: id,
       clientId: input.clientId,
@@ -2801,15 +2809,10 @@ class CreateSupplementUseCase implements UseCase<CreateSupplementInput, Suppleme
       schedules: input.schedules,
       startDate: input.startDate,
       endDate: input.endDate,
-      isArchived: false,
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
         syncDeviceId: '', // Will be populated by repository
-        syncIsDirty: true,
-        syncDeletedAt: null,
       ),
     );
 
