@@ -24,36 +24,34 @@ void main() {
   group('EncryptionService', () {
     group('initialization', () {
       test('generates and stores key when none exists', () async {
-        when(
-          mockStorage.read(key: 'shadow_encryption_key_v1'),
-        ).thenAnswer((_) async => null);
-        when(
-          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-        ).thenAnswer((_) async {});
+        when(mockStorage.read(key: 'shadow_encryption_key_v1'))
+            .thenAnswer((_) async => null);
+        when(mockStorage.write(
+          key: anyNamed('key'),
+          value: anyNamed('value'),
+        )).thenAnswer((_) async {});
 
         await service.initialize();
 
         expect(service.isInitialized, isTrue);
-        verify(
-          mockStorage.write(
-            key: 'shadow_encryption_key_v1',
-            value: anyNamed('value'),
-          ),
-        ).called(1);
+        verify(mockStorage.write(
+          key: 'shadow_encryption_key_v1',
+          value: anyNamed('value'),
+        )).called(1);
       });
 
       test('loads existing key from storage', () async {
         final existingKey = base64Encode(List.generate(32, (i) => i));
-        when(
-          mockStorage.read(key: 'shadow_encryption_key_v1'),
-        ).thenAnswer((_) async => existingKey);
+        when(mockStorage.read(key: 'shadow_encryption_key_v1'))
+            .thenAnswer((_) async => existingKey);
 
         await service.initialize();
 
         expect(service.isInitialized, isTrue);
-        verifyNever(
-          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-        );
+        verifyNever(mockStorage.write(
+          key: anyNamed('key'),
+          value: anyNamed('value'),
+        ));
       });
 
       test('isInitialized returns false before initialize()', () {
@@ -84,16 +82,18 @@ void main() {
     group('encrypt()', () {
       setUp(() async {
         final testKey = base64Encode(List.generate(32, (i) => i));
-        when(
-          mockStorage.read(key: 'shadow_encryption_key_v1'),
-        ).thenAnswer((_) async => testKey);
+        when(mockStorage.read(key: 'shadow_encryption_key_v1'))
+            .thenAnswer((_) async => testKey);
         await service.initialize();
       });
 
       test('throws StateError when not initialized', () async {
         final uninitializedService = EncryptionService(mockStorage);
 
-        expect(() => uninitializedService.encrypt('test'), throwsStateError);
+        expect(
+          () => uninitializedService.encrypt('test'),
+          throwsStateError,
+        );
       });
 
       test('returns string in format nonce:ciphertext:tag', () async {
@@ -137,9 +137,7 @@ void main() {
       });
 
       test('handles unicode characters', () async {
-        final encrypted = await service.encrypt(
-          'Hello, \u4e16\u754c! \ud83d\ude00',
-        );
+        final encrypted = await service.encrypt('Hello, \u4e16\u754c! \ud83d\ude00');
 
         expect(encrypted.split(':').length, equals(3));
       });
@@ -155,16 +153,18 @@ void main() {
     group('decrypt()', () {
       setUp(() async {
         final testKey = base64Encode(List.generate(32, (i) => i));
-        when(
-          mockStorage.read(key: 'shadow_encryption_key_v1'),
-        ).thenAnswer((_) async => testKey);
+        when(mockStorage.read(key: 'shadow_encryption_key_v1'))
+            .thenAnswer((_) async => testKey);
         await service.initialize();
       });
 
       test('throws StateError when not initialized', () async {
         final uninitializedService = EncryptionService(mockStorage);
 
-        expect(() => uninitializedService.decrypt('test'), throwsStateError);
+        expect(
+          () => uninitializedService.decrypt('test'),
+          throwsStateError,
+        );
       });
 
       test('throws DecryptionException for invalid format', () async {
@@ -186,9 +186,7 @@ void main() {
 
       test('throws DecryptionException for invalid base64', () async {
         expect(
-          () => service.decrypt(
-            '!!!:${base64Encode([1, 2, 3])}:${base64Encode([1, 2, 3])}',
-          ),
+          () => service.decrypt('!!!:${base64Encode([1, 2, 3])}:${base64Encode([1, 2, 3])}'),
           throwsA(isA<DecryptionException>()),
         );
       });
@@ -251,9 +249,8 @@ void main() {
     group('encrypt/decrypt round-trip', () {
       setUp(() async {
         final testKey = base64Encode(List.generate(32, (i) => i));
-        when(
-          mockStorage.read(key: 'shadow_encryption_key_v1'),
-        ).thenAnswer((_) async => testKey);
+        when(mockStorage.read(key: 'shadow_encryption_key_v1'))
+            .thenAnswer((_) async => testKey);
         await service.initialize();
       });
 

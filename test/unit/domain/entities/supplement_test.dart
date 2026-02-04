@@ -162,18 +162,14 @@ void main() {
 
       test('isWithinDateRange returns false when before startDate', () {
         final futureStart = supplement.copyWith(
-          startDate: DateTime.now()
-              .add(const Duration(days: 30))
-              .millisecondsSinceEpoch,
+          startDate: DateTime.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
         );
         expect(futureStart.isWithinDateRange, isFalse);
       });
 
       test('isWithinDateRange returns false when after endDate', () {
         final pastEnd = supplement.copyWith(
-          endDate: DateTime.now()
-              .subtract(const Duration(days: 30))
-              .millisecondsSinceEpoch,
+          endDate: DateTime.now().subtract(const Duration(days: 30)).millisecondsSinceEpoch,
         );
         expect(pastEnd.isWithinDateRange, isFalse);
       });

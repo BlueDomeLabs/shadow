@@ -12,45 +12,25 @@ dart run build_runner build --delete-conflicting-outputs 2>/dev/null || {
   echo "WARNING: build_runner failed, skipping generated files check"
 }
 
-# Check if generated files have unstaged changes (not yet added to commit)
-# git status --porcelain format: XY filename
-# X = staged status, Y = unstaged status
-# We only care about files with unstaged changes (Y column has M, ?, or D)
-UNSTAGED_GENERATED=$(git status --porcelain | grep -E '\.(freezed|g)\.dart$' | grep -E '^.[^ ]' || true)
-if [[ -n "$UNSTAGED_GENERATED" ]]; then
+# Check if generated files have uncommitted changes
+if [[ -n $(git status --porcelain | grep -E '\.(freezed|g)\.dart$') ]]; then
   echo ""
   echo "ERROR: Generated files are out of date."
-  echo "The following generated files have unstaged changes:"
-  echo "$UNSTAGED_GENERATED"
+  echo "The following generated files have uncommitted changes:"
+  git status --porcelain | grep -E '\.(freezed|g)\.dart$'
   echo ""
-  echo "Please stage and commit these generated files with: git add <files>"
+  echo "Please stage and commit these generated files."
   exit 1
 fi
 
-# 2. Run analyzer (fail on errors/warnings, allow infos per 02_CODING_STANDARDS.md)
+# 2. Run analyzer
 echo "Running analyzer..."
-set +e  # Temporarily disable exit-on-error to capture analyzer output
-ANALYZE_OUTPUT=$(flutter analyze 2>&1)
-ANALYZE_EXIT=$?
-set -e  # Re-enable exit-on-error
-
-# Count errors and warnings (not infos)
-ERROR_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "error •" || true)
-WARNING_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "warning •" || true)
-
-if [[ $ERROR_COUNT -gt 0 || $WARNING_COUNT -gt 0 ]]; then
-  echo "$ANALYZE_OUTPUT"
+flutter analyze || {
   echo ""
-  echo "ERROR: flutter analyze found $ERROR_COUNT error(s) and $WARNING_COUNT warning(s)."
+  echo "ERROR: flutter analyze found issues."
   echo "Please fix the issues above before committing."
   exit 1
-fi
-
-# Show info summary if any
-INFO_COUNT=$(echo "$ANALYZE_OUTPUT" | grep -c "info •" || true)
-if [[ $INFO_COUNT -gt 0 ]]; then
-  echo "  Analyzer: $INFO_COUNT info(s) found (allowed per coding standards)"
-fi
+}
 
 # 3. Run format check
 echo "Checking format..."
