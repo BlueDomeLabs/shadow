@@ -9625,7 +9625,13 @@ abstract class ProfileRepository implements EntityRepository<Profile, String> {
 ### 10.8 Condition Entity (P0 - Core)
 
 ```dart
-enum ConditionStatus { active, resolved }
+enum ConditionStatus {
+  active(0),
+  resolved(1);
+
+  final int value;
+  const ConditionStatus(this.value);
+}
 
 @freezed
 class Condition with _$Condition {
