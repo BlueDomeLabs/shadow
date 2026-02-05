@@ -1,366 +1,397 @@
+---
+name: spec-review
+description: Comprehensive audit of spec documents against Coding Standards. Runs automatically with parallel agents.
+---
+
 # Spec Review Skill
 
 ## Purpose
 
-Comprehensive audit of project specification documents against Coding Standards, followed by verification testing of all code examples in specs.
+Audit specification documents against 02_CODING_STANDARDS.md to ensure specs are internally consistent and compliant.
 
-## Invocation
+## When to Use
 
-- Command: `/spec-review`
-- Trigger: After Coding Standards updates, before major implementation phases, when spec drift suspected
-- Control Document: `02_CODING_STANDARDS.md` (the governing authority)
-
----
-
-## IMPLEMENTATION PLAN
-
-**Status: NOT YET IMPLEMENTED**
+- After Coding Standards updates
+- Before major implementation phases
+- When spec drift is suspected
+- When evaluating PATH A (update spec) decisions
 
 ---
 
-### Overview
+## AUTOMATIC EXECUTION PROTOCOL
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      SPEC REVIEW FLOW                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  02_CODING_STANDARDS.md (Control Document)                      │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────┐                   │
-│  │     PHASE 1: COMPLIANCE AUDIT           │                   │
-│  │  (Multiple Task Agents in Parallel)     │                   │
-│  └─────────────────────────────────────────┘                   │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────┐                   │
-│  │     PHASE 2: VIOLATION REMEDIATION      │                   │
-│  │  (Fix specs to match standards)         │                   │
-│  └─────────────────────────────────────────┘                   │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────┐                   │
-│  │     PHASE 3: CODE EXAMPLE EXTRACTION    │                   │
-│  │  (Pull all ```dart blocks from specs)   │                   │
-│  └─────────────────────────────────────────┘                   │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────┐                   │
-│  │     PHASE 4: COMPILATION VERIFICATION   │                   │
-│  │  (Verify examples compile correctly)    │                   │
-│  └─────────────────────────────────────────┘                   │
-│           │                                                     │
-│           ▼                                                     │
-│  ┌─────────────────────────────────────────┐                   │
-│  │     PHASE 5: INTEGRITY VERIFICATION     │                   │
-│  │  (Cross-reference, consistency checks)  │                   │
-│  └─────────────────────────────────────────┘                   │
-│           │                                                     │
-│           ▼                                                     │
-│       AUDIT REPORT                                              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Execute these steps in order. Do NOT skip phases.**
 
 ---
 
-### Phase 1: Compliance Audit (Parallel Task Agents)
+## Phase 1: Compliance Audit (Parallel Agents)
 
-**Objective:** Verify all spec documents comply with Coding Standards
-
-**Task Agent Assignments:**
+Launch 5 Task agents IN PARALLEL to audit different spec areas:
 
 ```
-Agent 1: Entity Specifications
-├── Target: 22_API_CONTRACTS.md (Entity sections)
-├── Check against: Coding Standards entity rules
-├── Verify:
-│   ├── All entities have required fields (id, clientId, profileId, syncMetadata)
-│   ├── All timestamps are int (not DateTime)
-│   ├── All enums have explicit integer values
-│   ├── Freezed annotations specified correctly
-│   ├── JSON serialization patterns correct
-│   └── Field naming follows conventions
-
-Agent 2: Repository Specifications
-├── Target: 22_API_CONTRACTS.md (Repository sections)
-├── Check against: Coding Standards repository rules
-├── Verify:
-│   ├── All methods return Result<T, AppError>
-│   ├── No exception throwing specified
-│   ├── Standard CRUD methods present
-│   ├── Method naming follows conventions
-│   └── Parameter types are correct
-
-Agent 3: Use Case Specifications
-├── Target: 22_API_CONTRACTS.md (Use Case sections)
-├── Check against: Coding Standards use case rules
-├── Verify:
-│   ├── Authorization check is FIRST step
-│   ├── Validation follows authorization
-│   ├── Input classes use @freezed
-│   ├── Required vs default parameters correct
-│   ├── SyncMetadata handling specified
-│   └── ID generation responsibility clear
-
-Agent 4: Error Handling Specifications
-├── Target: 22_API_CONTRACTS.md (Error sections)
-├── Check against: Coding Standards error rules
-├── Verify:
-│   ├── All error codes from approved list
-│   ├── Factory methods defined for all errors
-│   ├── Error hierarchy correct
-│   ├── Localization keys used
-│   └── Recovery actions specified
-
-Agent 5: Cross-Cutting Concerns
-├── Target: All spec documents
-├── Check against: Coding Standards general rules
-├── Verify:
-│   ├── Naming conventions consistent
-│   ├── File organization patterns correct
-│   ├── Import ordering specified
-│   ├── Documentation requirements met
-│   └── Testing requirements specified
+YOU MUST launch all 5 agents in a SINGLE message with multiple Task tool calls.
 ```
 
-**Agent Output Format:**
-```markdown
-## [Agent Name] Compliance Report
+### Agent 1: Entity Specifications
 
-### Compliant
-- [List of spec sections that pass]
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Audit entity specifications in 22_API_CONTRACTS.md against 02_CODING_STANDARDS.md.
+
+CHECK EACH ENTITY FOR:
+1. Required fields present: id, clientId, profileId, syncMetadata
+2. All timestamps are int (epoch milliseconds), NOT DateTime
+3. All enums have explicit integer values for database storage
+4. Uses @Freezed(toJson: true, fromJson: true) annotation
+5. Uses @JsonSerializable(explicitToJson: true) on factory
+6. Field naming follows camelCase convention
+7. Optional fields use nullable types (String?, int?)
+8. Default values use @Default() annotation
+
+OUTPUT FORMAT:
+## Entity Compliance Report
+
+### Compliant Entities
+- [List entities that pass all checks]
 
 ### Violations
-| Location | Rule Violated | Description | Severity |
-|----------|---------------|-------------|----------|
-| file:section | Rule ID | What's wrong | Critical/High/Medium/Low |
+| Entity | Field/Issue | Rule Violated | Severity |
+|--------|-------------|---------------|----------|
 
 ### Ambiguities
-- [Spec sections that are unclear and need clarification]
+- [Unclear specifications needing clarification]
+```
+
+### Agent 2: Repository Specifications
+
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Audit repository specifications in 22_API_CONTRACTS.md against 02_CODING_STANDARDS.md.
+
+CHECK EACH REPOSITORY FOR:
+1. All methods return Result<T, AppError> (never throw)
+2. Extends EntityRepository<T, String>
+3. Has standard CRUD methods: getAll, getById, create, update, delete
+4. Has sync methods: getModifiedSince, getPendingSync
+5. Method names follow conventions (get*, create*, update*, delete*)
+6. Parameters use correct types (String for IDs, int for timestamps)
+7. No raw exceptions in signatures
+
+OUTPUT FORMAT:
+## Repository Compliance Report
+
+### Compliant Repositories
+- [List repositories that pass all checks]
+
+### Violations
+| Repository | Method/Issue | Rule Violated | Severity |
+|------------|--------------|---------------|----------|
+
+### Ambiguities
+- [Unclear specifications]
+```
+
+### Agent 3: Use Case Specifications
+
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Audit use case specifications in 22_API_CONTRACTS.md against 02_CODING_STANDARDS.md.
+
+CHECK EACH USE CASE FOR:
+1. Authorization check is FIRST (before validation)
+2. Uses canRead/canWrite from ProfileAuthorizationService
+3. Validation comes AFTER authorization
+4. Input classes use @freezed annotation
+5. Returns Result<T, AppError>
+6. Implements UseCase<Input, Output> interface
+7. ID generation uses Uuid().v4() in use case, not repository
+8. SyncMetadata created in use case with current timestamp
+
+OUTPUT FORMAT:
+## Use Case Compliance Report
+
+### Compliant Use Cases
+- [List use cases that pass all checks]
+
+### Violations
+| Use Case | Issue | Rule Violated | Severity |
+|----------|-------|---------------|----------|
+
+### Ambiguities
+- [Unclear specifications]
+```
+
+### Agent 4: Error Handling Specifications
+
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Audit error handling specifications in 22_API_CONTRACTS.md against 02_CODING_STANDARDS.md.
+
+CHECK FOR:
+1. All error codes are from approved list in AppError hierarchy
+2. Uses sealed class pattern: AppError -> DatabaseError, AuthError, etc.
+3. Factory constructors defined for common errors
+4. Error messages use localization keys (not hardcoded strings)
+5. ValidationError uses fromFieldErrors pattern
+6. No generic "catch (e)" without specific handling
+
+OUTPUT FORMAT:
+## Error Handling Compliance Report
+
+### Compliant Patterns
+- [List error patterns that pass]
+
+### Violations
+| Location | Error Type | Rule Violated | Severity |
+|----------|------------|---------------|----------|
+
+### Ambiguities
+- [Unclear error handling specifications]
+```
+
+### Agent 5: Cross-Cutting Concerns
+
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Audit cross-cutting specifications across all spec documents against 02_CODING_STANDARDS.md.
+
+CHECK FOR:
+1. File naming matches class naming (snake_case files, PascalCase classes)
+2. Import ordering: dart, package, relative
+3. Layer dependencies correct: presentation -> domain -> data (no reverse)
+4. All public APIs have documentation comments
+5. Test file naming matches implementation (foo_test.dart for foo.dart)
+6. Barrel files (exports) are consistent
+
+OUTPUT FORMAT:
+## Cross-Cutting Compliance Report
+
+### Compliant Areas
+- [List areas that pass]
+
+### Violations
+| Document | Section | Rule Violated | Severity |
+|----------|---------|---------------|----------|
+
+### Ambiguities
+- [Unclear cross-cutting specifications]
 ```
 
 ---
 
-### Phase 2: Violation Remediation
+## Phase 2: Aggregate and Evaluate Violations
 
-**Objective:** Fix any spec violations found in Phase 1
+After all 5 agents complete:
 
-**Process:**
-1. Aggregate all violations from Phase 1 agents
-2. Sort by severity (Critical first)
-3. For each violation:
-   - Identify the correct standard from 02_CODING_STANDARDS.md
-   - Propose spec update to achieve compliance
-   - Document the change with rationale
-4. Generate unified diff of all spec changes
-5. Request user approval before applying
+1. **Collect all violations** from agent reports
+2. **Sort by severity:** Critical > High > Medium > Low
+3. **For each violation, determine:**
+   - Is the spec wrong? → Propose spec fix
+   - Is the standard unclear? → Document in 53_SPEC_CLARIFICATIONS.md
+   - Is it a judgment call? → Flag for user decision
 
-**Remediation Categories:**
-- **Auto-fix:** Clear violations with obvious corrections
-- **Manual review:** Ambiguous cases requiring human judgment
-- **Standards question:** Cases where the standard itself may need clarification
+### Violation Categories
 
----
-
-### Phase 3: Code Example Extraction
-
-**Objective:** Extract all compilable code examples from specs
-
-**Process:**
-1. Parse all spec documents for ```dart code blocks
-2. Categorize each block:
-   - Complete class definition
-   - Method implementation
-   - Code fragment (not standalone)
-   - Test example
-3. Generate extraction manifest:
-   ```
-   Source: 22_API_CONTRACTS.md:2054-2075
-   Type: Complete class
-   Class: GetSupplementsUseCase
-   Dependencies: [SupplementRepository, ProfileAuthorizationService, ...]
-   ```
-4. Create verification test scaffold for each extractable example
-
-**Extraction Rules:**
-- Skip code blocks marked as `// Example only` or `// Pseudocode`
-- Include blocks marked as `// EXACT IMPLEMENTATION`
-- Track dependencies between examples
+| Category | Action |
+|----------|--------|
+| **Auto-fix** | Clear spec error with obvious correction |
+| **User decision** | Multiple valid interpretations |
+| **Standards question** | Standard itself may need clarification |
 
 ---
 
-### Phase 4: Compilation Verification
+## Phase 3: Code Example Verification
 
-**Objective:** Verify all spec code examples compile correctly
+Search for dart code blocks in specs and verify they would compile:
 
-**Process:**
-1. Create temporary verification project structure:
-   ```
-   .claude/spec-verification/
-   ├── lib/
-   │   ├── entities/      # Extracted entity examples
-   │   ├── repositories/  # Extracted repository examples
-   │   └── usecases/      # Extracted use case examples
-   ├── test/
-   │   └── compilation_test.dart  # Import verification
-   └── pubspec.yaml       # Minimal dependencies
-   ```
-
-2. For each extracted example:
-   - Write to appropriate file
-   - Add necessary imports
-   - Add minimal stubs for dependencies
-
-3. Run compilation check:
-   ```bash
-   dart analyze .claude/spec-verification/
-   ```
-
-4. Report any compilation errors:
-   - Syntax errors in spec examples
-   - Type mismatches
-   - Missing imports/dependencies
-   - Invalid Dart code
-
-**Verification Output:**
-```markdown
-## Compilation Verification Report
-
-### Passed
-- [List of examples that compile]
-
-### Failed
-| Source Location | Error | Line | Description |
-|-----------------|-------|------|-------------|
-| spec:line | Error code | N | What's wrong |
-
-### Skipped
-- [Examples not suitable for compilation testing]
+```bash
+# Find all dart code blocks in spec files
+grep -n '```dart' 22_API_CONTRACTS.md | head -20
 ```
 
----
+For each significant code example:
+1. Check syntax is valid Dart
+2. Check types are consistent with entity/repository definitions
+3. Check imports would resolve
+4. Flag any obvious compilation errors
 
-### Phase 5: Integrity Verification
-
-**Objective:** Additional verification methods for spec integrity
-
-**Verification Methods:**
-
-1. **Cross-Reference Consistency**
-   - Entity fields referenced in repositories match entity definitions
-   - Use case inputs match entity fields they populate
-   - Error codes used in examples exist in error hierarchy
-   - Method signatures in repositories match use case calls
-
-2. **Completeness Checks**
-   - Every entity has a repository
-   - Every repository has standard CRUD methods
-   - Every entity with business logic has use cases
-   - Every use case has input class defined
-
-3. **Naming Consistency**
-   - Class names follow patterns
-   - Method names follow patterns
-   - File names match class names
-   - Test names match implementation names
-
-4. **Dependency Graph Validation**
-   - No circular dependencies in specs
-   - Layer violations detected (UI → Domain → Data)
-   - All referenced types are defined
-
-5. **Version/Date Tracking**
-   - Spec version numbers current
-   - Last update dates reasonable
-   - Change log entries present
-
-**Integrity Output:**
-```markdown
-## Integrity Verification Report
-
-### Cross-Reference Issues
-- [Mismatches between spec sections]
-
-### Completeness Gaps
-- [Missing specifications]
-
-### Naming Violations
-- [Inconsistent naming]
-
-### Dependency Issues
-- [Problematic dependencies]
-
-### Metadata Issues
-- [Version/date problems]
-```
+**Skip blocks marked with:**
+- `// Example only`
+- `// Pseudocode`
+- `// Simplified`
 
 ---
 
-### Final Report Generation
+## Phase 4: Integrity Checks
 
-**Objective:** Produce comprehensive audit report
+Verify cross-references are consistent:
 
-**Report Structure:**
+### Check 1: Entity-Repository Alignment
+- Every entity in spec has a corresponding repository
+- Repository methods reference correct entity types
+
+### Check 2: Use Case-Repository Alignment
+- Use cases call repository methods that exist
+- Input fields map to entity fields correctly
+
+### Check 3: Completeness
+- Every entity has: Entity, Repository, at least one Use Case
+- Every use case has: Input class defined
+
+---
+
+## Phase 5: Generate Report
+
+Create report at `.claude/audit-reports/YYYY-MM-DD-spec-review.md`:
+
 ```markdown
-# Spec Review Report - YYYY-MM-DD
+# Spec Review Report - [DATE]
 
 ## Executive Summary
-- Total specs reviewed: N
-- Compliance rate: X%
-- Code examples verified: N
-- Compilation success rate: X%
-- Critical issues: N
-- Action items: N
+- Specs reviewed: [list]
+- Total violations: N
+- Critical: N | High: N | Medium: N | Low: N
+- Auto-fixable: N
+- Requires user decision: N
 
-## Phase 1: Compliance Audit
-[Aggregated agent reports]
+## Phase 1: Compliance Audit Results
 
-## Phase 2: Remediation Applied
-[List of fixes made]
+### Entity Specifications
+[Agent 1 findings]
 
-## Phase 3: Code Examples
-[Extraction summary]
+### Repository Specifications
+[Agent 2 findings]
 
-## Phase 4: Compilation Results
-[Verification results]
+### Use Case Specifications
+[Agent 3 findings]
 
-## Phase 5: Integrity Check
-[Integrity findings]
+### Error Handling
+[Agent 4 findings]
+
+### Cross-Cutting Concerns
+[Agent 5 findings]
+
+## Phase 2: Proposed Fixes
+
+### Auto-Fix (Ready to Apply)
+| Spec | Location | Current | Proposed | Rationale |
+|------|----------|---------|----------|-----------|
+
+### Requires User Decision
+| Spec | Location | Issue | Options |
+|------|----------|-------|---------|
+
+## Phase 3: Code Example Issues
+[List any code blocks with syntax/type errors]
+
+## Phase 4: Integrity Issues
+[List any cross-reference inconsistencies]
 
 ## Recommendations
-[Prioritized action items]
+1. [Prioritized action items]
 
-## Appendix
-[Detailed findings, diffs, logs]
+## Next Steps
+- [ ] Review auto-fix proposals
+- [ ] Decide on user-decision items
+- [ ] Apply approved fixes
+- [ ] Re-run /spec-review to verify
 ```
 
 ---
 
-## Estimated Execution Time
+## Quick Reference
 
-| Phase | Duration | Parallelizable |
-|-------|----------|----------------|
-| Phase 1: Compliance Audit | 15-30 min | Yes (5 agents) |
-| Phase 2: Remediation | 10-30 min | Partially |
-| Phase 3: Extraction | 5-10 min | Yes |
-| Phase 4: Compilation | 5-15 min | No |
-| Phase 5: Integrity | 10-20 min | Partially |
+### Severity Levels
 
-**Total:** 45-105 minutes depending on spec size and issues found
+| Level | Definition | Example |
+|-------|------------|---------|
+| **Critical** | Breaks implementation | Missing required field in entity |
+| **High** | Causes bugs | Wrong return type on method |
+| **Medium** | Inconsistency | Naming convention violation |
+| **Low** | Style issue | Missing documentation |
+
+### Common Violations
+
+| Violation | Standard Reference | Fix |
+|-----------|-------------------|-----|
+| DateTime instead of int | Section 5.1 | Use epoch milliseconds |
+| Throwing exceptions | Section 3.2 | Return Result<T, AppError> |
+| Validation before auth | Section 4.5 | Authorization FIRST |
+| Missing syncMetadata | Section 5.1 | Add required field |
 
 ---
 
-## Dependencies
+## After Completion
 
-- 02_CODING_STANDARDS.md must exist and be comprehensive
-- Spec documents must use consistent markdown formatting
-- Code blocks must be properly fenced with ```dart
-- Flutter/Dart SDK available for compilation checks
+1. **If violations found:** Present report to user for approval
+2. **If auto-fixes approved:** Apply changes to spec documents
+3. **If clean:** Report "Spec review passed - no violations found"
+4. **Always:** Save report to `.claude/audit-reports/`
+
+---
+
+## Focused Review Mode
+
+For evaluating specific deviations (PATH A vs PATH B decisions), use focused review:
+
+### When to Use Focused Mode
+
+- Evaluating if an implementation deviation should update the spec (PATH A)
+- Checking if a proposed pattern complies with standards
+- Quick validation without full audit
+
+### Focused Review Process
+
+1. **Identify the deviation** - What differs between spec and implementation?
+
+2. **Launch single Task agent:**
+```
+Prompt for Task agent (subagent_type: Explore):
+
+Read 02_CODING_STANDARDS.md and evaluate if this implementation pattern complies:
+
+**Pattern to evaluate:**
+[Describe the specific pattern]
+
+**Questions to answer:**
+1. Does this pattern comply with Coding Standards?
+2. Is it explicitly allowed, forbidden, or not mentioned?
+3. If compliant, is it BETTER than the current spec?
+4. What is the relevant section in Coding Standards?
+
+**Provide verdict:** COMPLIANT / VIOLATING / AMBIGUOUS
+```
+
+3. **Decision matrix:**
+
+| Verdict | Spec Has | Implementation Has | Action |
+|---------|----------|-------------------|--------|
+| COMPLIANT | Pattern A | Pattern B (better) | PATH A - Update spec |
+| COMPLIANT | Pattern A | Pattern B (equivalent) | Either path OK |
+| VIOLATING | Pattern A | Pattern B | PATH B - Fix code |
+| AMBIGUOUS | Pattern A | Pattern B | Ask user or document in 53_SPEC_CLARIFICATIONS.md |
+
+### Example Focused Review
+
+```
+User has implementation with `@Default('') String notes` but spec says `String? notes`.
+
+1. Check 02_CODING_STANDARDS.md Section 5.2 (Null Safety and Default Values)
+2. Check if entity uses same pattern
+3. If entity has @Default(''), input should match for consistency
+4. Verdict: COMPLIANT - update spec to match implementation
+```
 
 ---
 
 ## Notes
 
-This skill focuses on **spec integrity** - ensuring specifications are internally consistent and match coding standards. For verifying **implementations match specs**, use a separate Implementation Audit skill.
+- This skill audits SPECS against STANDARDS
+- For auditing IMPLEMENTATIONS against SPECS, use `/implementation-review`
+- Control document is always 02_CODING_STANDARDS.md
+- When in doubt, the standard wins
