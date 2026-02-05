@@ -586,6 +586,16 @@ CREATE TABLE food_items (
   is_user_created INTEGER NOT NULL DEFAULT 1,
   is_archived INTEGER DEFAULT 0,   -- 0: active, 1: archived (e.g., during elimination diet)
 
+  -- Nutritional information (optional)
+  serving_size REAL,               -- Numeric serving size value
+  serving_unit TEXT,               -- Unit of serving (e.g., "cup", "g")
+  calories REAL,                   -- kcal per serving
+  carbs_grams REAL,                -- Carbohydrates in grams
+  fat_grams REAL,                  -- Fat in grams
+  protein_grams REAL,              -- Protein in grams
+  fiber_grams REAL,                -- Fiber in grams
+  sugar_grams REAL,                -- Sugar in grams
+
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
   sync_updated_at INTEGER,

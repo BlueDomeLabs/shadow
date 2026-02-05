@@ -1,24 +1,11 @@
 {
-  "lastInstanceId": "phase3-impl-002",
-  "lastAction": "completed-fooditem-foodlog",
-  "taskId": "ENTITY-IMPLEMENTATION-PHASE3",
-  "status": "complete",
-  "timestamp": "2026-02-05T00:30:00Z",
-  "filesModified": [
-    "lib/domain/entities/food_item.dart",
-    "lib/domain/entities/food_log.dart",
-    "lib/domain/enums/health_enums.dart",
-    "lib/domain/repositories/food_item_repository.dart",
-    "lib/domain/repositories/food_log_repository.dart",
-    "lib/data/datasources/local/tables/food_items_table.dart",
-    "lib/data/datasources/local/tables/food_logs_table.dart",
-    "lib/data/datasources/local/daos/food_item_dao.dart",
-    "lib/data/datasources/local/daos/food_log_dao.dart",
-    "lib/data/repositories/food_item_repository_impl.dart",
-    "lib/data/repositories/food_log_repository_impl.dart",
-    "lib/data/datasources/local/database.dart"
-  ],
+  "lastInstanceId": "phase3-impl-003",
+  "lastAction": "starting-phase4-entities",
+  "taskId": "ENTITY-IMPLEMENTATION-PHASE4",
+  "status": "in_progress",
+  "timestamp": "2026-02-05T01:00:00Z",
+  "filesModified": [],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Phase 3 entity implementation complete. Added FoodItem and FoodLog with full DAO and Repository implementations. FoodItem includes nutritional info and search. FoodLog tracks food consumption with date queries. All entities follow EXACT pattern from 22_API_CONTRACTS.md and 10_DATABASE_SCHEMA.md specs."
+  "notes": "Phase 3 complete (FoodItem, FoodLog). Fixed spec discrepancy - updated 10_DATABASE_SCHEMA.md to include nutritional columns per 22_API_CONTRACTS.md Section 10.11. Starting Phase 4: JournalEntry, PhotoArea, PhotoEntry, FlareUp entities."
 }
