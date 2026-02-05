@@ -5279,6 +5279,3488 @@ class ConditionLogsCompanion extends UpdateCompanion<ConditionLogRow> {
   }
 }
 
+class $FluidsEntriesTable extends FluidsEntries
+    with TableInfo<$FluidsEntriesTable, FluidsEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FluidsEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryDateMeta = const VerificationMeta(
+    'entryDate',
+  );
+  @override
+  late final GeneratedColumn<int> entryDate = GeneratedColumn<int>(
+    'entry_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _waterIntakeMlMeta = const VerificationMeta(
+    'waterIntakeMl',
+  );
+  @override
+  late final GeneratedColumn<int> waterIntakeMl = GeneratedColumn<int>(
+    'water_intake_ml',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _waterIntakeNotesMeta = const VerificationMeta(
+    'waterIntakeNotes',
+  );
+  @override
+  late final GeneratedColumn<String> waterIntakeNotes = GeneratedColumn<String>(
+    'water_intake_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hasBowelMovementMeta = const VerificationMeta(
+    'hasBowelMovement',
+  );
+  @override
+  late final GeneratedColumn<bool> hasBowelMovement = GeneratedColumn<bool>(
+    'has_bowel_movement',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_bowel_movement" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _bowelConditionMeta = const VerificationMeta(
+    'bowelCondition',
+  );
+  @override
+  late final GeneratedColumn<int> bowelCondition = GeneratedColumn<int>(
+    'bowel_condition',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bowelCustomConditionMeta =
+      const VerificationMeta('bowelCustomCondition');
+  @override
+  late final GeneratedColumn<String> bowelCustomCondition =
+      GeneratedColumn<String>(
+        'bowel_custom_condition',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _bowelSizeMeta = const VerificationMeta(
+    'bowelSize',
+  );
+  @override
+  late final GeneratedColumn<int> bowelSize = GeneratedColumn<int>(
+    'bowel_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bowelPhotoPathMeta = const VerificationMeta(
+    'bowelPhotoPath',
+  );
+  @override
+  late final GeneratedColumn<String> bowelPhotoPath = GeneratedColumn<String>(
+    'bowel_photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hasUrineMovementMeta = const VerificationMeta(
+    'hasUrineMovement',
+  );
+  @override
+  late final GeneratedColumn<bool> hasUrineMovement = GeneratedColumn<bool>(
+    'has_urine_movement',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_urine_movement" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _urineConditionMeta = const VerificationMeta(
+    'urineCondition',
+  );
+  @override
+  late final GeneratedColumn<int> urineCondition = GeneratedColumn<int>(
+    'urine_condition',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _urineCustomConditionMeta =
+      const VerificationMeta('urineCustomCondition');
+  @override
+  late final GeneratedColumn<String> urineCustomCondition =
+      GeneratedColumn<String>(
+        'urine_custom_condition',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _urineSizeMeta = const VerificationMeta(
+    'urineSize',
+  );
+  @override
+  late final GeneratedColumn<int> urineSize = GeneratedColumn<int>(
+    'urine_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _urinePhotoPathMeta = const VerificationMeta(
+    'urinePhotoPath',
+  );
+  @override
+  late final GeneratedColumn<String> urinePhotoPath = GeneratedColumn<String>(
+    'urine_photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _menstruationFlowMeta = const VerificationMeta(
+    'menstruationFlow',
+  );
+  @override
+  late final GeneratedColumn<int> menstruationFlow = GeneratedColumn<int>(
+    'menstruation_flow',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _basalBodyTemperatureMeta =
+      const VerificationMeta('basalBodyTemperature');
+  @override
+  late final GeneratedColumn<double> basalBodyTemperature =
+      GeneratedColumn<double>(
+        'basal_body_temperature',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _bbtRecordedTimeMeta = const VerificationMeta(
+    'bbtRecordedTime',
+  );
+  @override
+  late final GeneratedColumn<int> bbtRecordedTime = GeneratedColumn<int>(
+    'bbt_recorded_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _otherFluidNameMeta = const VerificationMeta(
+    'otherFluidName',
+  );
+  @override
+  late final GeneratedColumn<String> otherFluidName = GeneratedColumn<String>(
+    'other_fluid_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _otherFluidAmountMeta = const VerificationMeta(
+    'otherFluidAmount',
+  );
+  @override
+  late final GeneratedColumn<String> otherFluidAmount = GeneratedColumn<String>(
+    'other_fluid_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _otherFluidNotesMeta = const VerificationMeta(
+    'otherFluidNotes',
+  );
+  @override
+  late final GeneratedColumn<String> otherFluidNotes = GeneratedColumn<String>(
+    'other_fluid_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importSourceMeta = const VerificationMeta(
+    'importSource',
+  );
+  @override
+  late final GeneratedColumn<String> importSource = GeneratedColumn<String>(
+    'import_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importExternalIdMeta = const VerificationMeta(
+    'importExternalId',
+  );
+  @override
+  late final GeneratedColumn<String> importExternalId = GeneratedColumn<String>(
+    'import_external_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cloudStorageUrlMeta = const VerificationMeta(
+    'cloudStorageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> cloudStorageUrl = GeneratedColumn<String>(
+    'cloud_storage_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fileHashMeta = const VerificationMeta(
+    'fileHash',
+  );
+  @override
+  late final GeneratedColumn<String> fileHash = GeneratedColumn<String>(
+    'file_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fileSizeBytesMeta = const VerificationMeta(
+    'fileSizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> fileSizeBytes = GeneratedColumn<int>(
+    'file_size_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isFileUploadedMeta = const VerificationMeta(
+    'isFileUploaded',
+  );
+  @override
+  late final GeneratedColumn<bool> isFileUploaded = GeneratedColumn<bool>(
+    'is_file_uploaded',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_file_uploaded" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _photoIdsMeta = const VerificationMeta(
+    'photoIds',
+  );
+  @override
+  late final GeneratedColumn<String> photoIds = GeneratedColumn<String>(
+    'photo_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    entryDate,
+    waterIntakeMl,
+    waterIntakeNotes,
+    hasBowelMovement,
+    bowelCondition,
+    bowelCustomCondition,
+    bowelSize,
+    bowelPhotoPath,
+    hasUrineMovement,
+    urineCondition,
+    urineCustomCondition,
+    urineSize,
+    urinePhotoPath,
+    menstruationFlow,
+    basalBodyTemperature,
+    bbtRecordedTime,
+    otherFluidName,
+    otherFluidAmount,
+    otherFluidNotes,
+    importSource,
+    importExternalId,
+    cloudStorageUrl,
+    fileHash,
+    fileSizeBytes,
+    isFileUploaded,
+    notes,
+    photoIds,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fluids_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FluidsEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('entry_date')) {
+      context.handle(
+        _entryDateMeta,
+        entryDate.isAcceptableOrUnknown(data['entry_date']!, _entryDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryDateMeta);
+    }
+    if (data.containsKey('water_intake_ml')) {
+      context.handle(
+        _waterIntakeMlMeta,
+        waterIntakeMl.isAcceptableOrUnknown(
+          data['water_intake_ml']!,
+          _waterIntakeMlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('water_intake_notes')) {
+      context.handle(
+        _waterIntakeNotesMeta,
+        waterIntakeNotes.isAcceptableOrUnknown(
+          data['water_intake_notes']!,
+          _waterIntakeNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('has_bowel_movement')) {
+      context.handle(
+        _hasBowelMovementMeta,
+        hasBowelMovement.isAcceptableOrUnknown(
+          data['has_bowel_movement']!,
+          _hasBowelMovementMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bowel_condition')) {
+      context.handle(
+        _bowelConditionMeta,
+        bowelCondition.isAcceptableOrUnknown(
+          data['bowel_condition']!,
+          _bowelConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bowel_custom_condition')) {
+      context.handle(
+        _bowelCustomConditionMeta,
+        bowelCustomCondition.isAcceptableOrUnknown(
+          data['bowel_custom_condition']!,
+          _bowelCustomConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bowel_size')) {
+      context.handle(
+        _bowelSizeMeta,
+        bowelSize.isAcceptableOrUnknown(data['bowel_size']!, _bowelSizeMeta),
+      );
+    }
+    if (data.containsKey('bowel_photo_path')) {
+      context.handle(
+        _bowelPhotoPathMeta,
+        bowelPhotoPath.isAcceptableOrUnknown(
+          data['bowel_photo_path']!,
+          _bowelPhotoPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('has_urine_movement')) {
+      context.handle(
+        _hasUrineMovementMeta,
+        hasUrineMovement.isAcceptableOrUnknown(
+          data['has_urine_movement']!,
+          _hasUrineMovementMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_condition')) {
+      context.handle(
+        _urineConditionMeta,
+        urineCondition.isAcceptableOrUnknown(
+          data['urine_condition']!,
+          _urineConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_custom_condition')) {
+      context.handle(
+        _urineCustomConditionMeta,
+        urineCustomCondition.isAcceptableOrUnknown(
+          data['urine_custom_condition']!,
+          _urineCustomConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_size')) {
+      context.handle(
+        _urineSizeMeta,
+        urineSize.isAcceptableOrUnknown(data['urine_size']!, _urineSizeMeta),
+      );
+    }
+    if (data.containsKey('urine_photo_path')) {
+      context.handle(
+        _urinePhotoPathMeta,
+        urinePhotoPath.isAcceptableOrUnknown(
+          data['urine_photo_path']!,
+          _urinePhotoPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('menstruation_flow')) {
+      context.handle(
+        _menstruationFlowMeta,
+        menstruationFlow.isAcceptableOrUnknown(
+          data['menstruation_flow']!,
+          _menstruationFlowMeta,
+        ),
+      );
+    }
+    if (data.containsKey('basal_body_temperature')) {
+      context.handle(
+        _basalBodyTemperatureMeta,
+        basalBodyTemperature.isAcceptableOrUnknown(
+          data['basal_body_temperature']!,
+          _basalBodyTemperatureMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bbt_recorded_time')) {
+      context.handle(
+        _bbtRecordedTimeMeta,
+        bbtRecordedTime.isAcceptableOrUnknown(
+          data['bbt_recorded_time']!,
+          _bbtRecordedTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('other_fluid_name')) {
+      context.handle(
+        _otherFluidNameMeta,
+        otherFluidName.isAcceptableOrUnknown(
+          data['other_fluid_name']!,
+          _otherFluidNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('other_fluid_amount')) {
+      context.handle(
+        _otherFluidAmountMeta,
+        otherFluidAmount.isAcceptableOrUnknown(
+          data['other_fluid_amount']!,
+          _otherFluidAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('other_fluid_notes')) {
+      context.handle(
+        _otherFluidNotesMeta,
+        otherFluidNotes.isAcceptableOrUnknown(
+          data['other_fluid_notes']!,
+          _otherFluidNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_source')) {
+      context.handle(
+        _importSourceMeta,
+        importSource.isAcceptableOrUnknown(
+          data['import_source']!,
+          _importSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_external_id')) {
+      context.handle(
+        _importExternalIdMeta,
+        importExternalId.isAcceptableOrUnknown(
+          data['import_external_id']!,
+          _importExternalIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cloud_storage_url')) {
+      context.handle(
+        _cloudStorageUrlMeta,
+        cloudStorageUrl.isAcceptableOrUnknown(
+          data['cloud_storage_url']!,
+          _cloudStorageUrlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('file_hash')) {
+      context.handle(
+        _fileHashMeta,
+        fileHash.isAcceptableOrUnknown(data['file_hash']!, _fileHashMeta),
+      );
+    }
+    if (data.containsKey('file_size_bytes')) {
+      context.handle(
+        _fileSizeBytesMeta,
+        fileSizeBytes.isAcceptableOrUnknown(
+          data['file_size_bytes']!,
+          _fileSizeBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_file_uploaded')) {
+      context.handle(
+        _isFileUploadedMeta,
+        isFileUploaded.isAcceptableOrUnknown(
+          data['is_file_uploaded']!,
+          _isFileUploadedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('photo_ids')) {
+      context.handle(
+        _photoIdsMeta,
+        photoIds.isAcceptableOrUnknown(data['photo_ids']!, _photoIdsMeta),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FluidsEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FluidsEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      entryDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}entry_date'],
+      )!,
+      waterIntakeMl: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}water_intake_ml'],
+      ),
+      waterIntakeNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}water_intake_notes'],
+      ),
+      hasBowelMovement: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_bowel_movement'],
+      )!,
+      bowelCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bowel_condition'],
+      ),
+      bowelCustomCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bowel_custom_condition'],
+      ),
+      bowelSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bowel_size'],
+      ),
+      bowelPhotoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bowel_photo_path'],
+      ),
+      hasUrineMovement: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_urine_movement'],
+      )!,
+      urineCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}urine_condition'],
+      ),
+      urineCustomCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}urine_custom_condition'],
+      ),
+      urineSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}urine_size'],
+      ),
+      urinePhotoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}urine_photo_path'],
+      ),
+      menstruationFlow: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}menstruation_flow'],
+      ),
+      basalBodyTemperature: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}basal_body_temperature'],
+      ),
+      bbtRecordedTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bbt_recorded_time'],
+      ),
+      otherFluidName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}other_fluid_name'],
+      ),
+      otherFluidAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}other_fluid_amount'],
+      ),
+      otherFluidNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}other_fluid_notes'],
+      ),
+      importSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_source'],
+      ),
+      importExternalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_external_id'],
+      ),
+      cloudStorageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cloud_storage_url'],
+      ),
+      fileHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_hash'],
+      ),
+      fileSizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}file_size_bytes'],
+      ),
+      isFileUploaded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_file_uploaded'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      photoIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_ids'],
+      )!,
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $FluidsEntriesTable createAlias(String alias) {
+    return $FluidsEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int entryDate;
+  final int? waterIntakeMl;
+  final String? waterIntakeNotes;
+  final bool hasBowelMovement;
+  final int? bowelCondition;
+  final String? bowelCustomCondition;
+  final int? bowelSize;
+  final String? bowelPhotoPath;
+  final bool hasUrineMovement;
+  final int? urineCondition;
+  final String? urineCustomCondition;
+  final int? urineSize;
+  final String? urinePhotoPath;
+  final int? menstruationFlow;
+  final double? basalBodyTemperature;
+  final int? bbtRecordedTime;
+  final String? otherFluidName;
+  final String? otherFluidAmount;
+  final String? otherFluidNotes;
+  final String? importSource;
+  final String? importExternalId;
+  final String? cloudStorageUrl;
+  final String? fileHash;
+  final int? fileSizeBytes;
+  final bool isFileUploaded;
+  final String notes;
+  final String photoIds;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const FluidsEntryRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.entryDate,
+    this.waterIntakeMl,
+    this.waterIntakeNotes,
+    required this.hasBowelMovement,
+    this.bowelCondition,
+    this.bowelCustomCondition,
+    this.bowelSize,
+    this.bowelPhotoPath,
+    required this.hasUrineMovement,
+    this.urineCondition,
+    this.urineCustomCondition,
+    this.urineSize,
+    this.urinePhotoPath,
+    this.menstruationFlow,
+    this.basalBodyTemperature,
+    this.bbtRecordedTime,
+    this.otherFluidName,
+    this.otherFluidAmount,
+    this.otherFluidNotes,
+    this.importSource,
+    this.importExternalId,
+    this.cloudStorageUrl,
+    this.fileHash,
+    this.fileSizeBytes,
+    required this.isFileUploaded,
+    required this.notes,
+    required this.photoIds,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['entry_date'] = Variable<int>(entryDate);
+    if (!nullToAbsent || waterIntakeMl != null) {
+      map['water_intake_ml'] = Variable<int>(waterIntakeMl);
+    }
+    if (!nullToAbsent || waterIntakeNotes != null) {
+      map['water_intake_notes'] = Variable<String>(waterIntakeNotes);
+    }
+    map['has_bowel_movement'] = Variable<bool>(hasBowelMovement);
+    if (!nullToAbsent || bowelCondition != null) {
+      map['bowel_condition'] = Variable<int>(bowelCondition);
+    }
+    if (!nullToAbsent || bowelCustomCondition != null) {
+      map['bowel_custom_condition'] = Variable<String>(bowelCustomCondition);
+    }
+    if (!nullToAbsent || bowelSize != null) {
+      map['bowel_size'] = Variable<int>(bowelSize);
+    }
+    if (!nullToAbsent || bowelPhotoPath != null) {
+      map['bowel_photo_path'] = Variable<String>(bowelPhotoPath);
+    }
+    map['has_urine_movement'] = Variable<bool>(hasUrineMovement);
+    if (!nullToAbsent || urineCondition != null) {
+      map['urine_condition'] = Variable<int>(urineCondition);
+    }
+    if (!nullToAbsent || urineCustomCondition != null) {
+      map['urine_custom_condition'] = Variable<String>(urineCustomCondition);
+    }
+    if (!nullToAbsent || urineSize != null) {
+      map['urine_size'] = Variable<int>(urineSize);
+    }
+    if (!nullToAbsent || urinePhotoPath != null) {
+      map['urine_photo_path'] = Variable<String>(urinePhotoPath);
+    }
+    if (!nullToAbsent || menstruationFlow != null) {
+      map['menstruation_flow'] = Variable<int>(menstruationFlow);
+    }
+    if (!nullToAbsent || basalBodyTemperature != null) {
+      map['basal_body_temperature'] = Variable<double>(basalBodyTemperature);
+    }
+    if (!nullToAbsent || bbtRecordedTime != null) {
+      map['bbt_recorded_time'] = Variable<int>(bbtRecordedTime);
+    }
+    if (!nullToAbsent || otherFluidName != null) {
+      map['other_fluid_name'] = Variable<String>(otherFluidName);
+    }
+    if (!nullToAbsent || otherFluidAmount != null) {
+      map['other_fluid_amount'] = Variable<String>(otherFluidAmount);
+    }
+    if (!nullToAbsent || otherFluidNotes != null) {
+      map['other_fluid_notes'] = Variable<String>(otherFluidNotes);
+    }
+    if (!nullToAbsent || importSource != null) {
+      map['import_source'] = Variable<String>(importSource);
+    }
+    if (!nullToAbsent || importExternalId != null) {
+      map['import_external_id'] = Variable<String>(importExternalId);
+    }
+    if (!nullToAbsent || cloudStorageUrl != null) {
+      map['cloud_storage_url'] = Variable<String>(cloudStorageUrl);
+    }
+    if (!nullToAbsent || fileHash != null) {
+      map['file_hash'] = Variable<String>(fileHash);
+    }
+    if (!nullToAbsent || fileSizeBytes != null) {
+      map['file_size_bytes'] = Variable<int>(fileSizeBytes);
+    }
+    map['is_file_uploaded'] = Variable<bool>(isFileUploaded);
+    map['notes'] = Variable<String>(notes);
+    map['photo_ids'] = Variable<String>(photoIds);
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  FluidsEntriesCompanion toCompanion(bool nullToAbsent) {
+    return FluidsEntriesCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      entryDate: Value(entryDate),
+      waterIntakeMl: waterIntakeMl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waterIntakeMl),
+      waterIntakeNotes: waterIntakeNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waterIntakeNotes),
+      hasBowelMovement: Value(hasBowelMovement),
+      bowelCondition: bowelCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelCondition),
+      bowelCustomCondition: bowelCustomCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelCustomCondition),
+      bowelSize: bowelSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelSize),
+      bowelPhotoPath: bowelPhotoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelPhotoPath),
+      hasUrineMovement: Value(hasUrineMovement),
+      urineCondition: urineCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineCondition),
+      urineCustomCondition: urineCustomCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineCustomCondition),
+      urineSize: urineSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineSize),
+      urinePhotoPath: urinePhotoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urinePhotoPath),
+      menstruationFlow: menstruationFlow == null && nullToAbsent
+          ? const Value.absent()
+          : Value(menstruationFlow),
+      basalBodyTemperature: basalBodyTemperature == null && nullToAbsent
+          ? const Value.absent()
+          : Value(basalBodyTemperature),
+      bbtRecordedTime: bbtRecordedTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bbtRecordedTime),
+      otherFluidName: otherFluidName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(otherFluidName),
+      otherFluidAmount: otherFluidAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(otherFluidAmount),
+      otherFluidNotes: otherFluidNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(otherFluidNotes),
+      importSource: importSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importSource),
+      importExternalId: importExternalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importExternalId),
+      cloudStorageUrl: cloudStorageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cloudStorageUrl),
+      fileHash: fileHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileHash),
+      fileSizeBytes: fileSizeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileSizeBytes),
+      isFileUploaded: Value(isFileUploaded),
+      notes: Value(notes),
+      photoIds: Value(photoIds),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory FluidsEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FluidsEntryRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      entryDate: serializer.fromJson<int>(json['entryDate']),
+      waterIntakeMl: serializer.fromJson<int?>(json['waterIntakeMl']),
+      waterIntakeNotes: serializer.fromJson<String?>(json['waterIntakeNotes']),
+      hasBowelMovement: serializer.fromJson<bool>(json['hasBowelMovement']),
+      bowelCondition: serializer.fromJson<int?>(json['bowelCondition']),
+      bowelCustomCondition: serializer.fromJson<String?>(
+        json['bowelCustomCondition'],
+      ),
+      bowelSize: serializer.fromJson<int?>(json['bowelSize']),
+      bowelPhotoPath: serializer.fromJson<String?>(json['bowelPhotoPath']),
+      hasUrineMovement: serializer.fromJson<bool>(json['hasUrineMovement']),
+      urineCondition: serializer.fromJson<int?>(json['urineCondition']),
+      urineCustomCondition: serializer.fromJson<String?>(
+        json['urineCustomCondition'],
+      ),
+      urineSize: serializer.fromJson<int?>(json['urineSize']),
+      urinePhotoPath: serializer.fromJson<String?>(json['urinePhotoPath']),
+      menstruationFlow: serializer.fromJson<int?>(json['menstruationFlow']),
+      basalBodyTemperature: serializer.fromJson<double?>(
+        json['basalBodyTemperature'],
+      ),
+      bbtRecordedTime: serializer.fromJson<int?>(json['bbtRecordedTime']),
+      otherFluidName: serializer.fromJson<String?>(json['otherFluidName']),
+      otherFluidAmount: serializer.fromJson<String?>(json['otherFluidAmount']),
+      otherFluidNotes: serializer.fromJson<String?>(json['otherFluidNotes']),
+      importSource: serializer.fromJson<String?>(json['importSource']),
+      importExternalId: serializer.fromJson<String?>(json['importExternalId']),
+      cloudStorageUrl: serializer.fromJson<String?>(json['cloudStorageUrl']),
+      fileHash: serializer.fromJson<String?>(json['fileHash']),
+      fileSizeBytes: serializer.fromJson<int?>(json['fileSizeBytes']),
+      isFileUploaded: serializer.fromJson<bool>(json['isFileUploaded']),
+      notes: serializer.fromJson<String>(json['notes']),
+      photoIds: serializer.fromJson<String>(json['photoIds']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'entryDate': serializer.toJson<int>(entryDate),
+      'waterIntakeMl': serializer.toJson<int?>(waterIntakeMl),
+      'waterIntakeNotes': serializer.toJson<String?>(waterIntakeNotes),
+      'hasBowelMovement': serializer.toJson<bool>(hasBowelMovement),
+      'bowelCondition': serializer.toJson<int?>(bowelCondition),
+      'bowelCustomCondition': serializer.toJson<String?>(bowelCustomCondition),
+      'bowelSize': serializer.toJson<int?>(bowelSize),
+      'bowelPhotoPath': serializer.toJson<String?>(bowelPhotoPath),
+      'hasUrineMovement': serializer.toJson<bool>(hasUrineMovement),
+      'urineCondition': serializer.toJson<int?>(urineCondition),
+      'urineCustomCondition': serializer.toJson<String?>(urineCustomCondition),
+      'urineSize': serializer.toJson<int?>(urineSize),
+      'urinePhotoPath': serializer.toJson<String?>(urinePhotoPath),
+      'menstruationFlow': serializer.toJson<int?>(menstruationFlow),
+      'basalBodyTemperature': serializer.toJson<double?>(basalBodyTemperature),
+      'bbtRecordedTime': serializer.toJson<int?>(bbtRecordedTime),
+      'otherFluidName': serializer.toJson<String?>(otherFluidName),
+      'otherFluidAmount': serializer.toJson<String?>(otherFluidAmount),
+      'otherFluidNotes': serializer.toJson<String?>(otherFluidNotes),
+      'importSource': serializer.toJson<String?>(importSource),
+      'importExternalId': serializer.toJson<String?>(importExternalId),
+      'cloudStorageUrl': serializer.toJson<String?>(cloudStorageUrl),
+      'fileHash': serializer.toJson<String?>(fileHash),
+      'fileSizeBytes': serializer.toJson<int?>(fileSizeBytes),
+      'isFileUploaded': serializer.toJson<bool>(isFileUploaded),
+      'notes': serializer.toJson<String>(notes),
+      'photoIds': serializer.toJson<String>(photoIds),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  FluidsEntryRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? entryDate,
+    Value<int?> waterIntakeMl = const Value.absent(),
+    Value<String?> waterIntakeNotes = const Value.absent(),
+    bool? hasBowelMovement,
+    Value<int?> bowelCondition = const Value.absent(),
+    Value<String?> bowelCustomCondition = const Value.absent(),
+    Value<int?> bowelSize = const Value.absent(),
+    Value<String?> bowelPhotoPath = const Value.absent(),
+    bool? hasUrineMovement,
+    Value<int?> urineCondition = const Value.absent(),
+    Value<String?> urineCustomCondition = const Value.absent(),
+    Value<int?> urineSize = const Value.absent(),
+    Value<String?> urinePhotoPath = const Value.absent(),
+    Value<int?> menstruationFlow = const Value.absent(),
+    Value<double?> basalBodyTemperature = const Value.absent(),
+    Value<int?> bbtRecordedTime = const Value.absent(),
+    Value<String?> otherFluidName = const Value.absent(),
+    Value<String?> otherFluidAmount = const Value.absent(),
+    Value<String?> otherFluidNotes = const Value.absent(),
+    Value<String?> importSource = const Value.absent(),
+    Value<String?> importExternalId = const Value.absent(),
+    Value<String?> cloudStorageUrl = const Value.absent(),
+    Value<String?> fileHash = const Value.absent(),
+    Value<int?> fileSizeBytes = const Value.absent(),
+    bool? isFileUploaded,
+    String? notes,
+    String? photoIds,
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => FluidsEntryRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    entryDate: entryDate ?? this.entryDate,
+    waterIntakeMl: waterIntakeMl.present
+        ? waterIntakeMl.value
+        : this.waterIntakeMl,
+    waterIntakeNotes: waterIntakeNotes.present
+        ? waterIntakeNotes.value
+        : this.waterIntakeNotes,
+    hasBowelMovement: hasBowelMovement ?? this.hasBowelMovement,
+    bowelCondition: bowelCondition.present
+        ? bowelCondition.value
+        : this.bowelCondition,
+    bowelCustomCondition: bowelCustomCondition.present
+        ? bowelCustomCondition.value
+        : this.bowelCustomCondition,
+    bowelSize: bowelSize.present ? bowelSize.value : this.bowelSize,
+    bowelPhotoPath: bowelPhotoPath.present
+        ? bowelPhotoPath.value
+        : this.bowelPhotoPath,
+    hasUrineMovement: hasUrineMovement ?? this.hasUrineMovement,
+    urineCondition: urineCondition.present
+        ? urineCondition.value
+        : this.urineCondition,
+    urineCustomCondition: urineCustomCondition.present
+        ? urineCustomCondition.value
+        : this.urineCustomCondition,
+    urineSize: urineSize.present ? urineSize.value : this.urineSize,
+    urinePhotoPath: urinePhotoPath.present
+        ? urinePhotoPath.value
+        : this.urinePhotoPath,
+    menstruationFlow: menstruationFlow.present
+        ? menstruationFlow.value
+        : this.menstruationFlow,
+    basalBodyTemperature: basalBodyTemperature.present
+        ? basalBodyTemperature.value
+        : this.basalBodyTemperature,
+    bbtRecordedTime: bbtRecordedTime.present
+        ? bbtRecordedTime.value
+        : this.bbtRecordedTime,
+    otherFluidName: otherFluidName.present
+        ? otherFluidName.value
+        : this.otherFluidName,
+    otherFluidAmount: otherFluidAmount.present
+        ? otherFluidAmount.value
+        : this.otherFluidAmount,
+    otherFluidNotes: otherFluidNotes.present
+        ? otherFluidNotes.value
+        : this.otherFluidNotes,
+    importSource: importSource.present ? importSource.value : this.importSource,
+    importExternalId: importExternalId.present
+        ? importExternalId.value
+        : this.importExternalId,
+    cloudStorageUrl: cloudStorageUrl.present
+        ? cloudStorageUrl.value
+        : this.cloudStorageUrl,
+    fileHash: fileHash.present ? fileHash.value : this.fileHash,
+    fileSizeBytes: fileSizeBytes.present
+        ? fileSizeBytes.value
+        : this.fileSizeBytes,
+    isFileUploaded: isFileUploaded ?? this.isFileUploaded,
+    notes: notes ?? this.notes,
+    photoIds: photoIds ?? this.photoIds,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  FluidsEntryRow copyWithCompanion(FluidsEntriesCompanion data) {
+    return FluidsEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      entryDate: data.entryDate.present ? data.entryDate.value : this.entryDate,
+      waterIntakeMl: data.waterIntakeMl.present
+          ? data.waterIntakeMl.value
+          : this.waterIntakeMl,
+      waterIntakeNotes: data.waterIntakeNotes.present
+          ? data.waterIntakeNotes.value
+          : this.waterIntakeNotes,
+      hasBowelMovement: data.hasBowelMovement.present
+          ? data.hasBowelMovement.value
+          : this.hasBowelMovement,
+      bowelCondition: data.bowelCondition.present
+          ? data.bowelCondition.value
+          : this.bowelCondition,
+      bowelCustomCondition: data.bowelCustomCondition.present
+          ? data.bowelCustomCondition.value
+          : this.bowelCustomCondition,
+      bowelSize: data.bowelSize.present ? data.bowelSize.value : this.bowelSize,
+      bowelPhotoPath: data.bowelPhotoPath.present
+          ? data.bowelPhotoPath.value
+          : this.bowelPhotoPath,
+      hasUrineMovement: data.hasUrineMovement.present
+          ? data.hasUrineMovement.value
+          : this.hasUrineMovement,
+      urineCondition: data.urineCondition.present
+          ? data.urineCondition.value
+          : this.urineCondition,
+      urineCustomCondition: data.urineCustomCondition.present
+          ? data.urineCustomCondition.value
+          : this.urineCustomCondition,
+      urineSize: data.urineSize.present ? data.urineSize.value : this.urineSize,
+      urinePhotoPath: data.urinePhotoPath.present
+          ? data.urinePhotoPath.value
+          : this.urinePhotoPath,
+      menstruationFlow: data.menstruationFlow.present
+          ? data.menstruationFlow.value
+          : this.menstruationFlow,
+      basalBodyTemperature: data.basalBodyTemperature.present
+          ? data.basalBodyTemperature.value
+          : this.basalBodyTemperature,
+      bbtRecordedTime: data.bbtRecordedTime.present
+          ? data.bbtRecordedTime.value
+          : this.bbtRecordedTime,
+      otherFluidName: data.otherFluidName.present
+          ? data.otherFluidName.value
+          : this.otherFluidName,
+      otherFluidAmount: data.otherFluidAmount.present
+          ? data.otherFluidAmount.value
+          : this.otherFluidAmount,
+      otherFluidNotes: data.otherFluidNotes.present
+          ? data.otherFluidNotes.value
+          : this.otherFluidNotes,
+      importSource: data.importSource.present
+          ? data.importSource.value
+          : this.importSource,
+      importExternalId: data.importExternalId.present
+          ? data.importExternalId.value
+          : this.importExternalId,
+      cloudStorageUrl: data.cloudStorageUrl.present
+          ? data.cloudStorageUrl.value
+          : this.cloudStorageUrl,
+      fileHash: data.fileHash.present ? data.fileHash.value : this.fileHash,
+      fileSizeBytes: data.fileSizeBytes.present
+          ? data.fileSizeBytes.value
+          : this.fileSizeBytes,
+      isFileUploaded: data.isFileUploaded.present
+          ? data.isFileUploaded.value
+          : this.isFileUploaded,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      photoIds: data.photoIds.present ? data.photoIds.value : this.photoIds,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FluidsEntryRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('entryDate: $entryDate, ')
+          ..write('waterIntakeMl: $waterIntakeMl, ')
+          ..write('waterIntakeNotes: $waterIntakeNotes, ')
+          ..write('hasBowelMovement: $hasBowelMovement, ')
+          ..write('bowelCondition: $bowelCondition, ')
+          ..write('bowelCustomCondition: $bowelCustomCondition, ')
+          ..write('bowelSize: $bowelSize, ')
+          ..write('bowelPhotoPath: $bowelPhotoPath, ')
+          ..write('hasUrineMovement: $hasUrineMovement, ')
+          ..write('urineCondition: $urineCondition, ')
+          ..write('urineCustomCondition: $urineCustomCondition, ')
+          ..write('urineSize: $urineSize, ')
+          ..write('urinePhotoPath: $urinePhotoPath, ')
+          ..write('menstruationFlow: $menstruationFlow, ')
+          ..write('basalBodyTemperature: $basalBodyTemperature, ')
+          ..write('bbtRecordedTime: $bbtRecordedTime, ')
+          ..write('otherFluidName: $otherFluidName, ')
+          ..write('otherFluidAmount: $otherFluidAmount, ')
+          ..write('otherFluidNotes: $otherFluidNotes, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('cloudStorageUrl: $cloudStorageUrl, ')
+          ..write('fileHash: $fileHash, ')
+          ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('isFileUploaded: $isFileUploaded, ')
+          ..write('notes: $notes, ')
+          ..write('photoIds: $photoIds, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    clientId,
+    profileId,
+    entryDate,
+    waterIntakeMl,
+    waterIntakeNotes,
+    hasBowelMovement,
+    bowelCondition,
+    bowelCustomCondition,
+    bowelSize,
+    bowelPhotoPath,
+    hasUrineMovement,
+    urineCondition,
+    urineCustomCondition,
+    urineSize,
+    urinePhotoPath,
+    menstruationFlow,
+    basalBodyTemperature,
+    bbtRecordedTime,
+    otherFluidName,
+    otherFluidAmount,
+    otherFluidNotes,
+    importSource,
+    importExternalId,
+    cloudStorageUrl,
+    fileHash,
+    fileSizeBytes,
+    isFileUploaded,
+    notes,
+    photoIds,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FluidsEntryRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.entryDate == this.entryDate &&
+          other.waterIntakeMl == this.waterIntakeMl &&
+          other.waterIntakeNotes == this.waterIntakeNotes &&
+          other.hasBowelMovement == this.hasBowelMovement &&
+          other.bowelCondition == this.bowelCondition &&
+          other.bowelCustomCondition == this.bowelCustomCondition &&
+          other.bowelSize == this.bowelSize &&
+          other.bowelPhotoPath == this.bowelPhotoPath &&
+          other.hasUrineMovement == this.hasUrineMovement &&
+          other.urineCondition == this.urineCondition &&
+          other.urineCustomCondition == this.urineCustomCondition &&
+          other.urineSize == this.urineSize &&
+          other.urinePhotoPath == this.urinePhotoPath &&
+          other.menstruationFlow == this.menstruationFlow &&
+          other.basalBodyTemperature == this.basalBodyTemperature &&
+          other.bbtRecordedTime == this.bbtRecordedTime &&
+          other.otherFluidName == this.otherFluidName &&
+          other.otherFluidAmount == this.otherFluidAmount &&
+          other.otherFluidNotes == this.otherFluidNotes &&
+          other.importSource == this.importSource &&
+          other.importExternalId == this.importExternalId &&
+          other.cloudStorageUrl == this.cloudStorageUrl &&
+          other.fileHash == this.fileHash &&
+          other.fileSizeBytes == this.fileSizeBytes &&
+          other.isFileUploaded == this.isFileUploaded &&
+          other.notes == this.notes &&
+          other.photoIds == this.photoIds &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> entryDate;
+  final Value<int?> waterIntakeMl;
+  final Value<String?> waterIntakeNotes;
+  final Value<bool> hasBowelMovement;
+  final Value<int?> bowelCondition;
+  final Value<String?> bowelCustomCondition;
+  final Value<int?> bowelSize;
+  final Value<String?> bowelPhotoPath;
+  final Value<bool> hasUrineMovement;
+  final Value<int?> urineCondition;
+  final Value<String?> urineCustomCondition;
+  final Value<int?> urineSize;
+  final Value<String?> urinePhotoPath;
+  final Value<int?> menstruationFlow;
+  final Value<double?> basalBodyTemperature;
+  final Value<int?> bbtRecordedTime;
+  final Value<String?> otherFluidName;
+  final Value<String?> otherFluidAmount;
+  final Value<String?> otherFluidNotes;
+  final Value<String?> importSource;
+  final Value<String?> importExternalId;
+  final Value<String?> cloudStorageUrl;
+  final Value<String?> fileHash;
+  final Value<int?> fileSizeBytes;
+  final Value<bool> isFileUploaded;
+  final Value<String> notes;
+  final Value<String> photoIds;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const FluidsEntriesCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.entryDate = const Value.absent(),
+    this.waterIntakeMl = const Value.absent(),
+    this.waterIntakeNotes = const Value.absent(),
+    this.hasBowelMovement = const Value.absent(),
+    this.bowelCondition = const Value.absent(),
+    this.bowelCustomCondition = const Value.absent(),
+    this.bowelSize = const Value.absent(),
+    this.bowelPhotoPath = const Value.absent(),
+    this.hasUrineMovement = const Value.absent(),
+    this.urineCondition = const Value.absent(),
+    this.urineCustomCondition = const Value.absent(),
+    this.urineSize = const Value.absent(),
+    this.urinePhotoPath = const Value.absent(),
+    this.menstruationFlow = const Value.absent(),
+    this.basalBodyTemperature = const Value.absent(),
+    this.bbtRecordedTime = const Value.absent(),
+    this.otherFluidName = const Value.absent(),
+    this.otherFluidAmount = const Value.absent(),
+    this.otherFluidNotes = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    this.cloudStorageUrl = const Value.absent(),
+    this.fileHash = const Value.absent(),
+    this.fileSizeBytes = const Value.absent(),
+    this.isFileUploaded = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.photoIds = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FluidsEntriesCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int entryDate,
+    this.waterIntakeMl = const Value.absent(),
+    this.waterIntakeNotes = const Value.absent(),
+    this.hasBowelMovement = const Value.absent(),
+    this.bowelCondition = const Value.absent(),
+    this.bowelCustomCondition = const Value.absent(),
+    this.bowelSize = const Value.absent(),
+    this.bowelPhotoPath = const Value.absent(),
+    this.hasUrineMovement = const Value.absent(),
+    this.urineCondition = const Value.absent(),
+    this.urineCustomCondition = const Value.absent(),
+    this.urineSize = const Value.absent(),
+    this.urinePhotoPath = const Value.absent(),
+    this.menstruationFlow = const Value.absent(),
+    this.basalBodyTemperature = const Value.absent(),
+    this.bbtRecordedTime = const Value.absent(),
+    this.otherFluidName = const Value.absent(),
+    this.otherFluidAmount = const Value.absent(),
+    this.otherFluidNotes = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    this.cloudStorageUrl = const Value.absent(),
+    this.fileHash = const Value.absent(),
+    this.fileSizeBytes = const Value.absent(),
+    this.isFileUploaded = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.photoIds = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       entryDate = Value(entryDate),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<FluidsEntryRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? entryDate,
+    Expression<int>? waterIntakeMl,
+    Expression<String>? waterIntakeNotes,
+    Expression<bool>? hasBowelMovement,
+    Expression<int>? bowelCondition,
+    Expression<String>? bowelCustomCondition,
+    Expression<int>? bowelSize,
+    Expression<String>? bowelPhotoPath,
+    Expression<bool>? hasUrineMovement,
+    Expression<int>? urineCondition,
+    Expression<String>? urineCustomCondition,
+    Expression<int>? urineSize,
+    Expression<String>? urinePhotoPath,
+    Expression<int>? menstruationFlow,
+    Expression<double>? basalBodyTemperature,
+    Expression<int>? bbtRecordedTime,
+    Expression<String>? otherFluidName,
+    Expression<String>? otherFluidAmount,
+    Expression<String>? otherFluidNotes,
+    Expression<String>? importSource,
+    Expression<String>? importExternalId,
+    Expression<String>? cloudStorageUrl,
+    Expression<String>? fileHash,
+    Expression<int>? fileSizeBytes,
+    Expression<bool>? isFileUploaded,
+    Expression<String>? notes,
+    Expression<String>? photoIds,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (entryDate != null) 'entry_date': entryDate,
+      if (waterIntakeMl != null) 'water_intake_ml': waterIntakeMl,
+      if (waterIntakeNotes != null) 'water_intake_notes': waterIntakeNotes,
+      if (hasBowelMovement != null) 'has_bowel_movement': hasBowelMovement,
+      if (bowelCondition != null) 'bowel_condition': bowelCondition,
+      if (bowelCustomCondition != null)
+        'bowel_custom_condition': bowelCustomCondition,
+      if (bowelSize != null) 'bowel_size': bowelSize,
+      if (bowelPhotoPath != null) 'bowel_photo_path': bowelPhotoPath,
+      if (hasUrineMovement != null) 'has_urine_movement': hasUrineMovement,
+      if (urineCondition != null) 'urine_condition': urineCondition,
+      if (urineCustomCondition != null)
+        'urine_custom_condition': urineCustomCondition,
+      if (urineSize != null) 'urine_size': urineSize,
+      if (urinePhotoPath != null) 'urine_photo_path': urinePhotoPath,
+      if (menstruationFlow != null) 'menstruation_flow': menstruationFlow,
+      if (basalBodyTemperature != null)
+        'basal_body_temperature': basalBodyTemperature,
+      if (bbtRecordedTime != null) 'bbt_recorded_time': bbtRecordedTime,
+      if (otherFluidName != null) 'other_fluid_name': otherFluidName,
+      if (otherFluidAmount != null) 'other_fluid_amount': otherFluidAmount,
+      if (otherFluidNotes != null) 'other_fluid_notes': otherFluidNotes,
+      if (importSource != null) 'import_source': importSource,
+      if (importExternalId != null) 'import_external_id': importExternalId,
+      if (cloudStorageUrl != null) 'cloud_storage_url': cloudStorageUrl,
+      if (fileHash != null) 'file_hash': fileHash,
+      if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
+      if (isFileUploaded != null) 'is_file_uploaded': isFileUploaded,
+      if (notes != null) 'notes': notes,
+      if (photoIds != null) 'photo_ids': photoIds,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FluidsEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? entryDate,
+    Value<int?>? waterIntakeMl,
+    Value<String?>? waterIntakeNotes,
+    Value<bool>? hasBowelMovement,
+    Value<int?>? bowelCondition,
+    Value<String?>? bowelCustomCondition,
+    Value<int?>? bowelSize,
+    Value<String?>? bowelPhotoPath,
+    Value<bool>? hasUrineMovement,
+    Value<int?>? urineCondition,
+    Value<String?>? urineCustomCondition,
+    Value<int?>? urineSize,
+    Value<String?>? urinePhotoPath,
+    Value<int?>? menstruationFlow,
+    Value<double?>? basalBodyTemperature,
+    Value<int?>? bbtRecordedTime,
+    Value<String?>? otherFluidName,
+    Value<String?>? otherFluidAmount,
+    Value<String?>? otherFluidNotes,
+    Value<String?>? importSource,
+    Value<String?>? importExternalId,
+    Value<String?>? cloudStorageUrl,
+    Value<String?>? fileHash,
+    Value<int?>? fileSizeBytes,
+    Value<bool>? isFileUploaded,
+    Value<String>? notes,
+    Value<String>? photoIds,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return FluidsEntriesCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      entryDate: entryDate ?? this.entryDate,
+      waterIntakeMl: waterIntakeMl ?? this.waterIntakeMl,
+      waterIntakeNotes: waterIntakeNotes ?? this.waterIntakeNotes,
+      hasBowelMovement: hasBowelMovement ?? this.hasBowelMovement,
+      bowelCondition: bowelCondition ?? this.bowelCondition,
+      bowelCustomCondition: bowelCustomCondition ?? this.bowelCustomCondition,
+      bowelSize: bowelSize ?? this.bowelSize,
+      bowelPhotoPath: bowelPhotoPath ?? this.bowelPhotoPath,
+      hasUrineMovement: hasUrineMovement ?? this.hasUrineMovement,
+      urineCondition: urineCondition ?? this.urineCondition,
+      urineCustomCondition: urineCustomCondition ?? this.urineCustomCondition,
+      urineSize: urineSize ?? this.urineSize,
+      urinePhotoPath: urinePhotoPath ?? this.urinePhotoPath,
+      menstruationFlow: menstruationFlow ?? this.menstruationFlow,
+      basalBodyTemperature: basalBodyTemperature ?? this.basalBodyTemperature,
+      bbtRecordedTime: bbtRecordedTime ?? this.bbtRecordedTime,
+      otherFluidName: otherFluidName ?? this.otherFluidName,
+      otherFluidAmount: otherFluidAmount ?? this.otherFluidAmount,
+      otherFluidNotes: otherFluidNotes ?? this.otherFluidNotes,
+      importSource: importSource ?? this.importSource,
+      importExternalId: importExternalId ?? this.importExternalId,
+      cloudStorageUrl: cloudStorageUrl ?? this.cloudStorageUrl,
+      fileHash: fileHash ?? this.fileHash,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      isFileUploaded: isFileUploaded ?? this.isFileUploaded,
+      notes: notes ?? this.notes,
+      photoIds: photoIds ?? this.photoIds,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (entryDate.present) {
+      map['entry_date'] = Variable<int>(entryDate.value);
+    }
+    if (waterIntakeMl.present) {
+      map['water_intake_ml'] = Variable<int>(waterIntakeMl.value);
+    }
+    if (waterIntakeNotes.present) {
+      map['water_intake_notes'] = Variable<String>(waterIntakeNotes.value);
+    }
+    if (hasBowelMovement.present) {
+      map['has_bowel_movement'] = Variable<bool>(hasBowelMovement.value);
+    }
+    if (bowelCondition.present) {
+      map['bowel_condition'] = Variable<int>(bowelCondition.value);
+    }
+    if (bowelCustomCondition.present) {
+      map['bowel_custom_condition'] = Variable<String>(
+        bowelCustomCondition.value,
+      );
+    }
+    if (bowelSize.present) {
+      map['bowel_size'] = Variable<int>(bowelSize.value);
+    }
+    if (bowelPhotoPath.present) {
+      map['bowel_photo_path'] = Variable<String>(bowelPhotoPath.value);
+    }
+    if (hasUrineMovement.present) {
+      map['has_urine_movement'] = Variable<bool>(hasUrineMovement.value);
+    }
+    if (urineCondition.present) {
+      map['urine_condition'] = Variable<int>(urineCondition.value);
+    }
+    if (urineCustomCondition.present) {
+      map['urine_custom_condition'] = Variable<String>(
+        urineCustomCondition.value,
+      );
+    }
+    if (urineSize.present) {
+      map['urine_size'] = Variable<int>(urineSize.value);
+    }
+    if (urinePhotoPath.present) {
+      map['urine_photo_path'] = Variable<String>(urinePhotoPath.value);
+    }
+    if (menstruationFlow.present) {
+      map['menstruation_flow'] = Variable<int>(menstruationFlow.value);
+    }
+    if (basalBodyTemperature.present) {
+      map['basal_body_temperature'] = Variable<double>(
+        basalBodyTemperature.value,
+      );
+    }
+    if (bbtRecordedTime.present) {
+      map['bbt_recorded_time'] = Variable<int>(bbtRecordedTime.value);
+    }
+    if (otherFluidName.present) {
+      map['other_fluid_name'] = Variable<String>(otherFluidName.value);
+    }
+    if (otherFluidAmount.present) {
+      map['other_fluid_amount'] = Variable<String>(otherFluidAmount.value);
+    }
+    if (otherFluidNotes.present) {
+      map['other_fluid_notes'] = Variable<String>(otherFluidNotes.value);
+    }
+    if (importSource.present) {
+      map['import_source'] = Variable<String>(importSource.value);
+    }
+    if (importExternalId.present) {
+      map['import_external_id'] = Variable<String>(importExternalId.value);
+    }
+    if (cloudStorageUrl.present) {
+      map['cloud_storage_url'] = Variable<String>(cloudStorageUrl.value);
+    }
+    if (fileHash.present) {
+      map['file_hash'] = Variable<String>(fileHash.value);
+    }
+    if (fileSizeBytes.present) {
+      map['file_size_bytes'] = Variable<int>(fileSizeBytes.value);
+    }
+    if (isFileUploaded.present) {
+      map['is_file_uploaded'] = Variable<bool>(isFileUploaded.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (photoIds.present) {
+      map['photo_ids'] = Variable<String>(photoIds.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FluidsEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('entryDate: $entryDate, ')
+          ..write('waterIntakeMl: $waterIntakeMl, ')
+          ..write('waterIntakeNotes: $waterIntakeNotes, ')
+          ..write('hasBowelMovement: $hasBowelMovement, ')
+          ..write('bowelCondition: $bowelCondition, ')
+          ..write('bowelCustomCondition: $bowelCustomCondition, ')
+          ..write('bowelSize: $bowelSize, ')
+          ..write('bowelPhotoPath: $bowelPhotoPath, ')
+          ..write('hasUrineMovement: $hasUrineMovement, ')
+          ..write('urineCondition: $urineCondition, ')
+          ..write('urineCustomCondition: $urineCustomCondition, ')
+          ..write('urineSize: $urineSize, ')
+          ..write('urinePhotoPath: $urinePhotoPath, ')
+          ..write('menstruationFlow: $menstruationFlow, ')
+          ..write('basalBodyTemperature: $basalBodyTemperature, ')
+          ..write('bbtRecordedTime: $bbtRecordedTime, ')
+          ..write('otherFluidName: $otherFluidName, ')
+          ..write('otherFluidAmount: $otherFluidAmount, ')
+          ..write('otherFluidNotes: $otherFluidNotes, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('cloudStorageUrl: $cloudStorageUrl, ')
+          ..write('fileHash: $fileHash, ')
+          ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('isFileUploaded: $isFileUploaded, ')
+          ..write('notes: $notes, ')
+          ..write('photoIds: $photoIds, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SleepEntriesTable extends SleepEntries
+    with TableInfo<$SleepEntriesTable, SleepEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SleepEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bedTimeMeta = const VerificationMeta(
+    'bedTime',
+  );
+  @override
+  late final GeneratedColumn<int> bedTime = GeneratedColumn<int>(
+    'bed_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _wakeTimeMeta = const VerificationMeta(
+    'wakeTime',
+  );
+  @override
+  late final GeneratedColumn<int> wakeTime = GeneratedColumn<int>(
+    'wake_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deepSleepMinutesMeta = const VerificationMeta(
+    'deepSleepMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> deepSleepMinutes = GeneratedColumn<int>(
+    'deep_sleep_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lightSleepMinutesMeta = const VerificationMeta(
+    'lightSleepMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> lightSleepMinutes = GeneratedColumn<int>(
+    'light_sleep_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _restlessSleepMinutesMeta =
+      const VerificationMeta('restlessSleepMinutes');
+  @override
+  late final GeneratedColumn<int> restlessSleepMinutes = GeneratedColumn<int>(
+    'restless_sleep_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _dreamTypeMeta = const VerificationMeta(
+    'dreamType',
+  );
+  @override
+  late final GeneratedColumn<int> dreamType = GeneratedColumn<int>(
+    'dream_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _wakingFeelingMeta = const VerificationMeta(
+    'wakingFeeling',
+  );
+  @override
+  late final GeneratedColumn<int> wakingFeeling = GeneratedColumn<int>(
+    'waking_feeling',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importSourceMeta = const VerificationMeta(
+    'importSource',
+  );
+  @override
+  late final GeneratedColumn<String> importSource = GeneratedColumn<String>(
+    'import_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importExternalIdMeta = const VerificationMeta(
+    'importExternalId',
+  );
+  @override
+  late final GeneratedColumn<String> importExternalId = GeneratedColumn<String>(
+    'import_external_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    bedTime,
+    wakeTime,
+    deepSleepMinutes,
+    lightSleepMinutes,
+    restlessSleepMinutes,
+    dreamType,
+    wakingFeeling,
+    notes,
+    importSource,
+    importExternalId,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sleep_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SleepEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('bed_time')) {
+      context.handle(
+        _bedTimeMeta,
+        bedTime.isAcceptableOrUnknown(data['bed_time']!, _bedTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bedTimeMeta);
+    }
+    if (data.containsKey('wake_time')) {
+      context.handle(
+        _wakeTimeMeta,
+        wakeTime.isAcceptableOrUnknown(data['wake_time']!, _wakeTimeMeta),
+      );
+    }
+    if (data.containsKey('deep_sleep_minutes')) {
+      context.handle(
+        _deepSleepMinutesMeta,
+        deepSleepMinutes.isAcceptableOrUnknown(
+          data['deep_sleep_minutes']!,
+          _deepSleepMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('light_sleep_minutes')) {
+      context.handle(
+        _lightSleepMinutesMeta,
+        lightSleepMinutes.isAcceptableOrUnknown(
+          data['light_sleep_minutes']!,
+          _lightSleepMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('restless_sleep_minutes')) {
+      context.handle(
+        _restlessSleepMinutesMeta,
+        restlessSleepMinutes.isAcceptableOrUnknown(
+          data['restless_sleep_minutes']!,
+          _restlessSleepMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dream_type')) {
+      context.handle(
+        _dreamTypeMeta,
+        dreamType.isAcceptableOrUnknown(data['dream_type']!, _dreamTypeMeta),
+      );
+    }
+    if (data.containsKey('waking_feeling')) {
+      context.handle(
+        _wakingFeelingMeta,
+        wakingFeeling.isAcceptableOrUnknown(
+          data['waking_feeling']!,
+          _wakingFeelingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('import_source')) {
+      context.handle(
+        _importSourceMeta,
+        importSource.isAcceptableOrUnknown(
+          data['import_source']!,
+          _importSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_external_id')) {
+      context.handle(
+        _importExternalIdMeta,
+        importExternalId.isAcceptableOrUnknown(
+          data['import_external_id']!,
+          _importExternalIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SleepEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SleepEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      bedTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bed_time'],
+      )!,
+      wakeTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}wake_time'],
+      ),
+      deepSleepMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deep_sleep_minutes'],
+      )!,
+      lightSleepMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}light_sleep_minutes'],
+      )!,
+      restlessSleepMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}restless_sleep_minutes'],
+      )!,
+      dreamType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dream_type'],
+      )!,
+      wakingFeeling: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}waking_feeling'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      importSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_source'],
+      ),
+      importExternalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_external_id'],
+      ),
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $SleepEntriesTable createAlias(String alias) {
+    return $SleepEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int bedTime;
+  final int? wakeTime;
+  final int deepSleepMinutes;
+  final int lightSleepMinutes;
+  final int restlessSleepMinutes;
+  final int dreamType;
+  final int wakingFeeling;
+  final String? notes;
+  final String? importSource;
+  final String? importExternalId;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const SleepEntryRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.bedTime,
+    this.wakeTime,
+    required this.deepSleepMinutes,
+    required this.lightSleepMinutes,
+    required this.restlessSleepMinutes,
+    required this.dreamType,
+    required this.wakingFeeling,
+    this.notes,
+    this.importSource,
+    this.importExternalId,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['bed_time'] = Variable<int>(bedTime);
+    if (!nullToAbsent || wakeTime != null) {
+      map['wake_time'] = Variable<int>(wakeTime);
+    }
+    map['deep_sleep_minutes'] = Variable<int>(deepSleepMinutes);
+    map['light_sleep_minutes'] = Variable<int>(lightSleepMinutes);
+    map['restless_sleep_minutes'] = Variable<int>(restlessSleepMinutes);
+    map['dream_type'] = Variable<int>(dreamType);
+    map['waking_feeling'] = Variable<int>(wakingFeeling);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || importSource != null) {
+      map['import_source'] = Variable<String>(importSource);
+    }
+    if (!nullToAbsent || importExternalId != null) {
+      map['import_external_id'] = Variable<String>(importExternalId);
+    }
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  SleepEntriesCompanion toCompanion(bool nullToAbsent) {
+    return SleepEntriesCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      bedTime: Value(bedTime),
+      wakeTime: wakeTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wakeTime),
+      deepSleepMinutes: Value(deepSleepMinutes),
+      lightSleepMinutes: Value(lightSleepMinutes),
+      restlessSleepMinutes: Value(restlessSleepMinutes),
+      dreamType: Value(dreamType),
+      wakingFeeling: Value(wakingFeeling),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      importSource: importSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importSource),
+      importExternalId: importExternalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importExternalId),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory SleepEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SleepEntryRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      bedTime: serializer.fromJson<int>(json['bedTime']),
+      wakeTime: serializer.fromJson<int?>(json['wakeTime']),
+      deepSleepMinutes: serializer.fromJson<int>(json['deepSleepMinutes']),
+      lightSleepMinutes: serializer.fromJson<int>(json['lightSleepMinutes']),
+      restlessSleepMinutes: serializer.fromJson<int>(
+        json['restlessSleepMinutes'],
+      ),
+      dreamType: serializer.fromJson<int>(json['dreamType']),
+      wakingFeeling: serializer.fromJson<int>(json['wakingFeeling']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      importSource: serializer.fromJson<String?>(json['importSource']),
+      importExternalId: serializer.fromJson<String?>(json['importExternalId']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'bedTime': serializer.toJson<int>(bedTime),
+      'wakeTime': serializer.toJson<int?>(wakeTime),
+      'deepSleepMinutes': serializer.toJson<int>(deepSleepMinutes),
+      'lightSleepMinutes': serializer.toJson<int>(lightSleepMinutes),
+      'restlessSleepMinutes': serializer.toJson<int>(restlessSleepMinutes),
+      'dreamType': serializer.toJson<int>(dreamType),
+      'wakingFeeling': serializer.toJson<int>(wakingFeeling),
+      'notes': serializer.toJson<String?>(notes),
+      'importSource': serializer.toJson<String?>(importSource),
+      'importExternalId': serializer.toJson<String?>(importExternalId),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  SleepEntryRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? bedTime,
+    Value<int?> wakeTime = const Value.absent(),
+    int? deepSleepMinutes,
+    int? lightSleepMinutes,
+    int? restlessSleepMinutes,
+    int? dreamType,
+    int? wakingFeeling,
+    Value<String?> notes = const Value.absent(),
+    Value<String?> importSource = const Value.absent(),
+    Value<String?> importExternalId = const Value.absent(),
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => SleepEntryRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    bedTime: bedTime ?? this.bedTime,
+    wakeTime: wakeTime.present ? wakeTime.value : this.wakeTime,
+    deepSleepMinutes: deepSleepMinutes ?? this.deepSleepMinutes,
+    lightSleepMinutes: lightSleepMinutes ?? this.lightSleepMinutes,
+    restlessSleepMinutes: restlessSleepMinutes ?? this.restlessSleepMinutes,
+    dreamType: dreamType ?? this.dreamType,
+    wakingFeeling: wakingFeeling ?? this.wakingFeeling,
+    notes: notes.present ? notes.value : this.notes,
+    importSource: importSource.present ? importSource.value : this.importSource,
+    importExternalId: importExternalId.present
+        ? importExternalId.value
+        : this.importExternalId,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  SleepEntryRow copyWithCompanion(SleepEntriesCompanion data) {
+    return SleepEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      bedTime: data.bedTime.present ? data.bedTime.value : this.bedTime,
+      wakeTime: data.wakeTime.present ? data.wakeTime.value : this.wakeTime,
+      deepSleepMinutes: data.deepSleepMinutes.present
+          ? data.deepSleepMinutes.value
+          : this.deepSleepMinutes,
+      lightSleepMinutes: data.lightSleepMinutes.present
+          ? data.lightSleepMinutes.value
+          : this.lightSleepMinutes,
+      restlessSleepMinutes: data.restlessSleepMinutes.present
+          ? data.restlessSleepMinutes.value
+          : this.restlessSleepMinutes,
+      dreamType: data.dreamType.present ? data.dreamType.value : this.dreamType,
+      wakingFeeling: data.wakingFeeling.present
+          ? data.wakingFeeling.value
+          : this.wakingFeeling,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      importSource: data.importSource.present
+          ? data.importSource.value
+          : this.importSource,
+      importExternalId: data.importExternalId.present
+          ? data.importExternalId.value
+          : this.importExternalId,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SleepEntryRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('bedTime: $bedTime, ')
+          ..write('wakeTime: $wakeTime, ')
+          ..write('deepSleepMinutes: $deepSleepMinutes, ')
+          ..write('lightSleepMinutes: $lightSleepMinutes, ')
+          ..write('restlessSleepMinutes: $restlessSleepMinutes, ')
+          ..write('dreamType: $dreamType, ')
+          ..write('wakingFeeling: $wakingFeeling, ')
+          ..write('notes: $notes, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    clientId,
+    profileId,
+    bedTime,
+    wakeTime,
+    deepSleepMinutes,
+    lightSleepMinutes,
+    restlessSleepMinutes,
+    dreamType,
+    wakingFeeling,
+    notes,
+    importSource,
+    importExternalId,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SleepEntryRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.bedTime == this.bedTime &&
+          other.wakeTime == this.wakeTime &&
+          other.deepSleepMinutes == this.deepSleepMinutes &&
+          other.lightSleepMinutes == this.lightSleepMinutes &&
+          other.restlessSleepMinutes == this.restlessSleepMinutes &&
+          other.dreamType == this.dreamType &&
+          other.wakingFeeling == this.wakingFeeling &&
+          other.notes == this.notes &&
+          other.importSource == this.importSource &&
+          other.importExternalId == this.importExternalId &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> bedTime;
+  final Value<int?> wakeTime;
+  final Value<int> deepSleepMinutes;
+  final Value<int> lightSleepMinutes;
+  final Value<int> restlessSleepMinutes;
+  final Value<int> dreamType;
+  final Value<int> wakingFeeling;
+  final Value<String?> notes;
+  final Value<String?> importSource;
+  final Value<String?> importExternalId;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const SleepEntriesCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.bedTime = const Value.absent(),
+    this.wakeTime = const Value.absent(),
+    this.deepSleepMinutes = const Value.absent(),
+    this.lightSleepMinutes = const Value.absent(),
+    this.restlessSleepMinutes = const Value.absent(),
+    this.dreamType = const Value.absent(),
+    this.wakingFeeling = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SleepEntriesCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int bedTime,
+    this.wakeTime = const Value.absent(),
+    this.deepSleepMinutes = const Value.absent(),
+    this.lightSleepMinutes = const Value.absent(),
+    this.restlessSleepMinutes = const Value.absent(),
+    this.dreamType = const Value.absent(),
+    this.wakingFeeling = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       bedTime = Value(bedTime),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<SleepEntryRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? bedTime,
+    Expression<int>? wakeTime,
+    Expression<int>? deepSleepMinutes,
+    Expression<int>? lightSleepMinutes,
+    Expression<int>? restlessSleepMinutes,
+    Expression<int>? dreamType,
+    Expression<int>? wakingFeeling,
+    Expression<String>? notes,
+    Expression<String>? importSource,
+    Expression<String>? importExternalId,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (bedTime != null) 'bed_time': bedTime,
+      if (wakeTime != null) 'wake_time': wakeTime,
+      if (deepSleepMinutes != null) 'deep_sleep_minutes': deepSleepMinutes,
+      if (lightSleepMinutes != null) 'light_sleep_minutes': lightSleepMinutes,
+      if (restlessSleepMinutes != null)
+        'restless_sleep_minutes': restlessSleepMinutes,
+      if (dreamType != null) 'dream_type': dreamType,
+      if (wakingFeeling != null) 'waking_feeling': wakingFeeling,
+      if (notes != null) 'notes': notes,
+      if (importSource != null) 'import_source': importSource,
+      if (importExternalId != null) 'import_external_id': importExternalId,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SleepEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? bedTime,
+    Value<int?>? wakeTime,
+    Value<int>? deepSleepMinutes,
+    Value<int>? lightSleepMinutes,
+    Value<int>? restlessSleepMinutes,
+    Value<int>? dreamType,
+    Value<int>? wakingFeeling,
+    Value<String?>? notes,
+    Value<String?>? importSource,
+    Value<String?>? importExternalId,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return SleepEntriesCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      bedTime: bedTime ?? this.bedTime,
+      wakeTime: wakeTime ?? this.wakeTime,
+      deepSleepMinutes: deepSleepMinutes ?? this.deepSleepMinutes,
+      lightSleepMinutes: lightSleepMinutes ?? this.lightSleepMinutes,
+      restlessSleepMinutes: restlessSleepMinutes ?? this.restlessSleepMinutes,
+      dreamType: dreamType ?? this.dreamType,
+      wakingFeeling: wakingFeeling ?? this.wakingFeeling,
+      notes: notes ?? this.notes,
+      importSource: importSource ?? this.importSource,
+      importExternalId: importExternalId ?? this.importExternalId,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (bedTime.present) {
+      map['bed_time'] = Variable<int>(bedTime.value);
+    }
+    if (wakeTime.present) {
+      map['wake_time'] = Variable<int>(wakeTime.value);
+    }
+    if (deepSleepMinutes.present) {
+      map['deep_sleep_minutes'] = Variable<int>(deepSleepMinutes.value);
+    }
+    if (lightSleepMinutes.present) {
+      map['light_sleep_minutes'] = Variable<int>(lightSleepMinutes.value);
+    }
+    if (restlessSleepMinutes.present) {
+      map['restless_sleep_minutes'] = Variable<int>(restlessSleepMinutes.value);
+    }
+    if (dreamType.present) {
+      map['dream_type'] = Variable<int>(dreamType.value);
+    }
+    if (wakingFeeling.present) {
+      map['waking_feeling'] = Variable<int>(wakingFeeling.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (importSource.present) {
+      map['import_source'] = Variable<String>(importSource.value);
+    }
+    if (importExternalId.present) {
+      map['import_external_id'] = Variable<String>(importExternalId.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SleepEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('bedTime: $bedTime, ')
+          ..write('wakeTime: $wakeTime, ')
+          ..write('deepSleepMinutes: $deepSleepMinutes, ')
+          ..write('lightSleepMinutes: $lightSleepMinutes, ')
+          ..write('restlessSleepMinutes: $restlessSleepMinutes, ')
+          ..write('dreamType: $dreamType, ')
+          ..write('wakingFeeling: $wakingFeeling, ')
+          ..write('notes: $notes, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5286,12 +8768,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $IntakeLogsTable intakeLogs = $IntakeLogsTable(this);
   late final $ConditionsTable conditions = $ConditionsTable(this);
   late final $ConditionLogsTable conditionLogs = $ConditionLogsTable(this);
+  late final $FluidsEntriesTable fluidsEntries = $FluidsEntriesTable(this);
+  late final $SleepEntriesTable sleepEntries = $SleepEntriesTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
   late final ConditionLogDao conditionLogDao = ConditionLogDao(
     this as AppDatabase,
   );
+  late final FluidsEntryDao fluidsEntryDao = FluidsEntryDao(
+    this as AppDatabase,
+  );
+  late final SleepEntryDao sleepEntryDao = SleepEntryDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5301,6 +8789,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     intakeLogs,
     conditions,
     conditionLogs,
+    fluidsEntries,
+    sleepEntries,
   ];
 }
 
@@ -7609,6 +11099,1465 @@ typedef $$ConditionLogsTableProcessedTableManager =
       ConditionLogRow,
       PrefetchHooks Function()
     >;
+typedef $$FluidsEntriesTableCreateCompanionBuilder =
+    FluidsEntriesCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int entryDate,
+      Value<int?> waterIntakeMl,
+      Value<String?> waterIntakeNotes,
+      Value<bool> hasBowelMovement,
+      Value<int?> bowelCondition,
+      Value<String?> bowelCustomCondition,
+      Value<int?> bowelSize,
+      Value<String?> bowelPhotoPath,
+      Value<bool> hasUrineMovement,
+      Value<int?> urineCondition,
+      Value<String?> urineCustomCondition,
+      Value<int?> urineSize,
+      Value<String?> urinePhotoPath,
+      Value<int?> menstruationFlow,
+      Value<double?> basalBodyTemperature,
+      Value<int?> bbtRecordedTime,
+      Value<String?> otherFluidName,
+      Value<String?> otherFluidAmount,
+      Value<String?> otherFluidNotes,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      Value<String?> cloudStorageUrl,
+      Value<String?> fileHash,
+      Value<int?> fileSizeBytes,
+      Value<bool> isFileUploaded,
+      Value<String> notes,
+      Value<String> photoIds,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$FluidsEntriesTableUpdateCompanionBuilder =
+    FluidsEntriesCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> entryDate,
+      Value<int?> waterIntakeMl,
+      Value<String?> waterIntakeNotes,
+      Value<bool> hasBowelMovement,
+      Value<int?> bowelCondition,
+      Value<String?> bowelCustomCondition,
+      Value<int?> bowelSize,
+      Value<String?> bowelPhotoPath,
+      Value<bool> hasUrineMovement,
+      Value<int?> urineCondition,
+      Value<String?> urineCustomCondition,
+      Value<int?> urineSize,
+      Value<String?> urinePhotoPath,
+      Value<int?> menstruationFlow,
+      Value<double?> basalBodyTemperature,
+      Value<int?> bbtRecordedTime,
+      Value<String?> otherFluidName,
+      Value<String?> otherFluidAmount,
+      Value<String?> otherFluidNotes,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      Value<String?> cloudStorageUrl,
+      Value<String?> fileHash,
+      Value<int?> fileSizeBytes,
+      Value<bool> isFileUploaded,
+      Value<String> notes,
+      Value<String> photoIds,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$FluidsEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $FluidsEntriesTable> {
+  $$FluidsEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get entryDate => $composableBuilder(
+    column: $table.entryDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get waterIntakeMl => $composableBuilder(
+    column: $table.waterIntakeMl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get waterIntakeNotes => $composableBuilder(
+    column: $table.waterIntakeNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasBowelMovement => $composableBuilder(
+    column: $table.hasBowelMovement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bowelSize => $composableBuilder(
+    column: $table.bowelSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bowelPhotoPath => $composableBuilder(
+    column: $table.bowelPhotoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasUrineMovement => $composableBuilder(
+    column: $table.hasUrineMovement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get urineSize => $composableBuilder(
+    column: $table.urineSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get urinePhotoPath => $composableBuilder(
+    column: $table.urinePhotoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get basalBodyTemperature => $composableBuilder(
+    column: $table.basalBodyTemperature,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bbtRecordedTime => $composableBuilder(
+    column: $table.bbtRecordedTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get otherFluidName => $composableBuilder(
+    column: $table.otherFluidName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get otherFluidAmount => $composableBuilder(
+    column: $table.otherFluidAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get otherFluidNotes => $composableBuilder(
+    column: $table.otherFluidNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileHash => $composableBuilder(
+    column: $table.fileHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoIds => $composableBuilder(
+    column: $table.photoIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FluidsEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $FluidsEntriesTable> {
+  $$FluidsEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get entryDate => $composableBuilder(
+    column: $table.entryDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get waterIntakeMl => $composableBuilder(
+    column: $table.waterIntakeMl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get waterIntakeNotes => $composableBuilder(
+    column: $table.waterIntakeNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasBowelMovement => $composableBuilder(
+    column: $table.hasBowelMovement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bowelSize => $composableBuilder(
+    column: $table.bowelSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bowelPhotoPath => $composableBuilder(
+    column: $table.bowelPhotoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasUrineMovement => $composableBuilder(
+    column: $table.hasUrineMovement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get urineSize => $composableBuilder(
+    column: $table.urineSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get urinePhotoPath => $composableBuilder(
+    column: $table.urinePhotoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get basalBodyTemperature => $composableBuilder(
+    column: $table.basalBodyTemperature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bbtRecordedTime => $composableBuilder(
+    column: $table.bbtRecordedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get otherFluidName => $composableBuilder(
+    column: $table.otherFluidName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get otherFluidAmount => $composableBuilder(
+    column: $table.otherFluidAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get otherFluidNotes => $composableBuilder(
+    column: $table.otherFluidNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileHash => $composableBuilder(
+    column: $table.fileHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoIds => $composableBuilder(
+    column: $table.photoIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FluidsEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FluidsEntriesTable> {
+  $$FluidsEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get entryDate =>
+      $composableBuilder(column: $table.entryDate, builder: (column) => column);
+
+  GeneratedColumn<int> get waterIntakeMl => $composableBuilder(
+    column: $table.waterIntakeMl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get waterIntakeNotes => $composableBuilder(
+    column: $table.waterIntakeNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hasBowelMovement => $composableBuilder(
+    column: $table.hasBowelMovement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bowelSize =>
+      $composableBuilder(column: $table.bowelSize, builder: (column) => column);
+
+  GeneratedColumn<String> get bowelPhotoPath => $composableBuilder(
+    column: $table.bowelPhotoPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hasUrineMovement => $composableBuilder(
+    column: $table.hasUrineMovement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get urineSize =>
+      $composableBuilder(column: $table.urineSize, builder: (column) => column);
+
+  GeneratedColumn<String> get urinePhotoPath => $composableBuilder(
+    column: $table.urinePhotoPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get basalBodyTemperature => $composableBuilder(
+    column: $table.basalBodyTemperature,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bbtRecordedTime => $composableBuilder(
+    column: $table.bbtRecordedTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get otherFluidName => $composableBuilder(
+    column: $table.otherFluidName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get otherFluidAmount => $composableBuilder(
+    column: $table.otherFluidAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get otherFluidNotes => $composableBuilder(
+    column: $table.otherFluidNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fileHash =>
+      $composableBuilder(column: $table.fileHash, builder: (column) => column);
+
+  GeneratedColumn<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get photoIds =>
+      $composableBuilder(column: $table.photoIds, builder: (column) => column);
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$FluidsEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FluidsEntriesTable,
+          FluidsEntryRow,
+          $$FluidsEntriesTableFilterComposer,
+          $$FluidsEntriesTableOrderingComposer,
+          $$FluidsEntriesTableAnnotationComposer,
+          $$FluidsEntriesTableCreateCompanionBuilder,
+          $$FluidsEntriesTableUpdateCompanionBuilder,
+          (
+            FluidsEntryRow,
+            BaseReferences<_$AppDatabase, $FluidsEntriesTable, FluidsEntryRow>,
+          ),
+          FluidsEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$FluidsEntriesTableTableManager(_$AppDatabase db, $FluidsEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FluidsEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FluidsEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FluidsEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> entryDate = const Value.absent(),
+                Value<int?> waterIntakeMl = const Value.absent(),
+                Value<String?> waterIntakeNotes = const Value.absent(),
+                Value<bool> hasBowelMovement = const Value.absent(),
+                Value<int?> bowelCondition = const Value.absent(),
+                Value<String?> bowelCustomCondition = const Value.absent(),
+                Value<int?> bowelSize = const Value.absent(),
+                Value<String?> bowelPhotoPath = const Value.absent(),
+                Value<bool> hasUrineMovement = const Value.absent(),
+                Value<int?> urineCondition = const Value.absent(),
+                Value<String?> urineCustomCondition = const Value.absent(),
+                Value<int?> urineSize = const Value.absent(),
+                Value<String?> urinePhotoPath = const Value.absent(),
+                Value<int?> menstruationFlow = const Value.absent(),
+                Value<double?> basalBodyTemperature = const Value.absent(),
+                Value<int?> bbtRecordedTime = const Value.absent(),
+                Value<String?> otherFluidName = const Value.absent(),
+                Value<String?> otherFluidAmount = const Value.absent(),
+                Value<String?> otherFluidNotes = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                Value<String?> cloudStorageUrl = const Value.absent(),
+                Value<String?> fileHash = const Value.absent(),
+                Value<int?> fileSizeBytes = const Value.absent(),
+                Value<bool> isFileUploaded = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<String> photoIds = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FluidsEntriesCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                entryDate: entryDate,
+                waterIntakeMl: waterIntakeMl,
+                waterIntakeNotes: waterIntakeNotes,
+                hasBowelMovement: hasBowelMovement,
+                bowelCondition: bowelCondition,
+                bowelCustomCondition: bowelCustomCondition,
+                bowelSize: bowelSize,
+                bowelPhotoPath: bowelPhotoPath,
+                hasUrineMovement: hasUrineMovement,
+                urineCondition: urineCondition,
+                urineCustomCondition: urineCustomCondition,
+                urineSize: urineSize,
+                urinePhotoPath: urinePhotoPath,
+                menstruationFlow: menstruationFlow,
+                basalBodyTemperature: basalBodyTemperature,
+                bbtRecordedTime: bbtRecordedTime,
+                otherFluidName: otherFluidName,
+                otherFluidAmount: otherFluidAmount,
+                otherFluidNotes: otherFluidNotes,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                cloudStorageUrl: cloudStorageUrl,
+                fileHash: fileHash,
+                fileSizeBytes: fileSizeBytes,
+                isFileUploaded: isFileUploaded,
+                notes: notes,
+                photoIds: photoIds,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int entryDate,
+                Value<int?> waterIntakeMl = const Value.absent(),
+                Value<String?> waterIntakeNotes = const Value.absent(),
+                Value<bool> hasBowelMovement = const Value.absent(),
+                Value<int?> bowelCondition = const Value.absent(),
+                Value<String?> bowelCustomCondition = const Value.absent(),
+                Value<int?> bowelSize = const Value.absent(),
+                Value<String?> bowelPhotoPath = const Value.absent(),
+                Value<bool> hasUrineMovement = const Value.absent(),
+                Value<int?> urineCondition = const Value.absent(),
+                Value<String?> urineCustomCondition = const Value.absent(),
+                Value<int?> urineSize = const Value.absent(),
+                Value<String?> urinePhotoPath = const Value.absent(),
+                Value<int?> menstruationFlow = const Value.absent(),
+                Value<double?> basalBodyTemperature = const Value.absent(),
+                Value<int?> bbtRecordedTime = const Value.absent(),
+                Value<String?> otherFluidName = const Value.absent(),
+                Value<String?> otherFluidAmount = const Value.absent(),
+                Value<String?> otherFluidNotes = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                Value<String?> cloudStorageUrl = const Value.absent(),
+                Value<String?> fileHash = const Value.absent(),
+                Value<int?> fileSizeBytes = const Value.absent(),
+                Value<bool> isFileUploaded = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<String> photoIds = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FluidsEntriesCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                entryDate: entryDate,
+                waterIntakeMl: waterIntakeMl,
+                waterIntakeNotes: waterIntakeNotes,
+                hasBowelMovement: hasBowelMovement,
+                bowelCondition: bowelCondition,
+                bowelCustomCondition: bowelCustomCondition,
+                bowelSize: bowelSize,
+                bowelPhotoPath: bowelPhotoPath,
+                hasUrineMovement: hasUrineMovement,
+                urineCondition: urineCondition,
+                urineCustomCondition: urineCustomCondition,
+                urineSize: urineSize,
+                urinePhotoPath: urinePhotoPath,
+                menstruationFlow: menstruationFlow,
+                basalBodyTemperature: basalBodyTemperature,
+                bbtRecordedTime: bbtRecordedTime,
+                otherFluidName: otherFluidName,
+                otherFluidAmount: otherFluidAmount,
+                otherFluidNotes: otherFluidNotes,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                cloudStorageUrl: cloudStorageUrl,
+                fileHash: fileHash,
+                fileSizeBytes: fileSizeBytes,
+                isFileUploaded: isFileUploaded,
+                notes: notes,
+                photoIds: photoIds,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FluidsEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FluidsEntriesTable,
+      FluidsEntryRow,
+      $$FluidsEntriesTableFilterComposer,
+      $$FluidsEntriesTableOrderingComposer,
+      $$FluidsEntriesTableAnnotationComposer,
+      $$FluidsEntriesTableCreateCompanionBuilder,
+      $$FluidsEntriesTableUpdateCompanionBuilder,
+      (
+        FluidsEntryRow,
+        BaseReferences<_$AppDatabase, $FluidsEntriesTable, FluidsEntryRow>,
+      ),
+      FluidsEntryRow,
+      PrefetchHooks Function()
+    >;
+typedef $$SleepEntriesTableCreateCompanionBuilder =
+    SleepEntriesCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int bedTime,
+      Value<int?> wakeTime,
+      Value<int> deepSleepMinutes,
+      Value<int> lightSleepMinutes,
+      Value<int> restlessSleepMinutes,
+      Value<int> dreamType,
+      Value<int> wakingFeeling,
+      Value<String?> notes,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$SleepEntriesTableUpdateCompanionBuilder =
+    SleepEntriesCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> bedTime,
+      Value<int?> wakeTime,
+      Value<int> deepSleepMinutes,
+      Value<int> lightSleepMinutes,
+      Value<int> restlessSleepMinutes,
+      Value<int> dreamType,
+      Value<int> wakingFeeling,
+      Value<String?> notes,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$SleepEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $SleepEntriesTable> {
+  $$SleepEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bedTime => $composableBuilder(
+    column: $table.bedTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get wakeTime => $composableBuilder(
+    column: $table.wakeTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deepSleepMinutes => $composableBuilder(
+    column: $table.deepSleepMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lightSleepMinutes => $composableBuilder(
+    column: $table.lightSleepMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get restlessSleepMinutes => $composableBuilder(
+    column: $table.restlessSleepMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dreamType => $composableBuilder(
+    column: $table.dreamType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get wakingFeeling => $composableBuilder(
+    column: $table.wakingFeeling,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SleepEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SleepEntriesTable> {
+  $$SleepEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bedTime => $composableBuilder(
+    column: $table.bedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get wakeTime => $composableBuilder(
+    column: $table.wakeTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deepSleepMinutes => $composableBuilder(
+    column: $table.deepSleepMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lightSleepMinutes => $composableBuilder(
+    column: $table.lightSleepMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get restlessSleepMinutes => $composableBuilder(
+    column: $table.restlessSleepMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dreamType => $composableBuilder(
+    column: $table.dreamType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get wakingFeeling => $composableBuilder(
+    column: $table.wakingFeeling,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SleepEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SleepEntriesTable> {
+  $$SleepEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get bedTime =>
+      $composableBuilder(column: $table.bedTime, builder: (column) => column);
+
+  GeneratedColumn<int> get wakeTime =>
+      $composableBuilder(column: $table.wakeTime, builder: (column) => column);
+
+  GeneratedColumn<int> get deepSleepMinutes => $composableBuilder(
+    column: $table.deepSleepMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lightSleepMinutes => $composableBuilder(
+    column: $table.lightSleepMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get restlessSleepMinutes => $composableBuilder(
+    column: $table.restlessSleepMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get dreamType =>
+      $composableBuilder(column: $table.dreamType, builder: (column) => column);
+
+  GeneratedColumn<int> get wakingFeeling => $composableBuilder(
+    column: $table.wakingFeeling,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$SleepEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SleepEntriesTable,
+          SleepEntryRow,
+          $$SleepEntriesTableFilterComposer,
+          $$SleepEntriesTableOrderingComposer,
+          $$SleepEntriesTableAnnotationComposer,
+          $$SleepEntriesTableCreateCompanionBuilder,
+          $$SleepEntriesTableUpdateCompanionBuilder,
+          (
+            SleepEntryRow,
+            BaseReferences<_$AppDatabase, $SleepEntriesTable, SleepEntryRow>,
+          ),
+          SleepEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$SleepEntriesTableTableManager(_$AppDatabase db, $SleepEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SleepEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SleepEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SleepEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> bedTime = const Value.absent(),
+                Value<int?> wakeTime = const Value.absent(),
+                Value<int> deepSleepMinutes = const Value.absent(),
+                Value<int> lightSleepMinutes = const Value.absent(),
+                Value<int> restlessSleepMinutes = const Value.absent(),
+                Value<int> dreamType = const Value.absent(),
+                Value<int> wakingFeeling = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SleepEntriesCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                bedTime: bedTime,
+                wakeTime: wakeTime,
+                deepSleepMinutes: deepSleepMinutes,
+                lightSleepMinutes: lightSleepMinutes,
+                restlessSleepMinutes: restlessSleepMinutes,
+                dreamType: dreamType,
+                wakingFeeling: wakingFeeling,
+                notes: notes,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int bedTime,
+                Value<int?> wakeTime = const Value.absent(),
+                Value<int> deepSleepMinutes = const Value.absent(),
+                Value<int> lightSleepMinutes = const Value.absent(),
+                Value<int> restlessSleepMinutes = const Value.absent(),
+                Value<int> dreamType = const Value.absent(),
+                Value<int> wakingFeeling = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SleepEntriesCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                bedTime: bedTime,
+                wakeTime: wakeTime,
+                deepSleepMinutes: deepSleepMinutes,
+                lightSleepMinutes: lightSleepMinutes,
+                restlessSleepMinutes: restlessSleepMinutes,
+                dreamType: dreamType,
+                wakingFeeling: wakingFeeling,
+                notes: notes,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SleepEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SleepEntriesTable,
+      SleepEntryRow,
+      $$SleepEntriesTableFilterComposer,
+      $$SleepEntriesTableOrderingComposer,
+      $$SleepEntriesTableAnnotationComposer,
+      $$SleepEntriesTableCreateCompanionBuilder,
+      $$SleepEntriesTableUpdateCompanionBuilder,
+      (
+        SleepEntryRow,
+        BaseReferences<_$AppDatabase, $SleepEntriesTable, SleepEntryRow>,
+      ),
+      SleepEntryRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7621,4 +12570,8 @@ class $AppDatabaseManager {
       $$ConditionsTableTableManager(_db, _db.conditions);
   $$ConditionLogsTableTableManager get conditionLogs =>
       $$ConditionLogsTableTableManager(_db, _db.conditionLogs);
+  $$FluidsEntriesTableTableManager get fluidsEntries =>
+      $$FluidsEntriesTableTableManager(_db, _db.fluidsEntries);
+  $$SleepEntriesTableTableManager get sleepEntries =>
+      $$SleepEntriesTableTableManager(_db, _db.sleepEntries);
 }

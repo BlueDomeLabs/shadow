@@ -12,11 +12,15 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -37,8 +41,22 @@ part 'database.g.dart';
 /// final database = AppDatabase(await DatabaseConnection.openConnection());
 /// ```
 @DriftDatabase(
-  tables: [Supplements, IntakeLogs, Conditions, ConditionLogs],
-  daos: [SupplementDao, IntakeLogDao, ConditionDao, ConditionLogDao],
+  tables: [
+    Supplements,
+    IntakeLogs,
+    Conditions,
+    ConditionLogs,
+    FluidsEntries,
+    SleepEntries,
+  ],
+  daos: [
+    SupplementDao,
+    IntakeLogDao,
+    ConditionDao,
+    ConditionLogDao,
+    FluidsEntryDao,
+    SleepEntryDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   /// Creates an AppDatabase with the given query executor.

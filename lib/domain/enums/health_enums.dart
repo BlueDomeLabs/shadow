@@ -430,3 +430,34 @@ enum ConditionStatus {
   static ConditionStatus fromValue(int value) => ConditionStatus.values
       .firstWhere((e) => e.value == value, orElse: () => active);
 }
+
+// === Sleep Enums (22_API_CONTRACTS.md Section 10.15) ===
+
+enum DreamType {
+  noDreams(0),
+  vague(1),
+  vivid(2),
+  nightmares(3);
+
+  final int value;
+  const DreamType(this.value);
+
+  static DreamType fromValue(int value) => DreamType.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => noDreams,
+  );
+}
+
+enum WakingFeeling {
+  unrested(0),
+  neutral(1),
+  rested(2);
+
+  final int value;
+  const WakingFeeling(this.value);
+
+  static WakingFeeling fromValue(int value) => WakingFeeling.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => neutral,
+  );
+}
