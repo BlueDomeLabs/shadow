@@ -59,7 +59,26 @@ flutter analyze
 
 ---
 
-### 4. Update Work Status File
+### 4. Update Project Tracker (If Task Completed)
+
+**IMPORTANT:** When completing a task or phase, update `34_PROJECT_TRACKER.md` to reflect current project state.
+
+```bash
+# Check if project tracker reflects your completed work
+cat 34_PROJECT_TRACKER.md | grep -A5 "your-task-area"
+```
+
+Update the tracker to show:
+- Completed tickets/phases marked as **DONE**
+- Current phase status updated
+- Next actions section reflects actual next work
+- Test counts updated if significantly changed
+
+**This is critical for future instances to understand project state.**
+
+---
+
+### 5. Update Work Status File
 
 Update `.claude/work-status/current.json` with clear context:
 
@@ -120,7 +139,7 @@ Update `.claude/work-status/current.json` with clear context:
 
 ---
 
-### 5. Document Decisions (If Any)
+### 6. Document Decisions (If Any)
 
 If you made any architectural decisions (even small ones):
 
@@ -132,7 +151,7 @@ If you made any architectural decisions (even small ones):
 
 ---
 
-### 6. Document Ambiguities (If Found)
+### 7. Document Ambiguities (If Found)
 
 If you encountered spec ambiguities:
 
@@ -178,6 +197,7 @@ If you encountered spec ambiguities:
 □ All work committed to git
 □ flutter test passes (all green)
 □ flutter analyze passes (no issues)
+□ 34_PROJECT_TRACKER.md updated (if task/phase completed)
 □ .claude/work-status/current.json updated
 □ Status field accurate (complete/in_progress/blocked)
 □ Notes field has clear next steps
