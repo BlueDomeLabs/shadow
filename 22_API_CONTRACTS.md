@@ -8178,29 +8178,42 @@ class CheckComplianceUseCase implements UseCase<CheckComplianceInput, Compliance
   final DietRepository _dietRepository;
   final FoodItemRepository _foodItemRepository;
   final DietComplianceService _complianceService;
+  final ProfileAuthorizationService _authService;
+
+  CheckComplianceUseCase(
+    this._dietRepository,
+    this._foodItemRepository,
+    this._complianceService,
+    this._authService,
+  );
 
   @override
   Future<Result<ComplianceCheckResult, AppError>> call(CheckComplianceInput input) async {
-    // 1. Get diet with rules
+    // 1. Authorization FIRST (per Coding Standards Section 5.5)
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Get diet with rules
     final dietResult = await _dietRepository.getById(input.dietId);
     if (dietResult.isFailure) return Failure(dietResult.errorOrNull!);
 
     final diet = dietResult.valueOrNull!;
 
-    // 2. Check food against all rules
+    // 3. Check food against all rules
     final violations = _complianceService.checkFoodAgainstRules(
       input.foodItem,
       diet.rules,
-      input.logTime,
+      input.logTimeEpoch,
     );
 
-    // 3. Calculate impact
+    // 4. Calculate impact
     final impact = _complianceService.calculateImpact(
       input.profileId,
       violations,
     );
 
-    // 4. Find alternatives if violations exist
+    // 5. Find alternatives if violations exist
     List<FoodItem> alternatives = [];
     if (violations.isNotEmpty) {
       final altResult = await _findAlternatives(
