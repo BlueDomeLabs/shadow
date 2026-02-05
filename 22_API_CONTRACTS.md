@@ -2116,9 +2116,12 @@ class LogFluidsEntryInput with _$LogFluidsEntryInput {
     // Bowel
     BowelCondition? bowelCondition,
     MovementSize? bowelSize,
+    String? bowelPhotoPath,             // Optional photo attachment
 
     // Urine
     UrineCondition? urineCondition,
+    MovementSize? urineSize,
+    String? urinePhotoPath,             // Optional photo attachment
 
     // Menstruation
     MenstruationFlow? menstruationFlow,
@@ -2132,7 +2135,7 @@ class LogFluidsEntryInput with _$LogFluidsEntryInput {
     String? otherFluidAmount,
     String? otherFluidNotes,
 
-    String? notes,
+    @Default('') String notes,          // Matches entity pattern
   }) = _LogFluidsEntryInput;
 }
 
@@ -2205,10 +2208,12 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       errors['bbtRecordedTime'] = ['Recording time is required for BBT'];
     }
 
-    // Other fluid requires name if amount or notes provided
-    if ((input.otherFluidAmount != null || input.otherFluidNotes != null) &&
-        input.otherFluidName == null) {
-      errors['otherFluidName'] = ['Fluid name is required when logging other fluids'];
+    // Other fluid requires name if amount or notes provided (defensive check for empty strings)
+    if ((input.otherFluidAmount != null && input.otherFluidAmount!.isNotEmpty) ||
+        (input.otherFluidNotes != null && input.otherFluidNotes!.isNotEmpty)) {
+      if (input.otherFluidName == null || input.otherFluidName!.isEmpty) {
+        errors['otherFluidName'] = ['Fluid name is required when amount or notes are provided'];
+      }
     }
 
     if (errors.isNotEmpty) {
