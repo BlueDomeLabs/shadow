@@ -1,5 +1,7 @@
 // lib/domain/entities/entities.dart - Domain entities barrel export
 
+export 'activity.dart';
+export 'activity_log.dart';
 export 'condition.dart';
 export 'condition_log.dart';
 export 'fluids_entry.dart';

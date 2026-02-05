@@ -10,12 +10,16 @@ import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shadow_app/data/datasources/local/daos/activity_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/activity_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
+import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.dart';
@@ -48,6 +52,8 @@ part 'database.g.dart';
     ConditionLogs,
     FluidsEntries,
     SleepEntries,
+    Activities,
+    ActivityLogs,
   ],
   daos: [
     SupplementDao,
@@ -56,6 +62,8 @@ part 'database.g.dart';
     ConditionLogDao,
     FluidsEntryDao,
     SleepEntryDao,
+    ActivityDao,
+    ActivityLogDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
