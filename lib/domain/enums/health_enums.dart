@@ -431,6 +431,21 @@ enum ConditionStatus {
       .firstWhere((e) => e.value == value, orElse: () => active);
 }
 
+// === Food Enums (22_API_CONTRACTS.md Section 10.11) ===
+
+enum FoodItemType {
+  simple(0),
+  complex(1);
+
+  final int value;
+  const FoodItemType(this.value);
+
+  static FoodItemType fromValue(int value) => FoodItemType.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => simple,
+  );
+}
+
 // === Sleep Enums (22_API_CONTRACTS.md Section 10.15) ===
 
 enum DreamType {

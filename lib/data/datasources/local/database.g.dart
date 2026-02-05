@@ -10931,6 +10931,2379 @@ class ActivityLogsCompanion extends UpdateCompanion<ActivityLogRow> {
   }
 }
 
+class $FoodItemsTable extends FoodItems
+    with TableInfo<$FoodItemsTable, FoodItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<int> type = GeneratedColumn<int>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _simpleItemIdsMeta = const VerificationMeta(
+    'simpleItemIds',
+  );
+  @override
+  late final GeneratedColumn<String> simpleItemIds = GeneratedColumn<String>(
+    'simple_item_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isUserCreatedMeta = const VerificationMeta(
+    'isUserCreated',
+  );
+  @override
+  late final GeneratedColumn<bool> isUserCreated = GeneratedColumn<bool>(
+    'is_user_created',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_user_created" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isArchivedMeta = const VerificationMeta(
+    'isArchived',
+  );
+  @override
+  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
+    'is_archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _servingSizeMeta = const VerificationMeta(
+    'servingSize',
+  );
+  @override
+  late final GeneratedColumn<double> servingSize = GeneratedColumn<double>(
+    'serving_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _servingUnitMeta = const VerificationMeta(
+    'servingUnit',
+  );
+  @override
+  late final GeneratedColumn<String> servingUnit = GeneratedColumn<String>(
+    'serving_unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _caloriesMeta = const VerificationMeta(
+    'calories',
+  );
+  @override
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
+    'calories',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _carbsGramsMeta = const VerificationMeta(
+    'carbsGrams',
+  );
+  @override
+  late final GeneratedColumn<double> carbsGrams = GeneratedColumn<double>(
+    'carbs_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fatGramsMeta = const VerificationMeta(
+    'fatGrams',
+  );
+  @override
+  late final GeneratedColumn<double> fatGrams = GeneratedColumn<double>(
+    'fat_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _proteinGramsMeta = const VerificationMeta(
+    'proteinGrams',
+  );
+  @override
+  late final GeneratedColumn<double> proteinGrams = GeneratedColumn<double>(
+    'protein_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fiberGramsMeta = const VerificationMeta(
+    'fiberGrams',
+  );
+  @override
+  late final GeneratedColumn<double> fiberGrams = GeneratedColumn<double>(
+    'fiber_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sugarGramsMeta = const VerificationMeta(
+    'sugarGrams',
+  );
+  @override
+  late final GeneratedColumn<double> sugarGrams = GeneratedColumn<double>(
+    'sugar_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    name,
+    type,
+    simpleItemIds,
+    isUserCreated,
+    isArchived,
+    servingSize,
+    servingUnit,
+    calories,
+    carbsGrams,
+    fatGrams,
+    proteinGrams,
+    fiberGrams,
+    sugarGrams,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    }
+    if (data.containsKey('simple_item_ids')) {
+      context.handle(
+        _simpleItemIdsMeta,
+        simpleItemIds.isAcceptableOrUnknown(
+          data['simple_item_ids']!,
+          _simpleItemIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_user_created')) {
+      context.handle(
+        _isUserCreatedMeta,
+        isUserCreated.isAcceptableOrUnknown(
+          data['is_user_created']!,
+          _isUserCreatedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_archived')) {
+      context.handle(
+        _isArchivedMeta,
+        isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
+      );
+    }
+    if (data.containsKey('serving_size')) {
+      context.handle(
+        _servingSizeMeta,
+        servingSize.isAcceptableOrUnknown(
+          data['serving_size']!,
+          _servingSizeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('serving_unit')) {
+      context.handle(
+        _servingUnitMeta,
+        servingUnit.isAcceptableOrUnknown(
+          data['serving_unit']!,
+          _servingUnitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('calories')) {
+      context.handle(
+        _caloriesMeta,
+        calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta),
+      );
+    }
+    if (data.containsKey('carbs_grams')) {
+      context.handle(
+        _carbsGramsMeta,
+        carbsGrams.isAcceptableOrUnknown(data['carbs_grams']!, _carbsGramsMeta),
+      );
+    }
+    if (data.containsKey('fat_grams')) {
+      context.handle(
+        _fatGramsMeta,
+        fatGrams.isAcceptableOrUnknown(data['fat_grams']!, _fatGramsMeta),
+      );
+    }
+    if (data.containsKey('protein_grams')) {
+      context.handle(
+        _proteinGramsMeta,
+        proteinGrams.isAcceptableOrUnknown(
+          data['protein_grams']!,
+          _proteinGramsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fiber_grams')) {
+      context.handle(
+        _fiberGramsMeta,
+        fiberGrams.isAcceptableOrUnknown(data['fiber_grams']!, _fiberGramsMeta),
+      );
+    }
+    if (data.containsKey('sugar_grams')) {
+      context.handle(
+        _sugarGramsMeta,
+        sugarGrams.isAcceptableOrUnknown(data['sugar_grams']!, _sugarGramsMeta),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FoodItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodItemRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}type'],
+      )!,
+      simpleItemIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}simple_item_ids'],
+      ),
+      isUserCreated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_user_created'],
+      )!,
+      isArchived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_archived'],
+      )!,
+      servingSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}serving_size'],
+      ),
+      servingUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}serving_unit'],
+      ),
+      calories: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}calories'],
+      ),
+      carbsGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carbs_grams'],
+      ),
+      fatGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fat_grams'],
+      ),
+      proteinGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}protein_grams'],
+      ),
+      fiberGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fiber_grams'],
+      ),
+      sugarGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sugar_grams'],
+      ),
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $FoodItemsTable createAlias(String alias) {
+    return $FoodItemsTable(attachedDatabase, alias);
+  }
+}
+
+class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final String name;
+  final int type;
+  final String? simpleItemIds;
+  final bool isUserCreated;
+  final bool isArchived;
+  final double? servingSize;
+  final String? servingUnit;
+  final double? calories;
+  final double? carbsGrams;
+  final double? fatGrams;
+  final double? proteinGrams;
+  final double? fiberGrams;
+  final double? sugarGrams;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const FoodItemRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.name,
+    required this.type,
+    this.simpleItemIds,
+    required this.isUserCreated,
+    required this.isArchived,
+    this.servingSize,
+    this.servingUnit,
+    this.calories,
+    this.carbsGrams,
+    this.fatGrams,
+    this.proteinGrams,
+    this.fiberGrams,
+    this.sugarGrams,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<int>(type);
+    if (!nullToAbsent || simpleItemIds != null) {
+      map['simple_item_ids'] = Variable<String>(simpleItemIds);
+    }
+    map['is_user_created'] = Variable<bool>(isUserCreated);
+    map['is_archived'] = Variable<bool>(isArchived);
+    if (!nullToAbsent || servingSize != null) {
+      map['serving_size'] = Variable<double>(servingSize);
+    }
+    if (!nullToAbsent || servingUnit != null) {
+      map['serving_unit'] = Variable<String>(servingUnit);
+    }
+    if (!nullToAbsent || calories != null) {
+      map['calories'] = Variable<double>(calories);
+    }
+    if (!nullToAbsent || carbsGrams != null) {
+      map['carbs_grams'] = Variable<double>(carbsGrams);
+    }
+    if (!nullToAbsent || fatGrams != null) {
+      map['fat_grams'] = Variable<double>(fatGrams);
+    }
+    if (!nullToAbsent || proteinGrams != null) {
+      map['protein_grams'] = Variable<double>(proteinGrams);
+    }
+    if (!nullToAbsent || fiberGrams != null) {
+      map['fiber_grams'] = Variable<double>(fiberGrams);
+    }
+    if (!nullToAbsent || sugarGrams != null) {
+      map['sugar_grams'] = Variable<double>(sugarGrams);
+    }
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  FoodItemsCompanion toCompanion(bool nullToAbsent) {
+    return FoodItemsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      name: Value(name),
+      type: Value(type),
+      simpleItemIds: simpleItemIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(simpleItemIds),
+      isUserCreated: Value(isUserCreated),
+      isArchived: Value(isArchived),
+      servingSize: servingSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingSize),
+      servingUnit: servingUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingUnit),
+      calories: calories == null && nullToAbsent
+          ? const Value.absent()
+          : Value(calories),
+      carbsGrams: carbsGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(carbsGrams),
+      fatGrams: fatGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fatGrams),
+      proteinGrams: proteinGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(proteinGrams),
+      fiberGrams: fiberGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fiberGrams),
+      sugarGrams: sugarGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sugarGrams),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory FoodItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodItemRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<int>(json['type']),
+      simpleItemIds: serializer.fromJson<String?>(json['simpleItemIds']),
+      isUserCreated: serializer.fromJson<bool>(json['isUserCreated']),
+      isArchived: serializer.fromJson<bool>(json['isArchived']),
+      servingSize: serializer.fromJson<double?>(json['servingSize']),
+      servingUnit: serializer.fromJson<String?>(json['servingUnit']),
+      calories: serializer.fromJson<double?>(json['calories']),
+      carbsGrams: serializer.fromJson<double?>(json['carbsGrams']),
+      fatGrams: serializer.fromJson<double?>(json['fatGrams']),
+      proteinGrams: serializer.fromJson<double?>(json['proteinGrams']),
+      fiberGrams: serializer.fromJson<double?>(json['fiberGrams']),
+      sugarGrams: serializer.fromJson<double?>(json['sugarGrams']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<int>(type),
+      'simpleItemIds': serializer.toJson<String?>(simpleItemIds),
+      'isUserCreated': serializer.toJson<bool>(isUserCreated),
+      'isArchived': serializer.toJson<bool>(isArchived),
+      'servingSize': serializer.toJson<double?>(servingSize),
+      'servingUnit': serializer.toJson<String?>(servingUnit),
+      'calories': serializer.toJson<double?>(calories),
+      'carbsGrams': serializer.toJson<double?>(carbsGrams),
+      'fatGrams': serializer.toJson<double?>(fatGrams),
+      'proteinGrams': serializer.toJson<double?>(proteinGrams),
+      'fiberGrams': serializer.toJson<double?>(fiberGrams),
+      'sugarGrams': serializer.toJson<double?>(sugarGrams),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  FoodItemRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    String? name,
+    int? type,
+    Value<String?> simpleItemIds = const Value.absent(),
+    bool? isUserCreated,
+    bool? isArchived,
+    Value<double?> servingSize = const Value.absent(),
+    Value<String?> servingUnit = const Value.absent(),
+    Value<double?> calories = const Value.absent(),
+    Value<double?> carbsGrams = const Value.absent(),
+    Value<double?> fatGrams = const Value.absent(),
+    Value<double?> proteinGrams = const Value.absent(),
+    Value<double?> fiberGrams = const Value.absent(),
+    Value<double?> sugarGrams = const Value.absent(),
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => FoodItemRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    simpleItemIds: simpleItemIds.present
+        ? simpleItemIds.value
+        : this.simpleItemIds,
+    isUserCreated: isUserCreated ?? this.isUserCreated,
+    isArchived: isArchived ?? this.isArchived,
+    servingSize: servingSize.present ? servingSize.value : this.servingSize,
+    servingUnit: servingUnit.present ? servingUnit.value : this.servingUnit,
+    calories: calories.present ? calories.value : this.calories,
+    carbsGrams: carbsGrams.present ? carbsGrams.value : this.carbsGrams,
+    fatGrams: fatGrams.present ? fatGrams.value : this.fatGrams,
+    proteinGrams: proteinGrams.present ? proteinGrams.value : this.proteinGrams,
+    fiberGrams: fiberGrams.present ? fiberGrams.value : this.fiberGrams,
+    sugarGrams: sugarGrams.present ? sugarGrams.value : this.sugarGrams,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  FoodItemRow copyWithCompanion(FoodItemsCompanion data) {
+    return FoodItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      simpleItemIds: data.simpleItemIds.present
+          ? data.simpleItemIds.value
+          : this.simpleItemIds,
+      isUserCreated: data.isUserCreated.present
+          ? data.isUserCreated.value
+          : this.isUserCreated,
+      isArchived: data.isArchived.present
+          ? data.isArchived.value
+          : this.isArchived,
+      servingSize: data.servingSize.present
+          ? data.servingSize.value
+          : this.servingSize,
+      servingUnit: data.servingUnit.present
+          ? data.servingUnit.value
+          : this.servingUnit,
+      calories: data.calories.present ? data.calories.value : this.calories,
+      carbsGrams: data.carbsGrams.present
+          ? data.carbsGrams.value
+          : this.carbsGrams,
+      fatGrams: data.fatGrams.present ? data.fatGrams.value : this.fatGrams,
+      proteinGrams: data.proteinGrams.present
+          ? data.proteinGrams.value
+          : this.proteinGrams,
+      fiberGrams: data.fiberGrams.present
+          ? data.fiberGrams.value
+          : this.fiberGrams,
+      sugarGrams: data.sugarGrams.present
+          ? data.sugarGrams.value
+          : this.sugarGrams,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodItemRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('simpleItemIds: $simpleItemIds, ')
+          ..write('isUserCreated: $isUserCreated, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('calories: $calories, ')
+          ..write('carbsGrams: $carbsGrams, ')
+          ..write('fatGrams: $fatGrams, ')
+          ..write('proteinGrams: $proteinGrams, ')
+          ..write('fiberGrams: $fiberGrams, ')
+          ..write('sugarGrams: $sugarGrams, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    clientId,
+    profileId,
+    name,
+    type,
+    simpleItemIds,
+    isUserCreated,
+    isArchived,
+    servingSize,
+    servingUnit,
+    calories,
+    carbsGrams,
+    fatGrams,
+    proteinGrams,
+    fiberGrams,
+    sugarGrams,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodItemRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.simpleItemIds == this.simpleItemIds &&
+          other.isUserCreated == this.isUserCreated &&
+          other.isArchived == this.isArchived &&
+          other.servingSize == this.servingSize &&
+          other.servingUnit == this.servingUnit &&
+          other.calories == this.calories &&
+          other.carbsGrams == this.carbsGrams &&
+          other.fatGrams == this.fatGrams &&
+          other.proteinGrams == this.proteinGrams &&
+          other.fiberGrams == this.fiberGrams &&
+          other.sugarGrams == this.sugarGrams &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<String> name;
+  final Value<int> type;
+  final Value<String?> simpleItemIds;
+  final Value<bool> isUserCreated;
+  final Value<bool> isArchived;
+  final Value<double?> servingSize;
+  final Value<String?> servingUnit;
+  final Value<double?> calories;
+  final Value<double?> carbsGrams;
+  final Value<double?> fatGrams;
+  final Value<double?> proteinGrams;
+  final Value<double?> fiberGrams;
+  final Value<double?> sugarGrams;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const FoodItemsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.simpleItemIds = const Value.absent(),
+    this.isUserCreated = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.carbsGrams = const Value.absent(),
+    this.fatGrams = const Value.absent(),
+    this.proteinGrams = const Value.absent(),
+    this.fiberGrams = const Value.absent(),
+    this.sugarGrams = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FoodItemsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required String name,
+    this.type = const Value.absent(),
+    this.simpleItemIds = const Value.absent(),
+    this.isUserCreated = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingUnit = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.carbsGrams = const Value.absent(),
+    this.fatGrams = const Value.absent(),
+    this.proteinGrams = const Value.absent(),
+    this.fiberGrams = const Value.absent(),
+    this.sugarGrams = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       name = Value(name),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<FoodItemRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<String>? name,
+    Expression<int>? type,
+    Expression<String>? simpleItemIds,
+    Expression<bool>? isUserCreated,
+    Expression<bool>? isArchived,
+    Expression<double>? servingSize,
+    Expression<String>? servingUnit,
+    Expression<double>? calories,
+    Expression<double>? carbsGrams,
+    Expression<double>? fatGrams,
+    Expression<double>? proteinGrams,
+    Expression<double>? fiberGrams,
+    Expression<double>? sugarGrams,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (simpleItemIds != null) 'simple_item_ids': simpleItemIds,
+      if (isUserCreated != null) 'is_user_created': isUserCreated,
+      if (isArchived != null) 'is_archived': isArchived,
+      if (servingSize != null) 'serving_size': servingSize,
+      if (servingUnit != null) 'serving_unit': servingUnit,
+      if (calories != null) 'calories': calories,
+      if (carbsGrams != null) 'carbs_grams': carbsGrams,
+      if (fatGrams != null) 'fat_grams': fatGrams,
+      if (proteinGrams != null) 'protein_grams': proteinGrams,
+      if (fiberGrams != null) 'fiber_grams': fiberGrams,
+      if (sugarGrams != null) 'sugar_grams': sugarGrams,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FoodItemsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<String>? name,
+    Value<int>? type,
+    Value<String?>? simpleItemIds,
+    Value<bool>? isUserCreated,
+    Value<bool>? isArchived,
+    Value<double?>? servingSize,
+    Value<String?>? servingUnit,
+    Value<double?>? calories,
+    Value<double?>? carbsGrams,
+    Value<double?>? fatGrams,
+    Value<double?>? proteinGrams,
+    Value<double?>? fiberGrams,
+    Value<double?>? sugarGrams,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return FoodItemsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      simpleItemIds: simpleItemIds ?? this.simpleItemIds,
+      isUserCreated: isUserCreated ?? this.isUserCreated,
+      isArchived: isArchived ?? this.isArchived,
+      servingSize: servingSize ?? this.servingSize,
+      servingUnit: servingUnit ?? this.servingUnit,
+      calories: calories ?? this.calories,
+      carbsGrams: carbsGrams ?? this.carbsGrams,
+      fatGrams: fatGrams ?? this.fatGrams,
+      proteinGrams: proteinGrams ?? this.proteinGrams,
+      fiberGrams: fiberGrams ?? this.fiberGrams,
+      sugarGrams: sugarGrams ?? this.sugarGrams,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(type.value);
+    }
+    if (simpleItemIds.present) {
+      map['simple_item_ids'] = Variable<String>(simpleItemIds.value);
+    }
+    if (isUserCreated.present) {
+      map['is_user_created'] = Variable<bool>(isUserCreated.value);
+    }
+    if (isArchived.present) {
+      map['is_archived'] = Variable<bool>(isArchived.value);
+    }
+    if (servingSize.present) {
+      map['serving_size'] = Variable<double>(servingSize.value);
+    }
+    if (servingUnit.present) {
+      map['serving_unit'] = Variable<String>(servingUnit.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<double>(calories.value);
+    }
+    if (carbsGrams.present) {
+      map['carbs_grams'] = Variable<double>(carbsGrams.value);
+    }
+    if (fatGrams.present) {
+      map['fat_grams'] = Variable<double>(fatGrams.value);
+    }
+    if (proteinGrams.present) {
+      map['protein_grams'] = Variable<double>(proteinGrams.value);
+    }
+    if (fiberGrams.present) {
+      map['fiber_grams'] = Variable<double>(fiberGrams.value);
+    }
+    if (sugarGrams.present) {
+      map['sugar_grams'] = Variable<double>(sugarGrams.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('simpleItemIds: $simpleItemIds, ')
+          ..write('isUserCreated: $isUserCreated, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingUnit: $servingUnit, ')
+          ..write('calories: $calories, ')
+          ..write('carbsGrams: $carbsGrams, ')
+          ..write('fatGrams: $fatGrams, ')
+          ..write('proteinGrams: $proteinGrams, ')
+          ..write('fiberGrams: $fiberGrams, ')
+          ..write('sugarGrams: $sugarGrams, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodLogsTable extends FoodLogs
+    with TableInfo<$FoodLogsTable, FoodLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<int> timestamp = GeneratedColumn<int>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _foodItemIdsMeta = const VerificationMeta(
+    'foodItemIds',
+  );
+  @override
+  late final GeneratedColumn<String> foodItemIds = GeneratedColumn<String>(
+    'food_item_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _adHocItemsMeta = const VerificationMeta(
+    'adHocItems',
+  );
+  @override
+  late final GeneratedColumn<String> adHocItems = GeneratedColumn<String>(
+    'ad_hoc_items',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    timestamp,
+    foodItemIds,
+    adHocItems,
+    notes,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('food_item_ids')) {
+      context.handle(
+        _foodItemIdsMeta,
+        foodItemIds.isAcceptableOrUnknown(
+          data['food_item_ids']!,
+          _foodItemIdsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_foodItemIdsMeta);
+    }
+    if (data.containsKey('ad_hoc_items')) {
+      context.handle(
+        _adHocItemsMeta,
+        adHocItems.isAcceptableOrUnknown(
+          data['ad_hoc_items']!,
+          _adHocItemsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_adHocItemsMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FoodLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodLogRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      foodItemIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_item_ids'],
+      )!,
+      adHocItems: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ad_hoc_items'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $FoodLogsTable createAlias(String alias) {
+    return $FoodLogsTable(attachedDatabase, alias);
+  }
+}
+
+class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int timestamp;
+  final String foodItemIds;
+  final String adHocItems;
+  final String? notes;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const FoodLogRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.timestamp,
+    required this.foodItemIds,
+    required this.adHocItems,
+    this.notes,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['timestamp'] = Variable<int>(timestamp);
+    map['food_item_ids'] = Variable<String>(foodItemIds);
+    map['ad_hoc_items'] = Variable<String>(adHocItems);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  FoodLogsCompanion toCompanion(bool nullToAbsent) {
+    return FoodLogsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      timestamp: Value(timestamp),
+      foodItemIds: Value(foodItemIds),
+      adHocItems: Value(adHocItems),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory FoodLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodLogRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      timestamp: serializer.fromJson<int>(json['timestamp']),
+      foodItemIds: serializer.fromJson<String>(json['foodItemIds']),
+      adHocItems: serializer.fromJson<String>(json['adHocItems']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'timestamp': serializer.toJson<int>(timestamp),
+      'foodItemIds': serializer.toJson<String>(foodItemIds),
+      'adHocItems': serializer.toJson<String>(adHocItems),
+      'notes': serializer.toJson<String?>(notes),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  FoodLogRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? timestamp,
+    String? foodItemIds,
+    String? adHocItems,
+    Value<String?> notes = const Value.absent(),
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => FoodLogRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    timestamp: timestamp ?? this.timestamp,
+    foodItemIds: foodItemIds ?? this.foodItemIds,
+    adHocItems: adHocItems ?? this.adHocItems,
+    notes: notes.present ? notes.value : this.notes,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  FoodLogRow copyWithCompanion(FoodLogsCompanion data) {
+    return FoodLogRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      foodItemIds: data.foodItemIds.present
+          ? data.foodItemIds.value
+          : this.foodItemIds,
+      adHocItems: data.adHocItems.present
+          ? data.adHocItems.value
+          : this.adHocItems,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodLogRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('foodItemIds: $foodItemIds, ')
+          ..write('adHocItems: $adHocItems, ')
+          ..write('notes: $notes, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    profileId,
+    timestamp,
+    foodItemIds,
+    adHocItems,
+    notes,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodLogRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.timestamp == this.timestamp &&
+          other.foodItemIds == this.foodItemIds &&
+          other.adHocItems == this.adHocItems &&
+          other.notes == this.notes &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> timestamp;
+  final Value<String> foodItemIds;
+  final Value<String> adHocItems;
+  final Value<String?> notes;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const FoodLogsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.foodItemIds = const Value.absent(),
+    this.adHocItems = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FoodLogsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int timestamp,
+    required String foodItemIds,
+    required String adHocItems,
+    this.notes = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       timestamp = Value(timestamp),
+       foodItemIds = Value(foodItemIds),
+       adHocItems = Value(adHocItems),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<FoodLogRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? timestamp,
+    Expression<String>? foodItemIds,
+    Expression<String>? adHocItems,
+    Expression<String>? notes,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (foodItemIds != null) 'food_item_ids': foodItemIds,
+      if (adHocItems != null) 'ad_hoc_items': adHocItems,
+      if (notes != null) 'notes': notes,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FoodLogsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? timestamp,
+    Value<String>? foodItemIds,
+    Value<String>? adHocItems,
+    Value<String?>? notes,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return FoodLogsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      timestamp: timestamp ?? this.timestamp,
+      foodItemIds: foodItemIds ?? this.foodItemIds,
+      adHocItems: adHocItems ?? this.adHocItems,
+      notes: notes ?? this.notes,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<int>(timestamp.value);
+    }
+    if (foodItemIds.present) {
+      map['food_item_ids'] = Variable<String>(foodItemIds.value);
+    }
+    if (adHocItems.present) {
+      map['ad_hoc_items'] = Variable<String>(adHocItems.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('foodItemIds: $foodItemIds, ')
+          ..write('adHocItems: $adHocItems, ')
+          ..write('notes: $notes, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10942,6 +13315,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SleepEntriesTable sleepEntries = $SleepEntriesTable(this);
   late final $ActivitiesTable activities = $ActivitiesTable(this);
   late final $ActivityLogsTable activityLogs = $ActivityLogsTable(this);
+  late final $FoodItemsTable foodItems = $FoodItemsTable(this);
+  late final $FoodLogsTable foodLogs = $FoodLogsTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -10956,6 +13331,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final ActivityLogDao activityLogDao = ActivityLogDao(
     this as AppDatabase,
   );
+  late final FoodItemDao foodItemDao = FoodItemDao(this as AppDatabase);
+  late final FoodLogDao foodLogDao = FoodLogDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10969,6 +13346,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     sleepEntries,
     activities,
     activityLogs,
+    foodItems,
+    foodLogs,
   ];
 }
 
@@ -15699,6 +18078,1050 @@ typedef $$ActivityLogsTableProcessedTableManager =
       ActivityLogRow,
       PrefetchHooks Function()
     >;
+typedef $$FoodItemsTableCreateCompanionBuilder =
+    FoodItemsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required String name,
+      Value<int> type,
+      Value<String?> simpleItemIds,
+      Value<bool> isUserCreated,
+      Value<bool> isArchived,
+      Value<double?> servingSize,
+      Value<String?> servingUnit,
+      Value<double?> calories,
+      Value<double?> carbsGrams,
+      Value<double?> fatGrams,
+      Value<double?> proteinGrams,
+      Value<double?> fiberGrams,
+      Value<double?> sugarGrams,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$FoodItemsTableUpdateCompanionBuilder =
+    FoodItemsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<String> name,
+      Value<int> type,
+      Value<String?> simpleItemIds,
+      Value<bool> isUserCreated,
+      Value<bool> isArchived,
+      Value<double?> servingSize,
+      Value<String?> servingUnit,
+      Value<double?> calories,
+      Value<double?> carbsGrams,
+      Value<double?> fatGrams,
+      Value<double?> proteinGrams,
+      Value<double?> fiberGrams,
+      Value<double?> sugarGrams,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$FoodItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodItemsTable> {
+  $$FoodItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get simpleItemIds => $composableBuilder(
+    column: $table.simpleItemIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isUserCreated => $composableBuilder(
+    column: $table.isUserCreated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get carbsGrams => $composableBuilder(
+    column: $table.carbsGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fatGrams => $composableBuilder(
+    column: $table.fatGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get proteinGrams => $composableBuilder(
+    column: $table.proteinGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fiberGrams => $composableBuilder(
+    column: $table.fiberGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sugarGrams => $composableBuilder(
+    column: $table.sugarGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodItemsTable> {
+  $$FoodItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get simpleItemIds => $composableBuilder(
+    column: $table.simpleItemIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isUserCreated => $composableBuilder(
+    column: $table.isUserCreated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get carbsGrams => $composableBuilder(
+    column: $table.carbsGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fatGrams => $composableBuilder(
+    column: $table.fatGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get proteinGrams => $composableBuilder(
+    column: $table.proteinGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fiberGrams => $composableBuilder(
+    column: $table.fiberGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get sugarGrams => $composableBuilder(
+    column: $table.sugarGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodItemsTable> {
+  $$FoodItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get simpleItemIds => $composableBuilder(
+    column: $table.simpleItemIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isUserCreated => $composableBuilder(
+    column: $table.isUserCreated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get servingUnit => $composableBuilder(
+    column: $table.servingUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<double> get carbsGrams => $composableBuilder(
+    column: $table.carbsGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get fatGrams =>
+      $composableBuilder(column: $table.fatGrams, builder: (column) => column);
+
+  GeneratedColumn<double> get proteinGrams => $composableBuilder(
+    column: $table.proteinGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get fiberGrams => $composableBuilder(
+    column: $table.fiberGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get sugarGrams => $composableBuilder(
+    column: $table.sugarGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$FoodItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodItemsTable,
+          FoodItemRow,
+          $$FoodItemsTableFilterComposer,
+          $$FoodItemsTableOrderingComposer,
+          $$FoodItemsTableAnnotationComposer,
+          $$FoodItemsTableCreateCompanionBuilder,
+          $$FoodItemsTableUpdateCompanionBuilder,
+          (
+            FoodItemRow,
+            BaseReferences<_$AppDatabase, $FoodItemsTable, FoodItemRow>,
+          ),
+          FoodItemRow,
+          PrefetchHooks Function()
+        > {
+  $$FoodItemsTableTableManager(_$AppDatabase db, $FoodItemsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> type = const Value.absent(),
+                Value<String?> simpleItemIds = const Value.absent(),
+                Value<bool> isUserCreated = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
+                Value<double?> servingSize = const Value.absent(),
+                Value<String?> servingUnit = const Value.absent(),
+                Value<double?> calories = const Value.absent(),
+                Value<double?> carbsGrams = const Value.absent(),
+                Value<double?> fatGrams = const Value.absent(),
+                Value<double?> proteinGrams = const Value.absent(),
+                Value<double?> fiberGrams = const Value.absent(),
+                Value<double?> sugarGrams = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodItemsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                name: name,
+                type: type,
+                simpleItemIds: simpleItemIds,
+                isUserCreated: isUserCreated,
+                isArchived: isArchived,
+                servingSize: servingSize,
+                servingUnit: servingUnit,
+                calories: calories,
+                carbsGrams: carbsGrams,
+                fatGrams: fatGrams,
+                proteinGrams: proteinGrams,
+                fiberGrams: fiberGrams,
+                sugarGrams: sugarGrams,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required String name,
+                Value<int> type = const Value.absent(),
+                Value<String?> simpleItemIds = const Value.absent(),
+                Value<bool> isUserCreated = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
+                Value<double?> servingSize = const Value.absent(),
+                Value<String?> servingUnit = const Value.absent(),
+                Value<double?> calories = const Value.absent(),
+                Value<double?> carbsGrams = const Value.absent(),
+                Value<double?> fatGrams = const Value.absent(),
+                Value<double?> proteinGrams = const Value.absent(),
+                Value<double?> fiberGrams = const Value.absent(),
+                Value<double?> sugarGrams = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodItemsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                name: name,
+                type: type,
+                simpleItemIds: simpleItemIds,
+                isUserCreated: isUserCreated,
+                isArchived: isArchived,
+                servingSize: servingSize,
+                servingUnit: servingUnit,
+                calories: calories,
+                carbsGrams: carbsGrams,
+                fatGrams: fatGrams,
+                proteinGrams: proteinGrams,
+                fiberGrams: fiberGrams,
+                sugarGrams: sugarGrams,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodItemsTable,
+      FoodItemRow,
+      $$FoodItemsTableFilterComposer,
+      $$FoodItemsTableOrderingComposer,
+      $$FoodItemsTableAnnotationComposer,
+      $$FoodItemsTableCreateCompanionBuilder,
+      $$FoodItemsTableUpdateCompanionBuilder,
+      (
+        FoodItemRow,
+        BaseReferences<_$AppDatabase, $FoodItemsTable, FoodItemRow>,
+      ),
+      FoodItemRow,
+      PrefetchHooks Function()
+    >;
+typedef $$FoodLogsTableCreateCompanionBuilder =
+    FoodLogsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int timestamp,
+      required String foodItemIds,
+      required String adHocItems,
+      Value<String?> notes,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$FoodLogsTableUpdateCompanionBuilder =
+    FoodLogsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> timestamp,
+      Value<String> foodItemIds,
+      Value<String> adHocItems,
+      Value<String?> notes,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$FoodLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodLogsTable> {
+  $$FoodLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get foodItemIds => $composableBuilder(
+    column: $table.foodItemIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get adHocItems => $composableBuilder(
+    column: $table.adHocItems,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodLogsTable> {
+  $$FoodLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get foodItemIds => $composableBuilder(
+    column: $table.foodItemIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get adHocItems => $composableBuilder(
+    column: $table.adHocItems,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodLogsTable> {
+  $$FoodLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get foodItemIds => $composableBuilder(
+    column: $table.foodItemIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get adHocItems => $composableBuilder(
+    column: $table.adHocItems,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$FoodLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodLogsTable,
+          FoodLogRow,
+          $$FoodLogsTableFilterComposer,
+          $$FoodLogsTableOrderingComposer,
+          $$FoodLogsTableAnnotationComposer,
+          $$FoodLogsTableCreateCompanionBuilder,
+          $$FoodLogsTableUpdateCompanionBuilder,
+          (
+            FoodLogRow,
+            BaseReferences<_$AppDatabase, $FoodLogsTable, FoodLogRow>,
+          ),
+          FoodLogRow,
+          PrefetchHooks Function()
+        > {
+  $$FoodLogsTableTableManager(_$AppDatabase db, $FoodLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> timestamp = const Value.absent(),
+                Value<String> foodItemIds = const Value.absent(),
+                Value<String> adHocItems = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodLogsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                timestamp: timestamp,
+                foodItemIds: foodItemIds,
+                adHocItems: adHocItems,
+                notes: notes,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int timestamp,
+                required String foodItemIds,
+                required String adHocItems,
+                Value<String?> notes = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodLogsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                timestamp: timestamp,
+                foodItemIds: foodItemIds,
+                adHocItems: adHocItems,
+                notes: notes,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodLogsTable,
+      FoodLogRow,
+      $$FoodLogsTableFilterComposer,
+      $$FoodLogsTableOrderingComposer,
+      $$FoodLogsTableAnnotationComposer,
+      $$FoodLogsTableCreateCompanionBuilder,
+      $$FoodLogsTableUpdateCompanionBuilder,
+      (FoodLogRow, BaseReferences<_$AppDatabase, $FoodLogsTable, FoodLogRow>),
+      FoodLogRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -15719,4 +19142,8 @@ class $AppDatabaseManager {
       $$ActivitiesTableTableManager(_db, _db.activities);
   $$ActivityLogsTableTableManager get activityLogs =>
       $$ActivityLogsTableTableManager(_db, _db.activityLogs);
+  $$FoodItemsTableTableManager get foodItems =>
+      $$FoodItemsTableTableManager(_db, _db.foodItems);
+  $$FoodLogsTableTableManager get foodLogs =>
+      $$FoodLogsTableTableManager(_db, _db.foodLogs);
 }
