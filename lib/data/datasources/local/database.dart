@@ -18,6 +18,7 @@ import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/journal_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
@@ -28,6 +29,7 @@ import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.da
 import 'package:shadow_app/data/datasources/local/tables/food_items_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/journal_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -60,6 +62,7 @@ part 'database.g.dart';
     ActivityLogs,
     FoodItems,
     FoodLogs,
+    JournalEntries,
   ],
   daos: [
     SupplementDao,
@@ -72,6 +75,7 @@ part 'database.g.dart';
     ActivityLogDao,
     FoodItemDao,
     FoodLogDao,
+    JournalEntryDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {

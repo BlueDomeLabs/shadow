@@ -785,6 +785,7 @@ CREATE TABLE journal_entries (
   timestamp INTEGER NOT NULL,
   content TEXT NOT NULL,
   title TEXT,
+  mood INTEGER,                    -- Mood rating 1-10, optional
   tags TEXT,                       -- Comma-separated tags
   audio_url TEXT,
 
