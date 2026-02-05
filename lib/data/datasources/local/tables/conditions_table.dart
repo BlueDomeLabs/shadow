@@ -1,0 +1,67 @@
+// lib/data/datasources/local/tables/conditions_table.dart
+// Drift table definition for conditions per 10_DATABASE_SCHEMA.md
+
+import 'package:drift/drift.dart';
+
+/// Drift table definition for conditions.
+///
+/// Maps to database table `conditions` with all sync metadata columns.
+/// See 10_DATABASE_SCHEMA.md for schema definition.
+///
+/// NOTE: @DataClassName('ConditionRow') avoids conflict with domain entity Condition.
+@DataClassName('ConditionRow')
+class Conditions extends Table {
+  // Primary key
+  TextColumn get id => text()();
+
+  // Required fields
+  TextColumn get clientId => text().named('client_id')();
+  TextColumn get profileId => text().named('profile_id')();
+  TextColumn get name => text()();
+  TextColumn get category => text()();
+  TextColumn get bodyLocations =>
+      text().named('body_locations').withDefault(const Constant('[]'))();
+  IntColumn get startTimeframe => integer().named('start_timeframe')();
+  IntColumn get status => integer()(); // ConditionStatus enum
+
+  // Optional fields
+  TextColumn get description => text().nullable()();
+  TextColumn get baselinePhotoPath =>
+      text().named('baseline_photo_path').nullable()();
+  IntColumn get endDate => integer().named('end_date').nullable()();
+  BoolColumn get isArchived =>
+      boolean().named('is_archived').withDefault(const Constant(false))();
+  TextColumn get activityId => text().named('activity_id').nullable()();
+
+  // File sync metadata
+  TextColumn get cloudStorageUrl =>
+      text().named('cloud_storage_url').nullable()();
+  TextColumn get fileHash => text().named('file_hash').nullable()();
+  IntColumn get fileSizeBytes =>
+      integer().named('file_size_bytes').nullable()();
+  BoolColumn get isFileUploaded =>
+      boolean().named('is_file_uploaded').withDefault(const Constant(false))();
+
+  // Sync metadata columns (required on all syncable entities)
+  IntColumn get syncCreatedAt => integer().named('sync_created_at')();
+  IntColumn get syncUpdatedAt =>
+      integer().named('sync_updated_at').nullable()();
+  IntColumn get syncDeletedAt =>
+      integer().named('sync_deleted_at').nullable()();
+  IntColumn get syncLastSyncedAt =>
+      integer().named('sync_last_synced_at').nullable()();
+  IntColumn get syncStatus =>
+      integer().named('sync_status').withDefault(const Constant(0))();
+  IntColumn get syncVersion =>
+      integer().named('sync_version').withDefault(const Constant(1))();
+  TextColumn get syncDeviceId => text().named('sync_device_id').nullable()();
+  BoolColumn get syncIsDirty =>
+      boolean().named('sync_is_dirty').withDefault(const Constant(true))();
+  TextColumn get conflictData => text().named('conflict_data').nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  String get tableName => 'conditions';
+}

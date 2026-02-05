@@ -402,3 +402,31 @@ enum SupplementAnchorEvent {
       .values
       .firstWhere((e) => e.value == value, orElse: () => wake);
 }
+
+// === IntakeLog Enums (22_API_CONTRACTS.md Section 10.10) ===
+
+enum IntakeLogStatus {
+  pending(0),
+  taken(1),
+  skipped(2),
+  missed(3);
+
+  final int value;
+  const IntakeLogStatus(this.value);
+
+  static IntakeLogStatus fromValue(int value) => IntakeLogStatus.values
+      .firstWhere((e) => e.value == value, orElse: () => pending);
+}
+
+// === Condition Enums (22_API_CONTRACTS.md Section 10.8) ===
+
+enum ConditionStatus {
+  active(0),
+  resolved(1);
+
+  final int value;
+  const ConditionStatus(this.value);
+
+  static ConditionStatus fromValue(int value) => ConditionStatus.values
+      .firstWhere((e) => e.value == value, orElse: () => active);
+}

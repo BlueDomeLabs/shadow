@@ -9658,6 +9658,7 @@ class Condition with _$Condition {
 
   bool get hasBaselinePhoto => baselinePhotoPath != null;
   bool get isResolved => status == ConditionStatus.resolved;
+  bool get isActive => !isArchived && status == ConditionStatus.active;
 }
 
 abstract class ConditionRepository implements EntityRepository<Condition, String> {
@@ -9704,7 +9705,7 @@ class ConditionLog with _$ConditionLog {
       _$ConditionLogFromJson(json);
 
   bool get hasPhoto => photoPath != null;
-  List<String> get triggerList => triggers?.split(',').map((t) => t.trim()).toList() ?? [];
+  List<String> get triggerList => triggers?.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList() ?? [];
 }
 
 abstract class ConditionLogRepository implements EntityRepository<ConditionLog, String> {
@@ -9770,6 +9771,8 @@ class IntakeLog with _$IntakeLog {
 
   bool get isTaken => status == IntakeLogStatus.taken;
   bool get isPending => status == IntakeLogStatus.pending;
+  bool get isSkipped => status == IntakeLogStatus.skipped;
+  bool get isMissed => status == IntakeLogStatus.missed;
   Duration? get delayFromScheduled {
     if (actualTime == null) return null;
     return Duration(milliseconds: actualTime! - scheduledTime);
