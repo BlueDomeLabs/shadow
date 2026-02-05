@@ -968,12 +968,13 @@ CREATE TABLE flare_ups (
   id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
-  timestamp INTEGER NOT NULL,
   condition_id TEXT NOT NULL,
-  activity_id TEXT,
-  triggers TEXT NOT NULL,          -- JSON array
+  start_date INTEGER NOT NULL,     -- Epoch milliseconds - flare-up start
+  end_date INTEGER,                -- Epoch milliseconds - flare-up end (null = ongoing)
   severity INTEGER NOT NULL,       -- 1-10 scale
   notes TEXT,
+  triggers TEXT NOT NULL,          -- JSON array of trigger descriptions
+  activity_id TEXT,                -- Activity that may have triggered flare-up
   photo_path TEXT,
 
   -- Sync metadata
@@ -992,8 +993,8 @@ CREATE TABLE flare_ups (
   FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_flare_ups_condition ON flare_ups(condition_id, timestamp DESC);
-CREATE INDEX idx_flare_ups_profile ON flare_ups(profile_id, timestamp DESC);
+CREATE INDEX idx_flare_ups_condition ON flare_ups(condition_id, start_date DESC);
+CREATE INDEX idx_flare_ups_profile ON flare_ups(profile_id, start_date DESC);
 CREATE INDEX idx_flare_ups_sync ON flare_ups(sync_is_dirty, sync_status);
 CREATE INDEX idx_flare_ups_activity ON flare_ups(activity_id)
   WHERE activity_id IS NOT NULL;
@@ -1148,7 +1149,10 @@ CREATE TABLE photo_areas (
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
   name TEXT NOT NULL,
-  consistency_notes TEXT,
+  description TEXT,                -- Area description
+  consistency_notes TEXT,          -- Guidance for consistent photo positioning
+  sort_order INTEGER DEFAULT 0,    -- Display order
+  is_archived INTEGER DEFAULT 0,   -- Soft delete flag
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
