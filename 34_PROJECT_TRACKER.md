@@ -78,8 +78,8 @@ Use cases implement business logic with authorization checks.
 | IntakeLog | MarkTaken, MarkSkipped, GetIntakeLogs | **DONE** |
 | Condition | CreateCondition, GetConditions, ArchiveCondition | **DONE** |
 | ConditionLog | LogCondition, GetConditionLogs | **DONE** |
+| FluidsEntry | LogFluidsEntry, GetFluidsEntries, GetTodayEntry, GetBBT, GetMenstruation, Update, Delete | **DONE** |
 | FlareUp | - | **TODO** |
-| FluidsEntry | - | **TODO** |
 | SleepEntry | - | **TODO** |
 | Activity | - | **TODO** |
 | ActivityLog | - | **TODO** |
