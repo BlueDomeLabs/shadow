@@ -29,7 +29,7 @@ mixin _$JournalEntry {
   String? get title => throw _privateConstructorUsedError;
   int? get mood =>
       throw _privateConstructorUsedError; // Mood rating 1-10, optional
-  List<String> get tags => throw _privateConstructorUsedError;
+  List<String>? get tags => throw _privateConstructorUsedError;
   String? get audioUrl => throw _privateConstructorUsedError;
   SyncMetadata get syncMetadata => throw _privateConstructorUsedError;
 
@@ -58,7 +58,7 @@ abstract class $JournalEntryCopyWith<$Res> {
     String content,
     String? title,
     int? mood,
-    List<String> tags,
+    List<String>? tags,
     String? audioUrl,
     SyncMetadata syncMetadata,
   });
@@ -88,7 +88,7 @@ class _$JournalEntryCopyWithImpl<$Res, $Val extends JournalEntry>
     Object? content = null,
     Object? title = freezed,
     Object? mood = freezed,
-    Object? tags = null,
+    Object? tags = freezed,
     Object? audioUrl = freezed,
     Object? syncMetadata = null,
   }) {
@@ -122,10 +122,10 @@ class _$JournalEntryCopyWithImpl<$Res, $Val extends JournalEntry>
                 ? _value.mood
                 : mood // ignore: cast_nullable_to_non_nullable
                       as int?,
-            tags: null == tags
+            tags: freezed == tags
                 ? _value.tags
                 : tags // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
+                      as List<String>?,
             audioUrl: freezed == audioUrl
                 ? _value.audioUrl
                 : audioUrl // ignore: cast_nullable_to_non_nullable
@@ -167,7 +167,7 @@ abstract class _$$JournalEntryImplCopyWith<$Res>
     String content,
     String? title,
     int? mood,
-    List<String> tags,
+    List<String>? tags,
     String? audioUrl,
     SyncMetadata syncMetadata,
   });
@@ -197,7 +197,7 @@ class __$$JournalEntryImplCopyWithImpl<$Res>
     Object? content = null,
     Object? title = freezed,
     Object? mood = freezed,
-    Object? tags = null,
+    Object? tags = freezed,
     Object? audioUrl = freezed,
     Object? syncMetadata = null,
   }) {
@@ -231,10 +231,10 @@ class __$$JournalEntryImplCopyWithImpl<$Res>
             ? _value.mood
             : mood // ignore: cast_nullable_to_non_nullable
                   as int?,
-        tags: null == tags
+        tags: freezed == tags
             ? _value._tags
             : tags // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
+                  as List<String>?,
         audioUrl: freezed == audioUrl
             ? _value.audioUrl
             : audioUrl // ignore: cast_nullable_to_non_nullable
@@ -260,7 +260,7 @@ class _$JournalEntryImpl extends _JournalEntry {
     required this.content,
     this.title,
     this.mood,
-    final List<String> tags = const [],
+    final List<String>? tags,
     this.audioUrl,
     required this.syncMetadata,
   }) : _tags = tags,
@@ -285,14 +285,15 @@ class _$JournalEntryImpl extends _JournalEntry {
   @override
   final int? mood;
   // Mood rating 1-10, optional
-  final List<String> _tags;
+  final List<String>? _tags;
   // Mood rating 1-10, optional
   @override
-  @JsonKey()
-  List<String> get tags {
+  List<String>? get tags {
+    final value = _tags;
+    if (value == null) return null;
     if (_tags is EqualUnmodifiableListView) return _tags;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tags);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
@@ -366,7 +367,7 @@ abstract class _JournalEntry extends JournalEntry {
     required final String content,
     final String? title,
     final int? mood,
-    final List<String> tags,
+    final List<String>? tags,
     final String? audioUrl,
     required final SyncMetadata syncMetadata,
   }) = _$JournalEntryImpl;
@@ -390,7 +391,7 @@ abstract class _JournalEntry extends JournalEntry {
   @override
   int? get mood; // Mood rating 1-10, optional
   @override
-  List<String> get tags;
+  List<String>? get tags;
   @override
   String? get audioUrl;
   @override

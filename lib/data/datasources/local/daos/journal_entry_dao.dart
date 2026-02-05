@@ -180,7 +180,9 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
       var entries = rows.map(_rowToEntity).toList();
       if (tags != null && tags.isNotEmpty) {
         entries = entries
-            .where((e) => tags.any((tag) => e.tags.contains(tag)))
+            .where(
+              (e) => e.tags != null && tags.any((tag) => e.tags!.contains(tag)),
+            )
             .toList();
       }
 
@@ -316,7 +318,9 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
         content: Value(entity.content),
         title: Value(entity.title),
         mood: Value(entity.mood),
-        tags: Value(entity.tags.isNotEmpty ? entity.tags.join(',') : null),
+        tags: Value(
+          (entity.tags?.isNotEmpty ?? false) ? entity.tags!.join(',') : null,
+        ),
         audioUrl: Value(entity.audioUrl),
         syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
         syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
@@ -329,9 +333,10 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
         conflictData: Value(entity.syncMetadata.conflictData),
       );
 
-  /// Parse comma-separated string to list.
-  List<String> _parseList(String? value) {
-    if (value == null || value.isEmpty) return [];
-    return value.split(',').where((s) => s.isNotEmpty).toList();
+  /// Parse comma-separated string to list, returning null if empty.
+  List<String>? _parseList(String? value) {
+    if (value == null || value.isEmpty) return null;
+    final result = value.split(',').where((s) => s.isNotEmpty).toList();
+    return result.isEmpty ? null : result;
   }
 }

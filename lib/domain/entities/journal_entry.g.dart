@@ -15,9 +15,7 @@ _$JournalEntryImpl _$$JournalEntryImplFromJson(Map<String, dynamic> json) =>
       content: json['content'] as String,
       title: json['title'] as String?,
       mood: (json['mood'] as num?)?.toInt(),
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-          const [],
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
       audioUrl: json['audioUrl'] as String?,
       syncMetadata: SyncMetadata.fromJson(
         json['syncMetadata'] as Map<String, dynamic>,

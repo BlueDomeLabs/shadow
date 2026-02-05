@@ -27,7 +27,7 @@ class JournalEntry with _$JournalEntry {
     required String content,
     String? title,
     int? mood, // Mood rating 1-10, optional
-    @Default([]) List<String> tags,
+    List<String>? tags,
     String? audioUrl,
     required SyncMetadata syncMetadata,
   }) = _JournalEntry;
@@ -42,5 +42,5 @@ class JournalEntry with _$JournalEntry {
   bool get hasAudio => audioUrl != null && audioUrl!.isNotEmpty;
 
   /// Whether the entry has any tags.
-  bool get hasTags => tags.isNotEmpty;
+  bool get hasTags => tags != null && tags!.isNotEmpty;
 }
