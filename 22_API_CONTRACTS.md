@@ -80,7 +80,7 @@ enum RecoveryAction {
   freeStorage,
 }
 
-sealed class AppError {
+sealed class AppError implements Exception {
   final String code;
   final String message;
   final String userMessage;
@@ -2157,8 +2157,11 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
     }
 
     // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
     final entry = FluidsEntry(
-      id: '', // Will be generated
+      id: id,
       clientId: input.clientId,
       profileId: input.profileId,
       entryDate: input.entryDate,
@@ -2169,7 +2172,11 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       basalBodyTemperature: input.basalBodyTemperature,
       bbtRecordedTime: input.bbtRecordedTime,
       notes: input.notes ?? '',
-      syncMetadata: SyncMetadata.empty(), // Will be populated
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
     );
 
     // 4. Persist
@@ -2221,6 +2228,1310 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
     }
     return null;
   }
+}
+
+// lib/domain/usecases/sleep_entries/sleep_entry_inputs.dart
+
+@freezed
+class LogSleepEntryInput with _$LogSleepEntryInput {
+  const factory LogSleepEntryInput({
+    required String profileId,
+    required String clientId,
+    required int bedTime,             // Epoch milliseconds
+
+    // Wake time is optional (user may log bed time first, wake time later)
+    int? wakeTime,                    // Epoch milliseconds
+
+    // Sleep stages (optional, may come from wearable import)
+    @Default(0) int deepSleepMinutes,
+    @Default(0) int lightSleepMinutes,
+    @Default(0) int restlessSleepMinutes,
+
+    // Dream and feeling
+    @Default(DreamType.noDreams) DreamType dreamType,
+    @Default(WakingFeeling.neutral) WakingFeeling wakingFeeling,
+
+    // Notes
+    @Default('') String notes,
+
+    // Import tracking (for wearable data)
+    String? importSource,             // 'healthkit', 'googlefit', 'apple_watch', etc.
+    String? importExternalId,         // External record ID for deduplication
+  }) = _LogSleepEntryInput;
+}
+
+class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
+  final SleepEntryRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<SleepEntry, AppError>> call(LogSleepEntryInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final entry = SleepEntry(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      bedTime: input.bedTime,
+      wakeTime: input.wakeTime,
+      deepSleepMinutes: input.deepSleepMinutes,
+      lightSleepMinutes: input.lightSleepMinutes,
+      restlessSleepMinutes: input.restlessSleepMinutes,
+      dreamType: input.dreamType,
+      wakingFeeling: input.wakingFeeling,
+      notes: input.notes,
+      importSource: input.importSource,
+      importExternalId: input.importExternalId,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(entry);
+  }
+
+  ValidationError? _validate(LogSleepEntryInput input) {
+    final errors = <String, List<String>>{};
+
+    // Bed time validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.bedTime > oneHourFromNow) {
+      errors['bedTime'] = ['Bed time cannot be more than 1 hour in the future'];
+    }
+
+    // Wake time must be after bed time
+    if (input.wakeTime != null) {
+      if (input.wakeTime! <= input.bedTime) {
+        errors['wakeTime'] = ['Wake time must be after bed time'];
+      }
+      // Max 24 hours of sleep
+      final maxWakeTime = input.bedTime + (24 * 60 * 60 * 1000);
+      if (input.wakeTime! > maxWakeTime) {
+        errors['wakeTime'] = ['Sleep duration cannot exceed 24 hours'];
+      }
+    }
+
+    // Sleep stage minutes must be non-negative
+    if (input.deepSleepMinutes < 0) {
+      errors['deepSleepMinutes'] = ['Deep sleep minutes cannot be negative'];
+    }
+    if (input.lightSleepMinutes < 0) {
+      errors['lightSleepMinutes'] = ['Light sleep minutes cannot be negative'];
+    }
+    if (input.restlessSleepMinutes < 0) {
+      errors['restlessSleepMinutes'] = ['Restless sleep minutes cannot be negative'];
+    }
+
+    // Sleep stages should not exceed total sleep time
+    if (input.wakeTime != null) {
+      final totalSleepMinutes = ((input.wakeTime! - input.bedTime) / 60000).round();
+      final stagesTotal = input.deepSleepMinutes + input.lightSleepMinutes + input.restlessSleepMinutes;
+      if (stagesTotal > totalSleepMinutes) {
+        errors['sleepStages'] = ['Sleep stage minutes cannot exceed total sleep time'];
+      }
+    }
+
+    // Notes length validation
+    if (input.notes.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetSleepEntriesInput with _$GetSleepEntriesInput {
+  const factory GetSleepEntriesInput({
+    required String profileId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    int? limit,
+    int? offset,
+  }) = _GetSleepEntriesInput;
+}
+
+@freezed
+class UpdateSleepEntryInput with _$UpdateSleepEntryInput {
+  const factory UpdateSleepEntryInput({
+    required String id,
+    required String profileId,
+    int? bedTime,
+    int? wakeTime,
+    int? deepSleepMinutes,
+    int? lightSleepMinutes,
+    int? restlessSleepMinutes,
+    DreamType? dreamType,
+    WakingFeeling? wakingFeeling,
+    String? notes,
+    String? importSource,
+    String? importExternalId,
+  }) = _UpdateSleepEntryInput;
+}
+
+@freezed
+class DeleteSleepEntryInput with _$DeleteSleepEntryInput {
+  const factory DeleteSleepEntryInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteSleepEntryInput;
+}
+
+// lib/domain/usecases/activities/activity_inputs.dart
+
+@freezed
+class CreateActivityInput with _$CreateActivityInput {
+  const factory CreateActivityInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    String? description,
+    String? location,
+    String? triggers,                 // Comma-separated trigger descriptions
+    required int durationMinutes,
+  }) = _CreateActivityInput;
+}
+
+class CreateActivityUseCase implements UseCase<CreateActivityInput, Activity> {
+  final ActivityRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<Activity, AppError>> call(CreateActivityInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final activity = Activity(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      description: input.description,
+      location: input.location,
+      triggers: input.triggers,
+      durationMinutes: input.durationMinutes,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(activity);
+  }
+
+  ValidationError? _validate(CreateActivityInput input) {
+    final errors = <String, List<String>>{};
+
+    // Name validation: 2-100 characters
+    if (input.name.length < 2 || input.name.length > 100) {
+      errors['name'] = ['Activity name must be 2-100 characters'];
+    }
+
+    // Duration validation: 1-1440 minutes (max 24 hours)
+    if (input.durationMinutes < 1 || input.durationMinutes > 1440) {
+      errors['durationMinutes'] = ['Duration must be between 1 and 1440 minutes'];
+    }
+
+    // Description max length
+    if (input.description != null && input.description!.length > 500) {
+      errors['description'] = ['Description must be 500 characters or less'];
+    }
+
+    // Location max length
+    if (input.location != null && input.location!.length > 200) {
+      errors['location'] = ['Location must be 200 characters or less'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetActivitiesInput with _$GetActivitiesInput {
+  const factory GetActivitiesInput({
+    required String profileId,
+    @Default(false) bool includeArchived,
+    int? limit,
+    int? offset,
+  }) = _GetActivitiesInput;
+}
+
+@freezed
+class UpdateActivityInput with _$UpdateActivityInput {
+  const factory UpdateActivityInput({
+    required String id,
+    required String profileId,
+    String? name,
+    String? description,
+    String? location,
+    String? triggers,
+    int? durationMinutes,
+  }) = _UpdateActivityInput;
+}
+
+@freezed
+class ArchiveActivityInput with _$ArchiveActivityInput {
+  const factory ArchiveActivityInput({
+    required String id,
+    required String profileId,
+    @Default(true) bool archive,      // false to unarchive
+  }) = _ArchiveActivityInput;
+}
+
+// lib/domain/usecases/activity_logs/activity_log_inputs.dart
+
+@freezed
+class LogActivityInput with _$LogActivityInput {
+  const factory LogActivityInput({
+    required String profileId,
+    required String clientId,
+    required int timestamp,           // Epoch milliseconds
+    @Default([]) List<String> activityIds,
+    @Default([]) List<String> adHocActivities,
+    int? duration,                    // Actual duration if different from planned
+    @Default('') String notes,
+    String? importSource,
+    String? importExternalId,
+  }) = _LogActivityInput;
+}
+
+class LogActivityUseCase implements UseCase<LogActivityInput, ActivityLog> {
+  final ActivityLogRepository _repository;
+  final ActivityRepository _activityRepository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<ActivityLog, AppError>> call(LogActivityInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = await _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final log = ActivityLog(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      timestamp: input.timestamp,
+      activityIds: input.activityIds,
+      adHocActivities: input.adHocActivities,
+      duration: input.duration,
+      notes: input.notes,
+      importSource: input.importSource,
+      importExternalId: input.importExternalId,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(log);
+  }
+
+  Future<ValidationError?> _validate(LogActivityInput input) async {
+    final errors = <String, List<String>>{};
+
+    // Must have at least one activity (predefined or ad-hoc)
+    if (input.activityIds.isEmpty && input.adHocActivities.isEmpty) {
+      errors['activities'] = ['At least one activity is required'];
+    }
+
+    // Timestamp validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.timestamp > oneHourFromNow) {
+      errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
+    }
+
+    // Duration validation if provided (1-1440 minutes)
+    if (input.duration != null) {
+      if (input.duration! < 1 || input.duration! > 1440) {
+        errors['duration'] = ['Duration must be between 1 and 1440 minutes'];
+      }
+    }
+
+    // Notes max length
+    if (input.notes.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    // Verify activity IDs exist and belong to profile
+    for (final activityId in input.activityIds) {
+      final result = await _activityRepository.getById(activityId);
+      if (result.isFailure) {
+        errors['activityIds'] = ['Activity not found: $activityId'];
+        break;
+      }
+      final activity = result.valueOrNull!;
+      if (activity.profileId != input.profileId) {
+        errors['activityIds'] = ['Activity does not belong to this profile'];
+        break;
+      }
+    }
+
+    // Validate ad-hoc activity names (2-100 characters each)
+    for (final name in input.adHocActivities) {
+      if (name.length < 2 || name.length > 100) {
+        errors['adHocActivities'] = ['Ad-hoc activity names must be 2-100 characters'];
+        break;
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetActivityLogsInput with _$GetActivityLogsInput {
+  const factory GetActivityLogsInput({
+    required String profileId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    int? limit,
+    int? offset,
+  }) = _GetActivityLogsInput;
+}
+
+@freezed
+class UpdateActivityLogInput with _$UpdateActivityLogInput {
+  const factory UpdateActivityLogInput({
+    required String id,
+    required String profileId,
+    List<String>? activityIds,
+    List<String>? adHocActivities,
+    int? duration,
+    String? notes,
+  }) = _UpdateActivityLogInput;
+}
+
+@freezed
+class DeleteActivityLogInput with _$DeleteActivityLogInput {
+  const factory DeleteActivityLogInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteActivityLogInput;
+}
+```
+
+### 4.3.7 FoodItem Use Cases (P0 - Food)
+
+```dart
+// lib/domain/usecases/food_items/food_item_inputs.dart
+
+@freezed
+class CreateFoodItemInput with _$CreateFoodItemInput {
+  const factory CreateFoodItemInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    @Default(FoodItemType.simple) FoodItemType type,
+    @Default([]) List<String> simpleItemIds,  // For complex items
+    String? servingSize,
+    double? calories,
+    double? carbsGrams,
+    double? fatGrams,
+    double? proteinGrams,
+    double? fiberGrams,
+    double? sugarGrams,
+  }) = _CreateFoodItemInput;
+}
+
+class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
+  final FoodItemRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<FoodItem, AppError>> call(CreateFoodItemInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = await _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final foodItem = FoodItem(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      type: input.type,
+      simpleItemIds: input.simpleItemIds,
+      servingSize: input.servingSize,
+      calories: input.calories,
+      carbsGrams: input.carbsGrams,
+      fatGrams: input.fatGrams,
+      proteinGrams: input.proteinGrams,
+      fiberGrams: input.fiberGrams,
+      sugarGrams: input.sugarGrams,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(foodItem);
+  }
+
+  Future<ValidationError?> _validate(CreateFoodItemInput input) async {
+    final errors = <String, List<String>>{};
+
+    // Name validation: 2-100 characters
+    if (input.name.length < 2 || input.name.length > 100) {
+      errors['name'] = ['Food item name must be 2-100 characters'];
+    }
+
+    // Complex items must have simple item IDs
+    if (input.type == FoodItemType.complex && input.simpleItemIds.isEmpty) {
+      errors['simpleItemIds'] = ['Complex items must include at least one simple item'];
+    }
+
+    // Simple items should not have simple item IDs
+    if (input.type == FoodItemType.simple && input.simpleItemIds.isNotEmpty) {
+      errors['simpleItemIds'] = ['Simple items cannot have component items'];
+    }
+
+    // Verify simple item IDs exist and belong to profile (only for complex items)
+    if (input.type == FoodItemType.complex) {
+      for (final itemId in input.simpleItemIds) {
+        final result = await _repository.getById(itemId);
+        if (result.isFailure) {
+          errors['simpleItemIds'] = ['Food item not found: $itemId'];
+          break;
+        }
+        final item = result.valueOrNull!;
+        if (item.profileId != input.profileId) {
+          errors['simpleItemIds'] = ['Food item does not belong to this profile'];
+          break;
+        }
+        // Prevent nesting complex items
+        if (item.isComplex) {
+          errors['simpleItemIds'] = ['Cannot nest complex items'];
+          break;
+        }
+      }
+    }
+
+    // Nutritional values must be non-negative if provided
+    if (input.calories != null && input.calories! < 0) {
+      errors['calories'] = ['Calories cannot be negative'];
+    }
+    if (input.carbsGrams != null && input.carbsGrams! < 0) {
+      errors['carbsGrams'] = ['Carbs cannot be negative'];
+    }
+    if (input.fatGrams != null && input.fatGrams! < 0) {
+      errors['fatGrams'] = ['Fat cannot be negative'];
+    }
+    if (input.proteinGrams != null && input.proteinGrams! < 0) {
+      errors['proteinGrams'] = ['Protein cannot be negative'];
+    }
+    if (input.fiberGrams != null && input.fiberGrams! < 0) {
+      errors['fiberGrams'] = ['Fiber cannot be negative'];
+    }
+    if (input.sugarGrams != null && input.sugarGrams! < 0) {
+      errors['sugarGrams'] = ['Sugar cannot be negative'];
+    }
+
+    // Serving size max length
+    if (input.servingSize != null && input.servingSize!.length > 50) {
+      errors['servingSize'] = ['Serving size must be 50 characters or less'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetFoodItemsInput with _$GetFoodItemsInput {
+  const factory GetFoodItemsInput({
+    required String profileId,
+    FoodItemType? type,
+    @Default(false) bool includeArchived,
+    int? limit,
+    int? offset,
+  }) = _GetFoodItemsInput;
+}
+
+@freezed
+class SearchFoodItemsInput with _$SearchFoodItemsInput {
+  const factory SearchFoodItemsInput({
+    required String profileId,
+    required String query,
+    @Default(20) int limit,
+  }) = _SearchFoodItemsInput;
+}
+
+@freezed
+class UpdateFoodItemInput with _$UpdateFoodItemInput {
+  const factory UpdateFoodItemInput({
+    required String id,
+    required String profileId,
+    String? name,
+    FoodItemType? type,
+    List<String>? simpleItemIds,
+    String? servingSize,
+    double? calories,
+    double? carbsGrams,
+    double? fatGrams,
+    double? proteinGrams,
+    double? fiberGrams,
+    double? sugarGrams,
+  }) = _UpdateFoodItemInput;
+}
+
+@freezed
+class ArchiveFoodItemInput with _$ArchiveFoodItemInput {
+  const factory ArchiveFoodItemInput({
+    required String id,
+    required String profileId,
+    @Default(true) bool archive,      // false to unarchive
+  }) = _ArchiveFoodItemInput;
+}
+```
+
+### 4.3.8 FoodLog Use Cases (P0 - Food)
+
+```dart
+// lib/domain/usecases/food_logs/food_log_inputs.dart
+
+@freezed
+class LogFoodInput with _$LogFoodInput {
+  const factory LogFoodInput({
+    required String profileId,
+    required String clientId,
+    required int timestamp,           // Epoch milliseconds
+    @Default([]) List<String> foodItemIds,
+    @Default([]) List<String> adHocItems,
+    @Default('') String notes,
+  }) = _LogFoodInput;
+}
+
+class LogFoodUseCase implements UseCase<LogFoodInput, FoodLog> {
+  final FoodLogRepository _repository;
+  final FoodItemRepository _foodItemRepository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<FoodLog, AppError>> call(LogFoodInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = await _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final log = FoodLog(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      timestamp: input.timestamp,
+      foodItemIds: input.foodItemIds,
+      adHocItems: input.adHocItems,
+      notes: input.notes.isEmpty ? null : input.notes,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(log);
+  }
+
+  Future<ValidationError?> _validate(LogFoodInput input) async {
+    final errors = <String, List<String>>{};
+
+    // Must have at least one food item (predefined or ad-hoc)
+    if (input.foodItemIds.isEmpty && input.adHocItems.isEmpty) {
+      errors['items'] = ['At least one food item is required'];
+    }
+
+    // Timestamp validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.timestamp > oneHourFromNow) {
+      errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
+    }
+
+    // Notes max length
+    if (input.notes.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    // Verify food item IDs exist and belong to profile
+    for (final itemId in input.foodItemIds) {
+      final result = await _foodItemRepository.getById(itemId);
+      if (result.isFailure) {
+        errors['foodItemIds'] = ['Food item not found: $itemId'];
+        break;
+      }
+      final item = result.valueOrNull!;
+      if (item.profileId != input.profileId) {
+        errors['foodItemIds'] = ['Food item does not belong to this profile'];
+        break;
+      }
+    }
+
+    // Validate ad-hoc item names (2-100 characters each)
+    for (final name in input.adHocItems) {
+      if (name.length < 2 || name.length > 100) {
+        errors['adHocItems'] = ['Ad-hoc item names must be 2-100 characters'];
+        break;
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetFoodLogsInput with _$GetFoodLogsInput {
+  const factory GetFoodLogsInput({
+    required String profileId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    int? limit,
+    int? offset,
+  }) = _GetFoodLogsInput;
+}
+
+@freezed
+class UpdateFoodLogInput with _$UpdateFoodLogInput {
+  const factory UpdateFoodLogInput({
+    required String id,
+    required String profileId,
+    List<String>? foodItemIds,
+    List<String>? adHocItems,
+    String? notes,
+  }) = _UpdateFoodLogInput;
+}
+
+@freezed
+class DeleteFoodLogInput with _$DeleteFoodLogInput {
+  const factory DeleteFoodLogInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteFoodLogInput;
+}
+```
+
+### 4.3.9 JournalEntry Use Cases (P1)
+
+```dart
+// lib/domain/usecases/journal_entries/journal_entry_inputs.dart
+
+@freezed
+class CreateJournalEntryInput with _$CreateJournalEntryInput {
+  const factory CreateJournalEntryInput({
+    required String profileId,
+    required String clientId,
+    required int timestamp,           // Epoch milliseconds
+    required String content,
+    String? title,
+    int? mood,                        // 1-10 rating
+    @Default([]) List<String> tags,
+    String? audioUrl,
+  }) = _CreateJournalEntryInput;
+}
+
+class CreateJournalEntryUseCase implements UseCase<CreateJournalEntryInput, JournalEntry> {
+  final JournalEntryRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<JournalEntry, AppError>> call(CreateJournalEntryInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final entry = JournalEntry(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      timestamp: input.timestamp,
+      content: input.content,
+      title: input.title,
+      mood: input.mood,
+      tags: input.tags.isEmpty ? null : input.tags,
+      audioUrl: input.audioUrl,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(entry);
+  }
+
+  ValidationError? _validate(CreateJournalEntryInput input) {
+    final errors = <String, List<String>>{};
+
+    // Content validation: 1-50000 characters
+    if (input.content.isEmpty || input.content.length > 50000) {
+      errors['content'] = ['Content must be 1-50000 characters'];
+    }
+
+    // Title validation: 1-200 characters if provided
+    if (input.title != null && (input.title!.isEmpty || input.title!.length > 200)) {
+      errors['title'] = ['Title must be 1-200 characters'];
+    }
+
+    // Mood validation: 1-10 if provided
+    if (input.mood != null && (input.mood! < 1 || input.mood! > 10)) {
+      errors['mood'] = ['Mood must be between 1 and 10'];
+    }
+
+    // Timestamp validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.timestamp > oneHourFromNow) {
+      errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
+    }
+
+    // Tags validation: each tag 1-50 characters
+    for (final tag in input.tags) {
+      if (tag.isEmpty || tag.length > 50) {
+        errors['tags'] = ['Each tag must be 1-50 characters'];
+        break;
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetJournalEntriesInput with _$GetJournalEntriesInput {
+  const factory GetJournalEntriesInput({
+    required String profileId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    List<String>? tags,
+    int? mood,
+    int? limit,
+    int? offset,
+  }) = _GetJournalEntriesInput;
+}
+
+@freezed
+class SearchJournalEntriesInput with _$SearchJournalEntriesInput {
+  const factory SearchJournalEntriesInput({
+    required String profileId,
+    required String query,
+  }) = _SearchJournalEntriesInput;
+}
+
+@freezed
+class UpdateJournalEntryInput with _$UpdateJournalEntryInput {
+  const factory UpdateJournalEntryInput({
+    required String id,
+    required String profileId,
+    String? content,
+    String? title,
+    int? mood,
+    List<String>? tags,
+    String? audioUrl,
+  }) = _UpdateJournalEntryInput;
+}
+
+@freezed
+class DeleteJournalEntryInput with _$DeleteJournalEntryInput {
+  const factory DeleteJournalEntryInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteJournalEntryInput;
+}
+```
+
+### 4.3.10 PhotoArea Use Cases (P1)
+
+```dart
+// lib/domain/usecases/photo_areas/photo_area_inputs.dart
+
+@freezed
+class CreatePhotoAreaInput with _$CreatePhotoAreaInput {
+  const factory CreatePhotoAreaInput({
+    required String profileId,
+    required String clientId,
+    required String name,
+    String? description,
+    String? consistencyNotes,
+  }) = _CreatePhotoAreaInput;
+}
+
+class CreatePhotoAreaUseCase implements UseCase<CreatePhotoAreaInput, PhotoArea> {
+  final PhotoAreaRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<PhotoArea, AppError>> call(CreatePhotoAreaInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final area = PhotoArea(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      name: input.name,
+      description: input.description,
+      consistencyNotes: input.consistencyNotes,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(area);
+  }
+
+  ValidationError? _validate(CreatePhotoAreaInput input) {
+    final errors = <String, List<String>>{};
+
+    // Name validation: 2-100 characters
+    if (input.name.length < 2 || input.name.length > 100) {
+      errors['name'] = ['Area name must be 2-100 characters'];
+    }
+
+    // Description max length
+    if (input.description != null && input.description!.length > 500) {
+      errors['description'] = ['Description must be 500 characters or less'];
+    }
+
+    // Consistency notes max length
+    if (input.consistencyNotes != null && input.consistencyNotes!.length > 1000) {
+      errors['consistencyNotes'] = ['Consistency notes must be 1000 characters or less'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetPhotoAreasInput with _$GetPhotoAreasInput {
+  const factory GetPhotoAreasInput({
+    required String profileId,
+    @Default(false) bool includeArchived,
+  }) = _GetPhotoAreasInput;
+}
+
+@freezed
+class UpdatePhotoAreaInput with _$UpdatePhotoAreaInput {
+  const factory UpdatePhotoAreaInput({
+    required String id,
+    required String profileId,
+    String? name,
+    String? description,
+    String? consistencyNotes,
+  }) = _UpdatePhotoAreaInput;
+}
+
+@freezed
+class ArchivePhotoAreaInput with _$ArchivePhotoAreaInput {
+  const factory ArchivePhotoAreaInput({
+    required String id,
+    required String profileId,
+    @Default(true) bool archive,
+  }) = _ArchivePhotoAreaInput;
+}
+```
+
+### 4.3.11 PhotoEntry Use Cases (P1)
+
+```dart
+// lib/domain/usecases/photo_entries/photo_entry_inputs.dart
+
+@freezed
+class CreatePhotoEntryInput with _$CreatePhotoEntryInput {
+  const factory CreatePhotoEntryInput({
+    required String profileId,
+    required String clientId,
+    required String photoAreaId,
+    required int timestamp,           // Epoch milliseconds
+    required String filePath,
+    String? notes,
+    int? fileSizeBytes,
+    String? fileHash,
+  }) = _CreatePhotoEntryInput;
+}
+
+class CreatePhotoEntryUseCase implements UseCase<CreatePhotoEntryInput, PhotoEntry> {
+  final PhotoEntryRepository _repository;
+  final PhotoAreaRepository _areaRepository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<PhotoEntry, AppError>> call(CreatePhotoEntryInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = await _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final entry = PhotoEntry(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      photoAreaId: input.photoAreaId,
+      timestamp: input.timestamp,
+      filePath: input.filePath,
+      notes: input.notes,
+      fileSizeBytes: input.fileSizeBytes,
+      fileHash: input.fileHash,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(entry);
+  }
+
+  Future<ValidationError?> _validate(CreatePhotoEntryInput input) async {
+    final errors = <String, List<String>>{};
+
+    // File path required
+    if (input.filePath.isEmpty) {
+      errors['filePath'] = ['File path is required'];
+    }
+
+    // Verify photo area exists and belongs to profile
+    final areaResult = await _areaRepository.getById(input.photoAreaId);
+    if (areaResult.isFailure) {
+      errors['photoAreaId'] = ['Photo area not found'];
+    } else {
+      final area = areaResult.valueOrNull!;
+      if (area.profileId != input.profileId) {
+        errors['photoAreaId'] = ['Photo area does not belong to this profile'];
+      }
+    }
+
+    // Timestamp validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.timestamp > oneHourFromNow) {
+      errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
+    }
+
+    // Notes max length
+    if (input.notes != null && input.notes!.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetPhotoEntriesByAreaInput with _$GetPhotoEntriesByAreaInput {
+  const factory GetPhotoEntriesByAreaInput({
+    required String profileId,
+    required String photoAreaId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    int? limit,
+    int? offset,
+  }) = _GetPhotoEntriesByAreaInput;
+}
+
+@freezed
+class GetPhotoEntriesInput with _$GetPhotoEntriesInput {
+  const factory GetPhotoEntriesInput({
+    required String profileId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    int? limit,
+    int? offset,
+  }) = _GetPhotoEntriesInput;
+}
+
+@freezed
+class DeletePhotoEntryInput with _$DeletePhotoEntryInput {
+  const factory DeletePhotoEntryInput({
+    required String id,
+    required String profileId,
+  }) = _DeletePhotoEntryInput;
+}
+```
+
+### 4.3.12 FlareUp Use Cases (P1)
+
+```dart
+// lib/domain/usecases/flare_ups/flare_up_inputs.dart
+
+@freezed
+class LogFlareUpInput with _$LogFlareUpInput {
+  const factory LogFlareUpInput({
+    required String profileId,
+    required String clientId,
+    required String conditionId,
+    required int startDate,           // Epoch milliseconds
+    int? endDate,                     // Null = ongoing
+    required int severity,            // 1-10
+    String? notes,
+    @Default([]) List<String> triggers,
+    String? activityId,
+    String? photoPath,
+  }) = _LogFlareUpInput;
+}
+
+class LogFlareUpUseCase implements UseCase<LogFlareUpInput, FlareUp> {
+  final FlareUpRepository _repository;
+  final ConditionRepository _conditionRepository;
+  final ProfileAuthorizationService _authService;
+
+  @override
+  Future<Result<FlareUp, AppError>> call(LogFlareUpInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    final validationResult = await _validate(input);
+    if (validationResult != null) {
+      return Failure(validationResult);
+    }
+
+    // 3. Create entity
+    final id = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final flareUp = FlareUp(
+      id: id,
+      clientId: input.clientId,
+      profileId: input.profileId,
+      conditionId: input.conditionId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      severity: input.severity,
+      notes: input.notes,
+      triggers: input.triggers,
+      activityId: input.activityId,
+      photoPath: input.photoPath,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '', // Will be populated by repository
+      ),
+    );
+
+    // 4. Persist
+    return _repository.create(flareUp);
+  }
+
+  Future<ValidationError?> _validate(LogFlareUpInput input) async {
+    final errors = <String, List<String>>{};
+
+    // Severity validation: 1-10
+    if (input.severity < 1 || input.severity > 10) {
+      errors['severity'] = ['Severity must be between 1 and 10'];
+    }
+
+    // Verify condition exists and belongs to profile
+    final conditionResult = await _conditionRepository.getById(input.conditionId);
+    if (conditionResult.isFailure) {
+      errors['conditionId'] = ['Condition not found'];
+    } else {
+      final condition = conditionResult.valueOrNull!;
+      if (condition.profileId != input.profileId) {
+        errors['conditionId'] = ['Condition does not belong to this profile'];
+      }
+    }
+
+    // Start date validation (not more than 1 hour in future)
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oneHourFromNow = now + (60 * 60 * 1000);
+    if (input.startDate > oneHourFromNow) {
+      errors['startDate'] = ['Start date cannot be more than 1 hour in the future'];
+    }
+
+    // End date must be after start date if provided
+    if (input.endDate != null && input.endDate! <= input.startDate) {
+      errors['endDate'] = ['End date must be after start date'];
+    }
+
+    // Notes max length
+    if (input.notes != null && input.notes!.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    // Trigger descriptions max 100 characters each
+    for (final trigger in input.triggers) {
+      if (trigger.isEmpty || trigger.length > 100) {
+        errors['triggers'] = ['Each trigger must be 1-100 characters'];
+        break;
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return ValidationError.fromFieldErrors(errors);
+    }
+    return null;
+  }
+}
+
+@freezed
+class GetFlareUpsInput with _$GetFlareUpsInput {
+  const factory GetFlareUpsInput({
+    required String profileId,
+    String? conditionId,
+    int? startDate,                   // Epoch milliseconds
+    int? endDate,                     // Epoch milliseconds
+    bool? ongoingOnly,
+    int? limit,
+    int? offset,
+  }) = _GetFlareUpsInput;
+}
+
+@freezed
+class UpdateFlareUpInput with _$UpdateFlareUpInput {
+  const factory UpdateFlareUpInput({
+    required String id,
+    required String profileId,
+    int? severity,
+    String? notes,
+    List<String>? triggers,
+    String? photoPath,
+  }) = _UpdateFlareUpInput;
+}
+
+@freezed
+class EndFlareUpInput with _$EndFlareUpInput {
+  const factory EndFlareUpInput({
+    required String id,
+    required String profileId,
+    required int endDate,             // Epoch milliseconds
+  }) = _EndFlareUpInput;
+}
+
+@freezed
+class DeleteFlareUpInput with _$DeleteFlareUpInput {
+  const factory DeleteFlareUpInput({
+    required String id,
+    required String profileId,
+  }) = _DeleteFlareUpInput;
 }
 ```
 
@@ -3048,15 +4359,14 @@ class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supple
 
 ```dart
 // lib/domain/usecases/conditions/get_conditions_use_case.dart
+// UPDATED to match Section 10.8 entity definition and actual implementation
 
 @freezed
 class GetConditionsInput with _$GetConditionsInput {
   const factory GetConditionsInput({
     required String profileId,
-    bool? activeOnly,
-    String? categoryId,
-    int? limit,
-    int? offset,
+    ConditionStatus? status,
+    @Default(false) bool includeArchived,
   }) = _GetConditionsInput;
 }
 
@@ -3076,15 +4386,14 @@ class GetConditionsUseCase implements UseCase<GetConditionsInput, List<Condition
     // 2. Execute query
     return _repository.getByProfile(
       input.profileId,
-      activeOnly: input.activeOnly,
-      categoryId: input.categoryId,
-      limit: input.limit,
-      offset: input.offset,
+      status: input.status,
+      includeArchived: input.includeArchived,
     );
   }
 }
 
 // lib/domain/usecases/conditions/create_condition_use_case.dart
+// UPDATED to match Section 10.8 Condition entity definition
 
 @freezed
 class CreateConditionInput with _$CreateConditionInput {
@@ -3092,10 +4401,13 @@ class CreateConditionInput with _$CreateConditionInput {
     required String profileId,
     required String clientId,
     required String name,
-    String? categoryId,
+    required String category,
+    @Default([]) List<String> bodyLocations,
     String? description,
-    @Default([]) List<String> trackingFields, // Which fields to track
-    @Default(true) bool isActive,
+    String? baselinePhotoPath,
+    required int startTimeframe,    // Epoch ms
+    int? endDate,                   // Epoch ms
+    String? activityId,
   }) = _CreateConditionInput;
 }
 
@@ -3131,18 +4443,17 @@ class CreateConditionUseCase implements UseCase<CreateConditionInput, Condition>
       clientId: input.clientId,
       profileId: input.profileId,
       name: input.name,
-      categoryId: input.categoryId,
+      category: input.category,
+      bodyLocations: input.bodyLocations,
       description: input.description,
-      trackingFields: input.trackingFields,
-      isActive: input.isActive,
+      baselinePhotoPath: input.baselinePhotoPath,
+      startTimeframe: input.startTimeframe,
+      endDate: input.endDate,
+      activityId: input.activityId,
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
-        syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
+        syncDeviceId: '', // Will be populated by repository
       ),
     );
 
@@ -3151,7 +4462,8 @@ class CreateConditionUseCase implements UseCase<CreateConditionInput, Condition>
   }
 }
 
-// lib/domain/usecases/conditions/log_condition_use_case.dart
+// lib/domain/usecases/condition_logs/log_condition_use_case.dart
+// UPDATED to match Section 10.9 ConditionLog entity definition
 
 @freezed
 class LogConditionInput with _$LogConditionInput {
@@ -3159,12 +4471,14 @@ class LogConditionInput with _$LogConditionInput {
     required String profileId,
     required String clientId,
     required String conditionId,
-    required int logDate,          // Epoch ms
-    required Severity severity,    // 1-10 or enum
+    required int timestamp,         // Epoch ms
+    required int severity,          // 1-10 scale
     String? notes,
-    @Default([]) List<String> symptomIds,
-    @Default([]) List<String> photoIds,
-    bool? isFlare,                 // Override flare detection
+    @Default(false) bool isFlare,
+    @Default([]) List<String> flarePhotoIds,
+    String? photoPath,
+    String? activityId,
+    String? triggers,               // Comma-separated
   }) = _LogConditionInput;
 }
 
@@ -3199,28 +4513,27 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
     // 3. Validation
     final errors = <String, List<String>>{};
 
-    // Photo count limit
-    final photoError = ValidationRules.photoIdsCount(input.photoIds.length);
-    if (photoError != null) errors['photoIds'] = [photoError];
-
-    // Notes length
-    if (input.notes != null) {
-      final notesError = ValidationRules.notes(input.notes!);
-      if (notesError != null) errors['notes'] = [notesError];
+    // Severity range
+    if (input.severity < 1 || input.severity > 10) {
+      errors['severity'] = ['Severity must be between 1 and 10'];
     }
 
-    // Log date not in future
-    final dateError = ValidationRules.notFutureDate(input.logDate, 'logDate');
-    if (dateError != null) errors['logDate'] = [dateError];
+    // Notes length
+    if (input.notes != null && input.notes!.length > 2000) {
+      errors['notes'] = ['Notes must be 2000 characters or less'];
+    }
+
+    // Timestamp not in future (allow 1 hour tolerance)
+    final oneHourFromNow = DateTime.now().millisecondsSinceEpoch + (60 * 60 * 1000);
+    if (input.timestamp > oneHourFromNow) {
+      errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
+    }
 
     if (errors.isNotEmpty) {
       return Failure(ValidationError.fromFieldErrors(errors));
     }
 
-    // 4. Detect flare-up (if not overridden)
-    final isFlare = input.isFlare ?? _detectFlare(input.severity, condition);
-
-    // 5. Create log entry
+    // 4. Create log entry
     final id = const Uuid().v4();
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -3229,20 +4542,18 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
       clientId: input.clientId,
       profileId: input.profileId,
       conditionId: input.conditionId,
-      logDate: input.logDate,
+      timestamp: input.timestamp,
       severity: input.severity,
       notes: input.notes,
-      symptomIds: input.symptomIds,
-      photoIds: input.photoIds,
-      isFlare: isFlare,
+      isFlare: input.isFlare,
+      flarePhotoIds: input.flarePhotoIds,
+      photoPath: input.photoPath,
+      activityId: input.activityId,
+      triggers: input.triggers,
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
-        syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
+        syncDeviceId: '', // Will be populated by repository
       ),
     );
 
@@ -3343,7 +4654,7 @@ class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, Condit
     final buckets = <int, List<ConditionLog>>{};
 
     for (final log in logs) {
-      final bucketKey = _getBucketKey(log.logDate, granularity);
+      final bucketKey = _getBucketKey(log.timestamp, granularity);
       buckets.putIfAbsent(bucketKey, () => []).add(log);
     }
 
@@ -3400,13 +4711,13 @@ class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, Condit
 
     // Get unique days
     final uniqueDays = logs
-        .map((l) => DateTime.fromMillisecondsSinceEpoch(l.logDate))
+        .map((l) => DateTime.fromMillisecondsSinceEpoch(l.timestamp))
         .map((d) => DateTime(d.year, d.month, d.day))
         .toSet()
         .length;
 
     // Current = most recent log
-    final sortedLogs = logs..sort((a, b) => b.logDate.compareTo(a.logDate));
+    final sortedLogs = logs..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     final currentSeverity = sortedLogs.first.severity;
 
     // Calculate direction based on first half vs second half
@@ -3834,7 +5145,7 @@ class GetComplianceStatsUseCase implements UseCase<ComplianceStatsInput, Complia
     int end,
   ) {
     final logsInRange = logs.where((l) =>
-        l.logDate >= start && l.logDate <= end).length;
+        l.timestamp >= start && l.timestamp <= end).length;
     final violationsInRange = violations.where((v) =>
         v.violatedAt >= start && v.violatedAt <= end).length;
 
@@ -3884,7 +5195,7 @@ class GetComplianceStatsUseCase implements UseCase<ComplianceStatsInput, Complia
 
     while (current < input.endDateEpoch) {
       final dayEnd = current + Duration.millisecondsPerDay;
-      final dayLogs = logs.where((l) => l.logDate >= current && l.logDate < dayEnd);
+      final dayLogs = logs.where((l) => l.timestamp >= current && l.timestamp < dayEnd);
       final dayViolations = violations.where((v) =>
           v.violatedAt >= current && v.violatedAt < dayEnd);
 
@@ -4403,7 +5714,7 @@ class AssessDataQualityUseCase
         scores['conditions'] = quality;
         if (input.includeGapAnalysis) {
           gaps.addAll(_qualityService.findGaps(
-            conditionLogs.valueOrNull!.map((l) => l.logDate).toList(),
+            conditionLogs.valueOrNull!.map((l) => l.timestamp).toList(),
             startDate,
             now,
             'conditions',
@@ -4422,7 +5733,7 @@ class AssessDataQualityUseCase
         scores['food'] = quality;
         if (input.includeGapAnalysis) {
           gaps.addAll(_qualityService.findGaps(
-            foodLogs.valueOrNull!.map((l) => l.logDate).toList(),
+            foodLogs.valueOrNull!.map((l) => l.timestamp).toList(),
             startDate,
             now,
             'food',
@@ -5178,21 +6489,16 @@ class SyncWearableDataUseCase
       id: const Uuid().v4(),
       clientId: clientId,
       profileId: profileId,
-      activityId: activity.mappedActivityId,
-      logDate: activity.startTime,
-      durationMinutes: activity.durationMinutes,
-      intensity: activity.intensity,
+      timestamp: activity.startTime,
+      activityIds: activity.mappedActivityId != null ? [activity.mappedActivityId!] : [],
+      duration: activity.durationMinutes,
       notes: 'Imported from ${activity.source}',
-      externalId: activity.externalId,
+      importExternalId: activity.externalId,
       importSource: activity.source,
       syncMetadata: SyncMetadata(
         syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
         syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
-        syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
+        syncDeviceId: '', // Will be populated by repository
       ),
     );
 
@@ -6833,8 +8139,9 @@ class CurrentProfile extends _$CurrentProfile {
 }
 
 /// Simple provider for just the current profile ID
+/// NOTE: Use `Ref` (not deprecated FooRef) for Riverpod 3.0 compatibility
 @riverpod
-String? currentProfileId(CurrentProfileIdRef ref) {
+String? currentProfileId(Ref ref) {
   final profileState = ref.watch(currentProfileProvider);
   return profileState.valueOrNull?.currentProfile?.id;
 }
@@ -7003,7 +8310,7 @@ class SupplementList extends _$SupplementList {
 
 /// Provider for a single supplement
 @riverpod
-Future<Supplement?> supplement(SupplementRef ref, String id) async {
+Future<Supplement?> supplement(Ref ref, String id) async {
   final useCase = ref.read(getSupplementByIdUseCaseProvider);
   final result = await useCase(id);
   return result.valueOrNull;
@@ -7137,7 +8444,7 @@ class ConditionList extends _$ConditionList {
 /// Provider for condition trend data
 @riverpod
 Future<ConditionTrend?> conditionTrend(
-  ConditionTrendRef ref,
+  Ref ref,
   String conditionId, {
   int days = 30,
 }) async {
@@ -7293,7 +8600,7 @@ class FluidsEntryList extends _$FluidsEntryList {
 /// BBT chart data provider
 @riverpod
 Future<List<FluidsEntry>> bbtChartData(
-  BbtChartDataRef ref,
+  Ref ref,
   String profileId, {
   int days = 30,
 }) async {
@@ -7439,7 +8746,7 @@ class NotificationScheduleList extends _$NotificationScheduleList {
 /// Pending notifications for today
 @riverpod
 Future<List<PendingNotification>> pendingNotifications(
-  PendingNotificationsRef ref,
+  Ref ref,
 ) async {
   final profileId = ref.watch(currentProfileIdProvider);
   if (profileId == null) return [];
@@ -7579,7 +8886,7 @@ class AuthStateNotifier extends _$AuthStateNotifier {
 
 /// Simple bool provider for checking auth status
 @riverpod
-bool isSignedIn(IsSignedInRef ref) {
+bool isSignedIn(Ref ref) {
   return ref.watch(authStateNotifierProvider).valueOrNull?.isSignedIn ?? false;
 }
 ```

@@ -39,7 +39,32 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 
 ## Active Ambiguities
 
-*None currently*
+### RESOLVED-2026-02-05-001: AppError and `only_throw_errors` Lint Rule Conflict
+
+**Found in:** 22_API_CONTRACTS.md Section 2, 02_CODING_STANDARDS.md Section 6.3
+**Found by:** Instance during Phase 3 UI/Presentation Layer implementation
+**Issue:** The Riverpod provider pattern throws `AppError` to integrate with `AsyncValue` error handling, but the `only_throw_errors` lint rule requires thrown objects to implement `Exception`.
+
+**Status:** RESOLVED
+**Resolution:** Updated spec and implementation to make `AppError implements Exception`. This aligns with:
+- Dart best practice (thrown objects should implement Exception)
+- The existing pattern in 02_CODING_STANDARDS.md Section 6.3 that throws AppError
+- Proper type safety for error handling
+**Resolution Date:** 2026-02-05
+**Spec Updated:** Yes - 22_API_CONTRACTS.md Section 2
+
+---
+
+### RESOLVED-2026-02-05-002: Riverpod Generated Code Uses Deprecated `FooRef` Types
+
+**Found in:** lib/presentation/providers/di/di_providers.dart (hand-written code using generated types)
+**Found by:** Instance during Phase 3 UI/Presentation Layer implementation
+**Issue:** Hand-written provider functions were using deprecated `FooRef` parameter types from generated code.
+
+**Status:** RESOLVED
+**Resolution:** Updated all hand-written provider functions in `di_providers.dart` to use `Ref` instead of the deprecated `FooRef` types. This is the Riverpod 3.0 forward-compatible pattern. The generated `.g.dart` files are already excluded from lint analysis.
+**Resolution Date:** 2026-02-05
+**Spec Updated:** No - this was an implementation fix, not a spec issue
 
 ---
 

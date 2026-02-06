@@ -1,19 +1,16 @@
 {
-  "lastInstanceId": "fluids-usecases-001",
-  "lastAction": "completed-fluids-usecases",
-  "taskId": "ENTITY-IMPLEMENTATION-USECASES",
+  "lastInstanceId": "phase3-lint-fix-001",
+  "lastAction": "lint-issues-resolved",
+  "taskId": "PHASE3-LINT-COMPLIANCE",
   "status": "complete",
-  "timestamp": "2026-02-05T03:30:00Z",
+  "timestamp": "2026-02-06T01:30:00Z",
   "filesModified": [
-    "lib/domain/usecases/fluids_entries/fluids_entry_inputs.dart",
-    "lib/domain/usecases/fluids_entries/log_fluids_entry_use_case.dart",
-    "lib/domain/usecases/fluids_entries/get_fluids_entries_use_case.dart",
-    "lib/domain/usecases/fluids_entries/update_fluids_entry_use_case.dart",
-    "lib/domain/usecases/fluids_entries/delete_fluids_entry_use_case.dart",
-    "lib/domain/usecases/fluids_entries/fluids_entries_usecases.dart",
-    "22_API_CONTRACTS.md"
+    "22_API_CONTRACTS.md",
+    "lib/core/errors/app_error.dart",
+    "lib/presentation/providers/di/di_providers.dart",
+    "53_SPEC_CLARIFICATIONS.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "FluidsEntry use cases complete. Spec updates applied via PATH A after /spec-review validation. Updated 22_API_CONTRACTS.md to include: bowelPhotoPath/urinePhotoPath fields, @Default('') String notes pattern, .isNotEmpty defensive validation. All changes verified against 02_CODING_STANDARDS.md. 473 tests passing. Next: SleepEntry use cases or other entity use cases per 34_PROJECT_TRACKER.md."
+  "notes": "Resolved 163 lint issues blocking Phase 3 commit. Changes: (1) Updated spec and implementation - AppError now implements Exception per Dart best practices and existing 02_CODING_STANDARDS.md throw pattern. (2) Updated di_providers.dart to use Ref instead of deprecated FooRef types for Riverpod 3.0 compatibility. All tests passing, flutter analyze reports 'No issues found'. Both issues documented in 53_SPEC_CLARIFICATIONS.md as RESOLVED. Next: Commit Phase 3 work or continue with specialized widgets."
 }

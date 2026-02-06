@@ -28,7 +28,7 @@ enum RecoveryAction {
   freeStorage,
 }
 
-sealed class AppError {
+sealed class AppError implements Exception {
   final String code;
   final String message;
   final String userMessage;
