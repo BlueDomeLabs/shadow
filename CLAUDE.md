@@ -12,7 +12,48 @@ Do NOT respond to the user's request yet. First:
 
 **If you skip this, you will cause problems for the next instance.**
 
-**Current pending task:** Check `.claude/work-status/current.json` for details.
+---
+
+## 📍 CURRENT PROJECT STATUS (Updated 2026-02-06)
+
+### Phase 3: UI/Presentation Layer - IN PROGRESS
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Riverpod Providers | ✅ COMPLETE | 51 use cases, 14 repositories |
+| Core Widgets | ✅ COMPLETE | ShadowButton, ShadowTextField, ShadowCard, ShadowDialog, ShadowStatus |
+| Specialized Widgets | ✅ COMPLETE | ShadowPicker, ShadowChart, ShadowImage, ShadowInput, ShadowBadge |
+| **Screen Implementation** | 🔄 IN PROGRESS | First screen done |
+
+### Screens Status
+
+| Screen | Status | Tests | Notes |
+|--------|--------|-------|-------|
+| SupplementListScreen | ✅ DONE | 23 tests | Reference pattern for other screens |
+| SupplementEditScreen | ⏳ PLACEHOLDER | - | Exists but needs full implementation |
+| ConditionListScreen | ❌ NOT STARTED | - | |
+| FoodListScreen | ❌ NOT STARTED | - | |
+| SleepListScreen | ❌ NOT STARTED | - | |
+| Other screens | ❌ NOT STARTED | - | See 38_UI_FIELD_SPECIFICATIONS.md |
+
+### Next Actions (Priority Order)
+
+1. **If using Agent Teams:** User enabled `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Can parallelize screen implementation.
+2. **If sequential:** Continue with SupplementEditScreen (completes supplement flow), then other entity list screens.
+
+### Key Reference Files for Screens
+
+- `38_UI_FIELD_SPECIFICATIONS.md` - Field-by-field specs for every screen
+- `09_WIDGET_LIBRARY.md` - Widget patterns and accessibility requirements
+- `lib/presentation/screens/supplements/supplement_list_screen.dart` - Reference implementation
+- `test/presentation/screens/supplements/supplement_list_screen_test.dart` - Test pattern
+
+### Recent Changes
+
+- Added `gummy(4)` and `spray(5)` to `SupplementForm` enum (spec + implementation aligned)
+- 807 tests passing, analyzer clean
+
+### Test Count: 807+ passing
 
 ---
 
