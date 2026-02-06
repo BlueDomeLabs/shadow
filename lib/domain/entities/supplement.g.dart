@@ -62,6 +62,8 @@ const _$SupplementFormEnumMap = {
   SupplementForm.powder: 'powder',
   SupplementForm.liquid: 'liquid',
   SupplementForm.tablet: 'tablet',
+  SupplementForm.gummy: 'gummy',
+  SupplementForm.spray: 'spray',
   SupplementForm.other: 'other',
 };
 

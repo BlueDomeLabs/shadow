@@ -333,12 +333,16 @@ void main() {
       expect(SupplementForm.powder.value, equals(1));
       expect(SupplementForm.liquid.value, equals(2));
       expect(SupplementForm.tablet.value, equals(3));
-      expect(SupplementForm.other.value, equals(4));
+      expect(SupplementForm.gummy.value, equals(4));
+      expect(SupplementForm.spray.value, equals(5));
+      expect(SupplementForm.other.value, equals(6));
     });
 
     test('SupplementForm.fromValue returns correct enum', () {
       expect(SupplementForm.fromValue(0), equals(SupplementForm.capsule));
       expect(SupplementForm.fromValue(3), equals(SupplementForm.tablet));
+      expect(SupplementForm.fromValue(4), equals(SupplementForm.gummy));
+      expect(SupplementForm.fromValue(5), equals(SupplementForm.spray));
       expect(SupplementForm.fromValue(99), equals(SupplementForm.capsule));
     });
 

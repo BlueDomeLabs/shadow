@@ -333,7 +333,9 @@ enum SupplementForm {
   powder(1),
   liquid(2),
   tablet(3),
-  other(4);
+  gummy(4),
+  spray(5),
+  other(6);
 
   final int value;
   const SupplementForm(this.value);
