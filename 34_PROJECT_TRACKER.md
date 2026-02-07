@@ -144,12 +144,13 @@ All entity use cases are implemented. Next steps:
    - Sleep tracking screens
    - Photo progress screens
 
-4. **Specialized Widgets** - NOT STARTED
-   - ShadowPicker - Flow/weekday/time/date pickers
-   - ShadowChart - BBT/trend/bar/calendar charts
-   - ShadowImage - Asset/file/network image handling
+4. **Specialized Widgets** ✅ **COMPLETE**
+   - ShadowPicker - Flow/weekday/dietType/time/date/multiSelect pickers
+   - ShadowChart - BBT/trend/bar/calendar/scatter/heatmap charts
+   - ShadowImage - Asset/file/network/picker image handling
    - ShadowInput - Temperature/diet/flow health inputs
    - ShadowBadge - Diet/status/count badges
+   - All with tests and WCAG 2.1 Level AA accessibility
 
 ---
 
@@ -157,7 +158,7 @@ All entity use cases are implemented. Next steps:
 
 | Check | Result |
 |-------|--------|
-| `flutter test` | 630 tests passing |
+| `flutter test` | 784+ tests passing |
 | `flutter analyze` | No issues |
 | Pre-commit hooks | Active |
 | Spec compliance | **VERIFIED** (Full audit 2026-02-05) |

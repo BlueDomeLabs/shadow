@@ -1,93 +1,90 @@
-// lib/presentation/screens/supplements/supplement_list_screen.dart
-// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 4 - Supplement Screens
+// lib/presentation/screens/conditions/condition_list_screen.dart
+// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 8 - Condition Screens
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shadow_app/domain/entities/supplement.dart';
-import 'package:shadow_app/domain/enums/health_enums.dart';
-import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
-import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
-import 'package:shadow_app/presentation/screens/supplements/supplement_edit_screen.dart';
+import 'package:shadow_app/domain/entities/condition.dart';
+import 'package:shadow_app/domain/usecases/conditions/conditions_usecases.dart';
+import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
+import 'package:shadow_app/presentation/screens/conditions/condition_edit_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
-/// Screen displaying the list of supplements for a profile.
+/// Screen displaying the list of conditions for a profile.
 ///
-/// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 4 exactly.
-/// Uses [SupplementListProvider] for state management.
-class SupplementListScreen extends ConsumerWidget {
+/// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 8 exactly.
+/// Uses [ConditionListProvider] for state management.
+class ConditionListScreen extends ConsumerWidget {
   final String profileId;
 
-  const SupplementListScreen({super.key, required this.profileId});
+  const ConditionListScreen({super.key, required this.profileId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final supplementsAsync = ref.watch(supplementListProvider(profileId));
+    final conditionsAsync = ref.watch(conditionListProvider(profileId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Supplements'),
+        title: const Text('Conditions'),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFilterOptions(context),
-            tooltip: 'Filter supplements',
+            tooltip: 'Filter conditions',
           ),
         ],
       ),
       body: Semantics(
-        label: 'Supplement list',
-        child: supplementsAsync.when(
-          data: (supplements) =>
-              _buildSupplementList(context, ref, supplements),
+        label: 'Condition list',
+        child: conditionsAsync.when(
+          data: (conditions) => _buildConditionList(context, ref, conditions),
           loading: () => const Center(
-            child: ShadowStatus.loading(label: 'Loading supplements'),
+            child: ShadowStatus.loading(label: 'Loading conditions'),
           ),
           error: (error, stack) => _buildErrorState(context, ref, error),
         ),
       ),
       floatingActionButton: Semantics(
-        label: 'Add new supplement',
+        label: 'Add new condition',
         child: FloatingActionButton(
-          onPressed: () => _navigateToAddSupplement(context),
+          onPressed: () => _navigateToAddCondition(context),
           child: const Icon(Icons.add),
         ),
       ),
     );
   }
 
-  Widget _buildSupplementList(
+  Widget _buildConditionList(
     BuildContext context,
     WidgetRef ref,
-    List<Supplement> supplements,
+    List<Condition> conditions,
   ) {
-    if (supplements.isEmpty) {
+    if (conditions.isEmpty) {
       return _buildEmptyState(context);
     }
 
-    // Separate active and archived supplements
-    final activeSupplements = supplements.where((s) => s.isActive).toList();
-    final archivedSupplements = supplements.where((s) => s.isArchived).toList();
+    final activeConditions = conditions.where((c) => c.isActive).toList();
+    final resolvedConditions = conditions.where((c) => c.isResolved).toList();
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(supplementListProvider(profileId));
+        ref.invalidate(conditionListProvider(profileId));
       },
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (activeSupplements.isNotEmpty) ...[
-            _buildSectionHeader(context, 'Active Supplements'),
+          if (activeConditions.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Active Conditions'),
             const SizedBox(height: 8),
-            ...activeSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
+            ...activeConditions.map(
+              (condition) => _buildConditionCard(context, ref, condition),
             ),
           ],
-          if (archivedSupplements.isNotEmpty) ...[
+          if (resolvedConditions.isNotEmpty) ...[
             const SizedBox(height: 24),
-            _buildSectionHeader(context, 'Archived'),
+            _buildSectionHeader(context, 'Resolved Conditions'),
             const SizedBox(height: 8),
-            ...archivedSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
+            ...resolvedConditions.map(
+              (condition) => _buildConditionCard(context, ref, condition),
             ),
           ],
         ],
@@ -108,22 +105,25 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupplementCard(
+  Widget _buildConditionCard(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    Condition condition,
   ) {
     final theme = Theme.of(context);
+    final bodyLocationsSummary = condition.bodyLocations.isNotEmpty
+        ? condition.bodyLocations.join(', ')
+        : '';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
-        onTap: () => _navigateToEditSupplement(context, supplement),
-        semanticLabel: '${supplement.name}, ${supplement.displayDosage}',
+        onTap: () => _navigateToEditCondition(context, condition),
+        semanticLabel: '${condition.name}, ${condition.category}',
         semanticHint: 'Double tap to edit',
         child: Row(
           children: [
-            // Supplement icon based on form
+            // Condition icon
             Container(
               width: 48,
               height: 48,
@@ -132,36 +132,36 @@ class SupplementListScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                _getFormIcon(supplement.form),
+                Icons.medical_services,
                 color: theme.colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(width: 16),
-            // Supplement info
+            // Condition info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    supplement.name,
+                    condition.name,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      decoration: supplement.isArchived
+                      decoration: condition.isArchived
                           ? TextDecoration.lineThrough
                           : null,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    supplement.displayDosage,
+                    condition.category,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (supplement.brand.isNotEmpty) ...[
+                  if (bodyLocationsSummary.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
-                      supplement.brand,
+                      bodyLocationsSummary,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -170,12 +170,12 @@ class SupplementListScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            // Schedule indicator
-            if (supplement.hasSchedules)
+            // Photo indicator
+            if (condition.hasBaselinePhoto)
               Semantics(
-                label: 'Has schedule',
+                label: 'Has baseline photo',
                 child: Icon(
-                  Icons.schedule,
+                  Icons.photo_camera,
                   size: 20,
                   color: theme.colorScheme.primary,
                 ),
@@ -184,7 +184,7 @@ class SupplementListScreen extends ConsumerWidget {
             // More options
             PopupMenuButton<String>(
               onSelected: (value) =>
-                  _handleSupplementAction(context, ref, supplement, value),
+                  _handleConditionAction(context, ref, condition, value),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'edit',
@@ -194,23 +194,13 @@ class SupplementListScreen extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                const PopupMenuItem(
-                  value: 'log',
-                  child: ListTile(
-                    leading: Icon(Icons.check_circle),
-                    title: Text('Log Intake'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
                 PopupMenuItem(
-                  value: supplement.isArchived ? 'unarchive' : 'archive',
+                  value: condition.isArchived ? 'unarchive' : 'archive',
                   child: ListTile(
                     leading: Icon(
-                      supplement.isArchived ? Icons.unarchive : Icons.archive,
+                      condition.isArchived ? Icons.unarchive : Icons.archive,
                     ),
-                    title: Text(
-                      supplement.isArchived ? 'Unarchive' : 'Archive',
-                    ),
+                    title: Text(condition.isArchived ? 'Unarchive' : 'Archive'),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -233,15 +223,15 @@ class SupplementListScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.medication_outlined,
+              Icons.medical_services_outlined,
               size: 64,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            Text('No supplements yet', style: theme.textTheme.titleLarge),
+            Text('No conditions yet', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
-              'Tap the + button to add your first supplement',
+              'Tap the + button to add your first condition',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -265,7 +255,7 @@ class SupplementListScreen extends ConsumerWidget {
             Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
-              'Failed to load supplements',
+              'Failed to load conditions',
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -278,8 +268,7 @@ class SupplementListScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             ShadowButton(
-              onPressed: () =>
-                  ref.invalidate(supplementListProvider(profileId)),
+              onPressed: () => ref.invalidate(conditionListProvider(profileId)),
               label: 'Retry',
               child: const Text('Retry'),
             ),
@@ -289,103 +278,81 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  IconData _getFormIcon(SupplementForm form) => switch (form) {
-    SupplementForm.capsule => Icons.medication,
-    SupplementForm.tablet => Icons.circle,
-    SupplementForm.powder => Icons.grain,
-    SupplementForm.liquid => Icons.water_drop,
-    SupplementForm.gummy => Icons.cookie_outlined,
-    SupplementForm.spray => Icons.air,
-    SupplementForm.other => Icons.category,
-  };
-
   void _showFilterOptions(BuildContext context) {
-    // TODO: Implement filter dialog
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => const _FilterBottomSheet(),
     );
   }
 
-  void _navigateToAddSupplement(BuildContext context) {
-    // TODO: Navigate to add supplement screen
+  void _navigateToAddCondition(BuildContext context) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (context) => SupplementEditScreen(profileId: profileId),
+        builder: (context) => ConditionEditScreen(profileId: profileId),
       ),
     );
   }
 
-  void _navigateToEditSupplement(BuildContext context, Supplement supplement) {
+  void _navigateToEditCondition(BuildContext context, Condition condition) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (context) =>
-            SupplementEditScreen(profileId: profileId, supplement: supplement),
+            ConditionEditScreen(profileId: profileId, condition: condition),
       ),
     );
   }
 
-  Future<void> _handleSupplementAction(
+  Future<void> _handleConditionAction(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    Condition condition,
     String action,
   ) async {
     switch (action) {
       case 'edit':
-        _navigateToEditSupplement(context, supplement);
-      case 'log':
-        _navigateToLogIntake(context, supplement);
+        _navigateToEditCondition(context, condition);
       case 'archive':
       case 'unarchive':
-        await _toggleArchive(context, ref, supplement);
+        await _toggleArchive(context, ref, condition);
     }
-  }
-
-  void _navigateToLogIntake(BuildContext context, Supplement supplement) {
-    // TODO: Navigate to log intake screen
   }
 
   Future<void> _toggleArchive(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    Condition condition,
   ) async {
     final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      title: supplement.isArchived
-          ? 'Unarchive Supplement?'
-          : 'Archive Supplement?',
-      contentText: supplement.isArchived
-          ? 'This supplement will appear in your active list again.'
-          : 'This supplement will be moved to the archived section.',
-      confirmButtonText: supplement.isArchived ? 'Unarchive' : 'Archive',
+      title: condition.isArchived
+          ? 'Unarchive Condition?'
+          : 'Archive Condition?',
+      contentText: condition.isArchived
+          ? 'This condition will appear in your active list again.'
+          : 'This condition will be moved to the archived section.',
+      confirmButtonText: condition.isArchived ? 'Unarchive' : 'Archive',
     );
 
     if (confirmed ?? false) {
       try {
         await ref
-            .read(supplementListProvider(profileId).notifier)
+            .read(conditionListProvider(profileId).notifier)
             .archive(
-              ArchiveSupplementInput(
-                id: supplement.id,
-                profileId: profileId,
-                archive: !supplement.isArchived,
-              ),
+              ArchiveConditionInput(id: condition.id, profileId: profileId),
             );
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: supplement.isArchived
-                ? 'Supplement unarchived'
-                : 'Supplement archived',
+            message: condition.isArchived
+                ? 'Condition unarchived'
+                : 'Condition archived',
           );
         }
       } on Exception catch (e) {
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Failed to update supplement: $e',
+            message: 'Failed to update condition: $e',
           );
         }
       }
@@ -393,7 +360,7 @@ class SupplementListScreen extends ConsumerWidget {
   }
 }
 
-/// Bottom sheet for filtering supplements.
+/// Bottom sheet for filtering conditions.
 class _FilterBottomSheet extends StatelessWidget {
   const _FilterBottomSheet();
 
@@ -407,9 +374,8 @@ class _FilterBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter Supplements', style: theme.textTheme.titleLarge),
+          Text('Filter Conditions', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
-          // TODO: Implement filter options
           ListTile(
             leading: const Icon(Icons.check_circle),
             title: const Text('Active only'),

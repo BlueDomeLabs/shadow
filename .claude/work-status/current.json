@@ -1,18 +1,27 @@
 {
-  "lastInstanceId": "phase3-screens-002",
-  "lastAction": "completed-supplement-list-screen",
+  "lastInstanceId": "phase3-screens-005",
+  "lastAction": "all-37-tests-fixed-snackbar-compliance-analyzer-clean",
   "taskId": "PHASE3-SCREENS",
   "status": "in_progress",
-  "timestamp": "2026-02-06T16:30:00Z",
+  "timestamp": "2026-02-06T20:30:00Z",
   "filesModified": [
-    "22_API_CONTRACTS.md",
-    "lib/domain/enums/health_enums.dart",
-    "lib/domain/entities/supplement.g.dart",
+    "lib/presentation/screens/supplements/supplement_edit_screen.dart",
     "lib/presentation/screens/supplements/supplement_list_screen.dart",
-    "test/presentation/screens/supplements/supplement_list_screen_test.dart",
-    "test/unit/domain/entities/supplement_test.dart"
+    "lib/presentation/screens/conditions/condition_list_screen.dart",
+    "lib/presentation/screens/conditions/condition_edit_screen.dart",
+    "lib/presentation/screens/food_items/food_item_edit_screen.dart",
+    "lib/presentation/screens/food_items/food_item_list_screen.dart",
+    "lib/presentation/screens/sleep_entries/sleep_entry_edit_screen.dart",
+    "lib/presentation/screens/sleep_entries/sleep_entry_list_screen.dart",
+    "test/presentation/screens/supplements/supplement_edit_screen_test.dart",
+    "test/presentation/screens/conditions/condition_list_screen_test.dart",
+    "test/presentation/screens/conditions/condition_edit_screen_test.dart",
+    "test/presentation/screens/sleep_entries/sleep_entry_edit_screen_test.dart",
+    "test/presentation/screens/sleep_entries/sleep_entry_list_screen_test.dart",
+    "test/presentation/screens/food_items/food_item_edit_screen_test.dart",
+    "test/presentation/screens/food_items/food_item_list_screen_test.dart"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Completed SupplementListScreen with 23 tests. Added gummy/spray to SupplementForm enum (spec + implementation). Ready for Agent Teams or next screen. Next: SupplementEditScreen or other entity screens."
+  "notes": "All 991 tests passing, 0 analyzer issues, code formatted. Fixed all 37 originally failing tests across 6 test files. Key fixes: (1) scrollToBottom/scrollToTop helpers for off-screen ListView content in Flutter test viewport. (2) Mock method overrides (create/updateSupplement) for SupplementList notifier. (3) Condition archived test: status=resolved so it appears in Resolved section. (4) SleepEntry null wakeTime: construct directly bypassing helper's ?? operator. (5) food_item_edit onChanged for real-time name validation. (6) sleep_entry_edit 'times awakened 0': findsWidgets for dual hint+controller text. (7) Supplement success snackbar tests: pump() instead of pumpAndSettle() to catch snackbar before 4s auto-dismiss. (8) All 17 raw ScaffoldMessenger.showSnackBar calls converted to showAccessibleSnackBar per 09_WIDGET_LIBRARY.md spec. (9) All avoid_redundant_argument_values lint issues fixed per Coding Standards. REMAINING: Document spec inconsistency (Category required vs optional) in 53_SPEC_CLARIFICATIONS.md. Next: more screens or Phase 3 completion."
 }

@@ -1,95 +1,84 @@
-// lib/presentation/screens/supplements/supplement_list_screen.dart
-// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 4 - Supplement Screens
+// lib/presentation/screens/sleep_entries/sleep_entry_list_screen.dart
+// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 7 - Sleep Entry Screens
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shadow_app/domain/entities/supplement.dart';
+import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
-import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
-import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
-import 'package:shadow_app/presentation/screens/supplements/supplement_edit_screen.dart';
+import 'package:shadow_app/domain/usecases/sleep_entries/sleep_entries_usecases.dart';
+import 'package:shadow_app/presentation/providers/sleep_entries/sleep_entry_list_provider.dart';
+import 'package:shadow_app/presentation/screens/sleep_entries/sleep_entry_edit_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
-/// Screen displaying the list of supplements for a profile.
+/// Screen displaying the list of sleep entries for a profile.
 ///
-/// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 4 exactly.
-/// Uses [SupplementListProvider] for state management.
-class SupplementListScreen extends ConsumerWidget {
+/// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 7 exactly.
+/// Uses [SleepEntryList] provider for state management.
+class SleepEntryListScreen extends ConsumerWidget {
   final String profileId;
 
-  const SupplementListScreen({super.key, required this.profileId});
+  const SleepEntryListScreen({super.key, required this.profileId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final supplementsAsync = ref.watch(supplementListProvider(profileId));
+    final sleepEntriesAsync = ref.watch(sleepEntryListProvider(profileId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Supplements'),
+        title: const Text('Sleep Log'),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFilterOptions(context),
-            tooltip: 'Filter supplements',
+            tooltip: 'Filter sleep entries',
           ),
         ],
       ),
       body: Semantics(
-        label: 'Supplement list',
-        child: supplementsAsync.when(
-          data: (supplements) =>
-              _buildSupplementList(context, ref, supplements),
+        label: 'Sleep entry list',
+        child: sleepEntriesAsync.when(
+          data: (entries) => _buildSleepEntryList(context, ref, entries),
           loading: () => const Center(
-            child: ShadowStatus.loading(label: 'Loading supplements'),
+            child: ShadowStatus.loading(label: 'Loading sleep entries'),
           ),
           error: (error, stack) => _buildErrorState(context, ref, error),
         ),
       ),
       floatingActionButton: Semantics(
-        label: 'Add new supplement',
+        label: 'Add new sleep entry',
         child: FloatingActionButton(
-          onPressed: () => _navigateToAddSupplement(context),
+          onPressed: () => _navigateToAddSleepEntry(context),
           child: const Icon(Icons.add),
         ),
       ),
     );
   }
 
-  Widget _buildSupplementList(
+  Widget _buildSleepEntryList(
     BuildContext context,
     WidgetRef ref,
-    List<Supplement> supplements,
+    List<SleepEntry> entries,
   ) {
-    if (supplements.isEmpty) {
+    if (entries.isEmpty) {
       return _buildEmptyState(context);
     }
 
-    // Separate active and archived supplements
-    final activeSupplements = supplements.where((s) => s.isActive).toList();
-    final archivedSupplements = supplements.where((s) => s.isArchived).toList();
+    // Sort by bed time, most recent first
+    final sortedEntries = List<SleepEntry>.from(entries)
+      ..sort((a, b) => b.bedTime.compareTo(a.bedTime));
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.invalidate(supplementListProvider(profileId));
+        ref.invalidate(sleepEntryListProvider(profileId));
       },
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (activeSupplements.isNotEmpty) ...[
-            _buildSectionHeader(context, 'Active Supplements'),
-            const SizedBox(height: 8),
-            ...activeSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
-            ),
-          ],
-          if (archivedSupplements.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(context, 'Archived'),
-            const SizedBox(height: 8),
-            ...archivedSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
-            ),
-          ],
+          _buildSectionHeader(context, 'Sleep Entries'),
+          const SizedBox(height: 8),
+          ...sortedEntries.map(
+            (entry) => _buildSleepEntryCard(context, ref, entry),
+          ),
         ],
       ),
     );
@@ -108,22 +97,33 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupplementCard(
+  Widget _buildSleepEntryCard(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    SleepEntry entry,
   ) {
     final theme = Theme.of(context);
+    final bedDateTime = DateTime.fromMillisecondsSinceEpoch(entry.bedTime);
+    final wakeDateTime = entry.wakeTime != null
+        ? DateTime.fromMillisecondsSinceEpoch(entry.wakeTime!)
+        : null;
+
+    final dateStr = _formatDate(bedDateTime);
+    final bedTimeStr = _formatTime(bedDateTime);
+    final wakeTimeStr = wakeDateTime != null
+        ? _formatTime(wakeDateTime)
+        : 'Not recorded';
+    final durationStr = _formatDuration(entry.totalSleepMinutes);
+    final feelingStr = _getWakingFeelingLabel(entry.wakingFeeling);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
-        onTap: () => _navigateToEditSupplement(context, supplement),
-        semanticLabel: '${supplement.name}, ${supplement.displayDosage}',
+        onTap: () => _navigateToEditSleepEntry(context, entry),
+        semanticLabel: '$dateStr, $bedTimeStr to $wakeTimeStr, $feelingStr',
         semanticHint: 'Double tap to edit',
         child: Row(
           children: [
-            // Supplement icon based on form
             Container(
               width: 48,
               height: 48,
@@ -132,59 +132,53 @@ class SupplementListScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                _getFormIcon(supplement.form),
+                _getWakingFeelingIcon(entry.wakingFeeling),
                 color: theme.colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(width: 16),
-            // Supplement info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    supplement.name,
+                    dateStr,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      decoration: supplement.isArchived
-                          ? TextDecoration.lineThrough
-                          : null,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    supplement.displayDosage,
+                    '$bedTimeStr - $wakeTimeStr',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (supplement.brand.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      supplement.brand,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(
+                        durationStr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        feelingStr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            // Schedule indicator
-            if (supplement.hasSchedules)
-              Semantics(
-                label: 'Has schedule',
-                child: Icon(
-                  Icons.schedule,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            const SizedBox(width: 8),
-            // More options
             PopupMenuButton<String>(
               onSelected: (value) =>
-                  _handleSupplementAction(context, ref, supplement, value),
+                  _handleSleepEntryAction(context, ref, entry, value),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'edit',
@@ -195,22 +189,10 @@ class SupplementListScreen extends ConsumerWidget {
                   ),
                 ),
                 const PopupMenuItem(
-                  value: 'log',
+                  value: 'delete',
                   child: ListTile(
-                    leading: Icon(Icons.check_circle),
-                    title: Text('Log Intake'),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-                PopupMenuItem(
-                  value: supplement.isArchived ? 'unarchive' : 'archive',
-                  child: ListTile(
-                    leading: Icon(
-                      supplement.isArchived ? Icons.unarchive : Icons.archive,
-                    ),
-                    title: Text(
-                      supplement.isArchived ? 'Unarchive' : 'Archive',
-                    ),
+                    leading: Icon(Icons.delete),
+                    title: Text('Delete'),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -233,15 +215,15 @@ class SupplementListScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.medication_outlined,
+              Icons.bedtime_outlined,
               size: 64,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            Text('No supplements yet', style: theme.textTheme.titleLarge),
+            Text('No sleep entries yet', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
-              'Tap the + button to add your first supplement',
+              'Tap the + button to log your first sleep entry',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -265,7 +247,7 @@ class SupplementListScreen extends ConsumerWidget {
             Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
-              'Failed to load supplements',
+              'Failed to load sleep entries',
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -279,7 +261,7 @@ class SupplementListScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             ShadowButton(
               onPressed: () =>
-                  ref.invalidate(supplementListProvider(profileId)),
+                  ref.invalidate(sleepEntryListProvider(profileId)),
               label: 'Retry',
               child: const Text('Retry'),
             ),
@@ -289,103 +271,117 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  IconData _getFormIcon(SupplementForm form) => switch (form) {
-    SupplementForm.capsule => Icons.medication,
-    SupplementForm.tablet => Icons.circle,
-    SupplementForm.powder => Icons.grain,
-    SupplementForm.liquid => Icons.water_drop,
-    SupplementForm.gummy => Icons.cookie_outlined,
-    SupplementForm.spray => Icons.air,
-    SupplementForm.other => Icons.category,
+  String _formatDate(DateTime date) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final period = dateTime.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
+  }
+
+  String _formatDuration(int? totalMinutes) {
+    if (totalMinutes == null) return 'Duration unknown';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (hours == 0) return '${minutes}m';
+    if (minutes == 0) return '${hours}h';
+    return '${hours}h ${minutes}m';
+  }
+
+  String _getWakingFeelingLabel(WakingFeeling feeling) => switch (feeling) {
+    WakingFeeling.unrested => 'Unrested',
+    WakingFeeling.neutral => 'Neutral',
+    WakingFeeling.rested => 'Rested',
+  };
+
+  IconData _getWakingFeelingIcon(WakingFeeling feeling) => switch (feeling) {
+    WakingFeeling.unrested => Icons.sentiment_dissatisfied,
+    WakingFeeling.neutral => Icons.sentiment_neutral,
+    WakingFeeling.rested => Icons.sentiment_satisfied,
   };
 
   void _showFilterOptions(BuildContext context) {
-    // TODO: Implement filter dialog
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => const _FilterBottomSheet(),
     );
   }
 
-  void _navigateToAddSupplement(BuildContext context) {
-    // TODO: Navigate to add supplement screen
+  void _navigateToAddSleepEntry(BuildContext context) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (context) => SupplementEditScreen(profileId: profileId),
+        builder: (context) => SleepEntryEditScreen(profileId: profileId),
       ),
     );
   }
 
-  void _navigateToEditSupplement(BuildContext context, Supplement supplement) {
+  void _navigateToEditSleepEntry(BuildContext context, SleepEntry entry) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (context) =>
-            SupplementEditScreen(profileId: profileId, supplement: supplement),
+            SleepEntryEditScreen(profileId: profileId, sleepEntry: entry),
       ),
     );
   }
 
-  Future<void> _handleSupplementAction(
+  Future<void> _handleSleepEntryAction(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    SleepEntry entry,
     String action,
   ) async {
     switch (action) {
       case 'edit':
-        _navigateToEditSupplement(context, supplement);
-      case 'log':
-        _navigateToLogIntake(context, supplement);
-      case 'archive':
-      case 'unarchive':
-        await _toggleArchive(context, ref, supplement);
+        _navigateToEditSleepEntry(context, entry);
+      case 'delete':
+        await _confirmDelete(context, ref, entry);
     }
   }
 
-  void _navigateToLogIntake(BuildContext context, Supplement supplement) {
-    // TODO: Navigate to log intake screen
-  }
-
-  Future<void> _toggleArchive(
+  Future<void> _confirmDelete(
     BuildContext context,
     WidgetRef ref,
-    Supplement supplement,
+    SleepEntry entry,
   ) async {
     final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      title: supplement.isArchived
-          ? 'Unarchive Supplement?'
-          : 'Archive Supplement?',
-      contentText: supplement.isArchived
-          ? 'This supplement will appear in your active list again.'
-          : 'This supplement will be moved to the archived section.',
-      confirmButtonText: supplement.isArchived ? 'Unarchive' : 'Archive',
+      title: 'Delete Sleep Entry?',
+      contentText: 'This sleep entry will be permanently deleted.',
     );
 
     if (confirmed ?? false) {
       try {
         await ref
-            .read(supplementListProvider(profileId).notifier)
-            .archive(
-              ArchiveSupplementInput(
-                id: supplement.id,
-                profileId: profileId,
-                archive: !supplement.isArchived,
-              ),
-            );
+            .read(sleepEntryListProvider(profileId).notifier)
+            .delete(DeleteSleepEntryInput(id: entry.id, profileId: profileId));
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: supplement.isArchived
-                ? 'Supplement unarchived'
-                : 'Supplement archived',
+            message: 'Sleep entry deleted',
           );
         }
       } on Exception catch (e) {
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Failed to update supplement: $e',
+            message: 'Failed to delete sleep entry: $e',
           );
         }
       }
@@ -393,7 +389,7 @@ class SupplementListScreen extends ConsumerWidget {
   }
 }
 
-/// Bottom sheet for filtering supplements.
+/// Bottom sheet for filtering sleep entries.
 class _FilterBottomSheet extends StatelessWidget {
   const _FilterBottomSheet();
 
@@ -407,18 +403,15 @@ class _FilterBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Filter Supplements', style: theme.textTheme.titleLarge),
+          Text('Filter Sleep Entries', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
-          // TODO: Implement filter options
           ListTile(
-            leading: const Icon(Icons.check_circle),
-            title: const Text('Active only'),
-            trailing: Switch(value: true, onChanged: (value) {}),
-          ),
-          ListTile(
-            leading: const Icon(Icons.archive),
-            title: const Text('Show archived'),
-            trailing: Switch(value: true, onChanged: (value) {}),
+            leading: const Icon(Icons.date_range),
+            title: const Text('Date range'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              // TODO: Implement date range filter
+            },
           ),
           const SizedBox(height: 16),
           Row(
