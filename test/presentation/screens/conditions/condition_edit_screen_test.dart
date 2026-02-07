@@ -12,8 +12,6 @@
 // semantic label from Section 18.7 but validate that Category is a
 // required field per Section 8.1. Implementation team should clarify.
 
-// ignore_for_file: unused_element
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -225,6 +223,93 @@ void main() {
         expect(find.text('Pain'), findsOneWidget);
         // 'Other' may appear multiple times (body locations + category)
         expect(find.text('Other'), findsWidgets);
+      });
+    });
+
+    group('edit mode', () {
+      testWidgets('renders Edit Condition title in edit mode', (tester) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        expect(find.text('Edit Condition'), findsOneWidget);
+      });
+
+      testWidgets('populates name field from condition', (tester) async {
+        final condition = createTestCondition(name: 'Psoriasis');
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        expect(find.text('Psoriasis'), findsOneWidget);
+      });
+
+      testWidgets('populates category from condition', (tester) async {
+        final condition = createTestCondition(category: 'Digestive');
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        // Category dropdown shows the selected value
+        expect(find.text('Digestive'), findsOneWidget);
+      });
+
+      testWidgets('populates body locations from condition', (tester) async {
+        final condition = createTestCondition(
+          bodyLocations: const ['Arms', 'Legs'],
+        );
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        // Arms and Legs chips should be selected (FilterChip selected state)
+        final armsChip = tester.widget<FilterChip>(
+          find.widgetWithText(FilterChip, 'Arms'),
+        );
+        expect(armsChip.selected, isTrue);
+        final legsChip = tester.widget<FilterChip>(
+          find.widgetWithText(FilterChip, 'Legs'),
+        );
+        expect(legsChip.selected, isTrue);
+        // Head should NOT be selected
+        final headChip = tester.widget<FilterChip>(
+          find.widgetWithText(FilterChip, 'Head'),
+        );
+        expect(headChip.selected, isFalse);
+      });
+
+      testWidgets('populates description from condition', (tester) async {
+        final condition = createTestCondition(
+          description: 'Flares up in winter',
+        );
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        expect(find.text('Flares up in winter'), findsOneWidget);
+      });
+
+      testWidgets('shows Save Changes button in edit mode', (tester) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        await scrollToBottom(tester);
+        expect(find.text('Save Changes'), findsOneWidget);
+      });
+
+      testWidgets('body has edit mode semantic label', (tester) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Edit condition form',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      });
+
+      testWidgets('populates status from condition', (tester) async {
+        final condition = createTestCondition(status: ConditionStatus.resolved);
+        await tester.pumpWidget(buildEditScreen(condition));
+        await tester.pumpAndSettle();
+        await scrollToBottom(tester);
+        // Resolved should be selected in the SegmentedButton
+        final segmented = tester.widget<SegmentedButton<ConditionStatus>>(
+          find.byType(SegmentedButton<ConditionStatus>),
+        );
+        expect(segmented.selected, contains(ConditionStatus.resolved));
       });
     });
   });
