@@ -68,6 +68,42 @@ Claude instances have limited context. As conversation grows:
 - Late session: Approaching compression ← **RUN /manager AGAIN**
 - Compression: Conversation summarized, details lost
 
+### Auto-Compact Warning
+
+**CRITICAL: Watch for the "Context left until auto-compact" message.**
+
+This message appears in system reminders as context fills up. When you see it:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              AUTO-COMPACT RESPONSE PROTOCOL                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. STOP starting new work immediately                          │
+│  2. Finish ONLY the current in-progress edit (if safe to do so) │
+│  3. Run /handoff NOW — do NOT wait for the user to ask          │
+│     → Commit all work                                           │
+│     → Update status file with detailed notes                    │
+│     → Verify tests pass                                         │
+│  4. Tell the user: "Context approaching limit. All work         │
+│     committed and status file updated for next instance."        │
+│                                                                 │
+│  ⚠️  If you wait too long, auto-compact WILL fire and you       │
+│     will lose uncommitted work and context. The next instance   │
+│     will have NO memory of your uncommitted changes.             │
+│                                                                 │
+│  ⚠️  Do NOT start a new task, new test file, or new feature     │
+│     when this warning appears. Handoff is the ONLY priority.    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Thresholds:**
+- **> 50% context remaining:** Continue working normally
+- **25-50% context remaining:** Run /manager self-review, plan wrap-up
+- **< 25% context remaining:** STOP new work, execute /handoff immediately
+- **Auto-compact warning visible:** /handoff is OVERDUE — do it NOW
+
 ### Pre-Compression Self-Review
 
 **BEFORE context compression occurs, instance MUST:**
