@@ -586,6 +586,118 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## Pass 6 Findings: Service Interfaces + Intelligence Input/Output Mismatches (9 items)
+
+### Fix 70: 12 Service Interfaces Used But Never Defined (MEGA-GAP — add new Section 11)
+- **Issue:** 12 abstract service classes are used as constructor dependencies in ~20 use cases but never defined
+- **Services (with methods extracted from usage):**
+  1. `NotificationService` — scheduleNotifications(NotificationSchedule), cancelNotifications(String id), cancelAllNotifications(), showNow(QueuedNotification)
+  2. `WearablePlatformService` — isAvailable(WearablePlatform), requestPermissions(WearablePlatform, List<String>), fetchData(...)
+  3. `AuthTokenService` — storeTokens({userId, accessToken, refreshToken}), clearTokens()
+  4. `SyncService` — pushPendingChanges(), getPendingChanges(String profileId, {int? limit}), pushChanges(List<SyncChange>), getLastSyncVersion(String profileId), pullChanges(String profileId, {int? sinceVersion, int? limit}), applyChanges(String profileId, List<SyncChange>), resolveConflict(String conflictId, ConflictResolution resolution)
+  5. `DeviceInfoService` — registerCurrentDevice(String userId), unregisterCurrentDevice()
+  6. `GoogleAuthService` — verifyIdToken(String idToken) returns Result<GoogleUserInfo, AppError>
+  7. `TriggerAnalysisService` — analyzeCorrelations({conditionLogs, foodLogs, timeWindows, minimumConfidence, minimumOccurrences})
+  8. `InsightGeneratorService` — generateInsights({patterns, correlations, recentLogs, categories, maxInsights})
+  9. `PredictionService` — predictFlareUps(...), predictMenstrualCycle(...), generateTriggerWarnings(...), predictMissedSupplements(...)
+  10. `DataQualityService` — assessConditionLogging(logs, start, end), assessFoodLogging(...), assessSleepLogging(...), assessFluidsLogging(...), assessSupplementLogging(...), findGaps(timestamps, start, end, type), generateRecommendations(scores, gaps)
+  11. `DietComplianceService` — checkFoodAgainstRules(foodItem, rules, logTimeEpoch), calculateImpact(profileId, violations)
+  12. `PatternDetectionService` — detectPatterns({conditionLogs, foodLogs, sleepEntries, patternTypes, minimumConfidence})
+- **Fix:** Add new "Section 11: Service Interface Contracts" to 22_API_CONTRACTS.md (~150-200 lines) defining all 12 abstract classes
+
+### Fix 71: GrantedPermissions Type Never Defined (line 6312)
+- **Line 6312:** `final grantedPermissions = permissionsResult.valueOrNull!;` — accesses `.read` and `.write` as `List<String>`
+- **Fix:** Add class definition adjacent to WearablePlatformService:
+  ```dart
+  @freezed
+  class GrantedPermissions with _$GrantedPermissions {
+    const factory GrantedPermissions({
+      required List<String> read,
+      required List<String> write,
+    }) = _GrantedPermissions;
+  }
+  ```
+
+### Fix 72: GetPendingNotificationsUseCase — enabledOnly param doesn't exist (line 6070-6072)
+- **Use case (6070-6072):** `_repository.getByProfile(input.profileId, enabledOnly: true)`
+- **Repo (10363-10365):** `getByProfile(String profileId)` — no `enabledOnly` param
+- **Repo (10368-10370):** `getEnabled(String profileId)` — correct method already exists
+- **Fix:** Change line 6070-6072 to: `final schedulesResult = await _repository.getEnabled(input.profileId);`
+
+### Fix 73: HealthInsightRepository.getByProfile — method doesn't exist (line 5578)
+- **Use case (5578):** `_insightRepository.getByProfile(input.profileId, includeDismissed: false)`
+- **Repo (9891-9899):** Only has `getActive(profileId, ...)` and `dismiss(id)`. No `getByProfile`.
+- **Fix:** Change line 5578 to: `final existingResult = await _insightRepository.getActive(input.profileId);`
+
+### Fix 74: DetectPatternsInput — 4 field names don't match use case (lines 5350/5383/5396/5400 vs 9913-9924)
+- **Used in code / Exists in input:**
+  - `lookbackDays` (5350) / has `startDate, endDate` — mismatch
+  - `minimumDataPoints` (5383) / has `minimumOccurrences` — name mismatch
+  - `minimumConfidence` (5396) / has `significanceThreshold` — name mismatch
+  - `conditionIds` (5400) / NOT in input — missing field
+- **Fix:** Update DetectPatternsInput definition (9913-9924) to use field names from use case code:
+  - Replace `startDate`/`endDate` with `@Default(90) int lookbackDays`
+  - Rename `minimumOccurrences` to `minimumDataPoints`
+  - Rename `significanceThreshold` to `minimumConfidence`
+  - Add `@Default([]) List<String> conditionIds`
+
+### Fix 75: AnalyzeTriggersInput — 4 mismatches + nullable conflict (lines 5454-5498 vs 9929-9943)
+- **Used in code / Exists in input:**
+  - `conditionId` used as nullable (5459) / defined as `required String` — nullable conflict
+  - `lookbackDays` (5455) / has `startDate, endDate` — mismatch
+  - `timeWindowHours` (5494) / has `timeWindowsHours` — typo (extra 's')
+  - `minimumConfidence` (5497) / has `significanceThreshold` — name mismatch
+- **Fix:** Update AnalyzeTriggersInput (9929-9943):
+  - Change `required String conditionId` to `String? conditionId`
+  - Replace `startDate`/`endDate` with `@Default(90) int lookbackDays`
+  - Rename `timeWindowsHours` to `timeWindowHours`
+  - Rename `significanceThreshold` to `minimumConfidence`
+
+### Fix 76: GenerateInsightsInput — categories vs insightTypes (line 5571 vs 9953)
+- **Use case (5571):** `input.categories.isEmpty ? InsightCategory.values : input.categories`
+- **Input (9953):** Has `insightTypes`, NOT `categories`
+- **Fix:** Rename field in GenerateInsightsInput from `insightTypes` to `categories`:
+  `@Default([]) List<InsightCategory> categories,`
+
+### Fix 77: DataQualityReport Construction — 6 wrong names + 4 missing required fields (lines 5898-5905 vs 9969-9979)
+- **Wrong field names:**
+  - `overallScore` → entity has `overallQualityScore`
+  - `scoresByDataType` → entity has `byDataType`
+  - `analyzedFromEpoch` → DOES NOT EXIST in entity
+  - `analyzedToEpoch` → DOES NOT EXIST in entity
+- **Missing required fields:** `profileId`, `assessedAt`, `totalDaysAnalyzed`, `daysWithData`
+- **Fix:** Update use case construction (5898-5905) to match entity:
+  ```dart
+  DataQualityReport(
+    profileId: input.profileId,
+    assessedAt: now,
+    totalDaysAnalyzed: input.lookbackDays,
+    daysWithData: scores.values.fold(0, (sum, q) => sum + q.daysWithData),
+    overallQualityScore: overallScore,
+    byDataType: scores,
+    gaps: gaps,
+    recommendations: recommendations,
+  )
+  ```
+
+### Fix 78: QueuedNotification Construction — DateTime vs int + missing required fields (line 12329-12339)
+- **Line 12333:** `queuedAt: DateTime.now()` — field is `int` (epoch ms per line 12266)
+- **Missing:** `clientId` (required per 12262), `profileId` (required per 12263)
+- **Fix:** Change construction (12329-12339) to:
+  ```dart
+  QueuedNotification(
+    id: 'collapsed_${entry.key.name}',
+    clientId: entry.value.first.clientId,
+    profileId: entry.value.first.profileId,
+    type: entry.key,
+    originalScheduledTime: entry.value.first.originalScheduledTime,
+    queuedAt: DateTime.now().millisecondsSinceEpoch,
+    payload: { ... },
+  )
+  ```
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -603,10 +715,10 @@ The following decisions were made by the user on 2026-02-08:
 
 **Phase 1: Error types (Fixes 1-5)** — 5 simple text replacements
 **Phase 2: Unchecked Results (Fixes 6-12)** — 7 edits adding result capture + failure checks
-**Phase 3: DateTime (Fixes 13-14, 69)** — 3 edits
+**Phase 3: DateTime (Fixes 13-14, 69, 78)** — 4 edits (now includes QueuedNotification DateTime fix)
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
 **Phase 5: Entity definition gaps (Fixes 28-29, 41, 47, 61, 67)** — Add missing fields to Profile (waterGoalMl, isDefault, avatarUrl), Pattern, HealthInsight, UserAccount, DietViolation
-**Phase 6: Use case/provider field name fixes (Fixes 35, 37, 40, 44, 53, 54, 57, 60, 62, 63)** — Fix field names, wrong args, wrong types in use case + provider code
+**Phase 6: Use case/provider field name fixes (Fixes 35, 37, 40, 44, 53, 54, 57, 60, 62, 63, 72, 73, 77)** — Fix field names, wrong args, wrong types in use case + provider code. Now includes getEnabled fix, getActive fix, DataQualityReport construction fix.
 **Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
 **Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
 **Phase 9: Wearable import contradictions (Fixes 36, 38, 43)** — Fix ImportedDataLog entity, add missing fields/methods
@@ -615,8 +727,10 @@ The following decisions were made by the user on 2026-02-08:
 **Phase 12: Missing input fields + enum values (Fixes 50-51, 59, 64)** — Add fields to SyncWearableDataInput, ConnectWearableInput, GetNotificationSchedulesInput; add `prediction` to RateLimitOperation
 **Phase 13: Missing class definitions (Fixes 65, 66, 68)** — Profile use case layer (5 use cases + 3 inputs), getAccessibleProfiles type fix, SyncConflict class
 **Phase 14: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
+**Phase 15: Intelligence input/output field mismatches (Fixes 74-76)** — Fix DetectPatternsInput (4 fields), AnalyzeTriggersInput (4 fields + nullable), GenerateInsightsInput (categories vs insightTypes)
+**Phase 16: Service Interface Contracts — NEW SECTION (Fixes 70-71)** — Add Section 11 to 22_API_CONTRACTS.md defining all 12 service abstract classes (~150-200 lines). Also add GrantedPermissions type. **This is the largest single phase.**
 
-**All changes are spec-text-only.** No implementation code changes needed. No tests affected.
+**Total: 78 fixes across 16 phases. All changes are spec-text-only.** No implementation code changes needed. No tests affected.
 
 ---
 
