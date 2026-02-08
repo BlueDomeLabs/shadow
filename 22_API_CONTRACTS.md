@@ -5084,8 +5084,8 @@ class PreLogComplianceCheckUseCase
     final food = foodResult.valueOrNull!;
 
     // 4. Check compliance
-    final logTime = DateTime.fromMillisecondsSinceEpoch(input.logTimeEpoch);
-    final violations = _complianceService.checkFoodAgainstRules(food, diet.rules, logTime);
+    
+    final violations = _complianceService.checkFoodAgainstRules(food, diet.rules, input.logTimeEpoch);
 
     // 5. If no violations, return all clear
     if (violations.isEmpty) {
@@ -5578,9 +5578,8 @@ class GenerateInsightsUseCase
     );
 
     // 5. Filter already dismissed insights
-    final existingResult = await _insightRepository.getByProfile(
+    final existingResult = await _insightRepository.getActive(
       input.profileId,
-      includeDismissed: false,
     );
     final existingIds = existingResult.isSuccess
         ? existingResult.valueOrNull!.map((i) => i.insightKey).toSet()
@@ -6016,7 +6015,7 @@ class ScheduleNotificationUseCase
     }
 
     // Entity ID required for supplement/condition types
-    if ((input.type == NotificationType.supplement ||
+    if ((input.type == NotificationType.supplementIndividual || input.type == NotificationType.supplementGrouped ||
         input.type == NotificationType.conditionCheckIn) &&
         input.entityId == null) {
       errors['entityId'] = ['Entity ID required for ${input.type.name} notifications'];
@@ -6024,7 +6023,7 @@ class ScheduleNotificationUseCase
 
     // Verify entity exists
     if (input.entityId != null) {
-      if (input.type == NotificationType.supplement) {
+      if (input.type == NotificationType.supplementIndividual || input.type == NotificationType.supplementGrouped) {
         final supplementResult = await _supplementRepository.getById(input.entityId!);
         if (supplementResult.isFailure) {
           errors['entityId'] = ['Supplement not found'];
@@ -6077,9 +6076,8 @@ class GetPendingNotificationsUseCase
     }
 
     // 3. Fetch enabled schedules
-    final schedulesResult = await _repository.getByProfile(
+    final schedulesResult = await _repository.getEnabled(
       input.profileId,
-      enabledOnly: true,
     );
     if (schedulesResult.isFailure) {
       return Failure(schedulesResult.errorOrNull!);
@@ -6151,7 +6149,8 @@ class GetPendingNotificationsUseCase
     String? deepLink;
 
     switch (schedule.type) {
-      case NotificationType.supplement:
+      case NotificationType.supplementIndividual:
+      case NotificationType.supplementGrouped:
         // Fetch supplement name
         final supplementResult = await _supplementRepository.getById(schedule.entityId!);
         final supplementName = supplementResult.isSuccess
@@ -6161,17 +6160,23 @@ class GetPendingNotificationsUseCase
         body = schedule.customMessage ?? 'Time to take your $supplementName';
         deepLink = 'shadow://supplement/${schedule.entityId}/log';
         break;
-      case NotificationType.food:
+      case NotificationType.mealBreakfast:
+      case NotificationType.mealLunch:
+      case NotificationType.mealDinner:
+      case NotificationType.mealSnacks:
         title = 'Meal Reminder';
         body = schedule.customMessage ?? 'Time to log your meal';
         deepLink = 'shadow://food/log';
         break;
-      case NotificationType.fluids:
+      case NotificationType.fluidsGeneral:
+      case NotificationType.fluidsBowel:
         title = 'Fluids Reminder';
         body = schedule.customMessage ?? 'Time to log your fluids';
         deepLink = 'shadow://fluids/log';
         break;
-      case NotificationType.water:
+      case NotificationType.waterInterval:
+      case NotificationType.waterFixed:
+      case NotificationType.waterSmart:
         title = 'Water Reminder';
         body = schedule.customMessage ?? 'Time to drink some water';
         deepLink = 'shadow://fluids/water';
@@ -9922,28 +9927,28 @@ abstract class PredictiveAlertRepository implements EntityRepository<PredictiveA
 class DetectPatternsInput with _$DetectPatternsInput {
   const factory DetectPatternsInput({
     required String profileId,
-    required int startDate,                         // Epoch milliseconds
-    required int endDate,                           // Epoch milliseconds
-    @Default([]) List<PatternType> patternTypes,    // Empty = all types
-    @Default(0.05) double significanceThreshold,    // p-value threshold
-    @Default(5) int minimumOccurrences,             // Min data points needed
-    @Default(true) bool includeTemporalPatterns,    // Day-of-week, time-of-day
-    @Default(true) bool includeCyclicalPatterns,    // Menstrual, flare cycles
-    @Default(true) bool includeSequentialPatterns,  // Trigger→outcome sequences
+    @Default(90) int lookbackDays,
+    @Default([]) List<PatternType> patternTypes,
+    @Default(0.6) double minimumConfidence,
+    @Default(5) int minimumDataPoints,
+    @Default([]) List<String> conditionIds,
+    @Default(true) bool includeTemporalPatterns,
+    @Default(true) bool includeCyclicalPatterns,
+    @Default(true) bool includeSequentialPatterns,
   }) = _DetectPatternsInput;
 }
+
 
 /// Input for trigger correlation analysis
 @freezed
 class AnalyzeTriggersInput with _$AnalyzeTriggersInput {
   const factory AnalyzeTriggersInput({
     required String profileId,
-    required String conditionId,                    // Which condition to analyze
-    required int startDate,                         // Epoch milliseconds
-    required int endDate,                           // Epoch milliseconds
-    @Default([6, 12, 24, 48, 72]) List<int> timeWindowsHours,  // Lag windows to check
-    @Default(0.05) double significanceThreshold,    // p-value for correlation
-    @Default(10) int minimumOccurrences,            // Min co-occurrences needed
+    String? conditionId,                              // Nullable - use case checks for null
+    @Default(90) int lookbackDays,
+    @Default([6, 12, 24, 48, 72]) List<int> timeWindowHours,
+    @Default(0.6) double minimumConfidence,
+    @Default(10) int minimumOccurrences,
     @Default(true) bool includeFoodTriggers,
     @Default(true) bool includeSupplementTriggers,
     @Default(true) bool includeActivityTriggers,
@@ -9959,7 +9964,7 @@ class GenerateInsightsInput with _$GenerateInsightsInput {
     required String profileId,
     required int asOfDate,                           // Epoch milliseconds - Generate insights as of this date
     @Default(30) int lookbackDays,                   // How far back to analyze
-    @Default([]) List<InsightCategory> insightTypes, // Empty = all types
+    @Default([]) List<InsightCategory> categories, // Empty = all types
     @Default(10) int maxInsights,                   // Limit returned insights
     @Default(true) bool includePatternInsights,
     @Default(true) bool includeTriggerInsights,
@@ -10090,6 +10095,92 @@ class AssessDataQualityUseCase
 ```
 
 ---
+
+### 7.5b Data Layer Model Stubs
+
+These Model classes implement `Model<T>` (defined in Section 2) and provide
+database serialization for their respective entities. Each extends the base
+pattern of `toMap()`, `copyWith()`, and a `fromMap()` factory.
+
+```dart
+/// Database model for Supplement entity
+class SupplementModel extends Model<Supplement> {
+  final Map<String, dynamic> _data;
+  SupplementModel(this._data);
+
+  @override
+  Map<String, dynamic> toMap() => _data;
+
+  @override
+  Model<Supplement> copyWith({
+    String? id, int? syncCreatedAt, int? syncUpdatedAt,
+    int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt,
+  }) => SupplementModel({..._data, if (id != null) 'id': id,
+    if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+    if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+    if (syncVersion != null) 'sync_version': syncVersion,
+    if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty ? 1 : 0,
+    if (syncStatus != null) 'sync_status': syncStatus,
+    if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+  });
+
+  factory SupplementModel.fromEntity(Supplement entity) => SupplementModel(/* entity to map */);
+  Supplement toEntity() => /* map to entity */;
+}
+
+/// Database model for FluidsEntry entity
+class FluidsEntryModel extends Model<FluidsEntry> {
+  final Map<String, dynamic> _data;
+  FluidsEntryModel(this._data);
+  @override Map<String, dynamic> toMap() => _data;
+  @override Model<FluidsEntry> copyWith({String? id, int? syncCreatedAt, int? syncUpdatedAt, int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt}) => FluidsEntryModel({..._data});
+  factory FluidsEntryModel.fromEntity(FluidsEntry entity) => FluidsEntryModel({});
+  FluidsEntry toEntity() => throw UnimplementedError();
+}
+
+/// Database model for Diet entity
+class DietModel extends Model<Diet> {
+  final Map<String, dynamic> _data;
+  DietModel(this._data);
+  @override Map<String, dynamic> toMap() => _data;
+  @override Model<Diet> copyWith({String? id, int? syncCreatedAt, int? syncUpdatedAt, int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt}) => DietModel({..._data});
+  factory DietModel.fromEntity(Diet entity) => DietModel({});
+  Diet toEntity() => throw UnimplementedError();
+}
+
+/// Database model for ConditionLog entity
+class ConditionLogModel extends Model<ConditionLog> {
+  final Map<String, dynamic> _data;
+  ConditionLogModel(this._data);
+  @override Map<String, dynamic> toMap() => _data;
+  @override Model<ConditionLog> copyWith({String? id, int? syncCreatedAt, int? syncUpdatedAt, int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt}) => ConditionLogModel({..._data});
+  factory ConditionLogModel.fromEntity(ConditionLog entity) => ConditionLogModel({});
+  ConditionLog toEntity() => throw UnimplementedError();
+}
+
+/// Database model for IntakeLog entity
+class IntakeLogModel extends Model<IntakeLog> {
+  final Map<String, dynamic> _data;
+  IntakeLogModel(this._data);
+  @override Map<String, dynamic> toMap() => _data;
+  @override Model<IntakeLog> copyWith({String? id, int? syncCreatedAt, int? syncUpdatedAt, int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt}) => IntakeLogModel({..._data});
+  factory IntakeLogModel.fromEntity(IntakeLog entity) => IntakeLogModel({});
+  IntakeLog toEntity() => throw UnimplementedError();
+}
+
+/// Database model for HealthInsight entity
+class HealthInsightModel extends Model<HealthInsight> {
+  final Map<String, dynamic> _data;
+  HealthInsightModel(this._data);
+  @override Map<String, dynamic> toMap() => _data;
+  @override Model<HealthInsight> copyWith({String? id, int? syncCreatedAt, int? syncUpdatedAt, int? syncVersion, bool? syncIsDirty, int? syncStatus, int? syncDeletedAt}) => HealthInsightModel({..._data});
+  factory HealthInsightModel.fromEntity(HealthInsight entity) => HealthInsightModel({});
+  HealthInsight toEntity() => throw UnimplementedError();
+}
+```
+
+> NOTE: Full implementations of `toMap()`, `fromEntity()`, and `toEntity()` will follow
+> the patterns established by the database column mappings in Section 13.
 
 ## 7.6 Wearable Integration Contracts (Phase 4)
 
@@ -10228,7 +10319,7 @@ class ConnectWearableInput with _$ConnectWearableInput {
     required String clientId,
     required WearablePlatform platform,
     required List<String> requestedPermissions,
-  }) = _ConnectWearableInput;
+    @Default(false) bool enableBackgroundSync,  }) = _ConnectWearableInput;
 
   factory ConnectWearableInput.fromJson(Map<String, dynamic> json) =>
       _$ConnectWearableInputFromJson(json);
@@ -10246,9 +10337,17 @@ class ConnectWearableUseCase
 class SyncWearableDataInput with _$SyncWearableDataInput {
   const factory SyncWearableDataInput({
     required String profileId,
+    required String clientId,
     required WearablePlatform platform,
     int? sinceEpoch,                     // Epoch ms, null for full sync
+    int? startDate,                      // Epoch ms - explicit range start
+    int? endDate,                        // Epoch ms - explicit range end
+    List<String>? dataTypes,             // Filter to specific data types
   }) = _SyncWearableDataInput;
+
+
+
+
 
   factory SyncWearableDataInput.fromJson(Map<String, dynamic> json) =>
       _$SyncWearableDataInputFromJson(json);
@@ -10257,11 +10356,17 @@ class SyncWearableDataInput with _$SyncWearableDataInput {
 @freezed
 class SyncWearableDataOutput with _$SyncWearableDataOutput {
   const factory SyncWearableDataOutput({
-    required int recordsImported,
-    required int recordsSkipped,
-    required List<String> errors,
-    required int syncedAtEpoch,           // Epoch milliseconds
+    required int importedCount,
+    required int skippedCount,
+    required int errorCount,
+    required int syncedRangeStart,        // Epoch milliseconds
+    required int syncedRangeEnd,          // Epoch milliseconds
   }) = _SyncWearableDataOutput;
+
+
+
+
+
 
   factory SyncWearableDataOutput.fromJson(Map<String, dynamic> json) =>
       _$SyncWearableDataOutputFromJson(json);
@@ -11182,7 +11287,8 @@ class FhirExport with _$FhirExport {
     required int fileSizeBytes,
     String? fileHash,
     String? cloudStorageUrl,
-    required SyncMetadata syncMetadata,
+    required int createdAt,              // Epoch ms - local only
+    required int updatedAt,              // Epoch ms - local only
   }) = _FhirExport;
 
   factory FhirExport.fromJson(Map<String, dynamic> json) =>
@@ -12136,7 +12242,8 @@ class MLModel with _$MLModel {
     required int modelSizeBytes,
     required String modelPath,             // Local file path to TFLite model
     String? trainingNotes,
-    required SyncMetadata syncMetadata,   // Required per 02_CODING_STANDARDS.md Section 5.1
+    required int createdAt,              // Epoch ms - local only
+    required int updatedAt,              // Epoch ms - local only
   }) = _MLModel;
 
   factory MLModel.fromJson(Map<String, dynamic> json) =>
@@ -12192,7 +12299,8 @@ class PredictionFeedback with _$PredictionFeedback {
     required int feedbackRecordedAt,       // Epoch milliseconds
     String? userNotes,
     @Default(false) bool usedForRetraining,
-    required SyncMetadata syncMetadata,   // Required per 02_CODING_STANDARDS.md Section 5.1
+    required int createdAt,              // Epoch ms - local only
+    required int updatedAt,              // Epoch ms - local only
   }) = _PredictionFeedback;
 
   factory PredictionFeedback.fromJson(Map<String, dynamic> json) =>
