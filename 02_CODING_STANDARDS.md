@@ -696,10 +696,7 @@ class SupplementList extends _$SupplementList {
     // Check write access
     final authService = ref.read(profileAuthServiceProvider);
     if (!authService.canWrite(supplement.profileId)) {
-      throw AuthError(
-        code: 'AUTH_002',
-        message: 'Write access required for profile ${supplement.profileId}',
-      );
+      throw AuthError.profileAccessDenied(supplement.profileId);
     }
 
     // Delegate to UseCase
@@ -719,7 +716,7 @@ class SupplementList extends _$SupplementList {
   Future<void> updateSupplement(Supplement supplement) async {
     final authService = ref.read(profileAuthServiceProvider);
     if (!authService.canWrite(supplement.profileId)) {
-      throw AuthError(code: 'AUTH_002', message: 'Write access required');
+      throw AuthError.profileAccessDenied(supplement.profileId);
     }
 
     final useCase = ref.read(updateSupplementUseCaseProvider);
@@ -827,10 +824,7 @@ Future<void> addSupplement(Supplement supplement) async {
   // REQUIRED: Check before any mutation
   final authService = ref.read(profileAuthServiceProvider);
   if (!authService.canWrite(supplement.profileId)) {
-    throw AuthError(
-      code: 'AUTH_002',
-      message: 'Write access required for profile ${supplement.profileId}',
-    );
+    throw AuthError.profileAccessDenied(supplement.profileId);
   }
 
   // Proceed with mutation via UseCase

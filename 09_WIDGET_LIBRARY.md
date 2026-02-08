@@ -86,7 +86,7 @@ class ShadowButton extends StatelessWidget {
   Widget get _content => icon != null ? Row(children: [Icon(icon!), child!]) : child!;
 }
 
-enum ButtonVariant { elevated, text, icon, fab }
+enum ButtonVariant { elevated, text, icon, fab, outlined }
 ```
 
 ### Migration Path

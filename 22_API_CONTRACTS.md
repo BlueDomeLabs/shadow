@@ -6462,6 +6462,7 @@ class SyncWearableDataUseCase
       return Failure(DuplicateError('Activity already imported'));
     }
 
+    final now = DateTime.now().millisecondsSinceEpoch;
     final log = ActivityLog(
       id: const Uuid().v4(),
       clientId: clientId,
@@ -6473,8 +6474,8 @@ class SyncWearableDataUseCase
       importExternalId: activity.externalId,
       importSource: activity.source,
       syncMetadata: SyncMetadata(
-        syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
         syncDeviceId: '', // Will be populated by repository
       ),
     );

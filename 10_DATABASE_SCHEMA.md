@@ -377,7 +377,7 @@ CREATE TABLE profiles (
   ethnicity TEXT,
   notes TEXT,
   owner_id TEXT,                   -- FK → user_accounts(id)
-  diet_type INTEGER,               -- DietType enum: 0=none, 1=vegan, 2=vegetarian, 3=paleo, 4=keto, 5=glutenFree, 6=other
+  diet_type INTEGER,               -- ProfileDietType enum: 0=none, 1=vegan, 2=vegetarian, 3=paleo, 4=keto, 5=glutenFree, 6=other
   diet_description TEXT,           -- Custom description when diet_type=6 (other)
 
   -- Sync metadata

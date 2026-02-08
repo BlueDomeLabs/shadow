@@ -840,7 +840,7 @@ class HealthInsight with _$HealthInsight {
     required String id,
     required String profileId,
     required InsightCategory category,
-    required InsightPriority priority,
+    required AlertPriority priority,
     required String title,
     required String description,
     required String? actionableRecommendation,
@@ -866,7 +866,7 @@ enum InsightCategory {
   recommendation,
 }
 
-enum InsightPriority {
+enum AlertPriority {
   high,      // Requires attention
   medium,    // Informative
   low,       // Nice to know
@@ -897,7 +897,7 @@ class InsightTemplates {
       id: _uuid.v4(),
       profileId: pattern.profileId,
       category: InsightCategory.pattern,
-      priority: InsightPriority.medium,
+      priority: AlertPriority.medium,
       title: '${pattern.entityType.capitalize()} timing pattern detected',
       description: 'Your ${pattern.entityType} occurs most frequently on $peakLabel '
           '(${(pattern.distribution[peakUnit]! * 100).toStringAsFixed(0)}% of occurrences). '
@@ -932,8 +932,8 @@ class InsightTemplates {
       profileId: correlation.profileId,
       category: InsightCategory.trigger,
       priority: correlation.relativeRisk > 2.0 || correlation.relativeRisk < 0.5
-          ? InsightPriority.high
-          : InsightPriority.medium,
+          ? AlertPriority.high
+          : AlertPriority.medium,
       title: correlation.correlationType == CorrelationType.positive
           ? '${correlation.triggerName} may trigger ${correlation.outcomeName}'
           : '${correlation.triggerName} may help with ${correlation.outcomeName}',
@@ -985,7 +985,7 @@ class InsightTemplates {
       id: _uuid.v4(),
       profileId: profileId,
       category: InsightCategory.progress,
-      priority: percentChange > 20 ? InsightPriority.high : InsightPriority.medium,
+      priority: percentChange > 20 ? AlertPriority.high : AlertPriority.medium,
       title: improving
           ? '$conditionName is improving'
           : '$conditionName severity has increased',
@@ -1034,7 +1034,7 @@ class InsightTemplates {
       id: _uuid.v4(),
       profileId: profileId,
       category: InsightCategory.anomaly,
-      priority: deviations > 3 ? InsightPriority.high : InsightPriority.medium,
+      priority: deviations > 3 ? AlertPriority.high : AlertPriority.medium,
       title: 'Unusual $entityName reading',
       description: 'Today\'s $entityName (${currentValue.toStringAsFixed(1)}) is ${deviations.toStringAsFixed(1)} '
           'standard deviations ${currentValue > expectedValue ? 'above' : 'below'} your average '
@@ -1658,7 +1658,7 @@ CREATE TABLE health_insights (
   client_id TEXT NOT NULL,
   profile_id TEXT NOT NULL,
   category INTEGER NOT NULL,            -- InsightCategory enum
-  priority INTEGER NOT NULL,            -- InsightPriority enum
+  priority INTEGER NOT NULL,            -- AlertPriority enum
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   recommendation TEXT,
@@ -1837,7 +1837,7 @@ abstract class HealthInsightRepository {
   Future<Result<List<HealthInsight>, AppError>> getActive(
     String profileId, {
     InsightCategory? category,
-    InsightPriority? minPriority,
+    AlertPriority? minPriority,
     int? limit,
   });
 
@@ -2435,7 +2435,7 @@ testWidgets('insights dashboard shows high priority first', (tester) async {
 
   // Assert
   final cards = tester.widgetList(find.byType(InsightCard));
-  expect(cards.first.priority, InsightPriority.high);
+  expect(cards.first.priority, AlertPriority.high);
 });
 
 testWidgets('dismissing insight removes from list', (tester) async {
