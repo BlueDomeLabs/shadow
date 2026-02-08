@@ -2128,6 +2128,7 @@ class LogFluidsEntryInput with _$LogFluidsEntryInput {
 class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry> {
   final FluidsEntryRepository _repository;
   final ProfileAuthorizationService _authService;
+  LogFluidsEntryUseCase(this._repository, this._authService);
 
   @override
   Future<Result<FluidsEntry, AppError>> call(LogFluidsEntryInput input) async {
@@ -2324,6 +2325,7 @@ class LogSleepEntryInput with _$LogSleepEntryInput {
 class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
   final SleepEntryRepository _repository;
   final ProfileAuthorizationService _authService;
+  LogSleepEntryUseCase(this._repository, this._authService);
 
   @override
   Future<Result<SleepEntry, AppError>> call(LogSleepEntryInput input) async {
@@ -4632,8 +4634,8 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
   /// Detect flare-up based on severity threshold
   /// Flare = severity >= 7 on 1-10 scale
-  bool _detectFlare(Severity severity, Condition condition) {
-    return severity.toStorageScale() >= 7;
+  bool _detectFlare(int severity, Condition condition) {
+    return severity >= 7;
   }
 }
 
@@ -4651,7 +4653,7 @@ class GetConditionLogsUseCase implements UseCase<GetConditionLogsInput, List<Con
     if (!await _auth.canRead(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
-    return _repository.getByCondition(input.profileId, input.conditionId, input.startDate, input.endDate);
+    return _repository.getByCondition(input.conditionId, startDate: input.startDate, endDate: input.endDate);
   }
 }
 
@@ -4687,7 +4689,7 @@ class ConditionTrend with _$ConditionTrend {
     required double averageSeverity,
     required int totalFlares,
     required int daysTracked,
-    required Severity? currentSeverity,
+    required int? currentSeverity,
     required TrendDirection direction, // improving, stable, worsening
   }) = _ConditionTrend;
 }
@@ -4757,7 +4759,7 @@ class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, Condit
 
     return buckets.entries.map((entry) {
       final bucketLogs = entry.value;
-      final severities = bucketLogs.map((l) => l.severity.toStorageScale()).toList();
+      final severities = bucketLogs.map((l) => l.severity).toList();
 
       return TrendDataPoint(
         dateEpoch: entry.key,
@@ -4802,7 +4804,7 @@ class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, Condit
       );
     }
 
-    final severities = logs.map((l) => l.severity.toStorageScale()).toList();
+    final severities = logs.map((l) => l.severity).toList();
     final avgSeverity = severities.reduce((a, b) => a + b) / severities.length;
     final totalFlares = logs.where((l) => l.isFlare).length;
 
@@ -5246,7 +5248,7 @@ class GetComplianceStatsUseCase implements UseCase<ComplianceStatsInput, Complia
     final logsInRange = logs.where((l) =>
         l.timestamp >= start && l.timestamp <= end).length;
     final violationsInRange = violations.where((v) =>
-        v.violatedAt >= start && v.violatedAt <= end).length;
+        v.timestamp >= start && v.timestamp <= end).length;
 
     if (logsInRange == 0) return 100.0;
     return ((logsInRange - violationsInRange) / logsInRange * 100).clamp(0.0, 100.0);
@@ -5296,7 +5298,7 @@ class GetComplianceStatsUseCase implements UseCase<ComplianceStatsInput, Complia
       final dayEnd = current + Duration.millisecondsPerDay;
       final dayLogs = logs.where((l) => l.timestamp >= current && l.timestamp < dayEnd);
       final dayViolations = violations.where((v) =>
-          v.violatedAt >= current && v.violatedAt < dayEnd);
+          v.timestamp >= current && v.timestamp < dayEnd);
 
       final score = dayLogs.isEmpty ? 100.0 :
           ((dayLogs.length - dayViolations.length) / dayLogs.length * 100).clamp(0.0, 100.0);
@@ -5400,18 +5402,19 @@ class DetectPatternsUseCase implements UseCaseWithInput<List<Pattern>, DetectPat
     final filteredPatterns = input.conditionIds.isEmpty
         ? detectedPatterns
         : detectedPatterns.where((p) =>
-            input.conditionIds.contains(p.relatedConditionId)).toList();
+            input.conditionIds.contains(p.entityId)).toList();
 
     // 7. Persist new patterns
     for (final pattern in filteredPatterns) {
-      // Check if pattern already exists
-      final existing = await _patternRepository.findSimilar(pattern);
-      if (existing.isSuccess && existing.valueOrNull != null) {
+      // Check if similar pattern already exists
+      final similarResult = await _patternRepository.findSimilar(pattern.id);
+      if (similarResult.isSuccess && similarResult.valueOrNull!.isNotEmpty) {
         // Update existing pattern's confidence/last observed
-        final updateResult = await _patternRepository.update(existing.valueOrNull!.copyWith(
+        final existing = similarResult.valueOrNull!.first;
+        final updateResult = await _patternRepository.update(existing.copyWith(
           confidence: pattern.confidence,
           lastObservedAt: DateTime.now().millisecondsSinceEpoch,
-          observationCount: existing.valueOrNull!.observationCount + 1,
+          observationCount: existing.observationCount + 1,
         ));
         if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
       } else {
@@ -5854,7 +5857,7 @@ class AssessDataQualityUseCase
         scores['sleep'] = quality;
         if (input.includeGapAnalysis) {
           gaps.addAll(_qualityService.findGaps(
-            sleepEntries.valueOrNull!.map((s) => s.sleepStart).toList(),
+            sleepEntries.valueOrNull!.map((s) => s.bedTime).toList(),
             startDate,
             now,
             'sleep',
@@ -5888,20 +5891,27 @@ class AssessDataQualityUseCase
     // 5. Calculate overall score
     final overallScore = scores.values.isEmpty
         ? 0.0
-        : scores.values.map((q) => q.score).reduce((a, b) => a + b) / scores.values.length;
+        : scores.values.map((q) => (q.completenessScore + q.consistencyScore) / 2.0).reduce((a, b) => a + b) / scores.values.length;
 
     // 6. Generate recommendations
     if (input.includeRecommendations) {
       recommendations.addAll(_qualityService.generateRecommendations(scores, gaps));
     }
 
+    // Calculate days with data from scores
+    final totalDaysWithData = scores.values
+        .map((q) => q.actualEntries)
+        .fold<int>(0, (sum, v) => sum > v ? sum : v); // max entries across types
+
     return Success(DataQualityReport(
-      overallScore: overallScore,
-      scoresByDataType: scores,
+      profileId: input.profileId,
+      assessedAt: now,
+      totalDaysAnalyzed: input.lookbackDays,
+      daysWithData: totalDaysWithData,
+      overallQualityScore: overallScore,
+      byDataType: scores,
       gaps: gaps,
       recommendations: recommendations,
-      analyzedFromEpoch: startDate,
-      analyzedToEpoch: now,
     ));
   }
 }
@@ -6298,7 +6308,7 @@ class ConnectWearableUseCase
     // 2. Check platform availability
     final isAvailable = await _platformService.isAvailable(input.platform);
     if (!isAvailable) {
-      return Failure(WearableError.platformNotAvailable(input.platform));
+      return Failure(WearableError.platformUnavailable(input.platform));
     }
 
     // 3. Request permissions
@@ -6312,7 +6322,7 @@ class ConnectWearableUseCase
     final grantedPermissions = permissionsResult.valueOrNull!;
 
     if (grantedPermissions.isEmpty) {
-      return Failure(WearableError.permissionsDenied(input.platform));
+      return Failure(WearableError.permissionDenied(input.platform));
     }
 
     // 4. Check for existing connection
@@ -6430,7 +6440,7 @@ class SyncWearableDataUseCase
     }
     final connection = connectionResult.valueOrNull;
     if (connection == null || !connection.isConnected) {
-      return Failure(WearableError.notConnected(input.platform));
+      return Failure(WearableError.connectionFailed(input.platform));
     }
 
     // 4. Calculate sync range
@@ -6616,9 +6626,8 @@ class SyncWearableDataUseCase
       id: const Uuid().v4(),
       clientId: clientId,
       profileId: profileId,
-      sleepStart: sleep.sleepStart,
-      sleepEnd: sleep.sleepEnd,
-      quality: sleep.quality,
+      bedTime: sleep.sleepStart,
+      wakeTime: sleep.sleepEnd,
       notes: 'Imported from ${sleep.source}',
       externalId: sleep.externalId,
       importSource: sleep.source,
@@ -10086,6 +10095,55 @@ class AssessDataQualityUseCase
 
 For complete specifications, see [43_WEARABLE_INTEGRATION.md](43_WEARABLE_INTEGRATION.md).
 
+### Wearable Platform DTOs
+
+These DTOs represent data fetched from wearable platforms before import into Shadow entities.
+
+```dart
+/// Data container returned by WearablePlatformService.fetchData()
+@freezed
+class WearablePlatformData with _$WearablePlatformData {
+  const factory WearablePlatformData({
+    required List<WearableActivity> activities,
+    required List<WearableSleep> sleepEntries,
+    required List<WearableWaterIntake> waterIntakes,
+  }) = _WearablePlatformData;
+}
+
+/// Activity record from a wearable platform
+@freezed
+class WearableActivity with _$WearableActivity {
+  const factory WearableActivity({
+    required String externalId,
+    required int startTime,              // Epoch milliseconds
+    String? mappedActivityId,            // Shadow Activity ID if mapped
+    required int durationMinutes,
+    required String source,              // Platform name
+  }) = _WearableActivity;
+}
+
+/// Sleep record from a wearable platform
+@freezed
+class WearableSleep with _$WearableSleep {
+  const factory WearableSleep({
+    required String externalId,
+    required int sleepStart,             // Epoch milliseconds
+    required int sleepEnd,               // Epoch milliseconds
+    String? quality,                     // Platform-specific quality indicator
+    required String source,              // Platform name
+  }) = _WearableSleep;
+}
+
+/// Water intake record from a wearable platform
+@freezed
+class WearableWaterIntake with _$WearableWaterIntake {
+  const factory WearableWaterIntake({
+    required int loggedAt,               // Epoch milliseconds
+    required int amountMl,               // Milliliters
+  }) = _WearableWaterIntake;
+}
+```
+
 ### WearableConnection Entity
 
 ```dart
@@ -10218,6 +10276,161 @@ class SyncWearableDataUseCase
 ```
 
 ---
+
+### 7.6b Missing Use Case and Service Definitions
+
+The following definitions are referenced in provider registrations or use case code
+but were not previously defined in this document.
+
+#### GetBBTEntriesInput and UseCase
+
+```dart
+@freezed
+class GetBBTEntriesInput with _$GetBBTEntriesInput {
+  const factory GetBBTEntriesInput({
+    required String profileId,
+    int? startDate,                      // Epoch ms
+    int? endDate,                        // Epoch ms
+    @Default(30) int limit,
+  }) = _GetBBTEntriesInput;
+}
+
+class GetBBTEntriesUseCase implements UseCaseWithInput<List<FluidsEntry>, GetBBTEntriesInput> {
+  Future<Result<List<FluidsEntry>, AppError>> call(GetBBTEntriesInput input);
+}
+```
+
+#### SignInWithAppleInput and UseCase
+
+```dart
+@freezed
+class SignInWithAppleInput with _$SignInWithAppleInput {
+  const factory SignInWithAppleInput({
+    required String identityToken,
+    required String authorizationCode,
+    String? email,
+    String? displayName,
+  }) = _SignInWithAppleInput;
+}
+
+class SignInWithAppleUseCase implements UseCaseWithInput<UserAccount, SignInWithAppleInput> {
+  /// Validates Apple identity token and creates/retrieves user account
+  Future<Result<UserAccount, AppError>> call(SignInWithAppleInput input);
+}
+```
+
+#### SyncService Convenience Methods
+
+The following methods must be added to the SyncService interface
+(defined in Section 11 Service Interface Contracts):
+
+```dart
+/// Additional SyncService methods referenced by providers
+abstract class SyncService {
+  // ... existing methods ...
+
+  /// Get count of pending changes awaiting sync
+  Future<Result<int, AppError>> getPendingChangesCount(String profileId);
+
+  /// Get count of unresolved sync conflicts
+  Future<Result<int, AppError>> getConflictCount(String profileId);
+
+  /// Get last successful sync time (epoch ms) for a profile
+  Future<Result<int?, AppError>> getLastSyncTime(String profileId);
+}
+```
+
+#### AuthTokenService.hasValidToken
+
+```dart
+/// Additional AuthTokenService method referenced by providers
+abstract class AuthTokenService {
+  // ... existing methods (storeTokens, clearTokens) ...
+
+  /// Check if valid auth tokens exist for current session
+  Future<bool> hasValidToken();
+}
+```
+
+#### Generic Use Case Templates
+
+These generic templates provide implementations for the 30 orphaned Input classes
+defined in Sections 3.1-3.5 (GetXxxInput, SearchXxxInput, ArchiveXxxInput, etc.).
+
+```dart
+/// Generic use case for retrieving entities by profile with pagination.
+/// Maps to: GetSleepEntriesInput, GetActivitiesInput, GetActivityLogsInput,
+/// GetFoodItemsInput, GetFoodLogsInput, GetJournalEntriesInput, GetPhotoAreasInput,
+/// GetPhotoEntriesInput, GetPhotoEntriesByAreaInput, GetFlareUpsInput
+class GetEntitiesUseCase<T extends Syncable, I> implements UseCaseWithInput<List<T>, I> {
+  final EntityRepository<T, String> _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetEntitiesUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<List<T>, AppError>> call(I input);
+}
+
+/// Generic use case for searching entities by query string.
+/// Maps to: SearchFoodItemsInput, SearchJournalEntriesInput
+class SearchEntitiesUseCase<T extends Syncable, I> implements UseCaseWithInput<List<T>, I> {
+  final EntityRepository<T, String> _repository;
+  final ProfileAuthorizationService _authService;
+
+  SearchEntitiesUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<List<T>, AppError>> call(I input);
+}
+
+/// Generic use case for archiving (soft-deleting) entities.
+/// Maps to: ArchiveActivityInput, ArchiveFoodItemInput, ArchivePhotoAreaInput
+class ArchiveEntityUseCase<T extends Syncable, I> implements UseCaseWithInput<void, I> {
+  final EntityRepository<T, String> _repository;
+  final ProfileAuthorizationService _authService;
+
+  ArchiveEntityUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<void, AppError>> call(I input);
+}
+```
+
+**Input-to-Template Mapping:**
+
+| Input Class | Template | Notes |
+|-------------|----------|-------|
+| GetSleepEntriesInput | GetEntitiesUseCase<SleepEntry, GetSleepEntriesInput> | |
+| GetActivitiesInput | GetEntitiesUseCase<Activity, GetActivitiesInput> | |
+| GetActivityLogsInput | GetEntitiesUseCase<ActivityLog, GetActivityLogsInput> | |
+| GetFoodItemsInput | GetEntitiesUseCase<FoodItem, GetFoodItemsInput> | |
+| GetFoodLogsInput | GetEntitiesUseCase<FoodLog, GetFoodLogsInput> | |
+| GetJournalEntriesInput | GetEntitiesUseCase<JournalEntry, GetJournalEntriesInput> | |
+| GetPhotoAreasInput | GetEntitiesUseCase<PhotoArea, GetPhotoAreasInput> | |
+| GetPhotoEntriesInput | GetEntitiesUseCase<PhotoEntry, GetPhotoEntriesInput> | |
+| GetPhotoEntriesByAreaInput | GetEntitiesUseCase<PhotoEntry, GetPhotoEntriesByAreaInput> | |
+| GetFlareUpsInput | GetEntitiesUseCase<FlareUp, GetFlareUpsInput> | |
+| SearchFoodItemsInput | SearchEntitiesUseCase<FoodItem, SearchFoodItemsInput> | |
+| SearchJournalEntriesInput | SearchEntitiesUseCase<JournalEntry, SearchJournalEntriesInput> | |
+| ArchiveActivityInput | ArchiveEntityUseCase<Activity, ArchiveActivityInput> | |
+| ArchiveFoodItemInput | ArchiveEntityUseCase<FoodItem, ArchiveFoodItemInput> | |
+| ArchivePhotoAreaInput | ArchiveEntityUseCase<PhotoArea, ArchivePhotoAreaInput> | |
+| UpdateSleepEntryInput | UpdateEntityUseCase<SleepEntry> | Existing generic |
+| UpdateActivityInput | UpdateEntityUseCase<Activity> | Existing generic |
+| UpdateActivityLogInput | UpdateEntityUseCase<ActivityLog> | Existing generic |
+| UpdateFoodItemInput | UpdateEntityUseCase<FoodItem> | Existing generic |
+| UpdateFoodLogInput | UpdateEntityUseCase<FoodLog> | Existing generic |
+| UpdateJournalEntryInput | UpdateEntityUseCase<JournalEntry> | Existing generic |
+| UpdatePhotoAreaInput | UpdateEntityUseCase<PhotoArea> | Existing generic |
+| UpdateFlareUpInput | UpdateEntityUseCase<FlareUp> | Existing generic |
+| DeleteSleepEntryInput | DeleteEntityUseCase<SleepEntry> | Existing generic |
+| DeleteActivityLogInput | DeleteEntityUseCase<ActivityLog> | Existing generic |
+| DeleteFoodLogInput | DeleteEntityUseCase<FoodLog> | Existing generic |
+| DeleteJournalEntryInput | DeleteEntityUseCase<JournalEntry> | Existing generic |
+| DeletePhotoEntryInput | DeleteEntityUseCase<PhotoEntry> | Existing generic |
+| DeleteFlareUpInput | DeleteEntityUseCase<FlareUp> | Existing generic |
+| EndFlareUpInput | Custom: EndFlareUpUseCase | Sets endDate on FlareUp |
 
 ## 7.7 Diet Management Use Cases (Additions)
 
@@ -10744,6 +10957,37 @@ class FoodItemCategory with _$FoodItemCategory {
 
   factory FoodItemCategory.fromJson(Map<String, dynamic> json) =>
       _$FoodItemCategoryFromJson(json);
+}
+```
+
+### 10.2b UserFoodCategory Entity
+
+This entity represents user-defined food categories stored in the `user_food_categories` table.
+Referenced in Section 13 DB alignment but previously undefined.
+
+```dart
+@freezed
+class UserFoodCategory with _$UserFoodCategory {
+  const UserFoodCategory._();
+  const factory UserFoodCategory({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required String name,
+    String? description,
+    FoodCategory? parentCategory,       // Links to built-in FoodCategory enum
+    @Default(0) int sortOrder,
+    @Default(false) bool isArchived,
+    required SyncMetadata syncMetadata,
+  }) = _UserFoodCategory;
+
+  factory UserFoodCategory.fromJson(Map<String, dynamic> json) =>
+      _$UserFoodCategoryFromJson(json);
+}
+
+abstract class UserFoodCategoryRepository implements EntityRepository<UserFoodCategory, String> {
+  Future<Result<List<UserFoodCategory>, AppError>> getByProfile(String profileId);
+  Future<Result<List<UserFoodCategory>, AppError>> getByParentCategory(String profileId, FoodCategory parent);
 }
 ```
 
@@ -12273,6 +12517,11 @@ class QueuedNotification with _$QueuedNotification {
 }
 
 class QuietHoursQueueService {
+  final QueuedNotificationTable _queuedNotificationsTable;
+  final NotificationService _notificationService;
+
+  QuietHoursQueueService(this._queuedNotificationsTable, this._notificationService);
+
   /// Queue a notification for delivery after quiet hours
   /// Returns Result per 02_CODING_STANDARDS.md Section 7
   Future<Result<void, AppError>> queue(QueuedNotification notification) async {
@@ -12328,15 +12577,27 @@ class QuietHoursQueueService {
         // Create summary notification
         result.add(QueuedNotification(
           id: 'collapsed_${entry.key.name}',
+          clientId: entry.value.first.clientId,
+          profileId: entry.value.first.profileId,
           type: entry.key,
           originalScheduledTime: entry.value.first.originalScheduledTime,
-          queuedAt: DateTime.now(),
+          queuedAt: DateTime.now().millisecondsSinceEpoch,
           payload: {
             'collapsed': true,
             'count': entry.value.length,
             'originalIds': entry.value.map((n) => n.id).toList(),
           },
         ));
+
+
+
+
+
+
+
+
+
+
       }
     }
     return result;
@@ -12354,17 +12615,31 @@ class SyncReminderService {
   static const int syncReminderDays = 7;
 
   /// Check if sync reminder should be shown
+  /// Check if sync reminder should be shown
+  /// Uses epoch ms arithmetic per 02_CODING_STANDARDS.md (no DateTime in domain)
   bool shouldShowSyncReminder(String profileId) {
-    final lastSyncTime = getLastSyncTime(profileId);
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    final int? lastSyncTime = getLastSyncTime(profileId);  // Epoch ms or null
     if (lastSyncTime == null) {
       // Never synced - remind after 24 hours of app usage
-      final firstUse = getFirstUseTime(profileId);
-      return DateTime.now().difference(firstUse).inHours >= 24;
+      final int? firstUse = getFirstUseTime(profileId);    // Epoch ms or null
+      if (firstUse == null) return false;
+      return now - firstUse >= 24 * 60 * 60 * 1000;
     }
 
     // Remind if not synced in 7+ days
-    return DateTime.now().difference(lastSyncTime).inDays >= syncReminderDays;
+    return now - lastSyncTime >= syncReminderDays * 24 * 60 * 60 * 1000;
   }
+
+
+
+
+
+
+
+
+
+
 
   /// Default message
   String getMessage(int daysSinceSync) {
@@ -12506,10 +12781,10 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | Direct |
 | name | name | String | TEXT | Direct |
-| form | form | SupplementForm | TEXT | .name |
+| form | form | SupplementForm | INTEGER | .value |
 | customForm | custom_form | String? | TEXT | Direct |
 | dosageQuantity | dosage_quantity | int | INTEGER | Direct |
-| dosageUnit | dosage_unit | DosageUnit | TEXT | .name |
+| dosageUnit | dosage_unit | DosageUnit | INTEGER | .value |
 | brand | brand | String | TEXT | Direct (default: '') |
 | notes | notes | String | TEXT | Direct (default: '') |
 | ingredients | ingredients | List\<SupplementIngredient\> | TEXT | JSON array |
@@ -12582,6 +12857,9 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | notes | notes | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
 
+**Notes:**
+- `rules` field on the Diet entity (`List<DietRule>`) is NOT stored in the `diets` table. Rules are stored in the separate `diet_rules` table with `diet_id` FK, and populated via a join query in the repository layer.
+
 ### 13.5 DietRule Entity ↔ diet_rules Table
 
 | Entity Field | DB Column | Entity Type | DB Type | Conversion |
@@ -12613,12 +12891,13 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | Direct |
 | dietId | diet_id | String | TEXT | FK to diets |
-| ruleId | rule_id | String | TEXT | FK to diet_rules |
 | foodLogId | food_log_id | String | TEXT | FK to food_logs |
-| timestamp | timestamp | int | INTEGER | Epoch ms |
+| ruleId | rule_id | String? | TEXT | FK to diet_rules |
 | ruleType | rule_type | DietRuleType | INTEGER | .value |
 | severity | severity | RuleSeverity | INTEGER | .value |
 | message | message | String | TEXT | Direct |
+| timestamp | timestamp | int | INTEGER | Epoch ms |
+| wasDismissed | was_dismissed | bool | INTEGER | 0/1 (default: 0) |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
 
 ### 13.7 SyncMetadata Column Mapping
@@ -12690,8 +12969,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | userAccountId | user_account_id | String | TEXT | FK to user_accounts |
 | deviceId | device_id | String | TEXT | Unique device identifier |
 | deviceName | device_name | String | TEXT | User-friendly name |
-| deviceType | device_type | DeviceType | TEXT | .name ('ios', 'android', 'macos', 'web') |
-| deviceModel | device_model | String? | TEXT | e.g., "iPhone 15 Pro" |
+| deviceType | device_type | DeviceType | INTEGER | .value (0=iOS, 1=android, 2=macOS, 3=web) |
 | osVersion | os_version | String? | TEXT | e.g., "iOS 17.2" |
 | appVersion | app_version | String? | TEXT | e.g., "1.2.3" |
 | registeredAt | registered_at | int | INTEGER | Epoch ms |
@@ -12701,7 +12979,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 **Notes:**
-- `deviceType` is an enum in entity, stored as TEXT name in DB
+- `deviceType` is an enum in entity, stored as INTEGER .value in DB
 - Entity field `userAccountId` matches DB column `user_account_id`
 
 ### 13.12 IntakeLog Entity ↔ intake_logs Table
@@ -12730,8 +13008,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | simpleItemIds | simple_item_ids | List<String> | TEXT | Comma-separated IDs |
 | isUserCreated | is_user_created | bool | INTEGER | 0/1 |
 | isArchived | is_archived | bool | INTEGER | 0/1 |
-| servingSize | serving_size | double? | REAL | Direct |
-| servingUnit | serving_unit | String? | TEXT | Direct |
+| servingSize | serving_size | String? | TEXT | Direct (e.g., "1 cup", "100g") |
 | calories | calories | double? | REAL | Direct |
 | carbsGrams | carbs_grams | double? | REAL | Direct |
 | fatGrams | fat_grams | double? | REAL | Direct |
@@ -12748,6 +13025,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | timestamp | timestamp | int | INTEGER | Epoch ms |
+| mealType | meal_type | MealType? | INTEGER | .value (0=breakfast, 1=lunch, 2=dinner, 3=snack) |
 | foodItemIds | food_item_ids | List<String> | TEXT | Comma-separated IDs |
 | adHocItems | ad_hoc_items | List<String> | TEXT | Comma-separated names |
 | notes | notes | String? | TEXT | Direct |
@@ -12814,6 +13092,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | content | content | String | TEXT | Direct |
 | title | title | String? | TEXT | Direct |
 | tags | tags | List<String>? | TEXT | Comma-separated tags |
+| mood | mood | int? | INTEGER | 1-10 rating |
 | audioUrl | audio_url | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
@@ -12824,17 +13103,16 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| filename | filename | String | TEXT | Direct |
-| type | type | DocumentType | INTEGER | .value (0=medical, 1=prescription, 2=lab, 3=other) |
-| description | description | String? | TEXT | Direct |
-| uploadedAt | uploaded_at | int | INTEGER | Epoch ms |
-| localPath | local_path | String | TEXT | Direct |
-| cloudUrl | cloud_url | String? | TEXT | Direct |
-| fileSizeBytes | file_size_bytes | int? | INTEGER | Direct |
-| mimeType | mime_type | String? | TEXT | Direct |
-| tags | tags | String? | TEXT | Comma-separated |
+| name | name | String | TEXT | Direct |
+| documentType | document_type | DocumentType | INTEGER | .value (0=medical, 1=prescription, 2=lab, 3=other) |
+| filePath | file_path | String | TEXT | Direct |
+| notes | notes | String? | TEXT | Direct |
+| documentDate | document_date | int? | INTEGER | Epoch ms - date of document |
+| uploadedAt | uploaded_at | int | INTEGER | Epoch ms - when uploaded |
 | cloudStorageUrl | cloud_storage_url | String? | TEXT | File sync |
 | fileHash | file_hash | String? | TEXT | SHA-256 hash |
+| fileSizeBytes | file_size_bytes | int? | INTEGER | Direct |
+| mimeType | mime_type | String? | TEXT | Direct |
 | isFileUploaded | is_file_uploaded | bool | INTEGER | 0/1 |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
@@ -12848,11 +13126,12 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | name | name | String | TEXT | Direct |
 | category | category | String | TEXT | Direct |
 | bodyLocations | body_locations | List<String> | TEXT | JSON array |
+| triggers | triggers | List<String> | TEXT | JSON array |
 | description | description | String? | TEXT | Direct |
 | baselinePhotoPath | baseline_photo_path | String? | TEXT | Direct |
 | startTimeframe | start_timeframe | int | INTEGER | Epoch ms |
 | endDate | end_date | int? | INTEGER | Epoch ms |
-| status | status | ConditionStatus | TEXT | 'active' \| 'resolved' |
+| status | status | ConditionStatus | INTEGER | .value (0=active, 1=resolved) |
 | isArchived | is_archived | bool | INTEGER | 0/1 |
 | activityId | activity_id | String? | TEXT | FK to activities |
 | cloudStorageUrl | cloud_storage_url | String? | TEXT | File sync |
@@ -12890,12 +13169,13 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| timestamp | timestamp | int | INTEGER | Epoch ms |
 | conditionId | condition_id | String | TEXT | FK to conditions |
-| activityId | activity_id | String? | TEXT | FK to activities |
-| triggers | triggers | List<String> | TEXT | JSON array |
+| startDate | start_date | int | INTEGER | Epoch ms - flare-up start |
+| endDate | end_date | int? | INTEGER | Epoch ms - flare-up end (null = ongoing) |
 | severity | severity | int | INTEGER | 1-10 scale |
 | notes | notes | String? | TEXT | Direct |
+| triggers | triggers | List<String> | TEXT | JSON array |
+| activityId | activity_id | String? | TEXT | FK to activities |
 | photoPath | photo_path | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
@@ -12921,7 +13201,10 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | name | name | String | TEXT | Direct |
-| consistencyNotes | consistency_notes | String? | TEXT | Direct |
+| description | description | String? | TEXT | Area description |
+| consistencyNotes | consistency_notes | String? | TEXT | Guidance for consistent photo positioning |
+| sortOrder | sort_order | int | INTEGER | Default 0 |
+| isArchived | is_archived | bool | INTEGER | 0/1 |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.25 PhotoEntry Entity ↔ photo_entries Table
@@ -12931,7 +13214,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| areaId | area_id | String | TEXT | FK to photo_areas |
+| photoAreaId | photo_area_id | String | TEXT | FK to photo_areas |
 | timestamp | timestamp | int | INTEGER | Epoch ms |
 | filePath | file_path | String | TEXT | Direct |
 | notes | notes | String? | TEXT | Direct |
@@ -12984,12 +13267,14 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| patternType | pattern_type | PatternType | INTEGER | .value (0=temporal, 1=cyclical, 2=sequential, 3=cluster, 4=dosage) |
+| type | pattern_type | PatternType | INTEGER | .value (0=temporal, 1=cyclical, 2=sequential, 3=cluster, 4=dosage) |
 | entityType | entity_type | String | TEXT | Direct |
 | entityId | entity_id | String? | TEXT | Direct |
 | data | data_json | Map<String, dynamic> | TEXT | JSON encoded |
 | confidence | confidence | double | REAL | 0.0-1.0 |
 | sampleSize | sample_size | int | INTEGER | Direct |
+| observationCount | observation_count | int | INTEGER | Direct |
+| lastObservedAt | last_observed_at | int? | INTEGER | Epoch ms |
 | detectedAt | detected_at | int | INTEGER | Epoch ms |
 | dataRangeStart | data_range_start | int | INTEGER | Epoch ms |
 | dataRangeEnd | data_range_end | int | INTEGER | Epoch ms |
@@ -13046,6 +13331,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | dismissedAt | dismissed_at | int? | INTEGER | Epoch ms |
 | relatedEntityType | related_entity_type | String? | TEXT | Direct |
 | relatedEntityId | related_entity_id | String? | TEXT | Direct |
+| insightKey | insight_key | String? | TEXT | De-duplication key |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.32 PredictiveAlert Entity ↔ predictive_alerts Table
@@ -13055,7 +13341,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| predictionType | prediction_type | PredictionType | INTEGER | .value (0-5) |
+| type | prediction_type | PredictionType | INTEGER | .value (0-5) |
 | title | title | String | TEXT | Direct |
 | description | description | String | TEXT | Direct |
 | probability | probability | double | REAL | 0.0-1.0 |
@@ -13076,16 +13362,23 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| modelType | model_type | MLModelType | TEXT | String name |
-| conditionId | condition_id | String? | TEXT | FK to conditions |
-| modelPath | model_path | String | TEXT | Direct |
-| accuracy | accuracy | double? | REAL | 0.0-1.0 |
-| precisionScore | precision_score | double? | REAL | 0.0-1.0 |
-| recallScore | recall_score | double? | REAL | 0.0-1.0 |
-| trainingSamples | training_samples | int | INTEGER | Direct |
+| modelType | model_type | MLModelType | INTEGER | .value (0=flareUpPrediction, 1=menstrualCyclePrediction, 2=triggerDetection, 3=sleepQualityPrediction) |
+| modelVersion | model_version | String | TEXT | Direct |
 | trainedAt | trained_at | int | INTEGER | Epoch ms |
-| lastUsedAt | last_used_at | int? | INTEGER | Epoch ms |
-| syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
+| dataPointsUsed | data_points_used | int | INTEGER | Direct |
+| accuracy | accuracy | double | REAL | 0.0-1.0 |
+| precision | precision | double | REAL | 0.0-1.0 |
+| recall | recall | double | REAL | 0.0-1.0 |
+| modelSizeBytes | model_size_bytes | int | INTEGER | Direct |
+| modelPath | model_path | String | TEXT | Local file path to TFLite model |
+| trainingNotes | training_notes | String? | TEXT | Direct |
+| createdAt | created_at | int | INTEGER | Epoch ms |
+| updatedAt | updated_at | int | INTEGER | Epoch ms |
+
+**Notes:**
+- Local-only entity - does NOT sync to cloud (privacy-first ML)
+- Uses `createdAt`/`updatedAt` instead of `syncMetadata` per 02_CODING_STANDARDS.md Section 8.2.1 exemption
+- Computed property: `f1Score` = 2 * (precision * recall) / (precision + recall)
 
 ### 13.34 PredictionFeedback Entity ↔ prediction_feedback Table
 
@@ -13094,14 +13387,22 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| alertId | alert_id | String | TEXT | FK to predictive_alerts |
+| predictiveAlertId | predictive_alert_id | String | TEXT | FK to predictive_alerts |
 | predictionType | prediction_type | PredictionType | INTEGER | .value |
 | predictedProbability | predicted_probability | double | REAL | 0.0-1.0 |
-| actualOutcome | actual_outcome | int | INTEGER | 0 or 1 |
-| predictionWindowHours | prediction_window_hours | int | INTEGER | Direct |
-| actualLatencyHours | actual_latency_hours | int? | INTEGER | Direct |
-| recordedAt | recorded_at | int | INTEGER | Epoch ms |
-| syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
+| predictedEventTime | predicted_event_time | int | INTEGER | Epoch ms |
+| eventOccurred | event_occurred | bool | INTEGER | 0/1 |
+| actualEventTime | actual_event_time | int? | INTEGER | Epoch ms |
+| feedbackRecordedAt | feedback_recorded_at | int | INTEGER | Epoch ms |
+| userNotes | user_notes | String? | TEXT | Direct |
+| usedForRetraining | used_for_retraining | bool | INTEGER | 0/1 (default: 0) |
+| createdAt | created_at | int | INTEGER | Epoch ms |
+| updatedAt | updated_at | int | INTEGER | Epoch ms |
+
+**Notes:**
+- Local-only entity - used to improve ML models
+- Uses `createdAt`/`updatedAt` instead of `syncMetadata` per 02_CODING_STANDARDS.md Section 8.2.1 exemption
+- Computed properties: `wasCorrect`, `timingError`
 
 ### 13.35 WearableConnection Entity ↔ wearable_connections Table
 
@@ -13110,7 +13411,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| platform | platform | WearablePlatform | TEXT | 'healthkit', 'googlefit', 'fitbit', etc. |
+| platform | platform | String | TEXT | 'healthkit', 'googlefit', 'fitbit', 'garmin', 'oura', 'whoop' |
 | isConnected | is_connected | bool | INTEGER | 0/1 |
 | connectedAt | connected_at | int? | INTEGER | Epoch ms |
 | disconnectedAt | disconnected_at | int? | INTEGER | Epoch ms |
@@ -13120,7 +13421,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | lastSyncAt | last_sync_at | int? | INTEGER | Epoch ms |
 | lastSyncStatus | last_sync_status | String? | TEXT | Direct |
 | oauthRefreshToken | oauth_refresh_token | String? | TEXT | Encrypted |
-| syncId | sync_id | String | TEXT | Direct |
+| lastSyncError | last_sync_error | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.36 ImportedDataLog Entity ↔ imported_data_log Table
@@ -13130,14 +13431,14 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| platform | platform | WearablePlatform | TEXT | 'healthkit', 'googlefit', etc. |
-| externalId | external_id | String? | TEXT | External record ID |
-| entityType | entity_type | String | TEXT | Target entity type |
-| entityId | entity_id | String | TEXT | FK to target entity |
+| sourcePlatform | source_platform | WearablePlatform | INTEGER | .value |
+| sourceRecordId | source_record_id | String | TEXT | External record ID |
+| targetEntityType | target_entity_type | String | TEXT | Target entity type |
+| targetEntityId | target_entity_id | String | TEXT | FK to target entity |
 | importedAt | imported_at | int | INTEGER | Epoch ms |
-| dataTimestamp | data_timestamp | int | INTEGER | Original data timestamp (Epoch ms) |
-
-**Note:** No sync metadata - local tracking table only.
+| sourceTimestamp | source_timestamp | int | INTEGER | Original data timestamp (Epoch ms) |
+| rawData | raw_data | String? | TEXT | JSON of original record |
+| syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.37 FhirExport Entity ↔ fhir_exports Table
 
@@ -13146,16 +13447,22 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
-| exportedAt | exported_at | int | INTEGER | Epoch ms |
-| startDate | start_date | int | INTEGER | Epoch ms |
-| endDate | end_date | int | INTEGER | Epoch ms |
+| fhirVersion | fhir_version | String | TEXT | e.g., 'R4' |
+| exportFormat | export_format | String | TEXT | 'json' or 'xml' |
 | resourceTypes | resource_types | List<String> | TEXT | JSON array |
-| format | format | String | TEXT | 'json', 'xml', 'ndjson' |
-| fileSizeBytes | file_size_bytes | int? | INTEGER | Direct |
-| resourceCount | resource_count | int? | INTEGER | Direct |
-| exportPath | export_path | String? | TEXT | Direct |
+| exportedAt | exported_at | int | INTEGER | Epoch ms |
+| dataRangeStart | data_range_start | int | INTEGER | Epoch ms |
+| dataRangeEnd | data_range_end | int | INTEGER | Epoch ms |
+| recordCount | record_count | int | INTEGER | Direct |
+| fileSizeBytes | file_size_bytes | int | INTEGER | Direct |
+| fileHash | file_hash | String? | TEXT | SHA-256 hash |
+| cloudStorageUrl | cloud_storage_url | String? | TEXT | File sync |
+| createdAt | created_at | int | INTEGER | Epoch ms |
+| updatedAt | updated_at | int | INTEGER | Epoch ms |
 
-**Note:** No sync metadata - local export history only.
+**Notes:**
+- Uses `createdAt`/`updatedAt` instead of `syncMetadata` per 02_CODING_STANDARDS.md Section 8.2.1 exemption
+- Local export history - does not sync to cloud
 
 ### 13.38 HipaaAuthorization Entity ↔ hipaa_authorizations Table
 
@@ -13166,18 +13473,16 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | profileId | profile_id | String | TEXT | FK to profiles |
 | grantedToUserId | granted_to_user_id | String | TEXT | FK to user_accounts |
 | grantedByUserId | granted_by_user_id | String | TEXT | FK to user_accounts |
-| accessLevel | access_level | AccessLevel | TEXT | 'read_only' \| 'read_write' |
-| scopes | scope | List<DataScope> | TEXT | JSON array |
+| scopes | scopes | List<DataScope> | TEXT | JSON array |
 | purpose | purpose | String | TEXT | Direct |
 | duration | duration | AuthorizationDuration | INTEGER | .value (0-4) |
 | authorizedAt | authorized_at | int | INTEGER | Epoch ms |
 | expiresAt | expires_at | int? | INTEGER | Epoch ms |
 | revokedAt | revoked_at | int? | INTEGER | Epoch ms |
-| revocationReason | revocation_reason | String? | TEXT | Direct |
+| revokedReason | revoked_reason | String? | TEXT | Direct |
 | signatureDeviceId | signature_device_id | String | TEXT | Direct |
 | signatureIpAddress | signature_ip_address | String | TEXT | Direct |
 | photosIncluded | photos_included | bool | INTEGER | 0/1 |
-| syncId | sync_id | String | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.39 ProfileAccessLog Entity ↔ profile_access_logs Table
@@ -13185,6 +13490,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | Entity Field | DB Column | Entity Type | DB Type | Conversion |
 |--------------|-----------|-------------|---------|------------|
 | id | id | String | TEXT | Direct |
+| clientId | client_id | String | TEXT | Direct |
 | authorizationId | authorization_id | String | TEXT | FK to hipaa_authorizations |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | accessedByUserId | accessed_by_user_id | String | TEXT | FK to user_accounts |
@@ -13194,14 +13500,14 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | entityId | entity_id | String? | TEXT | Direct |
 | accessedAt | accessed_at | int | INTEGER | Epoch ms |
 | ipAddress | ip_address | String | TEXT | Direct |
+| syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
-**Note:** No sync metadata - audit log is immutable local storage only.
-
-### 13.40 AuditLog Entity ↔ audit_logs Table
+### 13.40 AuditLogEntry Entity ↔ audit_logs Table
 
 | Entity Field | DB Column | Entity Type | DB Type | Conversion |
 |--------------|-----------|-------------|---------|------------|
 | id | id | String | TEXT | Direct |
+| clientId | client_id | String | TEXT | Direct |
 | userId | user_id | String | TEXT | FK to user_accounts |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | eventType | event_type | AuditEventType | INTEGER | Enum .value |
@@ -13211,8 +13517,9 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | entityId | entity_id | String? | TEXT | Direct |
 | ipAddress | ip_address | String? | TEXT | Direct |
 | metadata | metadata | Map<String, dynamic>? | TEXT | JSON encoded |
+| syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
-**Note:** No sync metadata - audit logs are immutable, never deleted, stored locally only for HIPAA compliance.
+**Note:** Audit logs are immutable and append-only for HIPAA compliance.
 
 ### 13.41 BowelUrineLog Entity ↔ bowel_urine_logs Table (Legacy)
 
@@ -13222,11 +13529,19 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | timestamp | timestamp | int | INTEGER | Epoch ms |
-| typeId | type_id | String | TEXT | Direct |
-| note | note | String? | TEXT | Direct |
+| hasBowelMovement | has_bowel_movement | bool? | INTEGER | 0/1 |
+| bowelCondition | bowel_condition | BristolScale? | INTEGER | .value |
+| bowelCustomCondition | bowel_custom_condition | String? | TEXT | Direct |
+| bowelSize | bowel_size | MovementSize? | INTEGER | .value |
+| bowelPhotoPath | bowel_photo_path | String? | TEXT | Direct |
+| hasUrineMovement | has_urine_movement | bool? | INTEGER | 0/1 |
+| urineCondition | urine_condition | UrineColor? | INTEGER | .value |
+| urineCustomCondition | urine_custom_condition | String? | TEXT | Direct |
+| urineSize | urine_size | MovementSize? | INTEGER | .value |
+| urinePhotoPath | urine_photo_path | String? | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
-**Note:** Legacy table for backward compatibility. New code should use fluids_entries.
+**Note:** Legacy table for backward compatibility. New code should use FluidsEntry instead. This entity exists to support migration from v3 databases. Repository is read-only (`getAll`, `getCount`).
 
 ### 13.42 Complete Table Coverage Summary
 
@@ -13270,9 +13585,9 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | 36 | fhir_exports | FhirExport | 13.37 |
 | 37 | hipaa_authorizations | HipaaAuthorization | 13.38 |
 | 38 | profile_access_logs | ProfileAccessLog | 13.39 |
-| 39 | audit_logs | AuditLog | 13.40 |
+| 39 | audit_logs | AuditLogEntry | 13.40 |
 | 40 | refresh_token_usage | (Security infrastructure) | 10_DATABASE_SCHEMA.md §15.1 |
-| 41 | pairing_sessions | PairingSession | 35_QR_DEVICE_PAIRING.md |
+| 41 | pairing_sessions | PairingSession | 35_QR_DEVICE_PAIRING.md — see that document for full @freezed definition |
 
 **Note:** All 41 tables now have explicit documentation. Tables 1-39 are domain entities with full mappings. Tables 40-41 are security infrastructure tables documented in their respective specification documents.
 
@@ -13379,7 +13694,10 @@ group('Quiet Hours Queuing', () {
   test('discards stale notifications older than 24 hours', () async {
     // Given: Notification queued 25 hours ago
     final oldNotification = QueuedNotification(
-      originalScheduledTime: DateTime.now().subtract(Duration(hours: 25)),
+      id: 'test-stale-notification',
+      type: NotificationType.supplementIndividual,
+      profileId: profileId,
+      originalScheduledTime: DateTime.now().millisecondsSinceEpoch - (25 * 60 * 60 * 1000), // 25 hours ago, epoch ms
     );
     queueNotification(oldNotification);
 
