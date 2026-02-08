@@ -25,6 +25,8 @@ mixin _$FoodLog {
   String get clientId => throw _privateConstructorUsedError;
   String get profileId => throw _privateConstructorUsedError;
   int get timestamp => throw _privateConstructorUsedError; // Epoch milliseconds
+  MealType? get mealType =>
+      throw _privateConstructorUsedError; // Breakfast/Lunch/Dinner/Snack
   List<String> get foodItemIds =>
       throw _privateConstructorUsedError; // References to FoodItem entities
   List<String> get adHocItems =>
@@ -51,6 +53,7 @@ abstract class $FoodLogCopyWith<$Res> {
     String clientId,
     String profileId,
     int timestamp,
+    MealType? mealType,
     List<String> foodItemIds,
     List<String> adHocItems,
     String? notes,
@@ -79,6 +82,7 @@ class _$FoodLogCopyWithImpl<$Res, $Val extends FoodLog>
     Object? clientId = null,
     Object? profileId = null,
     Object? timestamp = null,
+    Object? mealType = freezed,
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = freezed,
@@ -102,6 +106,10 @@ class _$FoodLogCopyWithImpl<$Res, $Val extends FoodLog>
                 ? _value.timestamp
                 : timestamp // ignore: cast_nullable_to_non_nullable
                       as int,
+            mealType: freezed == mealType
+                ? _value.mealType
+                : mealType // ignore: cast_nullable_to_non_nullable
+                      as MealType?,
             foodItemIds: null == foodItemIds
                 ? _value.foodItemIds
                 : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -147,6 +155,7 @@ abstract class _$$FoodLogImplCopyWith<$Res> implements $FoodLogCopyWith<$Res> {
     String clientId,
     String profileId,
     int timestamp,
+    MealType? mealType,
     List<String> foodItemIds,
     List<String> adHocItems,
     String? notes,
@@ -175,6 +184,7 @@ class __$$FoodLogImplCopyWithImpl<$Res>
     Object? clientId = null,
     Object? profileId = null,
     Object? timestamp = null,
+    Object? mealType = freezed,
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = freezed,
@@ -198,6 +208,10 @@ class __$$FoodLogImplCopyWithImpl<$Res>
             ? _value.timestamp
             : timestamp // ignore: cast_nullable_to_non_nullable
                   as int,
+        mealType: freezed == mealType
+            ? _value.mealType
+            : mealType // ignore: cast_nullable_to_non_nullable
+                  as MealType?,
         foodItemIds: null == foodItemIds
             ? _value._foodItemIds
             : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -228,6 +242,7 @@ class _$FoodLogImpl extends _FoodLog {
     required this.clientId,
     required this.profileId,
     required this.timestamp,
+    this.mealType,
     final List<String> foodItemIds = const [],
     final List<String> adHocItems = const [],
     this.notes,
@@ -248,8 +263,11 @@ class _$FoodLogImpl extends _FoodLog {
   @override
   final int timestamp;
   // Epoch milliseconds
+  @override
+  final MealType? mealType;
+  // Breakfast/Lunch/Dinner/Snack
   final List<String> _foodItemIds;
-  // Epoch milliseconds
+  // Breakfast/Lunch/Dinner/Snack
   @override
   @JsonKey()
   List<String> get foodItemIds {
@@ -277,7 +295,7 @@ class _$FoodLogImpl extends _FoodLog {
 
   @override
   String toString() {
-    return 'FoodLog(id: $id, clientId: $clientId, profileId: $profileId, timestamp: $timestamp, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes, syncMetadata: $syncMetadata)';
+    return 'FoodLog(id: $id, clientId: $clientId, profileId: $profileId, timestamp: $timestamp, mealType: $mealType, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -292,6 +310,8 @@ class _$FoodLogImpl extends _FoodLog {
                 other.profileId == profileId) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
+            (identical(other.mealType, mealType) ||
+                other.mealType == mealType) &&
             const DeepCollectionEquality().equals(
               other._foodItemIds,
               _foodItemIds,
@@ -313,6 +333,7 @@ class _$FoodLogImpl extends _FoodLog {
     clientId,
     profileId,
     timestamp,
+    mealType,
     const DeepCollectionEquality().hash(_foodItemIds),
     const DeepCollectionEquality().hash(_adHocItems),
     notes,
@@ -339,6 +360,7 @@ abstract class _FoodLog extends FoodLog {
     required final String clientId,
     required final String profileId,
     required final int timestamp,
+    final MealType? mealType,
     final List<String> foodItemIds,
     final List<String> adHocItems,
     final String? notes,
@@ -356,6 +378,8 @@ abstract class _FoodLog extends FoodLog {
   String get profileId;
   @override
   int get timestamp; // Epoch milliseconds
+  @override
+  MealType? get mealType; // Breakfast/Lunch/Dinner/Snack
   @override
   List<String> get foodItemIds; // References to FoodItem entities
   @override

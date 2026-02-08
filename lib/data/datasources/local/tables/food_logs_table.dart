@@ -16,6 +16,7 @@ class FoodLogs extends Table {
   TextColumn get clientId => text().named('client_id')();
   TextColumn get profileId => text().named('profile_id')();
   IntColumn get timestamp => integer()();
+  IntColumn get mealType => integer().named('meal_type').nullable()();
   TextColumn get foodItemIds =>
       text().named('food_item_ids')(); // Comma-separated IDs
   TextColumn get adHocItems =>

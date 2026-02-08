@@ -1,6 +1,7 @@
 // lib/domain/usecases/food_logs/food_log_inputs.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shadow_app/domain/enums/health_enums.dart';
 
 part 'food_log_inputs.freezed.dart';
 
@@ -10,6 +11,7 @@ class LogFoodInput with _$LogFoodInput {
     required String profileId,
     required String clientId,
     required int timestamp, // Epoch milliseconds
+    MealType? mealType,
     @Default([]) List<String> foodItemIds,
     @Default([]) List<String> adHocItems,
     @Default('') String notes,
@@ -32,6 +34,7 @@ class UpdateFoodLogInput with _$UpdateFoodLogInput {
   const factory UpdateFoodLogInput({
     required String id,
     required String profileId,
+    MealType? mealType,
     List<String>? foodItemIds,
     List<String>? adHocItems,
     String? notes,

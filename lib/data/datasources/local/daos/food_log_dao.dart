@@ -8,6 +8,7 @@ import 'package:shadow_app/data/datasources/local/database.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
 import 'package:shadow_app/domain/entities/food_log.dart' as domain;
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
+import 'package:shadow_app/domain/enums/health_enums.dart';
 
 part 'food_log_dao.g.dart';
 
@@ -263,6 +264,7 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
     clientId: row.clientId,
     profileId: row.profileId,
     timestamp: row.timestamp,
+    mealType: row.mealType != null ? MealType.fromValue(row.mealType!) : null,
     foodItemIds: _parseList(row.foodItemIds),
     adHocItems: _parseList(row.adHocItems),
     notes: row.notes,
@@ -286,6 +288,7 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
         clientId: Value(entity.clientId),
         profileId: Value(entity.profileId),
         timestamp: Value(entity.timestamp),
+        mealType: Value(entity.mealType?.value),
         foodItemIds: Value(entity.foodItemIds.join(',')),
         adHocItems: Value(entity.adHocItems.join(',')),
         notes: Value(entity.notes),

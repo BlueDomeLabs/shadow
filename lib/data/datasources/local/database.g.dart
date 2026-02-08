@@ -1434,6 +1434,16 @@ class $IntakeLogsTable extends IntakeLogs
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _snoozeDurationMinutesMeta =
+      const VerificationMeta('snoozeDurationMinutes');
+  @override
+  late final GeneratedColumn<int> snoozeDurationMinutes = GeneratedColumn<int>(
+    'snooze_duration_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
     'syncCreatedAt',
   );
@@ -1550,6 +1560,7 @@ class $IntakeLogsTable extends IntakeLogs
     actualTime,
     reason,
     note,
+    snoozeDurationMinutes,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -1639,6 +1650,15 @@ class $IntakeLogsTable extends IntakeLogs
       context.handle(
         _noteMeta,
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('snooze_duration_minutes')) {
+      context.handle(
+        _snoozeDurationMinutesMeta,
+        snoozeDurationMinutes.isAcceptableOrUnknown(
+          data['snooze_duration_minutes']!,
+          _snoozeDurationMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('sync_created_at')) {
@@ -1766,6 +1786,10 @@ class $IntakeLogsTable extends IntakeLogs
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      snoozeDurationMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}snooze_duration_minutes'],
+      ),
       syncCreatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sync_created_at'],
@@ -1821,6 +1845,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
   final int? actualTime;
   final String? reason;
   final String? note;
+  final int? snoozeDurationMinutes;
   final int syncCreatedAt;
   final int? syncUpdatedAt;
   final int? syncDeletedAt;
@@ -1840,6 +1865,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
     this.actualTime,
     this.reason,
     this.note,
+    this.snoozeDurationMinutes,
     required this.syncCreatedAt,
     this.syncUpdatedAt,
     this.syncDeletedAt,
@@ -1867,6 +1893,9 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || snoozeDurationMinutes != null) {
+      map['snooze_duration_minutes'] = Variable<int>(snoozeDurationMinutes);
     }
     map['sync_created_at'] = Variable<int>(syncCreatedAt);
     if (!nullToAbsent || syncUpdatedAt != null) {
@@ -1905,6 +1934,9 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
           ? const Value.absent()
           : Value(reason),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      snoozeDurationMinutes: snoozeDurationMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(snoozeDurationMinutes),
       syncCreatedAt: Value(syncCreatedAt),
       syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -1942,6 +1974,9 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
       actualTime: serializer.fromJson<int?>(json['actualTime']),
       reason: serializer.fromJson<String?>(json['reason']),
       note: serializer.fromJson<String?>(json['note']),
+      snoozeDurationMinutes: serializer.fromJson<int?>(
+        json['snoozeDurationMinutes'],
+      ),
       syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
       syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
       syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
@@ -1966,6 +2001,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
       'actualTime': serializer.toJson<int?>(actualTime),
       'reason': serializer.toJson<String?>(reason),
       'note': serializer.toJson<String?>(note),
+      'snoozeDurationMinutes': serializer.toJson<int?>(snoozeDurationMinutes),
       'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
       'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
       'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
@@ -1988,6 +2024,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
     Value<int?> actualTime = const Value.absent(),
     Value<String?> reason = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    Value<int?> snoozeDurationMinutes = const Value.absent(),
     int? syncCreatedAt,
     Value<int?> syncUpdatedAt = const Value.absent(),
     Value<int?> syncDeletedAt = const Value.absent(),
@@ -2007,6 +2044,9 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
     actualTime: actualTime.present ? actualTime.value : this.actualTime,
     reason: reason.present ? reason.value : this.reason,
     note: note.present ? note.value : this.note,
+    snoozeDurationMinutes: snoozeDurationMinutes.present
+        ? snoozeDurationMinutes.value
+        : this.snoozeDurationMinutes,
     syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
     syncUpdatedAt: syncUpdatedAt.present
         ? syncUpdatedAt.value
@@ -2040,6 +2080,9 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
           : this.actualTime,
       reason: data.reason.present ? data.reason.value : this.reason,
       note: data.note.present ? data.note.value : this.note,
+      snoozeDurationMinutes: data.snoozeDurationMinutes.present
+          ? data.snoozeDurationMinutes.value
+          : this.snoozeDurationMinutes,
       syncCreatedAt: data.syncCreatedAt.present
           ? data.syncCreatedAt.value
           : this.syncCreatedAt,
@@ -2082,6 +2125,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
           ..write('actualTime: $actualTime, ')
           ..write('reason: $reason, ')
           ..write('note: $note, ')
+          ..write('snoozeDurationMinutes: $snoozeDurationMinutes, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -2106,6 +2150,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
     actualTime,
     reason,
     note,
+    snoozeDurationMinutes,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -2129,6 +2174,7 @@ class IntakeLogRow extends DataClass implements Insertable<IntakeLogRow> {
           other.actualTime == this.actualTime &&
           other.reason == this.reason &&
           other.note == this.note &&
+          other.snoozeDurationMinutes == this.snoozeDurationMinutes &&
           other.syncCreatedAt == this.syncCreatedAt &&
           other.syncUpdatedAt == this.syncUpdatedAt &&
           other.syncDeletedAt == this.syncDeletedAt &&
@@ -2150,6 +2196,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
   final Value<int?> actualTime;
   final Value<String?> reason;
   final Value<String?> note;
+  final Value<int?> snoozeDurationMinutes;
   final Value<int> syncCreatedAt;
   final Value<int?> syncUpdatedAt;
   final Value<int?> syncDeletedAt;
@@ -2170,6 +2217,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
     this.actualTime = const Value.absent(),
     this.reason = const Value.absent(),
     this.note = const Value.absent(),
+    this.snoozeDurationMinutes = const Value.absent(),
     this.syncCreatedAt = const Value.absent(),
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -2191,6 +2239,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
     this.actualTime = const Value.absent(),
     this.reason = const Value.absent(),
     this.note = const Value.absent(),
+    this.snoozeDurationMinutes = const Value.absent(),
     required int syncCreatedAt,
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -2218,6 +2267,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
     Expression<int>? actualTime,
     Expression<String>? reason,
     Expression<String>? note,
+    Expression<int>? snoozeDurationMinutes,
     Expression<int>? syncCreatedAt,
     Expression<int>? syncUpdatedAt,
     Expression<int>? syncDeletedAt,
@@ -2239,6 +2289,8 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
       if (actualTime != null) 'actual_time': actualTime,
       if (reason != null) 'reason': reason,
       if (note != null) 'note': note,
+      if (snoozeDurationMinutes != null)
+        'snooze_duration_minutes': snoozeDurationMinutes,
       if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
       if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
       if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
@@ -2262,6 +2314,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
     Value<int?>? actualTime,
     Value<String?>? reason,
     Value<String?>? note,
+    Value<int?>? snoozeDurationMinutes,
     Value<int>? syncCreatedAt,
     Value<int?>? syncUpdatedAt,
     Value<int?>? syncDeletedAt,
@@ -2283,6 +2336,8 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
       actualTime: actualTime ?? this.actualTime,
       reason: reason ?? this.reason,
       note: note ?? this.note,
+      snoozeDurationMinutes:
+          snoozeDurationMinutes ?? this.snoozeDurationMinutes,
       syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
       syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
       syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
@@ -2325,6 +2380,11 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
+    }
+    if (snoozeDurationMinutes.present) {
+      map['snooze_duration_minutes'] = Variable<int>(
+        snoozeDurationMinutes.value,
+      );
     }
     if (syncCreatedAt.present) {
       map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
@@ -2371,6 +2431,7 @@ class IntakeLogsCompanion extends UpdateCompanion<IntakeLogRow> {
           ..write('actualTime: $actualTime, ')
           ..write('reason: $reason, ')
           ..write('note: $note, ')
+          ..write('snoozeDurationMinutes: $snoozeDurationMinutes, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -2449,6 +2510,18 @@ class $ConditionsTable extends Conditions
   @override
   late final GeneratedColumn<String> bodyLocations = GeneratedColumn<String>(
     'body_locations',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _triggersMeta = const VerificationMeta(
+    'triggers',
+  );
+  @override
+  late final GeneratedColumn<String> triggers = GeneratedColumn<String>(
+    'triggers',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -2696,6 +2769,7 @@ class $ConditionsTable extends Conditions
     name,
     category,
     bodyLocations,
+    triggers,
     startTimeframe,
     status,
     description,
@@ -2773,6 +2847,12 @@ class $ConditionsTable extends Conditions
           data['body_locations']!,
           _bodyLocationsMeta,
         ),
+      );
+    }
+    if (data.containsKey('triggers')) {
+      context.handle(
+        _triggersMeta,
+        triggers.isAcceptableOrUnknown(data['triggers']!, _triggersMeta),
       );
     }
     if (data.containsKey('start_timeframe')) {
@@ -2976,6 +3056,10 @@ class $ConditionsTable extends Conditions
         DriftSqlType.string,
         data['${effectivePrefix}body_locations'],
       )!,
+      triggers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}triggers'],
+      )!,
       startTimeframe: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}start_timeframe'],
@@ -3072,6 +3156,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
   final String name;
   final String category;
   final String bodyLocations;
+  final String triggers;
   final int startTimeframe;
   final int status;
   final String? description;
@@ -3099,6 +3184,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
     required this.name,
     required this.category,
     required this.bodyLocations,
+    required this.triggers,
     required this.startTimeframe,
     required this.status,
     this.description,
@@ -3129,6 +3215,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
     map['name'] = Variable<String>(name);
     map['category'] = Variable<String>(category);
     map['body_locations'] = Variable<String>(bodyLocations);
+    map['triggers'] = Variable<String>(triggers);
     map['start_timeframe'] = Variable<int>(startTimeframe);
     map['status'] = Variable<int>(status);
     if (!nullToAbsent || description != null) {
@@ -3184,6 +3271,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
       name: Value(name),
       category: Value(category),
       bodyLocations: Value(bodyLocations),
+      triggers: Value(triggers),
       startTimeframe: Value(startTimeframe),
       status: Value(status),
       description: description == null && nullToAbsent
@@ -3243,6 +3331,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
       name: serializer.fromJson<String>(json['name']),
       category: serializer.fromJson<String>(json['category']),
       bodyLocations: serializer.fromJson<String>(json['bodyLocations']),
+      triggers: serializer.fromJson<String>(json['triggers']),
       startTimeframe: serializer.fromJson<int>(json['startTimeframe']),
       status: serializer.fromJson<int>(json['status']),
       description: serializer.fromJson<String?>(json['description']),
@@ -3277,6 +3366,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
       'name': serializer.toJson<String>(name),
       'category': serializer.toJson<String>(category),
       'bodyLocations': serializer.toJson<String>(bodyLocations),
+      'triggers': serializer.toJson<String>(triggers),
       'startTimeframe': serializer.toJson<int>(startTimeframe),
       'status': serializer.toJson<int>(status),
       'description': serializer.toJson<String?>(description),
@@ -3307,6 +3397,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
     String? name,
     String? category,
     String? bodyLocations,
+    String? triggers,
     int? startTimeframe,
     int? status,
     Value<String?> description = const Value.absent(),
@@ -3334,6 +3425,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
     name: name ?? this.name,
     category: category ?? this.category,
     bodyLocations: bodyLocations ?? this.bodyLocations,
+    triggers: triggers ?? this.triggers,
     startTimeframe: startTimeframe ?? this.startTimeframe,
     status: status ?? this.status,
     description: description.present ? description.value : this.description,
@@ -3377,6 +3469,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
       bodyLocations: data.bodyLocations.present
           ? data.bodyLocations.value
           : this.bodyLocations,
+      triggers: data.triggers.present ? data.triggers.value : this.triggers,
       startTimeframe: data.startTimeframe.present
           ? data.startTimeframe.value
           : this.startTimeframe,
@@ -3443,6 +3536,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
           ..write('name: $name, ')
           ..write('category: $category, ')
           ..write('bodyLocations: $bodyLocations, ')
+          ..write('triggers: $triggers, ')
           ..write('startTimeframe: $startTimeframe, ')
           ..write('status: $status, ')
           ..write('description: $description, ')
@@ -3475,6 +3569,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
     name,
     category,
     bodyLocations,
+    triggers,
     startTimeframe,
     status,
     description,
@@ -3506,6 +3601,7 @@ class ConditionRow extends DataClass implements Insertable<ConditionRow> {
           other.name == this.name &&
           other.category == this.category &&
           other.bodyLocations == this.bodyLocations &&
+          other.triggers == this.triggers &&
           other.startTimeframe == this.startTimeframe &&
           other.status == this.status &&
           other.description == this.description &&
@@ -3535,6 +3631,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
   final Value<String> name;
   final Value<String> category;
   final Value<String> bodyLocations;
+  final Value<String> triggers;
   final Value<int> startTimeframe;
   final Value<int> status;
   final Value<String?> description;
@@ -3563,6 +3660,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
     this.name = const Value.absent(),
     this.category = const Value.absent(),
     this.bodyLocations = const Value.absent(),
+    this.triggers = const Value.absent(),
     this.startTimeframe = const Value.absent(),
     this.status = const Value.absent(),
     this.description = const Value.absent(),
@@ -3592,6 +3690,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
     required String name,
     required String category,
     this.bodyLocations = const Value.absent(),
+    this.triggers = const Value.absent(),
     required int startTimeframe,
     required int status,
     this.description = const Value.absent(),
@@ -3628,6 +3727,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
     Expression<String>? name,
     Expression<String>? category,
     Expression<String>? bodyLocations,
+    Expression<String>? triggers,
     Expression<int>? startTimeframe,
     Expression<int>? status,
     Expression<String>? description,
@@ -3657,6 +3757,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
       if (name != null) 'name': name,
       if (category != null) 'category': category,
       if (bodyLocations != null) 'body_locations': bodyLocations,
+      if (triggers != null) 'triggers': triggers,
       if (startTimeframe != null) 'start_timeframe': startTimeframe,
       if (status != null) 'status': status,
       if (description != null) 'description': description,
@@ -3688,6 +3789,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
     Value<String>? name,
     Value<String>? category,
     Value<String>? bodyLocations,
+    Value<String>? triggers,
     Value<int>? startTimeframe,
     Value<int>? status,
     Value<String?>? description,
@@ -3717,6 +3819,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
       name: name ?? this.name,
       category: category ?? this.category,
       bodyLocations: bodyLocations ?? this.bodyLocations,
+      triggers: triggers ?? this.triggers,
       startTimeframe: startTimeframe ?? this.startTimeframe,
       status: status ?? this.status,
       description: description ?? this.description,
@@ -3761,6 +3864,9 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
     }
     if (bodyLocations.present) {
       map['body_locations'] = Variable<String>(bodyLocations.value);
+    }
+    if (triggers.present) {
+      map['triggers'] = Variable<String>(triggers.value);
     }
     if (startTimeframe.present) {
       map['start_timeframe'] = Variable<int>(startTimeframe.value);
@@ -3837,6 +3943,7 @@ class ConditionsCompanion extends UpdateCompanion<ConditionRow> {
           ..write('name: $name, ')
           ..write('category: $category, ')
           ..write('bodyLocations: $bodyLocations, ')
+          ..write('triggers: $triggers, ')
           ..write('startTimeframe: $startTimeframe, ')
           ..write('status: $status, ')
           ..write('description: $description, ')
@@ -13544,6 +13651,17 @@ class $FoodLogsTable extends FoodLogs
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _mealTypeMeta = const VerificationMeta(
+    'mealType',
+  );
+  @override
+  late final GeneratedColumn<int> mealType = GeneratedColumn<int>(
+    'meal_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _foodItemIdsMeta = const VerificationMeta(
     'foodItemIds',
   );
@@ -13686,6 +13804,7 @@ class $FoodLogsTable extends FoodLogs
     clientId,
     profileId,
     timestamp,
+    mealType,
     foodItemIds,
     adHocItems,
     notes,
@@ -13739,6 +13858,12 @@ class $FoodLogsTable extends FoodLogs
       );
     } else if (isInserting) {
       context.missing(_timestampMeta);
+    }
+    if (data.containsKey('meal_type')) {
+      context.handle(
+        _mealTypeMeta,
+        mealType.isAcceptableOrUnknown(data['meal_type']!, _mealTypeMeta),
+      );
     }
     if (data.containsKey('food_item_ids')) {
       context.handle(
@@ -13873,6 +13998,10 @@ class $FoodLogsTable extends FoodLogs
         DriftSqlType.int,
         data['${effectivePrefix}timestamp'],
       )!,
+      mealType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}meal_type'],
+      ),
       foodItemIds: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}food_item_ids'],
@@ -13935,6 +14064,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
   final String clientId;
   final String profileId;
   final int timestamp;
+  final int? mealType;
   final String foodItemIds;
   final String adHocItems;
   final String? notes;
@@ -13952,6 +14082,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     required this.clientId,
     required this.profileId,
     required this.timestamp,
+    this.mealType,
     required this.foodItemIds,
     required this.adHocItems,
     this.notes,
@@ -13972,6 +14103,9 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     map['client_id'] = Variable<String>(clientId);
     map['profile_id'] = Variable<String>(profileId);
     map['timestamp'] = Variable<int>(timestamp);
+    if (!nullToAbsent || mealType != null) {
+      map['meal_type'] = Variable<int>(mealType);
+    }
     map['food_item_ids'] = Variable<String>(foodItemIds);
     map['ad_hoc_items'] = Variable<String>(adHocItems);
     if (!nullToAbsent || notes != null) {
@@ -14005,6 +14139,9 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       clientId: Value(clientId),
       profileId: Value(profileId),
       timestamp: Value(timestamp),
+      mealType: mealType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mealType),
       foodItemIds: Value(foodItemIds),
       adHocItems: Value(adHocItems),
       notes: notes == null && nullToAbsent
@@ -14042,6 +14179,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       clientId: serializer.fromJson<String>(json['clientId']),
       profileId: serializer.fromJson<String>(json['profileId']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
+      mealType: serializer.fromJson<int?>(json['mealType']),
       foodItemIds: serializer.fromJson<String>(json['foodItemIds']),
       adHocItems: serializer.fromJson<String>(json['adHocItems']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -14064,6 +14202,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       'clientId': serializer.toJson<String>(clientId),
       'profileId': serializer.toJson<String>(profileId),
       'timestamp': serializer.toJson<int>(timestamp),
+      'mealType': serializer.toJson<int?>(mealType),
       'foodItemIds': serializer.toJson<String>(foodItemIds),
       'adHocItems': serializer.toJson<String>(adHocItems),
       'notes': serializer.toJson<String?>(notes),
@@ -14084,6 +14223,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     String? clientId,
     String? profileId,
     int? timestamp,
+    Value<int?> mealType = const Value.absent(),
     String? foodItemIds,
     String? adHocItems,
     Value<String?> notes = const Value.absent(),
@@ -14101,6 +14241,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     clientId: clientId ?? this.clientId,
     profileId: profileId ?? this.profileId,
     timestamp: timestamp ?? this.timestamp,
+    mealType: mealType.present ? mealType.value : this.mealType,
     foodItemIds: foodItemIds ?? this.foodItemIds,
     adHocItems: adHocItems ?? this.adHocItems,
     notes: notes.present ? notes.value : this.notes,
@@ -14126,6 +14267,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       clientId: data.clientId.present ? data.clientId.value : this.clientId,
       profileId: data.profileId.present ? data.profileId.value : this.profileId,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      mealType: data.mealType.present ? data.mealType.value : this.mealType,
       foodItemIds: data.foodItemIds.present
           ? data.foodItemIds.value
           : this.foodItemIds,
@@ -14170,6 +14312,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
           ..write('clientId: $clientId, ')
           ..write('profileId: $profileId, ')
           ..write('timestamp: $timestamp, ')
+          ..write('mealType: $mealType, ')
           ..write('foodItemIds: $foodItemIds, ')
           ..write('adHocItems: $adHocItems, ')
           ..write('notes: $notes, ')
@@ -14192,6 +14335,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     clientId,
     profileId,
     timestamp,
+    mealType,
     foodItemIds,
     adHocItems,
     notes,
@@ -14213,6 +14357,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
           other.clientId == this.clientId &&
           other.profileId == this.profileId &&
           other.timestamp == this.timestamp &&
+          other.mealType == this.mealType &&
           other.foodItemIds == this.foodItemIds &&
           other.adHocItems == this.adHocItems &&
           other.notes == this.notes &&
@@ -14232,6 +14377,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
   final Value<String> clientId;
   final Value<String> profileId;
   final Value<int> timestamp;
+  final Value<int?> mealType;
   final Value<String> foodItemIds;
   final Value<String> adHocItems;
   final Value<String?> notes;
@@ -14250,6 +14396,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     this.clientId = const Value.absent(),
     this.profileId = const Value.absent(),
     this.timestamp = const Value.absent(),
+    this.mealType = const Value.absent(),
     this.foodItemIds = const Value.absent(),
     this.adHocItems = const Value.absent(),
     this.notes = const Value.absent(),
@@ -14269,6 +14416,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     required String clientId,
     required String profileId,
     required int timestamp,
+    this.mealType = const Value.absent(),
     required String foodItemIds,
     required String adHocItems,
     this.notes = const Value.absent(),
@@ -14294,6 +14442,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     Expression<String>? clientId,
     Expression<String>? profileId,
     Expression<int>? timestamp,
+    Expression<int>? mealType,
     Expression<String>? foodItemIds,
     Expression<String>? adHocItems,
     Expression<String>? notes,
@@ -14313,6 +14462,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
       if (clientId != null) 'client_id': clientId,
       if (profileId != null) 'profile_id': profileId,
       if (timestamp != null) 'timestamp': timestamp,
+      if (mealType != null) 'meal_type': mealType,
       if (foodItemIds != null) 'food_item_ids': foodItemIds,
       if (adHocItems != null) 'ad_hoc_items': adHocItems,
       if (notes != null) 'notes': notes,
@@ -14334,6 +14484,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     Value<String>? clientId,
     Value<String>? profileId,
     Value<int>? timestamp,
+    Value<int?>? mealType,
     Value<String>? foodItemIds,
     Value<String>? adHocItems,
     Value<String?>? notes,
@@ -14353,6 +14504,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
       clientId: clientId ?? this.clientId,
       profileId: profileId ?? this.profileId,
       timestamp: timestamp ?? this.timestamp,
+      mealType: mealType ?? this.mealType,
       foodItemIds: foodItemIds ?? this.foodItemIds,
       adHocItems: adHocItems ?? this.adHocItems,
       notes: notes ?? this.notes,
@@ -14383,6 +14535,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     }
     if (timestamp.present) {
       map['timestamp'] = Variable<int>(timestamp.value);
+    }
+    if (mealType.present) {
+      map['meal_type'] = Variable<int>(mealType.value);
     }
     if (foodItemIds.present) {
       map['food_item_ids'] = Variable<String>(foodItemIds.value);
@@ -14433,6 +14588,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
           ..write('clientId: $clientId, ')
           ..write('profileId: $profileId, ')
           ..write('timestamp: $timestamp, ')
+          ..write('mealType: $mealType, ')
           ..write('foodItemIds: $foodItemIds, ')
           ..write('adHocItems: $adHocItems, ')
           ..write('notes: $notes, ')
@@ -18313,6 +18469,7 @@ typedef $$IntakeLogsTableCreateCompanionBuilder =
       Value<int?> actualTime,
       Value<String?> reason,
       Value<String?> note,
+      Value<int?> snoozeDurationMinutes,
       required int syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -18335,6 +18492,7 @@ typedef $$IntakeLogsTableUpdateCompanionBuilder =
       Value<int?> actualTime,
       Value<String?> reason,
       Value<String?> note,
+      Value<int?> snoozeDurationMinutes,
       Value<int> syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -18398,6 +18556,11 @@ class $$IntakeLogsTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get snoozeDurationMinutes => $composableBuilder(
+    column: $table.snoozeDurationMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18501,6 +18664,11 @@ class $$IntakeLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get snoozeDurationMinutes => $composableBuilder(
+    column: $table.snoozeDurationMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -18589,6 +18757,11 @@ class $$IntakeLogsTableAnnotationComposer
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
+  GeneratedColumn<int> get snoozeDurationMinutes => $composableBuilder(
+    column: $table.snoozeDurationMinutes,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => column,
@@ -18675,6 +18848,7 @@ class $$IntakeLogsTableTableManager
                 Value<int?> actualTime = const Value.absent(),
                 Value<String?> reason = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<int?> snoozeDurationMinutes = const Value.absent(),
                 Value<int> syncCreatedAt = const Value.absent(),
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -18695,6 +18869,7 @@ class $$IntakeLogsTableTableManager
                 actualTime: actualTime,
                 reason: reason,
                 note: note,
+                snoozeDurationMinutes: snoozeDurationMinutes,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -18717,6 +18892,7 @@ class $$IntakeLogsTableTableManager
                 Value<int?> actualTime = const Value.absent(),
                 Value<String?> reason = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<int?> snoozeDurationMinutes = const Value.absent(),
                 required int syncCreatedAt,
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -18737,6 +18913,7 @@ class $$IntakeLogsTableTableManager
                 actualTime: actualTime,
                 reason: reason,
                 note: note,
+                snoozeDurationMinutes: snoozeDurationMinutes,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -18781,6 +18958,7 @@ typedef $$ConditionsTableCreateCompanionBuilder =
       required String name,
       required String category,
       Value<String> bodyLocations,
+      Value<String> triggers,
       required int startTimeframe,
       required int status,
       Value<String?> description,
@@ -18811,6 +18989,7 @@ typedef $$ConditionsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String> category,
       Value<String> bodyLocations,
+      Value<String> triggers,
       Value<int> startTimeframe,
       Value<int> status,
       Value<String?> description,
@@ -18870,6 +19049,11 @@ class $$ConditionsTableFilterComposer
 
   ColumnFilters<String> get bodyLocations => $composableBuilder(
     column: $table.bodyLocations,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get triggers => $composableBuilder(
+    column: $table.triggers,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19013,6 +19197,11 @@ class $$ConditionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get triggers => $composableBuilder(
+    column: $table.triggers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get startTimeframe => $composableBuilder(
     column: $table.startTimeframe,
     builder: (column) => ColumnOrderings(column),
@@ -19142,6 +19331,9 @@ class $$ConditionsTableAnnotationComposer
     column: $table.bodyLocations,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get triggers =>
+      $composableBuilder(column: $table.triggers, builder: (column) => column);
 
   GeneratedColumn<int> get startTimeframe => $composableBuilder(
     column: $table.startTimeframe,
@@ -19275,6 +19467,7 @@ class $$ConditionsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> category = const Value.absent(),
                 Value<String> bodyLocations = const Value.absent(),
+                Value<String> triggers = const Value.absent(),
                 Value<int> startTimeframe = const Value.absent(),
                 Value<int> status = const Value.absent(),
                 Value<String?> description = const Value.absent(),
@@ -19303,6 +19496,7 @@ class $$ConditionsTableTableManager
                 name: name,
                 category: category,
                 bodyLocations: bodyLocations,
+                triggers: triggers,
                 startTimeframe: startTimeframe,
                 status: status,
                 description: description,
@@ -19333,6 +19527,7 @@ class $$ConditionsTableTableManager
                 required String name,
                 required String category,
                 Value<String> bodyLocations = const Value.absent(),
+                Value<String> triggers = const Value.absent(),
                 required int startTimeframe,
                 required int status,
                 Value<String?> description = const Value.absent(),
@@ -19361,6 +19556,7 @@ class $$ConditionsTableTableManager
                 name: name,
                 category: category,
                 bodyLocations: bodyLocations,
+                triggers: triggers,
                 startTimeframe: startTimeframe,
                 status: status,
                 description: description,
@@ -23566,6 +23762,7 @@ typedef $$FoodLogsTableCreateCompanionBuilder =
       required String clientId,
       required String profileId,
       required int timestamp,
+      Value<int?> mealType,
       required String foodItemIds,
       required String adHocItems,
       Value<String?> notes,
@@ -23586,6 +23783,7 @@ typedef $$FoodLogsTableUpdateCompanionBuilder =
       Value<String> clientId,
       Value<String> profileId,
       Value<int> timestamp,
+      Value<int?> mealType,
       Value<String> foodItemIds,
       Value<String> adHocItems,
       Value<String?> notes,
@@ -23627,6 +23825,11 @@ class $$FoodLogsTableFilterComposer
 
   ColumnFilters<int> get timestamp => $composableBuilder(
     column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get mealType => $composableBuilder(
+    column: $table.mealType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -23720,6 +23923,11 @@ class $$FoodLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get mealType => $composableBuilder(
+    column: $table.mealType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get foodItemIds => $composableBuilder(
     column: $table.foodItemIds,
     builder: (column) => ColumnOrderings(column),
@@ -23801,6 +24009,9 @@ class $$FoodLogsTableAnnotationComposer
 
   GeneratedColumn<int> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<int> get mealType =>
+      $composableBuilder(column: $table.mealType, builder: (column) => column);
 
   GeneratedColumn<String> get foodItemIds => $composableBuilder(
     column: $table.foodItemIds,
@@ -23896,6 +24107,7 @@ class $$FoodLogsTableTableManager
                 Value<String> clientId = const Value.absent(),
                 Value<String> profileId = const Value.absent(),
                 Value<int> timestamp = const Value.absent(),
+                Value<int?> mealType = const Value.absent(),
                 Value<String> foodItemIds = const Value.absent(),
                 Value<String> adHocItems = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -23914,6 +24126,7 @@ class $$FoodLogsTableTableManager
                 clientId: clientId,
                 profileId: profileId,
                 timestamp: timestamp,
+                mealType: mealType,
                 foodItemIds: foodItemIds,
                 adHocItems: adHocItems,
                 notes: notes,
@@ -23934,6 +24147,7 @@ class $$FoodLogsTableTableManager
                 required String clientId,
                 required String profileId,
                 required int timestamp,
+                Value<int?> mealType = const Value.absent(),
                 required String foodItemIds,
                 required String adHocItems,
                 Value<String?> notes = const Value.absent(),
@@ -23952,6 +24166,7 @@ class $$FoodLogsTableTableManager
                 clientId: clientId,
                 profileId: profileId,
                 timestamp: timestamp,
+                mealType: mealType,
                 foodItemIds: foodItemIds,
                 adHocItems: adHocItems,
                 notes: notes,

@@ -156,6 +156,22 @@ class MockIntakeLogRepository extends _i1.Mock
           as _i3.Future<_i4.Result<void, _i6.AppError>>);
 
   @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSnoozed(
+    String? id,
+    int? snoozeDurationMinutes,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSnoozed, [id, snoozeDurationMinutes]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSnoozed, [id, snoozeDurationMinutes]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+
+  @override
   _i3.Future<_i4.Result<List<_i5.IntakeLog>, _i6.AppError>> getAll({
     String? profileId,
     int? limit,

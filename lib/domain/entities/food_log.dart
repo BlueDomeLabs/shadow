@@ -2,6 +2,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
+import 'package:shadow_app/domain/enums/health_enums.dart';
 
 part 'food_log.freezed.dart';
 part 'food_log.g.dart';
@@ -20,6 +21,7 @@ class FoodLog with _$FoodLog {
     required String clientId,
     required String profileId,
     required int timestamp, // Epoch milliseconds
+    MealType? mealType, // Breakfast/Lunch/Dinner/Snack
     @Default([]) List<String> foodItemIds, // References to FoodItem entities
     @Default([]) List<String> adHocItems, // Free-form food names (quick entry)
     String? notes,

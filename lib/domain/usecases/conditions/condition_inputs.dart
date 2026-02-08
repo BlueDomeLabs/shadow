@@ -25,6 +25,7 @@ class CreateConditionInput with _$CreateConditionInput {
     required String name,
     required String category,
     @Default([]) List<String> bodyLocations,
+    @Default([]) List<String> triggers,
     String? description,
     String? baselinePhotoPath,
     required int startTimeframe, // Epoch ms

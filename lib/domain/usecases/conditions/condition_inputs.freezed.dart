@@ -205,6 +205,7 @@ mixin _$CreateConditionInput {
   String get name => throw _privateConstructorUsedError;
   String get category => throw _privateConstructorUsedError;
   List<String> get bodyLocations => throw _privateConstructorUsedError;
+  List<String> get triggers => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get baselinePhotoPath => throw _privateConstructorUsedError;
   int get startTimeframe => throw _privateConstructorUsedError; // Epoch ms
@@ -231,6 +232,7 @@ abstract class $CreateConditionInputCopyWith<$Res> {
     String name,
     String category,
     List<String> bodyLocations,
+    List<String> triggers,
     String? description,
     String? baselinePhotoPath,
     int startTimeframe,
@@ -262,6 +264,7 @@ class _$CreateConditionInputCopyWithImpl<
     Object? name = null,
     Object? category = null,
     Object? bodyLocations = null,
+    Object? triggers = null,
     Object? description = freezed,
     Object? baselinePhotoPath = freezed,
     Object? startTimeframe = null,
@@ -289,6 +292,10 @@ class _$CreateConditionInputCopyWithImpl<
             bodyLocations: null == bodyLocations
                 ? _value.bodyLocations
                 : bodyLocations // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            triggers: null == triggers
+                ? _value.triggers
+                : triggers // ignore: cast_nullable_to_non_nullable
                       as List<String>,
             description: freezed == description
                 ? _value.description
@@ -331,6 +338,7 @@ abstract class _$$CreateConditionInputImplCopyWith<$Res>
     String name,
     String category,
     List<String> bodyLocations,
+    List<String> triggers,
     String? description,
     String? baselinePhotoPath,
     int startTimeframe,
@@ -358,6 +366,7 @@ class __$$CreateConditionInputImplCopyWithImpl<$Res>
     Object? name = null,
     Object? category = null,
     Object? bodyLocations = null,
+    Object? triggers = null,
     Object? description = freezed,
     Object? baselinePhotoPath = freezed,
     Object? startTimeframe = null,
@@ -385,6 +394,10 @@ class __$$CreateConditionInputImplCopyWithImpl<$Res>
         bodyLocations: null == bodyLocations
             ? _value._bodyLocations
             : bodyLocations // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        triggers: null == triggers
+            ? _value._triggers
+            : triggers // ignore: cast_nullable_to_non_nullable
                   as List<String>,
         description: freezed == description
             ? _value.description
@@ -420,12 +433,14 @@ class _$CreateConditionInputImpl implements _CreateConditionInput {
     required this.name,
     required this.category,
     final List<String> bodyLocations = const [],
+    final List<String> triggers = const [],
     this.description,
     this.baselinePhotoPath,
     required this.startTimeframe,
     this.endDate,
     this.activityId,
-  }) : _bodyLocations = bodyLocations;
+  }) : _bodyLocations = bodyLocations,
+       _triggers = triggers;
 
   @override
   final String profileId;
@@ -444,6 +459,15 @@ class _$CreateConditionInputImpl implements _CreateConditionInput {
     return EqualUnmodifiableListView(_bodyLocations);
   }
 
+  final List<String> _triggers;
+  @override
+  @JsonKey()
+  List<String> get triggers {
+    if (_triggers is EqualUnmodifiableListView) return _triggers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_triggers);
+  }
+
   @override
   final String? description;
   @override
@@ -459,7 +483,7 @@ class _$CreateConditionInputImpl implements _CreateConditionInput {
 
   @override
   String toString() {
-    return 'CreateConditionInput(profileId: $profileId, clientId: $clientId, name: $name, category: $category, bodyLocations: $bodyLocations, description: $description, baselinePhotoPath: $baselinePhotoPath, startTimeframe: $startTimeframe, endDate: $endDate, activityId: $activityId)';
+    return 'CreateConditionInput(profileId: $profileId, clientId: $clientId, name: $name, category: $category, bodyLocations: $bodyLocations, triggers: $triggers, description: $description, baselinePhotoPath: $baselinePhotoPath, startTimeframe: $startTimeframe, endDate: $endDate, activityId: $activityId)';
   }
 
   @override
@@ -478,6 +502,7 @@ class _$CreateConditionInputImpl implements _CreateConditionInput {
               other._bodyLocations,
               _bodyLocations,
             ) &&
+            const DeepCollectionEquality().equals(other._triggers, _triggers) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.baselinePhotoPath, baselinePhotoPath) ||
@@ -497,6 +522,7 @@ class _$CreateConditionInputImpl implements _CreateConditionInput {
     name,
     category,
     const DeepCollectionEquality().hash(_bodyLocations),
+    const DeepCollectionEquality().hash(_triggers),
     description,
     baselinePhotoPath,
     startTimeframe,
@@ -524,6 +550,7 @@ abstract class _CreateConditionInput implements CreateConditionInput {
     required final String name,
     required final String category,
     final List<String> bodyLocations,
+    final List<String> triggers,
     final String? description,
     final String? baselinePhotoPath,
     required final int startTimeframe,
@@ -541,6 +568,8 @@ abstract class _CreateConditionInput implements CreateConditionInput {
   String get category;
   @override
   List<String> get bodyLocations;
+  @override
+  List<String> get triggers;
   @override
   String? get description;
   @override

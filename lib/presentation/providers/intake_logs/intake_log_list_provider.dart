@@ -85,4 +85,29 @@ class IntakeLogList extends _$IntakeLogList {
       },
     );
   }
+
+  /// Marks an intake log as snoozed.
+  Future<void> markSnoozed(MarkSnoozedInput input) async {
+    _log.debug('Marking intake as snoozed: ${input.id}');
+
+    // Defense-in-depth: Provider-level auth check
+    final authService = ref.read(profileAuthorizationServiceProvider);
+    if (!await authService.canWrite(input.profileId)) {
+      throw AuthError.profileAccessDenied(input.profileId);
+    }
+
+    final useCase = ref.read(markSnoozedUseCaseProvider);
+    final result = await useCase(input);
+
+    result.when(
+      success: (_) {
+        _log.info('Intake marked as snoozed');
+        ref.invalidateSelf();
+      },
+      failure: (error) {
+        _log.error('Mark snoozed failed: ${error.message}');
+        throw error;
+      },
+    );
+  }
 }

@@ -203,7 +203,7 @@ ArchiveSupplementUseCase archiveSupplementUseCase(Ref ref) =>
     );
 
 // =============================================================================
-// USE CASES - INTAKE LOGS (3)
+// USE CASES - INTAKE LOGS (4)
 // =============================================================================
 
 /// GetIntakeLogsUseCase provider.
@@ -223,6 +223,13 @@ MarkTakenUseCase markTakenUseCase(Ref ref) => MarkTakenUseCase(
 /// MarkSkippedUseCase provider.
 @riverpod
 MarkSkippedUseCase markSkippedUseCase(Ref ref) => MarkSkippedUseCase(
+  ref.read(intakeLogRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// MarkSnoozedUseCase provider.
+@riverpod
+MarkSnoozedUseCase markSnoozedUseCase(Ref ref) => MarkSnoozedUseCase(
   ref.read(intakeLogRepositoryProvider),
   ref.read(profileAuthorizationServiceProvider),
 );

@@ -298,6 +298,7 @@ class ConditionDao extends DatabaseAccessor<AppDatabase>
   /// Convert database row to domain Condition entity.
   domain.Condition _rowToEntity(ConditionRow row) {
     final bodyLocationsList = _parseBodyLocations(row.bodyLocations);
+    final triggersList = _parseJsonList(row.triggers);
 
     return domain.Condition(
       id: row.id,
@@ -306,6 +307,7 @@ class ConditionDao extends DatabaseAccessor<AppDatabase>
       name: row.name,
       category: row.category,
       bodyLocations: bodyLocationsList,
+      triggers: triggersList,
       description: row.description,
       baselinePhotoPath: row.baselinePhotoPath,
       startTimeframe: row.startTimeframe,
@@ -340,6 +342,7 @@ class ConditionDao extends DatabaseAccessor<AppDatabase>
         name: Value(entity.name),
         category: Value(entity.category),
         bodyLocations: Value(jsonEncode(entity.bodyLocations)),
+        triggers: Value(jsonEncode(entity.triggers)),
         description: Value(entity.description),
         baselinePhotoPath: Value(entity.baselinePhotoPath),
         startTimeframe: Value(entity.startTimeframe),
@@ -363,6 +366,15 @@ class ConditionDao extends DatabaseAccessor<AppDatabase>
       );
 
   List<String> _parseBodyLocations(String json) {
+    try {
+      final list = jsonDecode(json) as List<dynamic>;
+      return list.map((item) => item.toString()).toList();
+    } on Exception {
+      return [];
+    }
+  }
+
+  List<String> _parseJsonList(String json) {
     try {
       final list = jsonDecode(json) as List<dynamic>;
       return list.map((item) => item.toString()).toList();

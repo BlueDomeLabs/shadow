@@ -38,3 +38,13 @@ class MarkSkippedInput with _$MarkSkippedInput {
     String? reason,
   }) = _MarkSkippedInput;
 }
+
+/// Input for MarkSnoozedUseCase.
+@freezed
+class MarkSnoozedInput with _$MarkSnoozedInput {
+  const factory MarkSnoozedInput({
+    required String id,
+    required String profileId,
+    required int snoozeDurationMinutes, // 5, 10, 15, 30, or 60
+  }) = _MarkSnoozedInput;
+}

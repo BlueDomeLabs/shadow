@@ -19,6 +19,7 @@ _$IntakeLogImpl _$$IntakeLogImplFromJson(Map<String, dynamic> json) =>
           IntakeLogStatus.pending,
       reason: json['reason'] as String?,
       note: json['note'] as String?,
+      snoozeDurationMinutes: (json['snoozeDurationMinutes'] as num?)?.toInt(),
       syncMetadata: SyncMetadata.fromJson(
         json['syncMetadata'] as Map<String, dynamic>,
       ),
@@ -35,6 +36,7 @@ Map<String, dynamic> _$$IntakeLogImplToJson(_$IntakeLogImpl instance) =>
       'status': _$IntakeLogStatusEnumMap[instance.status]!,
       'reason': instance.reason,
       'note': instance.note,
+      'snoozeDurationMinutes': instance.snoozeDurationMinutes,
       'syncMetadata': instance.syncMetadata.toJson(),
     };
 
@@ -43,4 +45,5 @@ const _$IntakeLogStatusEnumMap = {
   IntakeLogStatus.taken: 'taken',
   IntakeLogStatus.skipped: 'skipped',
   IntakeLogStatus.missed: 'missed',
+  IntakeLogStatus.snoozed: 'snoozed',
 };

@@ -46,4 +46,10 @@ abstract class IntakeLogRepository
 
   /// Mark an intake as skipped.
   Future<Result<void, AppError>> markSkipped(String id, String? reason);
+
+  /// Mark an intake as snoozed.
+  Future<Result<void, AppError>> markSnoozed(
+    String id,
+    int snoozeDurationMinutes,
+  );
 }

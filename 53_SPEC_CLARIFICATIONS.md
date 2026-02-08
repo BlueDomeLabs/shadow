@@ -1,7 +1,7 @@
 # Shadow Specification Clarifications
 
-**Version:** 1.0
-**Last Updated:** February 2, 2026
+**Version:** 1.1
+**Last Updated:** February 7, 2026
 **Purpose:** Track spec ambiguities and their resolutions for instance communication
 
 ---
@@ -38,6 +38,45 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 ---
 
 ## Active Ambiguities
+
+### RESOLVED-2026-02-07-001: IntakeLog Missing `snoozed` Status
+
+**Found in:** 38_UI_FIELD_SPECIFICATIONS.md Section 4.2 vs 22_API_CONTRACTS.md Section 10.10
+**Found by:** Instance during Tier 1 Logging Screens implementation
+**Issue:** UI spec defines Status segment with Taken/Skipped/Snoozed + Snooze Duration dropdown (5/10/15/30/60 min), but IntakeLogStatus enum only had pending/taken/skipped/missed. No snoozeDurationMinutes field existed.
+
+**Status:** RESOLVED
+**Resolution:** Added `snoozed(4)` to IntakeLogStatus enum, added `int? snoozeDurationMinutes` to IntakeLog entity, added `markSnoozed` repository method and MarkSnoozedUseCase. Snooze is standard in medication reminder apps (Apple Health, Medisafe).
+**Resolution Date:** 2026-02-07
+**Spec Updated:** Yes - 22_API_CONTRACTS.md Section 10.10, 10_DATABASE_SCHEMA.md Section 4.2
+
+---
+
+### RESOLVED-2026-02-07-002: FoodLog Missing `mealType` Field
+
+**Found in:** 38_UI_FIELD_SPECIFICATIONS.md Section 5.1 vs 22_API_CONTRACTS.md Section 10.12
+**Found by:** Instance during Tier 1 Logging Screens implementation
+**Issue:** UI spec defines Meal Type segment (Breakfast/Lunch/Dinner/Snack) with auto-detect logic, but FoodLog entity had no mealType field.
+
+**Status:** RESOLVED
+**Resolution:** Added `MealType` enum (breakfast(0)/lunch(1)/dinner(2)/snack(3)) and `MealType? mealType` field to FoodLog entity. Meal classification is standard in food logging apps (MyFitnessPal, Cronometer).
+**Resolution Date:** 2026-02-07
+**Spec Updated:** Yes - 22_API_CONTRACTS.md Section 10.12, 10_DATABASE_SCHEMA.md Section 5.2
+
+---
+
+### RESOLVED-2026-02-07-003: Condition Missing `triggers` List
+
+**Found in:** 38_UI_FIELD_SPECIFICATIONS.md Section 8.2 vs 22_API_CONTRACTS.md Section 10.8
+**Found by:** Instance during Tier 1 Logging Screens implementation
+**Issue:** UI spec says ConditionLog triggers should populate "from condition's trigger list + Add new", but Condition entity had no `triggers` field. ConditionLog.triggers was free-form String only.
+
+**Status:** RESOLVED
+**Resolution:** Added `@Default([]) List<String> triggers` to Condition entity. Stored as JSON array in DB (same pattern as bodyLocations). Predefined trigger lists are standard in condition tracking apps (Flaredown, Symple).
+**Resolution Date:** 2026-02-07
+**Spec Updated:** Yes - 22_API_CONTRACTS.md Section 10.8, 10_DATABASE_SCHEMA.md Section 9.1
+
+---
 
 ### RESOLVED-2026-02-05-001: AppError and `only_throw_errors` Lint Rule Conflict
 
@@ -148,3 +187,4 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-02-02 | Initial release with resolved notification type example |
+| 1.1 | 2026-02-07 | Added 3 UI-spec-to-API-spec gap resolutions (snoozed status, mealType, triggers) |

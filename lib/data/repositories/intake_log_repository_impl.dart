@@ -117,4 +117,10 @@ class IntakeLogRepositoryImpl extends BaseRepository<IntakeLog>
   @override
   Future<Result<void, AppError>> markSkipped(String id, String? reason) =>
       _dao.markSkipped(id, reason);
+
+  @override
+  Future<Result<void, AppError>> markSnoozed(
+    String id,
+    int snoozeDurationMinutes,
+  ) => _dao.markSnoozed(id, snoozeDurationMinutes);
 }

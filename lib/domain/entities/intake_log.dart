@@ -26,6 +26,8 @@ class IntakeLog with _$IntakeLog {
     @Default(IntakeLogStatus.pending) IntakeLogStatus status,
     String? reason, // Why skipped/missed
     String? note,
+    int?
+    snoozeDurationMinutes, // Duration in minutes when snoozed (5/10/15/30/60)
     required SyncMetadata syncMetadata,
   }) = _IntakeLog;
 
@@ -43,6 +45,9 @@ class IntakeLog with _$IntakeLog {
 
   /// Whether the intake was missed
   bool get isMissed => status == IntakeLogStatus.missed;
+
+  /// Whether the intake was snoozed
+  bool get isSnoozed => status == IntakeLogStatus.snoozed;
 
   /// Calculate delay from scheduled time (if actually taken)
   Duration? get delayFromScheduled {

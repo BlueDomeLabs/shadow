@@ -23,6 +23,8 @@ class Condition with _$Condition {
     required String name,
     required String category,
     required List<String> bodyLocations, // JSON array in DB
+    @Default([])
+    List<String> triggers, // Predefined trigger list for condition logs
     String? description,
     String? baselinePhotoPath,
     required int startTimeframe, // Epoch milliseconds

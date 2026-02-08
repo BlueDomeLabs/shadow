@@ -16,6 +16,11 @@ _$ConditionImpl _$$ConditionImplFromJson(Map<String, dynamic> json) =>
       bodyLocations: (json['bodyLocations'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
+      triggers:
+          (json['triggers'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       description: json['description'] as String?,
       baselinePhotoPath: json['baselinePhotoPath'] as String?,
       startTimeframe: (json['startTimeframe'] as num).toInt(),
@@ -42,6 +47,7 @@ Map<String, dynamic> _$$ConditionImplToJson(_$ConditionImpl instance) =>
       'name': instance.name,
       'category': instance.category,
       'bodyLocations': instance.bodyLocations,
+      'triggers': instance.triggers,
       'description': instance.description,
       'baselinePhotoPath': instance.baselinePhotoPath,
       'startTimeframe': instance.startTimeframe,

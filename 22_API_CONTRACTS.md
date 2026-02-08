@@ -1186,11 +1186,12 @@ enum BowelCondition {
 enum UrineCondition {
   clear(0),
   lightYellow(1),
-  darkYellow(2),
-  amber(3),
-  brown(4),
-  red(5),
-  custom(6);
+  yellow(2),
+  darkYellow(3),
+  amber(4),
+  brown(5),
+  red(6),
+  custom(7);
 
   final int value;
   const UrineCondition(this.value);
@@ -2167,13 +2168,21 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       clientId: input.clientId,
       profileId: input.profileId,
       entryDate: input.entryDate,
+      waterIntakeMl: input.waterIntakeMl,
+      waterIntakeNotes: input.waterIntakeNotes,
       bowelCondition: input.bowelCondition,
       bowelSize: input.bowelSize,
+      bowelPhotoPath: input.bowelPhotoPath,
       urineCondition: input.urineCondition,
+      urineSize: input.urineSize,
+      urinePhotoPath: input.urinePhotoPath,
       menstruationFlow: input.menstruationFlow,
       basalBodyTemperature: input.basalBodyTemperature,
       bbtRecordedTime: input.bbtRecordedTime,
-      notes: input.notes ?? '',
+      otherFluidName: input.otherFluidName,
+      otherFluidAmount: input.otherFluidAmount,
+      otherFluidNotes: input.otherFluidNotes,
+      notes: input.notes,
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
@@ -2865,6 +2874,7 @@ class LogFoodInput with _$LogFoodInput {
     required String profileId,
     required String clientId,
     required int timestamp,           // Epoch milliseconds
+    MealType? mealType,
     @Default([]) List<String> foodItemIds,
     @Default([]) List<String> adHocItems,
     @Default('') String notes,
@@ -2977,6 +2987,7 @@ class UpdateFoodLogInput with _$UpdateFoodLogInput {
   const factory UpdateFoodLogInput({
     required String id,
     required String profileId,
+    MealType? mealType,
     List<String>? foodItemIds,
     List<String>? adHocItems,
     String? notes,
@@ -10971,6 +10982,7 @@ class Condition with _$Condition {
     required String name,
     required String category,
     required List<String> bodyLocations,  // JSON array in DB
+    @Default([]) List<String> triggers,   // Predefined trigger list per 38_UI_FIELD_SPECIFICATIONS.md Section 8.2
     String? description,
     String? baselinePhotoPath,
     required int startTimeframe,          // Epoch milliseconds
@@ -11076,7 +11088,8 @@ enum IntakeLogStatus {
   pending(0),
   taken(1),
   skipped(2),
-  missed(3);
+  missed(3),
+  snoozed(4);              // Per 38_UI_FIELD_SPECIFICATIONS.md Section 4.2
 
   final int value;
   const IntakeLogStatus(this.value);
@@ -11096,6 +11109,7 @@ class IntakeLog with _$IntakeLog {
     @Default(IntakeLogStatus.pending) IntakeLogStatus status,
     String? reason,                       // Why skipped/missed
     String? note,
+    int? snoozeDurationMinutes,           // 5/10/15/30/60 min when snoozed
     required SyncMetadata syncMetadata,
   }) = _IntakeLog;
 
@@ -11106,6 +11120,7 @@ class IntakeLog with _$IntakeLog {
   bool get isPending => status == IntakeLogStatus.pending;
   bool get isSkipped => status == IntakeLogStatus.skipped;
   bool get isMissed => status == IntakeLogStatus.missed;
+  bool get isSnoozed => status == IntakeLogStatus.snoozed;
   Duration? get delayFromScheduled {
     if (actualTime == null) return null;
     return Duration(milliseconds: actualTime! - scheduledTime);
@@ -11132,6 +11147,7 @@ abstract class IntakeLogRepository implements EntityRepository<IntakeLog, String
   );
   Future<Result<void, AppError>> markTaken(String id, int actualTime);  // Epoch ms
   Future<Result<void, AppError>> markSkipped(String id, String? reason);
+  Future<Result<void, AppError>> markSnoozed(String id, int snoozeDurationMinutes);
 }
 ```
 
@@ -11206,6 +11222,22 @@ abstract class FoodItemRepository implements EntityRepository<FoodItem, String> 
 ### 10.12 FoodLog Entity (P0 - Food)
 
 ```dart
+/// Meal type classification per 38_UI_FIELD_SPECIFICATIONS.md Section 5.1
+enum MealType {
+  breakfast(0),
+  lunch(1),
+  dinner(2),
+  snack(3);
+
+  final int value;
+  const MealType(this.value);
+
+  static MealType fromValue(int value) => MealType.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => snack,
+  );
+}
+
 @freezed
 class FoodLog with _$FoodLog {
   const FoodLog._();
@@ -11215,6 +11247,7 @@ class FoodLog with _$FoodLog {
     required String clientId,
     required String profileId,
     required int timestamp,               // Epoch milliseconds
+    MealType? mealType,                   // Per 38_UI_FIELD_SPECIFICATIONS.md Section 5.1
     @Default([]) List<String> foodItemIds,  // Comma-separated in DB
     @Default([]) List<String> adHocItems,   // Comma-separated in DB - quick entry items
     String? notes,
@@ -12416,7 +12449,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | Direct |
-| entryDate | timestamp | int | INTEGER | Epoch ms |
+| entryDate | entry_date | int | INTEGER | Epoch ms |
 | waterIntakeMl | water_intake_ml | int? | INTEGER | Direct |
 | waterIntakeNotes | water_intake_notes | String? | TEXT | Direct |
 | (computed) hasBowelData | has_bowel_movement | bool | INTEGER | bowelCondition != null |
@@ -12442,7 +12475,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
 
 **Notes:**
-- `entryDate` in entity maps to `timestamp` column in DB
+- `entryDate` in entity maps to `entry_date` column in DB
 - `hasBowelData` and `hasUrineData` are computed getters in entity, stored as `has_bowel_movement`/`has_urine_movement` in DB
 - `bowelCustomCondition` and `urineCustomCondition` DB columns exist for "custom" enum values but are not in current entity
 - File sync fields are for bowel/urine photo uploads

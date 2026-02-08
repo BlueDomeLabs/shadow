@@ -21,6 +21,7 @@ class Conditions extends Table {
   TextColumn get category => text()();
   TextColumn get bodyLocations =>
       text().named('body_locations').withDefault(const Constant('[]'))();
+  TextColumn get triggers => text().withDefault(const Constant('[]'))();
   IntColumn get startTimeframe => integer().named('start_timeframe')();
   IntColumn get status => integer()(); // ConditionStatus enum
 

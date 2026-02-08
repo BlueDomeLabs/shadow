@@ -33,6 +33,8 @@ mixin _$IntakeLog {
   String? get reason =>
       throw _privateConstructorUsedError; // Why skipped/missed
   String? get note => throw _privateConstructorUsedError;
+  int? get snoozeDurationMinutes =>
+      throw _privateConstructorUsedError; // Duration in minutes when snoozed (5/10/15/30/60)
   SyncMetadata get syncMetadata => throw _privateConstructorUsedError;
 
   /// Serializes this IntakeLog to a JSON map.
@@ -60,6 +62,7 @@ abstract class $IntakeLogCopyWith<$Res> {
     IntakeLogStatus status,
     String? reason,
     String? note,
+    int? snoozeDurationMinutes,
     SyncMetadata syncMetadata,
   });
 
@@ -90,6 +93,7 @@ class _$IntakeLogCopyWithImpl<$Res, $Val extends IntakeLog>
     Object? status = null,
     Object? reason = freezed,
     Object? note = freezed,
+    Object? snoozeDurationMinutes = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -130,6 +134,10 @@ class _$IntakeLogCopyWithImpl<$Res, $Val extends IntakeLog>
                 ? _value.note
                 : note // ignore: cast_nullable_to_non_nullable
                       as String?,
+            snoozeDurationMinutes: freezed == snoozeDurationMinutes
+                ? _value.snoozeDurationMinutes
+                : snoozeDurationMinutes // ignore: cast_nullable_to_non_nullable
+                      as int?,
             syncMetadata: null == syncMetadata
                 ? _value.syncMetadata
                 : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -169,6 +177,7 @@ abstract class _$$IntakeLogImplCopyWith<$Res>
     IntakeLogStatus status,
     String? reason,
     String? note,
+    int? snoozeDurationMinutes,
     SyncMetadata syncMetadata,
   });
 
@@ -199,6 +208,7 @@ class __$$IntakeLogImplCopyWithImpl<$Res>
     Object? status = null,
     Object? reason = freezed,
     Object? note = freezed,
+    Object? snoozeDurationMinutes = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -239,6 +249,10 @@ class __$$IntakeLogImplCopyWithImpl<$Res>
             ? _value.note
             : note // ignore: cast_nullable_to_non_nullable
                   as String?,
+        snoozeDurationMinutes: freezed == snoozeDurationMinutes
+            ? _value.snoozeDurationMinutes
+            : snoozeDurationMinutes // ignore: cast_nullable_to_non_nullable
+                  as int?,
         syncMetadata: null == syncMetadata
             ? _value.syncMetadata
             : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -262,6 +276,7 @@ class _$IntakeLogImpl extends _IntakeLog {
     this.status = IntakeLogStatus.pending,
     this.reason,
     this.note,
+    this.snoozeDurationMinutes,
     required this.syncMetadata,
   }) : super._();
 
@@ -291,11 +306,14 @@ class _$IntakeLogImpl extends _IntakeLog {
   @override
   final String? note;
   @override
+  final int? snoozeDurationMinutes;
+  // Duration in minutes when snoozed (5/10/15/30/60)
+  @override
   final SyncMetadata syncMetadata;
 
   @override
   String toString() {
-    return 'IntakeLog(id: $id, clientId: $clientId, profileId: $profileId, supplementId: $supplementId, scheduledTime: $scheduledTime, actualTime: $actualTime, status: $status, reason: $reason, note: $note, syncMetadata: $syncMetadata)';
+    return 'IntakeLog(id: $id, clientId: $clientId, profileId: $profileId, supplementId: $supplementId, scheduledTime: $scheduledTime, actualTime: $actualTime, status: $status, reason: $reason, note: $note, snoozeDurationMinutes: $snoozeDurationMinutes, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -317,6 +335,8 @@ class _$IntakeLogImpl extends _IntakeLog {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.reason, reason) || other.reason == reason) &&
             (identical(other.note, note) || other.note == note) &&
+            (identical(other.snoozeDurationMinutes, snoozeDurationMinutes) ||
+                other.snoozeDurationMinutes == snoozeDurationMinutes) &&
             (identical(other.syncMetadata, syncMetadata) ||
                 other.syncMetadata == syncMetadata));
   }
@@ -334,6 +354,7 @@ class _$IntakeLogImpl extends _IntakeLog {
     status,
     reason,
     note,
+    snoozeDurationMinutes,
     syncMetadata,
   );
 
@@ -362,6 +383,7 @@ abstract class _IntakeLog extends IntakeLog {
     final IntakeLogStatus status,
     final String? reason,
     final String? note,
+    final int? snoozeDurationMinutes,
     required final SyncMetadata syncMetadata,
   }) = _$IntakeLogImpl;
   const _IntakeLog._() : super._();
@@ -387,6 +409,8 @@ abstract class _IntakeLog extends IntakeLog {
   String? get reason; // Why skipped/missed
   @override
   String? get note;
+  @override
+  int? get snoozeDurationMinutes; // Duration in minutes when snoozed (5/10/15/30/60)
   @override
   SyncMetadata get syncMetadata;
 

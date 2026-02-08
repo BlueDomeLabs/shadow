@@ -634,3 +634,185 @@ abstract class _MarkSkippedInput implements MarkSkippedInput {
   _$$MarkSkippedInputImplCopyWith<_$MarkSkippedInputImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$MarkSnoozedInput {
+  String get id => throw _privateConstructorUsedError;
+  String get profileId => throw _privateConstructorUsedError;
+  int get snoozeDurationMinutes => throw _privateConstructorUsedError;
+
+  /// Create a copy of MarkSnoozedInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MarkSnoozedInputCopyWith<MarkSnoozedInput> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MarkSnoozedInputCopyWith<$Res> {
+  factory $MarkSnoozedInputCopyWith(
+    MarkSnoozedInput value,
+    $Res Function(MarkSnoozedInput) then,
+  ) = _$MarkSnoozedInputCopyWithImpl<$Res, MarkSnoozedInput>;
+  @useResult
+  $Res call({String id, String profileId, int snoozeDurationMinutes});
+}
+
+/// @nodoc
+class _$MarkSnoozedInputCopyWithImpl<$Res, $Val extends MarkSnoozedInput>
+    implements $MarkSnoozedInputCopyWith<$Res> {
+  _$MarkSnoozedInputCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of MarkSnoozedInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? snoozeDurationMinutes = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            profileId: null == profileId
+                ? _value.profileId
+                : profileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            snoozeDurationMinutes: null == snoozeDurationMinutes
+                ? _value.snoozeDurationMinutes
+                : snoozeDurationMinutes // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$MarkSnoozedInputImplCopyWith<$Res>
+    implements $MarkSnoozedInputCopyWith<$Res> {
+  factory _$$MarkSnoozedInputImplCopyWith(
+    _$MarkSnoozedInputImpl value,
+    $Res Function(_$MarkSnoozedInputImpl) then,
+  ) = __$$MarkSnoozedInputImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String id, String profileId, int snoozeDurationMinutes});
+}
+
+/// @nodoc
+class __$$MarkSnoozedInputImplCopyWithImpl<$Res>
+    extends _$MarkSnoozedInputCopyWithImpl<$Res, _$MarkSnoozedInputImpl>
+    implements _$$MarkSnoozedInputImplCopyWith<$Res> {
+  __$$MarkSnoozedInputImplCopyWithImpl(
+    _$MarkSnoozedInputImpl _value,
+    $Res Function(_$MarkSnoozedInputImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of MarkSnoozedInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? snoozeDurationMinutes = null,
+  }) {
+    return _then(
+      _$MarkSnoozedInputImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        profileId: null == profileId
+            ? _value.profileId
+            : profileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        snoozeDurationMinutes: null == snoozeDurationMinutes
+            ? _value.snoozeDurationMinutes
+            : snoozeDurationMinutes // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$MarkSnoozedInputImpl implements _MarkSnoozedInput {
+  const _$MarkSnoozedInputImpl({
+    required this.id,
+    required this.profileId,
+    required this.snoozeDurationMinutes,
+  });
+
+  @override
+  final String id;
+  @override
+  final String profileId;
+  @override
+  final int snoozeDurationMinutes;
+
+  @override
+  String toString() {
+    return 'MarkSnoozedInput(id: $id, profileId: $profileId, snoozeDurationMinutes: $snoozeDurationMinutes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MarkSnoozedInputImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.profileId, profileId) ||
+                other.profileId == profileId) &&
+            (identical(other.snoozeDurationMinutes, snoozeDurationMinutes) ||
+                other.snoozeDurationMinutes == snoozeDurationMinutes));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, profileId, snoozeDurationMinutes);
+
+  /// Create a copy of MarkSnoozedInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MarkSnoozedInputImplCopyWith<_$MarkSnoozedInputImpl> get copyWith =>
+      __$$MarkSnoozedInputImplCopyWithImpl<_$MarkSnoozedInputImpl>(
+        this,
+        _$identity,
+      );
+}
+
+abstract class _MarkSnoozedInput implements MarkSnoozedInput {
+  const factory _MarkSnoozedInput({
+    required final String id,
+    required final String profileId,
+    required final int snoozeDurationMinutes,
+  }) = _$MarkSnoozedInputImpl;
+
+  @override
+  String get id;
+  @override
+  String get profileId;
+  @override
+  int get snoozeDurationMinutes;
+
+  /// Create a copy of MarkSnoozedInput
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MarkSnoozedInputImplCopyWith<_$MarkSnoozedInputImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

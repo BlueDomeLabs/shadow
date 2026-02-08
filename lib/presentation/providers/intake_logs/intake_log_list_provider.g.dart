@@ -6,7 +6,7 @@ part of 'intake_log_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$intakeLogListHash() => r'646d08e368835be4caf3cb51054c6acbe381a0ad';
+String _$intakeLogListHash() => r'777a724345e18ead33e9515f1386349d7b5f0b14';
 
 /// Copied from Dart SDK
 class _SystemHash {

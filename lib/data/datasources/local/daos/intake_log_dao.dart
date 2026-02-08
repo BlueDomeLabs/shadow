@@ -342,6 +342,36 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
     }
   }
 
+  /// Mark an intake as snoozed.
+  Future<Result<void, AppError>> markSnoozed(
+    String id,
+    int snoozeDurationMinutes,
+  ) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final rowsAffected =
+          await (update(
+            intakeLogs,
+          )..where((i) => i.id.equals(id) & i.syncDeletedAt.isNull())).write(
+            IntakeLogsCompanion(
+              status: Value(IntakeLogStatus.snoozed.value),
+              snoozeDurationMinutes: Value(snoozeDurationMinutes),
+              syncUpdatedAt: Value(now),
+              syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.modified.value),
+            ),
+          );
+
+      if (rowsAffected == 0) {
+        return Failure(DatabaseError.notFound('IntakeLog', id));
+      }
+
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('intake_logs', id, e, stack));
+    }
+  }
+
   /// Convert database row to domain IntakeLog entity.
   domain.IntakeLog _rowToEntity(IntakeLogRow row) => domain.IntakeLog(
     id: row.id,
@@ -353,6 +383,7 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
     status: IntakeLogStatus.fromValue(row.status),
     reason: row.reason,
     note: row.note,
+    snoozeDurationMinutes: row.snoozeDurationMinutes,
     syncMetadata: SyncMetadata(
       syncCreatedAt: row.syncCreatedAt,
       syncUpdatedAt: row.syncUpdatedAt ?? row.syncCreatedAt,
@@ -378,6 +409,7 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
         status: Value(entity.status.value),
         reason: Value(entity.reason),
         note: Value(entity.note),
+        snoozeDurationMinutes: Value(entity.snoozeDurationMinutes),
         syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
         syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
         syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),

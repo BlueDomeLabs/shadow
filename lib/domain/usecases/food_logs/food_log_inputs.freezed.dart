@@ -20,6 +20,7 @@ mixin _$LogFoodInput {
   String get profileId => throw _privateConstructorUsedError;
   String get clientId => throw _privateConstructorUsedError;
   int get timestamp => throw _privateConstructorUsedError; // Epoch milliseconds
+  MealType? get mealType => throw _privateConstructorUsedError;
   List<String> get foodItemIds => throw _privateConstructorUsedError;
   List<String> get adHocItems => throw _privateConstructorUsedError;
   String get notes => throw _privateConstructorUsedError;
@@ -42,6 +43,7 @@ abstract class $LogFoodInputCopyWith<$Res> {
     String profileId,
     String clientId,
     int timestamp,
+    MealType? mealType,
     List<String> foodItemIds,
     List<String> adHocItems,
     String notes,
@@ -66,6 +68,7 @@ class _$LogFoodInputCopyWithImpl<$Res, $Val extends LogFoodInput>
     Object? profileId = null,
     Object? clientId = null,
     Object? timestamp = null,
+    Object? mealType = freezed,
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = null,
@@ -84,6 +87,10 @@ class _$LogFoodInputCopyWithImpl<$Res, $Val extends LogFoodInput>
                 ? _value.timestamp
                 : timestamp // ignore: cast_nullable_to_non_nullable
                       as int,
+            mealType: freezed == mealType
+                ? _value.mealType
+                : mealType // ignore: cast_nullable_to_non_nullable
+                      as MealType?,
             foodItemIds: null == foodItemIds
                 ? _value.foodItemIds
                 : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -115,6 +122,7 @@ abstract class _$$LogFoodInputImplCopyWith<$Res>
     String profileId,
     String clientId,
     int timestamp,
+    MealType? mealType,
     List<String> foodItemIds,
     List<String> adHocItems,
     String notes,
@@ -138,6 +146,7 @@ class __$$LogFoodInputImplCopyWithImpl<$Res>
     Object? profileId = null,
     Object? clientId = null,
     Object? timestamp = null,
+    Object? mealType = freezed,
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = null,
@@ -156,6 +165,10 @@ class __$$LogFoodInputImplCopyWithImpl<$Res>
             ? _value.timestamp
             : timestamp // ignore: cast_nullable_to_non_nullable
                   as int,
+        mealType: freezed == mealType
+            ? _value.mealType
+            : mealType // ignore: cast_nullable_to_non_nullable
+                  as MealType?,
         foodItemIds: null == foodItemIds
             ? _value._foodItemIds
             : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -180,6 +193,7 @@ class _$LogFoodInputImpl implements _LogFoodInput {
     required this.profileId,
     required this.clientId,
     required this.timestamp,
+    this.mealType,
     final List<String> foodItemIds = const [],
     final List<String> adHocItems = const [],
     this.notes = '',
@@ -193,8 +207,9 @@ class _$LogFoodInputImpl implements _LogFoodInput {
   @override
   final int timestamp;
   // Epoch milliseconds
+  @override
+  final MealType? mealType;
   final List<String> _foodItemIds;
-  // Epoch milliseconds
   @override
   @JsonKey()
   List<String> get foodItemIds {
@@ -218,7 +233,7 @@ class _$LogFoodInputImpl implements _LogFoodInput {
 
   @override
   String toString() {
-    return 'LogFoodInput(profileId: $profileId, clientId: $clientId, timestamp: $timestamp, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes)';
+    return 'LogFoodInput(profileId: $profileId, clientId: $clientId, timestamp: $timestamp, mealType: $mealType, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes)';
   }
 
   @override
@@ -232,6 +247,8 @@ class _$LogFoodInputImpl implements _LogFoodInput {
                 other.clientId == clientId) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp) &&
+            (identical(other.mealType, mealType) ||
+                other.mealType == mealType) &&
             const DeepCollectionEquality().equals(
               other._foodItemIds,
               _foodItemIds,
@@ -249,6 +266,7 @@ class _$LogFoodInputImpl implements _LogFoodInput {
     profileId,
     clientId,
     timestamp,
+    mealType,
     const DeepCollectionEquality().hash(_foodItemIds),
     const DeepCollectionEquality().hash(_adHocItems),
     notes,
@@ -268,6 +286,7 @@ abstract class _LogFoodInput implements LogFoodInput {
     required final String profileId,
     required final String clientId,
     required final int timestamp,
+    final MealType? mealType,
     final List<String> foodItemIds,
     final List<String> adHocItems,
     final String notes,
@@ -279,6 +298,8 @@ abstract class _LogFoodInput implements LogFoodInput {
   String get clientId;
   @override
   int get timestamp; // Epoch milliseconds
+  @override
+  MealType? get mealType;
   @override
   List<String> get foodItemIds;
   @override
@@ -531,6 +552,7 @@ abstract class _GetFoodLogsInput implements GetFoodLogsInput {
 mixin _$UpdateFoodLogInput {
   String get id => throw _privateConstructorUsedError;
   String get profileId => throw _privateConstructorUsedError;
+  MealType? get mealType => throw _privateConstructorUsedError;
   List<String>? get foodItemIds => throw _privateConstructorUsedError;
   List<String>? get adHocItems => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
@@ -552,6 +574,7 @@ abstract class $UpdateFoodLogInputCopyWith<$Res> {
   $Res call({
     String id,
     String profileId,
+    MealType? mealType,
     List<String>? foodItemIds,
     List<String>? adHocItems,
     String? notes,
@@ -575,6 +598,7 @@ class _$UpdateFoodLogInputCopyWithImpl<$Res, $Val extends UpdateFoodLogInput>
   $Res call({
     Object? id = null,
     Object? profileId = null,
+    Object? mealType = freezed,
     Object? foodItemIds = freezed,
     Object? adHocItems = freezed,
     Object? notes = freezed,
@@ -589,6 +613,10 @@ class _$UpdateFoodLogInputCopyWithImpl<$Res, $Val extends UpdateFoodLogInput>
                 ? _value.profileId
                 : profileId // ignore: cast_nullable_to_non_nullable
                       as String,
+            mealType: freezed == mealType
+                ? _value.mealType
+                : mealType // ignore: cast_nullable_to_non_nullable
+                      as MealType?,
             foodItemIds: freezed == foodItemIds
                 ? _value.foodItemIds
                 : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -619,6 +647,7 @@ abstract class _$$UpdateFoodLogInputImplCopyWith<$Res>
   $Res call({
     String id,
     String profileId,
+    MealType? mealType,
     List<String>? foodItemIds,
     List<String>? adHocItems,
     String? notes,
@@ -641,6 +670,7 @@ class __$$UpdateFoodLogInputImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? profileId = null,
+    Object? mealType = freezed,
     Object? foodItemIds = freezed,
     Object? adHocItems = freezed,
     Object? notes = freezed,
@@ -655,6 +685,10 @@ class __$$UpdateFoodLogInputImplCopyWithImpl<$Res>
             ? _value.profileId
             : profileId // ignore: cast_nullable_to_non_nullable
                   as String,
+        mealType: freezed == mealType
+            ? _value.mealType
+            : mealType // ignore: cast_nullable_to_non_nullable
+                  as MealType?,
         foodItemIds: freezed == foodItemIds
             ? _value._foodItemIds
             : foodItemIds // ignore: cast_nullable_to_non_nullable
@@ -678,6 +712,7 @@ class _$UpdateFoodLogInputImpl implements _UpdateFoodLogInput {
   const _$UpdateFoodLogInputImpl({
     required this.id,
     required this.profileId,
+    this.mealType,
     final List<String>? foodItemIds,
     final List<String>? adHocItems,
     this.notes,
@@ -688,6 +723,8 @@ class _$UpdateFoodLogInputImpl implements _UpdateFoodLogInput {
   final String id;
   @override
   final String profileId;
+  @override
+  final MealType? mealType;
   final List<String>? _foodItemIds;
   @override
   List<String>? get foodItemIds {
@@ -713,7 +750,7 @@ class _$UpdateFoodLogInputImpl implements _UpdateFoodLogInput {
 
   @override
   String toString() {
-    return 'UpdateFoodLogInput(id: $id, profileId: $profileId, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes)';
+    return 'UpdateFoodLogInput(id: $id, profileId: $profileId, mealType: $mealType, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes)';
   }
 
   @override
@@ -724,6 +761,8 @@ class _$UpdateFoodLogInputImpl implements _UpdateFoodLogInput {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.profileId, profileId) ||
                 other.profileId == profileId) &&
+            (identical(other.mealType, mealType) ||
+                other.mealType == mealType) &&
             const DeepCollectionEquality().equals(
               other._foodItemIds,
               _foodItemIds,
@@ -740,6 +779,7 @@ class _$UpdateFoodLogInputImpl implements _UpdateFoodLogInput {
     runtimeType,
     id,
     profileId,
+    mealType,
     const DeepCollectionEquality().hash(_foodItemIds),
     const DeepCollectionEquality().hash(_adHocItems),
     notes,
@@ -761,6 +801,7 @@ abstract class _UpdateFoodLogInput implements UpdateFoodLogInput {
   const factory _UpdateFoodLogInput({
     required final String id,
     required final String profileId,
+    final MealType? mealType,
     final List<String>? foodItemIds,
     final List<String>? adHocItems,
     final String? notes,
@@ -770,6 +811,8 @@ abstract class _UpdateFoodLogInput implements UpdateFoodLogInput {
   String get id;
   @override
   String get profileId;
+  @override
+  MealType? get mealType;
   @override
   List<String>? get foodItemIds;
   @override

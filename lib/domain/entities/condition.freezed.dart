@@ -28,6 +28,8 @@ mixin _$Condition {
   String get category => throw _privateConstructorUsedError;
   List<String> get bodyLocations =>
       throw _privateConstructorUsedError; // JSON array in DB
+  List<String> get triggers =>
+      throw _privateConstructorUsedError; // Predefined trigger list for condition logs
   String? get description => throw _privateConstructorUsedError;
   String? get baselinePhotoPath => throw _privateConstructorUsedError;
   int get startTimeframe =>
@@ -66,6 +68,7 @@ abstract class $ConditionCopyWith<$Res> {
     String name,
     String category,
     List<String> bodyLocations,
+    List<String> triggers,
     String? description,
     String? baselinePhotoPath,
     int startTimeframe,
@@ -104,6 +107,7 @@ class _$ConditionCopyWithImpl<$Res, $Val extends Condition>
     Object? name = null,
     Object? category = null,
     Object? bodyLocations = null,
+    Object? triggers = null,
     Object? description = freezed,
     Object? baselinePhotoPath = freezed,
     Object? startTimeframe = null,
@@ -142,6 +146,10 @@ class _$ConditionCopyWithImpl<$Res, $Val extends Condition>
             bodyLocations: null == bodyLocations
                 ? _value.bodyLocations
                 : bodyLocations // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            triggers: null == triggers
+                ? _value.triggers
+                : triggers // ignore: cast_nullable_to_non_nullable
                       as List<String>,
             description: freezed == description
                 ? _value.description
@@ -223,6 +231,7 @@ abstract class _$$ConditionImplCopyWith<$Res>
     String name,
     String category,
     List<String> bodyLocations,
+    List<String> triggers,
     String? description,
     String? baselinePhotoPath,
     int startTimeframe,
@@ -261,6 +270,7 @@ class __$$ConditionImplCopyWithImpl<$Res>
     Object? name = null,
     Object? category = null,
     Object? bodyLocations = null,
+    Object? triggers = null,
     Object? description = freezed,
     Object? baselinePhotoPath = freezed,
     Object? startTimeframe = null,
@@ -299,6 +309,10 @@ class __$$ConditionImplCopyWithImpl<$Res>
         bodyLocations: null == bodyLocations
             ? _value._bodyLocations
             : bodyLocations // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        triggers: null == triggers
+            ? _value._triggers
+            : triggers // ignore: cast_nullable_to_non_nullable
                   as List<String>,
         description: freezed == description
             ? _value.description
@@ -364,6 +378,7 @@ class _$ConditionImpl extends _Condition {
     required this.name,
     required this.category,
     required final List<String> bodyLocations,
+    final List<String> triggers = const [],
     this.description,
     this.baselinePhotoPath,
     required this.startTimeframe,
@@ -377,6 +392,7 @@ class _$ConditionImpl extends _Condition {
     this.isFileUploaded = false,
     required this.syncMetadata,
   }) : _bodyLocations = bodyLocations,
+       _triggers = triggers,
        super._();
 
   factory _$ConditionImpl.fromJson(Map<String, dynamic> json) =>
@@ -401,6 +417,17 @@ class _$ConditionImpl extends _Condition {
   }
 
   // JSON array in DB
+  final List<String> _triggers;
+  // JSON array in DB
+  @override
+  @JsonKey()
+  List<String> get triggers {
+    if (_triggers is EqualUnmodifiableListView) return _triggers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_triggers);
+  }
+
+  // Predefined trigger list for condition logs
   @override
   final String? description;
   @override
@@ -435,7 +462,7 @@ class _$ConditionImpl extends _Condition {
 
   @override
   String toString() {
-    return 'Condition(id: $id, clientId: $clientId, profileId: $profileId, name: $name, category: $category, bodyLocations: $bodyLocations, description: $description, baselinePhotoPath: $baselinePhotoPath, startTimeframe: $startTimeframe, endDate: $endDate, status: $status, isArchived: $isArchived, activityId: $activityId, cloudStorageUrl: $cloudStorageUrl, fileHash: $fileHash, fileSizeBytes: $fileSizeBytes, isFileUploaded: $isFileUploaded, syncMetadata: $syncMetadata)';
+    return 'Condition(id: $id, clientId: $clientId, profileId: $profileId, name: $name, category: $category, bodyLocations: $bodyLocations, triggers: $triggers, description: $description, baselinePhotoPath: $baselinePhotoPath, startTimeframe: $startTimeframe, endDate: $endDate, status: $status, isArchived: $isArchived, activityId: $activityId, cloudStorageUrl: $cloudStorageUrl, fileHash: $fileHash, fileSizeBytes: $fileSizeBytes, isFileUploaded: $isFileUploaded, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -455,6 +482,7 @@ class _$ConditionImpl extends _Condition {
               other._bodyLocations,
               _bodyLocations,
             ) &&
+            const DeepCollectionEquality().equals(other._triggers, _triggers) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.baselinePhotoPath, baselinePhotoPath) ||
@@ -481,7 +509,7 @@ class _$ConditionImpl extends _Condition {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     clientId,
@@ -489,6 +517,7 @@ class _$ConditionImpl extends _Condition {
     name,
     category,
     const DeepCollectionEquality().hash(_bodyLocations),
+    const DeepCollectionEquality().hash(_triggers),
     description,
     baselinePhotoPath,
     startTimeframe,
@@ -501,7 +530,7 @@ class _$ConditionImpl extends _Condition {
     fileSizeBytes,
     isFileUploaded,
     syncMetadata,
-  );
+  ]);
 
   /// Create a copy of Condition
   /// with the given fields replaced by the non-null parameter values.
@@ -525,6 +554,7 @@ abstract class _Condition extends Condition {
     required final String name,
     required final String category,
     required final List<String> bodyLocations,
+    final List<String> triggers,
     final String? description,
     final String? baselinePhotoPath,
     required final int startTimeframe,
@@ -555,6 +585,8 @@ abstract class _Condition extends Condition {
   String get category;
   @override
   List<String> get bodyLocations; // JSON array in DB
+  @override
+  List<String> get triggers; // Predefined trigger list for condition logs
   @override
   String? get description;
   @override

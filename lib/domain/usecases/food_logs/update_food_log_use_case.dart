@@ -44,6 +44,7 @@ class UpdateFoodLogUseCase implements UseCase<UpdateFoodLogInput, FoodLog> {
 
     // 3. Apply updates
     final updated = existing.copyWith(
+      mealType: input.mealType ?? existing.mealType,
       foodItemIds: input.foodItemIds ?? existing.foodItemIds,
       adHocItems: input.adHocItems ?? existing.adHocItems,
       notes: input.notes ?? existing.notes,

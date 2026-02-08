@@ -4,4 +4,5 @@
 export 'get_intake_logs_use_case.dart';
 export 'intake_log_inputs.dart';
 export 'mark_skipped_use_case.dart';
+export 'mark_snoozed_use_case.dart';
 export 'mark_taken_use_case.dart';

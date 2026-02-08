@@ -25,6 +25,8 @@ class IntakeLogs extends Table {
   IntColumn get actualTime => integer().named('actual_time').nullable()();
   TextColumn get reason => text().nullable()();
   TextColumn get note => text().nullable()();
+  IntColumn get snoozeDurationMinutes =>
+      integer().named('snooze_duration_minutes').nullable()();
 
   // Sync metadata columns (required on all syncable entities)
   IntColumn get syncCreatedAt => integer().named('sync_created_at')();

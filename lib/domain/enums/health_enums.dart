@@ -19,11 +19,12 @@ enum BowelCondition {
 enum UrineCondition {
   clear(0),
   lightYellow(1),
-  darkYellow(2),
-  amber(3),
-  brown(4),
-  red(5),
-  custom(6);
+  yellow(2),
+  darkYellow(3),
+  amber(4),
+  brown(5),
+  red(6),
+  custom(7);
 
   final int value;
   const UrineCondition(this.value);
@@ -411,7 +412,8 @@ enum IntakeLogStatus {
   pending(0),
   taken(1),
   skipped(2),
-  missed(3);
+  missed(3),
+  snoozed(4);
 
   final int value;
   const IntakeLogStatus(this.value);
@@ -431,6 +433,21 @@ enum ConditionStatus {
 
   static ConditionStatus fromValue(int value) => ConditionStatus.values
       .firstWhere((e) => e.value == value, orElse: () => active);
+}
+
+// === Meal Type (38_UI_FIELD_SPECIFICATIONS.md Section 5.1) ===
+
+enum MealType {
+  breakfast(0),
+  lunch(1),
+  dinner(2),
+  snack(3);
+
+  final int value;
+  const MealType(this.value);
+
+  static MealType fromValue(int value) =>
+      MealType.values.firstWhere((e) => e.value == value, orElse: () => snack);
 }
 
 // === Food Enums (22_API_CONTRACTS.md Section 10.11) ===

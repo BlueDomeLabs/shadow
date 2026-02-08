@@ -540,9 +540,10 @@ CREATE TABLE intake_logs (
   supplement_id TEXT NOT NULL,
   scheduled_time INTEGER NOT NULL,
   actual_time INTEGER,
-  status INTEGER NOT NULL,         -- 0: pending, 1: taken, 2: skipped, 3: missed
+  status INTEGER NOT NULL,         -- 0: pending, 1: taken, 2: skipped, 3: missed, 4: snoozed
   reason TEXT,
   note TEXT,
+  snooze_duration_minutes INTEGER, -- 5/10/15/30/60 min when status=snoozed
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -627,6 +628,7 @@ CREATE TABLE food_logs (
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
   timestamp INTEGER NOT NULL,
+  meal_type INTEGER,               -- 0: breakfast, 1: lunch, 2: dinner, 3: snack (nullable)
   food_item_ids TEXT NOT NULL,     -- Comma-separated IDs
   ad_hoc_items TEXT NOT NULL,      -- Comma-separated names
   notes TEXT,
@@ -868,6 +870,7 @@ CREATE TABLE conditions (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   body_locations TEXT NOT NULL,    -- JSON array
+  triggers TEXT DEFAULT '[]',     -- JSON array of predefined trigger strings
   description TEXT,
   baseline_photo_path TEXT,
   start_timeframe INTEGER NOT NULL,  -- Epoch milliseconds (consistent with other timestamps)
@@ -1041,22 +1044,22 @@ CREATE TABLE fluids_entries (
   id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
-  timestamp INTEGER NOT NULL,
+  entry_date INTEGER NOT NULL,     -- Epoch milliseconds (maps to entity field entryDate)
 
   -- Water intake tracking
   water_intake_ml INTEGER,         -- Water consumed in milliliters
   water_intake_notes TEXT,         -- Optional notes about water intake
 
   -- Bowel tracking
-  has_bowel_movement INTEGER NOT NULL,
-  bowel_condition INTEGER,         -- BowelCondition: 0=normal, 1=diarrhea, 2=constipation, 3=bloody, 4=mucusy, 5=custom
+  has_bowel_movement INTEGER DEFAULT 0,
+  bowel_condition INTEGER,         -- BowelCondition: 0=diarrhea, 1=runny, 2=loose, 3=normal, 4=firm, 5=hard, 6=custom
   bowel_custom_condition TEXT,
   bowel_size INTEGER,              -- 0: tiny, 1: small, 2: medium, 3: large, 4: huge
   bowel_photo_path TEXT,
 
   -- Urine tracking
-  has_urine_movement INTEGER NOT NULL,
-  urine_condition INTEGER,         -- UrineCondition: 0=clear, 1=lightYellow, 2=darkYellow, 3=amber, 4=brown, 5=red, 6=custom
+  has_urine_movement INTEGER DEFAULT 0,
+  urine_condition INTEGER,         -- UrineCondition: 0=clear, 1=lightYellow, 2=yellow, 3=darkYellow, 4=amber, 5=brown, 6=red, 7=custom
   urine_custom_condition TEXT,
   urine_size INTEGER,
   urine_photo_path TEXT,
@@ -1073,11 +1076,19 @@ CREATE TABLE fluids_entries (
   other_fluid_amount TEXT,         -- User-defined amount description
   other_fluid_notes TEXT,          -- Notes about the custom fluid
 
-  -- File sync metadata (for bowel photo)
+  -- Import tracking
+  import_source TEXT,              -- Source of imported data (e.g., wearable platform)
+  import_external_id TEXT,         -- External ID from import source
+
+  -- File sync metadata (for bowel/urine photos)
   cloud_storage_url TEXT,
   file_hash TEXT,
   file_size_bytes INTEGER,
   is_file_uploaded INTEGER DEFAULT 0,
+
+  -- General
+  notes TEXT DEFAULT '',           -- Free-text notes
+  photo_ids TEXT DEFAULT '[]',     -- JSON array of photo IDs
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -1093,11 +1104,11 @@ CREATE TABLE fluids_entries (
   FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_fluids_timestamp ON fluids_entries(timestamp DESC);
-CREATE INDEX idx_fluids_profile_date ON fluids_entries(profile_id, timestamp DESC);
+CREATE INDEX idx_fluids_timestamp ON fluids_entries(entry_date DESC);
+CREATE INDEX idx_fluids_profile_date ON fluids_entries(profile_id, entry_date DESC);
 CREATE INDEX idx_fluids_sync ON fluids_entries(sync_is_dirty, sync_status)
   WHERE sync_deleted_at IS NULL;
-CREATE INDEX idx_fluids_menstruation ON fluids_entries(profile_id, menstruation_flow, timestamp DESC)
+CREATE INDEX idx_fluids_menstruation ON fluids_entries(profile_id, menstruation_flow, entry_date DESC)
   WHERE menstruation_flow IS NOT NULL AND menstruation_flow > 0;
 CREATE INDEX idx_fluids_bbt ON fluids_entries(profile_id, bbt_recorded_time DESC)
   WHERE basal_body_temperature IS NOT NULL;

@@ -28,14 +28,15 @@ void main() {
   });
 
   group('UrineCondition', () {
-    test('has correct integer values (0-6)', () {
+    test('has correct integer values (0-7)', () {
       expect(UrineCondition.clear.value, equals(0));
       expect(UrineCondition.lightYellow.value, equals(1));
-      expect(UrineCondition.darkYellow.value, equals(2));
-      expect(UrineCondition.amber.value, equals(3));
-      expect(UrineCondition.brown.value, equals(4));
-      expect(UrineCondition.red.value, equals(5));
-      expect(UrineCondition.custom.value, equals(6));
+      expect(UrineCondition.yellow.value, equals(2));
+      expect(UrineCondition.darkYellow.value, equals(3));
+      expect(UrineCondition.amber.value, equals(4));
+      expect(UrineCondition.brown.value, equals(5));
+      expect(UrineCondition.red.value, equals(6));
+      expect(UrineCondition.custom.value, equals(7));
     });
 
     test('fromValue returns lightYellow for invalid value', () {

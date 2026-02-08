@@ -42,6 +42,7 @@ class LogFoodUseCase implements UseCase<LogFoodInput, FoodLog> {
       clientId: input.clientId,
       profileId: input.profileId,
       timestamp: input.timestamp,
+      mealType: input.mealType,
       foodItemIds: input.foodItemIds,
       adHocItems: input.adHocItems,
       notes: input.notes.isEmpty ? null : input.notes,

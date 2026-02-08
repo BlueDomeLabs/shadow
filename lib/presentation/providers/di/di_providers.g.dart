@@ -457,6 +457,27 @@ final markSkippedUseCaseProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef MarkSkippedUseCaseRef = AutoDisposeProviderRef<MarkSkippedUseCase>;
+String _$markSnoozedUseCaseHash() =>
+    r'a87aad710c3f0a0e6f5335048c8c70eb96d5d33e';
+
+/// MarkSnoozedUseCase provider.
+///
+/// Copied from [markSnoozedUseCase].
+@ProviderFor(markSnoozedUseCase)
+final markSnoozedUseCaseProvider =
+    AutoDisposeProvider<MarkSnoozedUseCase>.internal(
+      markSnoozedUseCase,
+      name: r'markSnoozedUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$markSnoozedUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef MarkSnoozedUseCaseRef = AutoDisposeProviderRef<MarkSnoozedUseCase>;
 String _$getConditionsUseCaseHash() =>
     r'1555819342acdccfa9a7de6ca0860a585f23e7c2';
 

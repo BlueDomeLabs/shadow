@@ -104,6 +104,7 @@ const _$MovementSizeEnumMap = {
 const _$UrineConditionEnumMap = {
   UrineCondition.clear: 'clear',
   UrineCondition.lightYellow: 'lightYellow',
+  UrineCondition.yellow: 'yellow',
   UrineCondition.darkYellow: 'darkYellow',
   UrineCondition.amber: 'amber',
   UrineCondition.brown: 'brown',

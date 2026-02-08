@@ -50,6 +50,7 @@ class CreateConditionUseCase
       name: input.name,
       category: input.category,
       bodyLocations: input.bodyLocations,
+      triggers: input.triggers,
       description: input.description,
       baselinePhotoPath: input.baselinePhotoPath,
       startTimeframe: input.startTimeframe,
