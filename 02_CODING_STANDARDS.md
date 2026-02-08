@@ -1,7 +1,7 @@
 # Shadow Coding Standards
 
-**Version:** 1.0
-**Last Updated:** January 30, 2026
+**Version:** 1.1
+**Last Updated:** February 7, 2026
 **Compliance:** MANDATORY - All code must meet these standards before merge
 
 ---
@@ -155,11 +155,11 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
 | Operation | Method Name | Returns | On Failure |
 |-----------|-------------|---------|------------|
 | Get all | `getAll{Entity}s` | `Result<List<Entity>, AppError>` | `DatabaseError` |
-| Get by ID | `getById` | `Result<Entity, AppError>` | `NotFoundError` |
+| Get by ID | `getById` | `Result<Entity, AppError>` | `DatabaseError.notFound()` |
 | Create | `create` | `Result<Entity, AppError>` | `ValidationError`, `DatabaseError` |
-| Update | `update` | `Result<Entity, AppError>` | `NotFoundError`, `ValidationError` |
-| Delete (soft) | `delete` | `Result<void, AppError>` | `NotFoundError` |
-| Delete (hard) | `hardDelete` | `Result<void, AppError>` | `NotFoundError` |
+| Update | `update` | `Result<Entity, AppError>` | `DatabaseError.notFound()`, `ValidationError` |
+| Delete (soft) | `delete` | `Result<void, AppError>` | `DatabaseError.notFound()` |
+| Delete (hard) | `hardDelete` | `Result<void, AppError>` | `DatabaseError.notFound()` |
 
 **Method Naming Patterns:**
 - **Pattern A (Specific):** `getAllSupplements()` - when type is part of method name
@@ -438,7 +438,9 @@ class Supplement with _$Supplement {
 }
 ```
 
-**The `const Entity._()` private constructor is REQUIRED to support computed properties/getters. Without it, you cannot define custom methods on the frozen class.**
+**The `const Entity._()` private constructor is REQUIRED on ALL @freezed entity classes.** This is a proactive design requirement - adding a private constructor later is a breaking change that requires modifying the class and regenerating all consumers. Even entities without computed properties today may need them tomorrow. Adding the constructor upfront is zero-cost insurance.
+
+> **Rule 5.0.1:** Every `@freezed` entity class MUST include `const ClassName._();` as the FIRST declaration inside the class body, BEFORE the factory constructor. Input DTOs, Result types, and UI state classes are exempt - this rule applies to persisted entities and domain objects.
 
 ```dart
 // CORRECT: With private constructor - can add getters
@@ -513,6 +515,22 @@ class Supplement with _$Supplement {
 > - Storage: `int` epoch milliseconds
 > - Conversion: Use `DateTime.now().millisecondsSinceEpoch` to create, `DateTime.fromMillisecondsSinceEpoch(value, isUtc: true)` to display
 > - Timezone: Always UTC for storage; convert to local only in UI layer
+>
+> **Rule 5.2.1: DateTime.now() Pre-Computation**
+> In use case `call()` methods, `DateTime.now()` MUST be pre-computed ONCE at the top of the method and reused throughout. This ensures transactional consistency - all timestamps in a single operation reflect the same instant.
+> ```dart
+> // CORRECT: Pre-compute once
+> Future<Result<Entity, AppError>> call(Input input) async {
+>   final now = DateTime.now().millisecondsSinceEpoch;
+>   // ... use `now` for syncCreatedAt, syncUpdatedAt, etc.
+> }
+>
+> // INCORRECT: Multiple DateTime.now() calls
+> syncMetadata: existing.syncMetadata.copyWith(
+>   syncUpdatedAt: DateTime.now().millisecondsSinceEpoch, // BAD
+> )
+> ```
+> Helper methods (SyncMetadata.markModified, validation helpers) and computed properties are exempt from this rule.
 
 ```dart
 @freezed
@@ -1260,6 +1278,24 @@ await db.transaction((txn) async {
 > **CANONICAL:** See `22_API_CONTRACTS.md` Section 3.1 for authoritative SyncMetadata definition.
 
 ```dart
+> **Rule 9.1.1: Enum Integer Values**
+> ALL enums that are stored in a database column MUST have explicit integer values for stable serialization. Without explicit values, adding, removing, or reordering enum members silently corrupts existing data. UI-only enums (e.g., ButtonVariant) that are never persisted are exempt.
+>
+> ```dart
+> // CORRECT: Explicit integer values for database storage
+> enum MyEnum {
+>   valueA(0),
+>   valueB(1),
+>   valueC(2);
+>
+>   final int value;
+>   const MyEnum(this.value);
+> }
+>
+> // INCORRECT: Implicit ordering - breaks on reorder/insert
+> enum MyEnum { valueA, valueB, valueC }
+> ```
+
 /// Sync status values - MUST match database INTEGER values exactly
 enum SyncStatus {
   pending(0),    // Never synced or awaiting sync
@@ -1343,7 +1379,7 @@ Future<Result<void, AppError>> delete(String id) async {
   try {
     final entity = await localDataSource.getById(id);
     if (entity == null) {
-      return Result.failure(NotFoundError(entityType: 'Supplement', entityId: id));
+      return Result.failure(DatabaseError.notFound('Supplement', id));
     }
 
     final deleted = entity.copyWith(
@@ -2267,8 +2303,29 @@ Before approving any PR, verify these essential items (see `24_CODE_REVIEW_CHECK
 
 ---
 
+## 16. Specification Document Standards
+
+### 16.1 Code Examples in Specifications
+
+All code examples in specification documents MUST follow these coding standards. Code examples serve as reference implementations - incorrect examples teach incorrect patterns.
+
+> **Rule 16.1.1:** Every code example in any specification document (22_API_CONTRACTS.md, 42_INTELLIGENCE_SYSTEM.md, 35_QR_DEVICE_PAIRING.md, etc.) MUST use `int` (epoch milliseconds) for timestamps, never `DateTime`. Code examples that use `DateTime.now()` directly in entity fields violate Section 5.2.
+>
+> **Rule 16.1.2:** Every enum definition in any specification document that represents a database-stored value MUST include explicit integer values per Rule 9.1.1.
+>
+> **Rule 16.1.3:** Error handling in code examples MUST use semantic factory methods per Section 7.2, never direct constructors.
+
+### 16.2 Single Source of Truth
+
+> **Rule 16.2.1:** Each enum, entity, repository, and use case MUST be defined in exactly ONE canonical location in `22_API_CONTRACTS.md`. Other specification documents that reference these definitions MUST use cross-references (e.g., "See Section 3.3") rather than duplicating the definition. Duplicate definitions create drift risk and maintenance burden.
+>
+> **Rule 16.2.2:** If a secondary document needs to show an enum or entity for context, it should use a comment: `// See 22_API_CONTRACTS.md Section X.X for canonical definition` rather than repeating the full definition.
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-02-07 | Added Rules 5.0.1 (private constructors on all entities), 5.2.1 (DateTime pre-computation), 9.1.1 (enum int values for all DB enums), 16.1-16.2 (specification document standards). Fixed NotFoundError → DatabaseError.notFound() in method table and code example. |
 | 1.0 | 2026-01-30 | Initial release |
