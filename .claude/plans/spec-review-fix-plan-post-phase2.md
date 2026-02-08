@@ -356,6 +356,91 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## CRITICAL: Auth & Wearable Error Factory + Input Contradictions (8 items)
+
+### Fix 47: UserAccount entity — `lastLoginAt` should be `lastSignInAt` (line 11736 vs 6757/6780)
+- **Entity (line 11736):** `int? lastLoginAt,`
+- **Use case (lines 6757, 6780):** `lastSignInAt: now,`
+- **Fix:** Change entity field from `lastLoginAt` to `lastSignInAt` (OAuth uses "sign in", not "login")
+- **Also update mapping table** if it references `lastLoginAt`
+
+### Fix 48: AuthError — missing `invalidToken` factory (line 6732)
+- **Use case:** `AuthError.invalidToken('Google token verification failed')`
+- **AuthError class (253-302):** No such factory
+- **Fix:** Add after line 271 (after `tokenExpired`):
+  ```dart
+  static const String codeInvalidToken = 'AUTH_INVALID_TOKEN';
+
+  factory AuthError.invalidToken(String reason) => AuthError._(
+    code: codeInvalidToken,
+    message: 'Invalid token: $reason',
+    userMessage: 'Authentication failed. Please sign in again.',
+  );
+  ```
+
+### Fix 49: AuthError — missing `accountDeactivated` factory (line 6753)
+- **Use case:** `AuthError.accountDeactivated(user.deactivatedReason)`
+- **AuthError class (253-302):** No such factory
+- **Fix:** Add after `invalidToken` factory:
+  ```dart
+  static const String codeAccountDeactivated = 'AUTH_ACCOUNT_DEACTIVATED';
+
+  factory AuthError.accountDeactivated(String? reason) => AuthError._(
+    code: codeAccountDeactivated,
+    message: 'Account deactivated: ${reason ?? 'No reason given'}',
+    userMessage: 'This account has been deactivated.',
+    isRecoverable: false,
+    recoveryAction: RecoveryAction.none,
+  );
+  ```
+
+### Fix 50: SyncWearableDataInput — missing 4 fields used by use case (line 10188 vs 6438-6467)
+- **Input (10188-10193):** Only has `{profileId, platform, sinceEpoch}`
+- **Use case references:** `input.clientId` (6467), `input.startDate` (6438), `input.endDate` (6440), `input.dataTypes` (6448)
+- **Fix:** Replace input definition with:
+  ```dart
+  const factory SyncWearableDataInput({
+    required String profileId,
+    required String clientId,
+    required WearablePlatform platform,
+    int? startDate,          // Epoch ms, null uses connection.lastSyncAt
+    int? endDate,            // Epoch ms, null uses current time
+    @Default([]) List<String> dataTypes,  // Empty = use connection.readPermissions
+  }) = _SyncWearableDataInput;
+  ```
+
+### Fix 51: ConnectWearableInput — missing `enableBackgroundSync` field (line 10167 vs 6336)
+- **Input (10167-10173):** `{profileId, clientId, platform, requestedPermissions}`
+- **Use case (line 6336):** `backgroundSyncEnabled: input.enableBackgroundSync`
+- **Fix:** Add `@Default(false) bool enableBackgroundSync,` to ConnectWearableInput
+
+### Fix 52: WearableError — missing `notConnected` factory (line 6433)
+- **Use case:** `WearableError.notConnected(input.platform)`
+- **WearableError class (555-637):** No such factory
+- **Fix:** Add `notConnected` factory and `codeNotConnected` constant:
+  ```dart
+  static const String codeNotConnected = 'WEARABLE_NOT_CONNECTED';
+
+  factory WearableError.notConnected(String platform) =>
+    WearableError._(
+      code: codeNotConnected,
+      message: '$platform is not connected',
+      userMessage: '$platform is not connected. Please connect first.',
+    );
+  ```
+
+### Fix 53: WearableError.platformNotAvailable — wrong factory name in use case (line 6301)
+- **Use case (line 6301):** `WearableError.platformNotAvailable(input.platform)`
+- **Actual factory (line 589):** `WearableError.platformUnavailable(platform)`
+- **Fix:** Change use case to `WearableError.platformUnavailable(input.platform.name)`
+
+### Fix 54: WearableError.permissionsDenied — wrong name + wrong arg count (line 6315)
+- **Use case (line 6315):** `WearableError.permissionsDenied(input.platform)` — 1 arg, plural
+- **Actual factory (line 631):** `WearableError.permissionDenied(String platform, String permission)` — 2 args, singular
+- **Fix:** Change to `WearableError.permissionDenied(input.platform.name, 'health data access')`
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -375,13 +460,15 @@ The following decisions were made by the user on 2026-02-08:
 **Phase 2: Unchecked Results (Fixes 6-12)** — 7 edits adding result capture + failure checks
 **Phase 3: DateTime (Fixes 13-14)** — 2 edits
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
-**Phase 5: Entity definition gaps (Fixes 28-29, 41)** — Add missing fields to Profile, Pattern, HealthInsight entities
-**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44)** — Fix field names and missing args in use case code
+**Phase 5: Entity definition gaps (Fixes 28-29, 41, 47)** — Add missing fields to Profile, Pattern, HealthInsight; fix UserAccount `lastLoginAt`→`lastSignInAt`
+**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44, 53, 54)** — Fix field names and missing args in use case code
 **Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
 **Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
 **Phase 9: Wearable import contradictions (Fixes 36, 38, 43)** — Fix ImportedDataLog entity, add missing fields/methods
 **Phase 10: Repository signature fixes (Fixes 39, 42)** — Fix findSimilar signature, add getByProfile
-**Phase 11: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
+**Phase 11: Missing error factories (Fixes 48-49, 52)** — Add AuthError.invalidToken, AuthError.accountDeactivated, WearableError.notConnected
+**Phase 12: Missing input fields (Fixes 50-51)** — Add fields to SyncWearableDataInput and ConnectWearableInput
+**Phase 13: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
 
 **All changes are spec-text-only.** No implementation code changes needed. No tests affected.
 
@@ -389,7 +476,7 @@ The following decisions were made by the user on 2026-02-08:
 
 ## Estimated Scope
 
-- 46 targeted edits to 22_API_CONTRACTS.md
+- 54 targeted edits to 22_API_CONTRACTS.md
 - 0 implementation changes
 - 0 test changes
 - Expected next /spec-review result: 0 violations
