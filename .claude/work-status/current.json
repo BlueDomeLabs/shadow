@@ -1,17 +1,14 @@
 {
-  "lastInstanceId": "spec-fix-exec-002",
+  "lastInstanceId": "spec-fix-convergence-003",
   "lastAction": "handoff",
   "taskId": "SPEC-FIX-EXECUTE",
   "status": "in_progress",
-  "timestamp": "2026-02-08T18:00:00Z",
+  "timestamp": "2026-02-08T19:30:00Z",
   "filesModified": [
-    "22_API_CONTRACTS.md",
-    "lib/core/errors/app_error.dart",
-    "lib/domain/entities/supplement.dart",
-    "lib/domain/entities/supplement.freezed.dart",
-    "lib/domain/enums/health_enums.dart"
+    ".claude/plans/spec-review-fix-plan-post-phase2.md",
+    ".claude/audit-reports/2026-02-08-spec-review-convergence.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Phases 1-2 COMPLETE (committed b372957). Post-Phase-2 /spec-review found ~21 remaining violations in 22_API_CONTRACTS.md. Fix plan created at .claude/plans/spec-review-fix-plan-post-phase2.md. NEXT STEPS: 1) Execute the post-Phase-2 fix plan (~21 edits to 22_API_CONTRACTS.md: 5 error types, 6 unchecked Results, 1 duplicate removal, 3 enum int values, 4 cross-refs, 2 section renumbers). 2) Run /spec-review again to verify. 3) Then proceed with Phase 3 of original plan (secondary docs ~170 edits) at .claude/plans/spec-fix-plan.md. 1205 tests passing, 0 analyzer issues."
+  "notes": "Two convergence /spec-review passes COMPLETE. Fix plan finalized at .claude/plans/spec-review-fix-plan-post-phase2.md with 35 items (all user decisions resolved, all spec-text-only edits to 22_API_CONTRACTS.md). Committed as dbb763e. NEXT STEPS: 1) Execute the 35-item fix plan SERIALLY (user explicitly prefers NO parallel agents for spec work). The plan has 8 phases: error types (5), unchecked Results (7), DateTime (2), duplicates+field names (2), entity definition gaps (2), use case field name (1), mapping tables (10), cross-refs+numbering (6). 2) Run /spec-review to verify convergence to 0 violations. 3) Then proceed with Phase 3 of original plan (~170 edits across 10 secondary docs) at .claude/plans/spec-fix-plan.md. 1205 tests passing, 0 analyzer issues."
 }
