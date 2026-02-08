@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
@@ -547,11 +548,15 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save supplement: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {

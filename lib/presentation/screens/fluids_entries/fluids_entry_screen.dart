@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecases.dart';
@@ -1255,11 +1256,15 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save fluids entry: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {

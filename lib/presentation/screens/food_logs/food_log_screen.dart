@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
@@ -565,11 +566,15 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save food log: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {

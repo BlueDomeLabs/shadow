@@ -1809,7 +1809,7 @@ abstract class BaseLocalDataSource<T extends Syncable, M extends Model<T>> {
       return getById(id);
     } catch (e, stack) {
       if (e.toString().contains('UNIQUE constraint failed')) {
-        return Failure(DatabaseError.duplicateEntry(_tableName, entity.id));
+        return Failure(DatabaseError.constraintViolation('Duplicate ID: ${entity.id}'));
       }
       return Failure(DatabaseError.insertFailed(_tableName, e.toString(), stack));
     }
@@ -2002,27 +2002,7 @@ abstract class FluidsEntryRepository implements EntityRepository<FluidsEntry, St
   Future<Result<FluidsEntry?, AppError>> getTodayEntry(String profileId);
 }
 
-// lib/domain/repositories/notification_schedule_repository.dart
-
-abstract class NotificationScheduleRepository
-    implements EntityRepository<NotificationSchedule, String> {
-  /// Get all enabled schedules for a profile.
-  Future<Result<List<NotificationSchedule>, AppError>> getEnabled(
-    String profileId,
-  );
-
-  /// Get schedules by type.
-  Future<Result<List<NotificationSchedule>, AppError>> getByType(
-    String profileId,
-    NotificationType type,
-  );
-
-  /// Get schedule linked to specific entity (e.g., supplement).
-  Future<Result<NotificationSchedule?, AppError>> getByEntityId(
-    String profileId,
-    String entityId,
-  );
-}
+// NOTE: NotificationScheduleRepository is defined in Section 8.2 below
 ```
 
 ---
@@ -4830,11 +4810,7 @@ class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
         syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
       ),
     );
 
@@ -5871,11 +5847,7 @@ class ScheduleNotificationUseCase
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
         syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
       ),
     );
 
@@ -6279,11 +6251,7 @@ class ConnectWearableUseCase
         syncMetadata: SyncMetadata(
           syncCreatedAt: now,
           syncUpdatedAt: now,
-          syncVersion: 1,
-          syncStatus: SyncStatus.pending,
           syncDeviceId: '',
-          syncIsDirty: true,
-          syncDeletedAt: null,
         ),
       );
       return _repository.create(connection);
@@ -6436,11 +6404,7 @@ class SyncWearableDataUseCase
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
         syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
       ),
     );
     await _importLogRepository.create(importLog);
@@ -6523,6 +6487,7 @@ class SyncWearableDataUseCase
     String clientId,
     WearableSleep sleep,
   ) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
     // Similar pattern to _importActivity
     final existing = await _sleepRepository.getByExternalId(
       profileId,
@@ -6543,13 +6508,9 @@ class SyncWearableDataUseCase
       externalId: sleep.externalId,
       importSource: sleep.source,
       syncMetadata: SyncMetadata(
-        syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncVersion: 1,
-        syncStatus: SyncStatus.pending,
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
         syncDeviceId: '',
-        syncIsDirty: true,
-        syncDeletedAt: null,
       ),
     );
 
@@ -6561,6 +6522,7 @@ class SyncWearableDataUseCase
     String clientId,
     WearableWaterIntake water,
   ) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
     // For water, we merge into existing daily entries
     final dayStart = _startOfDay(water.loggedAt);
     final dayEnd = dayStart + Duration.millisecondsPerDay;
@@ -6578,7 +6540,7 @@ class SyncWearableDataUseCase
       final updated = existing.copyWith(
         waterIntakeMl: currentWater + water.amountMl,
         syncMetadata: existing.syncMetadata.copyWith(
-          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncUpdatedAt: now,
           syncVersion: existing.syncMetadata.syncVersion + 1,
           syncIsDirty: true,
         ),
@@ -6593,13 +6555,9 @@ class SyncWearableDataUseCase
         entryDate: water.loggedAt,
         waterIntakeMl: water.amountMl,
         syncMetadata: SyncMetadata(
-          syncCreatedAt: DateTime.now().millisecondsSinceEpoch,
-          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
-          syncVersion: 1,
-          syncStatus: SyncStatus.pending,
+          syncCreatedAt: now,
+          syncUpdatedAt: now,
           syncDeviceId: '',
-          syncIsDirty: true,
-          syncDeletedAt: null,
         ),
       );
       return _fluidsRepository.create(entry);
@@ -6708,11 +6666,7 @@ class SignInWithGoogleUseCase implements UseCase<SignInWithGoogleInput, SignInRe
         syncMetadata: SyncMetadata(
           syncCreatedAt: now,
           syncUpdatedAt: now,
-          syncVersion: 1,
-          syncStatus: SyncStatus.pending,
           syncDeviceId: '',
-          syncIsDirty: true,
-          syncDeletedAt: null,
         ),
       );
 
@@ -6736,11 +6690,7 @@ class SignInWithGoogleUseCase implements UseCase<SignInWithGoogleInput, SignInRe
         syncMetadata: SyncMetadata(
           syncCreatedAt: now,
           syncUpdatedAt: now,
-          syncVersion: 1,
-          syncStatus: SyncStatus.pending,
           syncDeviceId: '',
-          syncIsDirty: true,
-          syncDeletedAt: null,
         ),
       );
       await _profileRepository.create(defaultProfile);
@@ -7095,6 +7045,8 @@ class Supplement with _$Supplement {
 
 // lib/domain/entities/supplement_ingredient.dart
 
+/// VALUE OBJECT - Embedded in Supplement entity, not a standalone entity.
+/// Does not require id, clientId, profileId, or syncMetadata.
 /// Ingredient in a supplement (e.g., Vitamin D3, Magnesium Citrate)
 @freezed
 class SupplementIngredient with _$SupplementIngredient {
@@ -9703,7 +9655,7 @@ class HealthInsight with _$HealthInsight {
     required String clientId,
     required String profileId,
     required InsightCategory category,
-    required InsightPriority priority,
+    required AlertPriority priority,
     required String title,
     required String description,
     String? recommendation,
@@ -9718,8 +9670,10 @@ class HealthInsight with _$HealthInsight {
   }) = _HealthInsight;
 }
 
-// NOTE: InsightCategory and InsightPriority enums are defined in Section 3.2 above
+// NOTE: InsightCategory and AlertPriority enums are defined in Section 3.2 above
 
+/// VALUE OBJECT - Embedded in HealthInsight entity, not a standalone entity.
+/// Does not require id, clientId, profileId, or syncMetadata.
 /// Evidence supporting a health insight
 @freezed
 class InsightEvidence with _$InsightEvidence {
@@ -9764,6 +9718,8 @@ class PredictiveAlert with _$PredictiveAlert {
 
 enum PredictionType { flareUp, menstrualStart, ovulation, triggerExposure, missedSupplement, poorSleep }
 
+/// VALUE OBJECT - Embedded in PredictiveAlert entity, not a standalone entity.
+/// Does not require id, clientId, profileId, or syncMetadata.
 /// Factor contributing to a predictive alert
 @freezed
 class PredictionFactor with _$PredictionFactor {
@@ -9784,7 +9740,7 @@ class PredictionFactor with _$PredictionFactor {
 ### Intelligence Repository Contracts
 
 ```dart
-abstract class PatternRepository extends BaseRepository<Pattern, String> {
+abstract class PatternRepository implements EntityRepository<Pattern, String> {
   Future<Result<List<Pattern>, AppError>> getByProfile(
     String profileId, {
     PatternType? type,
@@ -9801,7 +9757,7 @@ abstract class PatternRepository extends BaseRepository<Pattern, String> {
   });
 }
 
-abstract class TriggerCorrelationRepository extends BaseRepository<TriggerCorrelation, String> {
+abstract class TriggerCorrelationRepository implements EntityRepository<TriggerCorrelation, String> {
   Future<Result<List<TriggerCorrelation>, AppError>> getByProfile(
     String profileId, {
     CorrelationType? type,
@@ -9812,17 +9768,17 @@ abstract class TriggerCorrelationRepository extends BaseRepository<TriggerCorrel
   Future<Result<List<TriggerCorrelation>, AppError>> getPositive(String profileId, String outcomeId);
 }
 
-abstract class HealthInsightRepository extends BaseRepository<HealthInsight, String> {
+abstract class HealthInsightRepository implements EntityRepository<HealthInsight, String> {
   Future<Result<List<HealthInsight>, AppError>> getActive(
     String profileId, {
     InsightCategory? category,
-    InsightPriority? minPriority,
+    AlertPriority? minPriority,
     int? limit,
   });
   Future<Result<void, AppError>> dismiss(String id);
 }
 
-abstract class PredictiveAlertRepository extends BaseRepository<PredictiveAlert, String> {
+abstract class PredictiveAlertRepository implements EntityRepository<PredictiveAlert, String> {
   Future<Result<List<PredictiveAlert>, AppError>> getPending(String profileId, {PredictionType? type});
   Future<Result<void, AppError>> acknowledge(String id);
   Future<Result<void, AppError>> recordOutcome(String id, bool occurred, int? occurredAt);  // Epoch ms
@@ -10360,6 +10316,8 @@ class GetPendingNotificationsInput with _$GetPendingNotificationsInput {
       _$GetPendingNotificationsInputFromJson(json);
 }
 
+/// OUTPUT DTO - Computed from NotificationSchedule, not a persistent entity.
+/// Does not require id, clientId, profileId, or syncMetadata.
 @freezed
 class PendingNotification with _$PendingNotification {
   const factory PendingNotification({
@@ -10781,8 +10739,15 @@ abstract class ConditionCategoryRepository implements EntityRepository<Condition
 }
 
 /// Repository for food item categories
+/// NOTE: getAll() returns all categories (system + user-defined) without profileId filter.
+/// See Section 15.7 for exemption documentation.
 abstract class FoodItemCategoryRepository implements EntityRepository<FoodItemCategory, String> {
-  Future<Result<List<FoodItemCategory>, AppError>> getAll();
+  @override
+  Future<Result<List<FoodItemCategory>, AppError>> getAll({
+    String? profileId,
+    int? limit,
+    int? offset,
+  });
   Future<Result<List<FoodItemCategory>, AppError>> getUserDefined(String profileId);
 }
 
@@ -12170,10 +12135,10 @@ double calculateImpact(String profileId, String dietId, FoodItem food) {
 **When `holdUntilEnd` is selected:**
 
 ```dart
-/// Ephemeral entity for quiet hours notification queuing.
-/// NOTE: This is a transient/volatile entity stored in memory or temporary table.
-/// It does NOT persist long-term and is exempt from full entity requirements
-/// per its ephemeral nature (similar to pairing_sessions).
+/// EPHEMERAL DTO - NOT a persistent entity.
+/// Used for quiet hours notification queuing. Stored in memory or temporary table.
+/// Exempt from standard entity requirements (id, syncMetadata) per Section 15.
+/// Cleared when quiet hours end - no long-term persistence.
 @freezed
 class QueuedNotification with _$QueuedNotification {
   const factory QueuedNotification({
@@ -12946,7 +12911,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | category | category | InsightCategory | INTEGER | .value (0-8) |
-| priority | priority | InsightPriority | INTEGER | .value (0=high, 1=medium, 2=low) |
+| priority | priority | AlertPriority | INTEGER | .value (0=high, 1=medium, 2=low) |
 | title | title | String | TEXT | Direct |
 | description | description | String | TEXT | Direct |
 | recommendation | recommendation | String? | TEXT | Direct |
@@ -13475,7 +13440,7 @@ Future<Result<List<T>, AppError>> getAll(String profileId) async {
 | **Standalone Entity** (own DB table) | YES | Supplement, Condition, FluidsEntry, Diet, DietRule |
 | **Embedded/Value Type** (JSON in parent) | NO | SupplementIngredient, SupplementSchedule, InsightEvidence, PredictionFactor |
 | **Input DTO** (use case input) | NO | GetSupplementsInput, LogFluidsEntryInput, CheckComplianceInput |
-| **Output/Result Type** (computed) | NO | ComplianceCheckResult, DataQualityReport, ComplianceStats |
+| **Output/Result Type** (computed) | NO | ComplianceCheckResult, DataQualityReport, ComplianceStats, ConditionTrend, TrendDataPoint |
 | **UI State Class** | NO | SupplementListState |
 | **Ephemeral Entity** (no persistence) | NO | QueuedNotification, PendingNotification |
 
@@ -13584,6 +13549,30 @@ class SupplementList extends _$SupplementList {
 | Sunday | 6 |
 
 Used in: `NotificationSchedule.weekdays`, `SupplementSchedule.weekdays`, `DietRule.daysOfWeek`
+
+### 15.7 Repository Pattern Exemptions
+
+**Standard Rule:** All repositories MUST implement `EntityRepository<T, String>` with the full CRUD + sync interface (getAll, getById, create, update, delete, hardDelete, getModifiedSince, getPendingSync).
+
+**EXCEPTION: Intelligence Repositories** — These repositories use `BaseRepositoryContract<T, String>` (which is a typedef for `EntityRepository<T, String>`, see Section 4.1). They inherit all standard CRUD + sync methods and add domain-specific query methods.
+
+| Repository | Extends | Rationale |
+|------------|---------|-----------|
+| `PatternRepository` | `BaseRepositoryContract<Pattern, String>` | Intelligence subsystem convention |
+| `TriggerCorrelationRepository` | `BaseRepositoryContract<TriggerCorrelation, String>` | Intelligence subsystem convention |
+| `HealthInsightRepository` | `BaseRepositoryContract<HealthInsight, String>` | Intelligence subsystem convention |
+| `PredictiveAlertRepository` | `BaseRepositoryContract<PredictiveAlert, String>` | Intelligence subsystem convention |
+
+**EXCEPTION: Local-Only / Special-Purpose Repositories** — These repositories do NOT implement `EntityRepository` because they have no sync requirements and serve specialized purposes.
+
+| Repository | Purpose | Missing Methods | Rationale |
+|------------|---------|-----------------|-----------|
+| `MLModelRepository` | Local ML model storage | getAll, getById, update, sync methods | Local-only, no sync needed; uses `save`/`delete`/`getLatest` |
+| `PredictionFeedbackRepository` | Local feedback storage | getAll, getById, update, delete, sync methods | Local-only, no sync needed; write-once with `create` |
+| `ProfileAccessLogRepository` | HIPAA audit trail | getAll, getById, update, delete, sync methods | Audit-only, append-only; has `create`/`getByProfile`/`getByAuthorization` |
+| `BowelUrineLogRepository` | Migration read-only | getById, create, update, delete, sync methods | Read-only for data migration; has `getAll`/`getCount` only |
+
+**EXCEPTION: Category Repositories** — `FoodItemCategoryRepository` overrides `getAll()` to return all categories (system-defined + user-defined) without requiring a profileId. Use `getUserDefined(profileId)` for profile-scoped queries.
 
 ---
 

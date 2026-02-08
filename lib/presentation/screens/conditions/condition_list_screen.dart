@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/usecases/conditions/conditions_usecases.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
@@ -348,11 +349,15 @@ class ConditionListScreen extends ConsumerWidget {
                 : 'Condition archived',
           );
         }
-      } on Exception catch (e) {
+      } on AppError catch (e) {
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: e.userMessage);
+        }
+      } on Exception {
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Failed to update condition: $e',
+            message: 'An unexpected error occurred',
           );
         }
       }

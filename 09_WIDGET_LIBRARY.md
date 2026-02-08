@@ -905,7 +905,7 @@ Dropdown selector for diet type with optional description field.
 
 ```dart
 DietTypeSelector(
-  value: DietType.vegan,
+  value: DietPresetType.vegan,
   description: null,
   onTypeChanged: (type) => setState(() => _dietType = type),
   onDescriptionChanged: (desc) => setState(() => _dietDescription = desc),
@@ -915,9 +915,9 @@ DietTypeSelector(
 **Properties:**
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `value` | `DietType?` | No | Currently selected diet type |
+| `value` | `DietPresetType?` | No | Currently selected diet type |
 | `description` | `String?` | No | Custom description (for 'other' type) |
-| `onTypeChanged` | `ValueChanged<DietType?>` | Yes | Type change callback |
+| `onTypeChanged` | `ValueChanged<DietPresetType?>` | Yes | Type change callback |
 | `onDescriptionChanged` | `ValueChanged<String?>` | No | Description callback (visible when type is 'other') |
 
 **Features:**
@@ -932,7 +932,7 @@ Display badge for current diet type.
 
 ```dart
 DietTypeBadge(
-  dietType: DietType.vegan,
+  dietType: DietPresetType.vegan,
   showIcon: true,
   size: BadgeSize.medium,
 )
@@ -941,7 +941,7 @@ DietTypeBadge(
 **Properties:**
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `dietType` | `DietType` | Yes | Diet type to display |
+| `dietType` | `DietPresetType` | Yes | Diet type to display |
 | `showIcon` | `bool` | No | Show diet icon (default: true) |
 | `size` | `BadgeSize` | No | Badge size (default: medium) |
 

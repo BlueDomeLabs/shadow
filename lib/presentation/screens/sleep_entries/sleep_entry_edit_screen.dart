@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/sleep_entries/sleep_entries_usecases.dart';
@@ -491,11 +492,15 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save sleep entry: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {

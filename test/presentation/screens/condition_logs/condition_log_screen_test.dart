@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/entities/condition_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
@@ -655,7 +656,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.textContaining('Failed to save condition log'),
+          find.text('Unable to save data. Please try again.'),
           findsOneWidget,
         );
       });
@@ -832,6 +833,6 @@ class _ErrorOnLogConditionLogList extends ConditionLogList {
 
   @override
   Future<void> log(LogConditionInput input) async {
-    throw Exception('Save failed');
+    throw DatabaseError.insertFailed('test');
   }
 }

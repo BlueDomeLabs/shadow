@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_items_usecases.dart';
@@ -338,11 +339,15 @@ class FoodItemListScreen extends ConsumerWidget {
             message: 'Food item deleted',
           );
         }
-      } on Exception catch (e) {
+      } on AppError catch (e) {
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: e.userMessage);
+        }
+      } on Exception {
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Failed to delete food item: $e',
+            message: 'An unexpected error occurred',
           );
         }
       }

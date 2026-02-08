@@ -101,53 +101,54 @@ syncMetadata: SyncMetadata(
 | 38_UI_FIELD_SPECIFICATIONS.md | 4.1 | Minor capitalization inconsistency in UI labels vs enum values | LOW |
 | 38_UI_FIELD_SPECIFICATIONS.md | 15.2 | "anchorEvent" mixed case in spec table vs snake_case in API contracts | LOW |
 
-## Phase 2: Proposed Fixes
+## Phase 2: Fixes Applied
 
-### Auto-Fix (Ready to Apply)
-| # | Spec | Location | Current | Proposed | Rationale |
-|---|------|----------|---------|----------|-----------|
-| 1 | 22_API_CONTRACTS.md | InsightPriority ref | "InsightPriority" | "AlertPriority" | Match actual enum name |
-| 2 | 22_API_CONTRACTS.md | Section 4.2 example | DatabaseError.duplicateEntry() | DatabaseError.constraintViolation() | Match actual factory |
-| 3 | 02_CODING_STANDARDS.md | Section 7.2 example | DatabaseError.fromException() | specific factory methods | Match actual pattern |
-| 4 | 22_API_CONTRACTS.md | NotificationScheduleRepo | Duplicate definition (lines 2007-2025 AND 10290-10317) | Remove lines 2007-2025 (keep more complete version) | Single source of truth |
-| 5 | 22_API_CONTRACTS.md | 5 use cases | Explicit syncVersion/syncStatus/syncIsDirty/syncDeletedAt | Remove redundant assignments, rely on @Default | DRY principle |
-| 6 | 22_API_CONTRACTS.md | QueuedNotification | Listed as entity | Reclassify as "Ephemeral DTO" with explicit note | Already documented as ephemeral |
-| 7 | 22_API_CONTRACTS.md | Value objects | SupplementIngredient, InsightEvidence, PredictionFactor unlabeled | Add explicit "Value Object" label | Clarify scope |
-| 8 | 09_WIDGET_LIBRARY.md | Section 6.7 | "DietType" | "DietPresetType" | Match actual enum name |
+### Auto-Fix (All 8 Applied)
+| # | Spec | Fix Applied | Status |
+|---|------|-------------|--------|
+| 1 | 22_API_CONTRACTS.md | InsightPriority → AlertPriority (4 occurrences) | DONE |
+| 2 | 22_API_CONTRACTS.md | DatabaseError.duplicateEntry() → constraintViolation() | DONE |
+| 3 | 02_CODING_STANDARDS.md | DatabaseError.fromException() → specific factory methods (4 occurrences) | DONE |
+| 4 | 22_API_CONTRACTS.md | Removed duplicate NotificationScheduleRepo definition | DONE |
+| 5 | 22_API_CONTRACTS.md | Removed redundant SyncMetadata assignments from 9 use case locations | DONE |
+| 6 | 22_API_CONTRACTS.md | QueuedNotification labeled as "EPHEMERAL DTO" | DONE |
+| 7 | 22_API_CONTRACTS.md | Value objects labeled (SupplementIngredient, InsightEvidence, PredictionFactor, PendingNotification) | DONE |
+| 8 | 09_WIDGET_LIBRARY.md | DietType → DietPresetType | DONE |
 
-### Requires User Decision
-| # | Spec | Location | Issue | Options |
-|---|------|----------|-------|---------|
-| 1 | Error handling | All userMessage fields | Hardcoded English strings | 1) Add localization keys now 2) Defer until i18n phase |
-| 2 | Repository pattern | 8 intelligence/local-only repos | Don't implement EntityRepository | 1) Add formal exemption in Section 15 2) Update repos to conform |
-| 3 | 10_DATABASE_SCHEMA.md | Section 2.7 vs 13 | Sync metadata contradiction for ml_models/prediction_feedback | 1) Remove sync columns (truly local-only) 2) Keep sync columns (eventually syncable) |
+### User Decision Items (All 3 Resolved)
+| # | Issue | Resolution |
+|---|-------|------------|
+| 1 | Hardcoded English strings | Deferred to i18n phase (non-blocking) |
+| 2 | 8 repos don't implement EntityRepository | Documented formal exemptions in Section 15.7; intelligence repos use BaseRepositoryContract typedef; local-only repos documented as special-purpose |
+| 3 | Schema contradiction (Section 2.7 vs 13) | Already resolved by previous instance (line 317 note); tables DO have sync columns |
 
-### Enhancement Opportunities (Not Blocking)
+### Additional Fixes Applied
+| # | Fix | Files Changed |
+|---|-----|---------------|
+| 9 | Intelligence repos: `extends BaseRepository` → `implements EntityRepository` | 22_API_CONTRACTS.md (4 repos) |
+| 10 | FoodItemCategoryRepository: getAll() signature updated to match EntityRepository interface | 22_API_CONTRACTS.md |
+| 11 | ConditionTrend added to Output Type classification in Section 15.2 | 22_API_CONTRACTS.md |
+| 12 | Screen exception handling: `on Exception catch(e)` → `on AppError catch(e)` + fallback | 12 screen files |
+| 13 | Test error mocks: `throw Exception` → `throw DatabaseError.insertFailed` | 5 test files |
+| 14 | SyncWearableDataUseCase: `DateTime.now().millisecondsSinceEpoch` → pre-computed `now` variable | 22_API_CONTRACTS.md |
+
+### Enhancement Opportunities (Deferred - Not Blocking)
 | # | Spec | Issue | Recommendation |
 |---|------|-------|----------------|
 | 1 | 38_UI_FIELD_SPECIFICATIONS.md | No widget component mapping | Add widget type column to field tables |
 | 2 | 38_UI_FIELD_SPECIFICATIONS.md | No provider mapping | Add provider reference per screen |
 | 3 | Cross-cutting | Validation layer unclear | Create validation responsibility matrix |
 | 4 | 38_UI_FIELD_SPECIFICATIONS.md | Accessibility labels incomplete | Fill gaps in Section 18 |
-| 5 | 22_API_CONTRACTS.md | Entity type labels missing | Add "Entity/Value Object/DTO/Output" labels |
-| 6 | 22_API_CONTRACTS.md | Repository exemptions undocumented | Document exemption rules in Section 15 |
-| 7 | Cross-cutting | Screen exception handling pattern | Define standard screen try-catch pattern |
 
 ## Phase 4: Integrity Issues
-- Entity-Repository alignment: PASS (all root entities have repositories)
-- Use Case-Repository alignment: PASS (use cases reference correct methods)
-- Completeness: PASS (all entities have Entity + Repository + Use Cases)
-- NotificationScheduleRepository: FAIL (duplicate definition)
+- Entity-Repository alignment: PASS
+- Use Case-Repository alignment: PASS
+- Completeness: PASS
+- NotificationScheduleRepository: PASS (duplicate removed)
 
-## Recommendations (Priority Order)
-1. **URGENT:** Resolve 10_DATABASE_SCHEMA.md sync metadata contradiction (Section 2.7 vs 13)
-2. Apply 8 auto-fix corrections to spec documents
-3. Document repository exemption rules for intelligence/local-only repos in Section 15
-4. Remove redundant SyncMetadata explicit assignments from 5 use case specs
-5. Defer localization keys to i18n implementation phase
-6. Enhancement opportunities are non-blocking - address in future spec pass
-
-## Next Steps
-- [ ] Decide on 3 user-decision items
-- [ ] Apply approved auto-fixes
+## Final Verification
+- Tests: 1205 passing, 0 failing
+- Analyzer: 0 issues
+- Formatter: Clean
+- All 30 violations resolved (23 fixed, 4 deferred as enhancements, 3 were already resolved/non-blocking)
 - [ ] Re-run /spec-review to verify

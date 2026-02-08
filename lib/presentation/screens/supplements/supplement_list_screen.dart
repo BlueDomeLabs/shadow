@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
@@ -381,11 +382,15 @@ class SupplementListScreen extends ConsumerWidget {
                 : 'Supplement archived',
           );
         }
-      } on Exception catch (e) {
+      } on AppError catch (e) {
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: e.userMessage);
+        }
+      } on Exception {
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Failed to update supplement: $e',
+            message: 'An unexpected error occurred',
           );
         }
       }

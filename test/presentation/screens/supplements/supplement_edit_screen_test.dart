@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -915,7 +916,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.textContaining('Failed to save supplement'),
+          find.text('Unable to save data. Please try again.'),
           findsOneWidget,
         );
       });
@@ -1019,6 +1020,6 @@ class _ErrorOnCreateSupplementList extends SupplementList {
 
   @override
   Future<void> create(CreateSupplementInput input) async {
-    throw Exception('Save failed');
+    throw DatabaseError.insertFailed('test');
   }
 }

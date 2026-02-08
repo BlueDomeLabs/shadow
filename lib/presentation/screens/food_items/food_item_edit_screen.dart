@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_items_usecases.dart';
@@ -289,11 +290,15 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save food item: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {

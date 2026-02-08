@@ -266,7 +266,7 @@ Future<Result<Supplement, AppError>> create(Supplement supplement) async {
     return Success(supplementWithSync);
   } catch (e, stackTrace) {
     _log.error('Create failed', e, stackTrace);
-    return Failure(DatabaseError.fromException(e));
+    return Failure(DatabaseError.insertFailed('supplements', e, stackTrace));
   }
 }
 
@@ -289,7 +289,7 @@ Future<Result<Supplement, AppError>> update(
     return Success(supplementWithSync);
   } catch (e, stackTrace) {
     _log.error('Update failed', e, stackTrace);
-    return Failure(DatabaseError.fromException(e));
+    return Failure(DatabaseError.updateFailed('supplements', supplement.id, e, stackTrace));
   }
 }
 
@@ -312,7 +312,7 @@ Future<Result<void, AppError>> delete(String id) async {
     return const Success(null);
   } catch (e, stackTrace) {
     _log.error('Delete failed', e, stackTrace);
-    return Failure(DatabaseError.fromException(e));
+    return Failure(DatabaseError.deleteFailed('supplements', id, e, stackTrace));
   }
 }
 ```
@@ -1358,7 +1358,7 @@ Future<Result<void, AppError>> delete(String id) async {
     await localDataSource.update(SupplementModel.fromEntity(deleted));
     return const Result.success(null);
   } catch (e, st) {
-    return Result.failure(DatabaseError.fromException(e, st));
+    return Result.failure(DatabaseError.deleteFailed('supplements', id, e, st));
   }
 }
 ```

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -873,7 +874,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.textContaining('Failed to save intake log'),
+          find.text('Unable to save data. Please try again.'),
           findsOneWidget,
         );
       });
@@ -924,16 +925,16 @@ class _ErrorOnSaveIntakeLogList extends IntakeLogList {
 
   @override
   Future<void> markTaken(MarkTakenInput input) async {
-    throw Exception('Save failed');
+    throw DatabaseError.insertFailed('test');
   }
 
   @override
   Future<void> markSkipped(MarkSkippedInput input) async {
-    throw Exception('Save failed');
+    throw DatabaseError.insertFailed('test');
   }
 
   @override
   Future<void> markSnoozed(MarkSnoozedInput input) async {
-    throw Exception('Save failed');
+    throw DatabaseError.insertFailed('test');
   }
 }

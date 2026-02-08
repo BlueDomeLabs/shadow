@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/entities/condition_log.dart';
 import 'package:shadow_app/domain/usecases/condition_logs/condition_logs_usecases.dart';
@@ -590,11 +591,15 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
         );
         Navigator.of(context).pop();
       }
-    } on Exception catch (e) {
+    } on AppError catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.userMessage);
+      }
+    } on Exception {
       if (mounted) {
         showAccessibleSnackBar(
           context: context,
-          message: 'Failed to save condition log: $e',
+          message: 'An unexpected error occurred',
         );
       }
     } finally {
