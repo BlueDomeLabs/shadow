@@ -2,10 +2,10 @@
 
 ## Context
 
-5 audit passes (Pass 1-5) have converged on stable violation counts. All open questions resolved. User wants ALL spec errors fixed, even those that don't affect implementation. Only 3 violations require implementation code changes (+ 1 new factory method in impl); the rest are spec-text-only.
+11 audit passes (Pass 1-11). Passes 1-7 converged on core violations. Passes 8-10 performed exhaustive mapping table audit: 24 of ~37 tables FAIL, 13 PASS. Pass 11 verified secondary doc estimates and plan consistency. 2 spec conflicts need user decision (ProfileAccessLog + AuditLog syncMetadata). User wants ALL spec errors fixed. Only 3 violations require implementation code changes (+ 1 new factory method in impl); the rest are spec-text-only.
 
 **Source of truth:** `.claude/audit-reports/2026-02-08-fresh-audit.md`
-**Verified by:** Pass 5 comparison (all items confirmed or corrected)
+**Verified by:** Passes 5-7 (convergence on core violations), Passes 8-10 (exhaustive mapping table audit + code logic errors)
 
 ---
 
@@ -37,7 +37,7 @@ flutter analyze
 
 ---
 
-## Phase 2: 22_API_CONTRACTS.md Fixes (~44 individual edits)
+## Phase 2: 22_API_CONTRACTS.md Fixes (~100 individual edits)
 
 ### Step 2.1: Entity Private Constructors (20 entities)
 
@@ -47,7 +47,7 @@ Add `const ClassName._();` before factory constructor for each:
 |---|--------|------|-------|
 | 1 | Activity | ~11258 | Spec-only (impl already has it) |
 | 2 | ActivityLog | ~11293 | Spec-only (impl already has it) |
-| 3 | SleepEntry | ~11360 | Spec-only (impl already has it) |
+| 3 | SleepEntry | ~11360 | Spec-only: MOVE existing ctor at line 11382 to before factory (impl already correct) |
 | 4 | SupplementIngredient | ~7053 | Also impl fix (Phase 1) |
 | 5 | SupplementSchedule | ~7093 | Also impl fix (Phase 1) |
 | 6 | DietRule | ~9321 | Not yet implemented |
@@ -109,6 +109,7 @@ For each, add `final now = DateTime.now();` at top of call() method and replace 
 | 5 | ComplianceCheckResult | ~9443 | ~13466 |
 | 6 | CreateDietInput | ~10117 | ~13455 |
 | 7 | SupplementListState | ~7752 | ~8126 |
+| 8 | SupplementList (3rd copy) | ~7761 | ~13520 |
 
 ### Step 2.5: Replace Undefined Error Types (4 types, 16 lines)
 
@@ -145,11 +146,68 @@ factory NetworkError.rateLimited(String operation, [Duration? retryAfter]) => Ne
 
 **Also add to implementation:** `lib/core/errors/app_error.dart` in the NetworkError class, matching the spec definition above. This is needed because the error type replacements (Step 2.5) reference NetworkError.rateLimited() which must exist in implementation for future use case implementations to compile.
 
+### Step 2.8: Pass 6-7 New Issues (6 fixes)
+
+| # | Issue | Line | Fix |
+|---|-------|------|-----|
+| 1 | Auth service contract mismatch | ~10356 | Change `canReadProfile(String profileId)` → `canRead(String profileId)` and `canWriteProfile(String profileId)` → `canWrite(String profileId)`, change return type from `Result<bool, AppError>` → `Future<bool>` to match implementation and all 37+ use case examples in spec |
+| 2 | Missing GetConditionLogsUseCase | ~8332 | Provider code references `GetConditionLogsUseCase` and `GetConditionLogsInput` which are not defined. Add use case definition following existing pattern (e.g., GetConditionByIdUseCase) |
+| 3 | Missing GetFluidsEntriesUseCase | ~8477 | Provider code references `GetFluidsEntriesUseCase` and `GetFluidsEntriesInput` which are not defined. Add use case definition following existing pattern |
+| 4 | searchExcludingCategories() missing profileId | ~5018 | Call passes `(food.name, ...)` but method signature at ~11180 requires `(String profileId, String query, ...)`. Add `profileId` as first argument |
+| 5 | DietViolation mapping table errors | ~12502 | Field listed as `notes` but entity has `message`; `ruleType` field missing from mapping table. Fix mapping to match entity definition |
+| 6 | Missing GetTodayFluidsEntryUseCase definition | ~8473 | Provider code references `getTodayFluidsEntryUseCaseProvider` but use case is not defined in spec. EXISTS in implementation at `get_fluids_entries_use_case.dart:48`. Add use case definition to spec following existing pattern |
+
+### Step 2.9: Pass 8-9 Code Logic Fixes (8 fixes)
+
+| # | Issue | Line | Fix |
+|---|-------|------|-----|
+| 1 | IntakeLogRepository markTaken/markSkipped return type mismatch | 11114-11115 vs 3780,3808 | Repository interface says `Result<void, AppError>` but data source returns `Result<IntakeLog, AppError>`. Align both to `Result<IntakeLog, AppError>` (data source pattern is correct - callers need the updated entity) |
+| 2 | ImportedDataLogRepository spec corruption | 10779-10780 | Stray `final int value; const ProfileAccessAction(this.value);` code inside repository definition. Remove these two lines |
+| 3 | Undefined upsert() on TriggerCorrelationRepository | 5397 | AnalyzeTriggersUseCase calls `_correlationRepository.upsert(correlation)` but TriggerCorrelationRepository has no `upsert()` method. Either add `upsert()` to repo interface or change call to `create()` |
+| 4 | Unchecked Result operations in use cases | 4871, 5308, 5397, 5480, 5616, 6410 | `await` calls where Result is discarded. Capture result and return Failure on error (e.g., `final result = await _dietRepository.update(deactivated); if (result.isFailure) return result;`) |
+| 5 | ActivityLogRepository.getByExternalId() missing importSource param | 6457-6459 | Call passes 2 args `(profileId, externalId)` but signature at 11327 requires 3 `(profileId, importSource, importExternalId)`. Add `activity.source` or equivalent as 2nd arg |
+| 6 | SleepEntryRepository.getByExternalId() doesn't exist | 6493 | Use case calls `_sleepRepository.getByExternalId()` but SleepEntryRepository (11390-11407) has no such method. Either add method to repo interface or use alternative dedup approach |
+| 7 | FoodLog creation missing mealType field | 2886-2899 | LogFoodUseCase creates FoodLog but never passes `mealType: input.mealType`. Add field to entity constructor call |
+| 8 | DatabaseError.updateFailed() wrong arg pattern | 3802, 3830, 3904 | Calls pass `(table, e.toString(), stack)` but signature at line 171 requires `(table, id, error, stack)`. Add `id` as 2nd arg |
+
+### Step 2.10: Entity-to-Database Mapping Table Fixes (Section 13, ~24 tables)
+
+Mapping tables in Section 13 have drifted from entity definitions. For each, update mapping to match the canonical entity definition.
+
+| # | Table (Section) | Issues |
+|---|-----------------|--------|
+| 1 | Profile ↔ profiles (13.9) | `displayName` → `name`, `dateOfBirth` → `birthDate`, `DietType?` → `ProfileDietType`, MISSING: `biologicalSex`, `ethnicity`, `notes`. EXTRA: `avatarPath`, `cloudStorageUrl`, `fileHash`, `isFileUploaded` (remove or add to entity if needed) |
+| 2 | Supplement ↔ supplements (13.2) | MISSING: `name`, `schedules`. `ingredients` typed as List<String> but entity has List<SupplementIngredient>. EXTRA: `anchorEvents`, `timingType`, `offsetMinutes`, `specificTimeMinutes`, `frequencyType`, `everyXDays`, `weekdays` (these are flattened schedule fields - reconcile with SupplementSchedule sub-entity) |
+| 3 | ConditionCategory ↔ condition_categories (13.23) | MISSING: `description`, `iconName`, `colorValue`, `sortOrder` |
+| 4 | FluidsEntry ↔ fluids_entries (13.3) | MISSING: `notes`, `photoIds` |
+| 5 | FlareUp ↔ flare_ups (13.22) | `timestamp` should be `startDate`/`endDate` (entity has both fields) |
+| 6 | JournalEntry ↔ journal_entries (13.18) | MISSING: `mood` |
+| 7 | HipaaAuthorization ↔ hipaa_authorizations (13.38) | `revocationReason` → `revokedReason`. EXTRA: `syncId` field (entity uses syncMetadata not syncId) |
+| 8 | ProfileAccessLog ↔ profile_access_logs (13.39) | MISSING: `clientId`. Spec conflict: entity requires `syncMetadata` but mapping says "No sync metadata - immutable audit log" |
+| 9 | WearableConnection ↔ wearable_connections (13.35) | MISSING: `lastSyncError`. EXTRA: `syncId` not in entity |
+| 10 | ImportedDataLog ↔ imported_data_logs (13.36) | `platform` → `sourcePlatform`, `externalId` → `sourceRecordId`, `entityType` → `targetEntityType`, `entityId` → `targetEntityId`, `data_timestamp` → `sourceTimestamp`, MISSING: `rawData` |
+| 11 | FhirExport ↔ fhir_exports (13.37) | MISSING: `fhirVersion`. `format` → `exportFormat`, `resourceCount` → `recordCount`, `startDate/endDate` → `dataRangeStart/dataRangeEnd` |
+| 12 | DietViolation ↔ diet_violations (already in Step 2.8 #5) | `notes` → `message`, MISSING: `ruleType` |
+| 13 | IntakeLog ↔ intake_logs (13.12) | Missing: `scheduledTime`, `actualTime`, `status`, `reason`, `snoozeDurationMinutes`. EXTRA: `intakeTime` (wrong enum), `dosageAmount`. `note` vs `notes` naming |
+| 14 | PhotoArea ↔ photo_areas (13.24) | MISSING: `description`, `sortOrder`, `isArchived` |
+| 15 | PhotoEntry ↔ photo_entries (13.25) | Entity has `photoAreaId` but mapping shows `areaId` |
+| 16 | Document ↔ documents (13.19) | `name` → `filename`, `filePath` → `localPath`, `notes` → `description`. MISSING: `documentDate`. EXTRA: `tags` |
+| 17 | MLModel ↔ ml_models (13.33) | MISSING: `modelVersion`, `dataPointsUsed`, `modelSizeBytes`, `trainingNotes`. `precision` → `precisionScore`, `recall` → `recallScore`. EXTRA: `conditionId`, `lastUsedAt` |
+| 18 | PredictionFeedback ↔ prediction_feedback (13.34) | `predictiveAlertId` → `alertId`, `feedbackRecordedAt` → `recordedAt`, `eventOccurred` (bool) → `actualOutcome` (int). MISSING: `predictedEventTime`, `actualEventTime`, `userNotes`, `usedForRetraining`. EXTRA: `predictionWindowHours`, `actualLatencyHours` |
+| 19 | UserAccount ↔ user_accounts (13.8) | MISSING: `clientId`, `photoUrl`, `deactivatedReason`. `authProviderId` → `externalId`. EXTRA: `role` not in entity |
+| 20 | FoodItem ↔ food_items (13.13) | `servingSize` typed as `double?` but entity has `String?`. EXTRA: `servingUnit` not in entity |
+| 21 | FoodLog ↔ food_logs (13.14) | MISSING: `mealType` (MealType? enum) |
+| 22 | Pattern ↔ patterns (13.29) | `patternType` in mapping vs `type` in entity |
+| 23 | PredictiveAlert ↔ predictive_alerts (13.32) | `predictionType` in mapping vs `type` in entity |
+| 24 | AuditLog ↔ audit_logs (13.40) | Spec conflict: entity requires `syncMetadata` but mapping says "No sync metadata - immutable audit logs" |
+
+**Note:** Some mapping "EXTRA" fields (like Profile's avatar fields, Supplement's schedule fields) may indicate the ENTITY definition is incomplete rather than the mapping being wrong. For each EXTRA field: check implementation. If implementation has the field, add to entity definition. If not, remove from mapping.
+
 ---
 
-## Phase 3: Secondary Document Fixes (~147 edits across 10 docs)
+## Phase 3: Secondary Document Fixes (~170 edits across 10 docs)
 
-All spec-text-only. Apply in document order, largest first.
+All spec-text-only. Apply in document order, largest first. Note: Pass 11 spot-check found Phase 3 estimates undercount by ~15-20%. 35_QR_DEVICE_PAIRING has ~70 fixes (not 44), 39_SAMPLE_DATA has ~40 (not 19). Also update 10_DATABASE_SCHEMA.md if supplements/intake_logs table definitions drift from entity definitions.
 
 ### Step 3.1: 42_INTELLIGENCE_SYSTEM.md (~34 fixes)
 - DateTime → int: ~18 field/parameter changes
@@ -234,11 +292,15 @@ Run `/spec-review` one final time to verify 0 violations remain.
 
 ## Execution Strategy
 
-Given the volume (~180+ individual edits), this should be done methodically:
-- **Phase 1** (impl fixes): ~5 minutes, must verify with tests
-- **Phase 2** (22_API_CONTRACTS.md): Largest single file, ~44 edits. Use parallel agents for different subsections.
-- **Phase 3** (secondary docs): 10 documents. Can parallelize with agents (2-3 docs per agent).
+Given the volume (~280+ individual edits), this should be done methodically:
+- **Phase 1** (impl fixes): Must verify with tests
+- **Phase 2** (22_API_CONTRACTS.md): Largest single file, ~100 edits including 24 mapping tables. Use parallel agents.
+- **Phase 3** (secondary docs + 10_DATABASE_SCHEMA.md): ~170 edits across 11 documents. Parallelize with agents.
 - **Phase 4** (repos): 5 targeted edits across 3 files.
 - **Phase 5-6**: Verification pass.
 
-Estimated: Phase 1 first, then Phases 2-4 can be parallelized with agents, Phase 5-6 to close.
+**Before execution, resolve 2 spec conflicts:**
+1. ProfileAccessLog (13.39): Entity requires syncMetadata but mapping says immutable/no sync. Recommend: remove syncMetadata from entity (audit logs are immutable).
+2. AuditLog (13.40): Same conflict. Recommend: remove syncMetadata from entity.
+
+Estimated: Phase 1 first, then Phases 2-4 parallelized with agents, Phase 5-6 to close.
