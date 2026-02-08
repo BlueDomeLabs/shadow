@@ -441,6 +441,70 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## CRITICAL: Intelligence & Sync Subsystem Contradictions (6 items)
+
+### Fix 55: ConditionLogRepository.getByCondition — missing startDate/endDate params (line 11147 vs 4729/5460/4654)
+- **Repo (11147-11151):** `getByCondition(String conditionId, {int? limit, int? offset})` — no date filtering
+- **Use case (4729-4732):** `getByCondition(input.conditionId, startDate: ..., endDate: ...)` — named date params
+- **Use case (5460-5463):** Same pattern
+- **Use case (4654):** `getByCondition(input.profileId, input.conditionId, input.startDate, input.endDate)` — 4 positional args (WRONG), also passes profileId first (should be conditionId)
+- **Fix (repo):** Add `startDate`/`endDate` to signature:
+  ```dart
+  Future<Result<List<ConditionLog>, AppError>> getByCondition(
+    String conditionId, {
+    int? startDate,    // Epoch ms
+    int? endDate,      // Epoch ms
+    int? limit,
+    int? offset,
+  });
+  ```
+- **Fix (line 4654):** Change to `_repository.getByCondition(input.conditionId, startDate: input.startDate, endDate: input.endDate)`
+
+### Fix 56: NetworkError.rateLimited — factory doesn't exist (lines 5647, 6417, 6928, 7017)
+- **4 call sites** use `NetworkError.rateLimited(operation, duration)`
+- **NetworkError class (333-353):** Only has `noConnection`, `timeout`, `serverError`, `sslError`
+- **Fix:** Add factory and constant to NetworkError (after line 353):
+  ```dart
+  static const String codeRateLimited = 'NETWORK_RATE_LIMITED';
+
+  factory NetworkError.rateLimited(String operation, Duration retryAfter) => NetworkError._(
+    code: codeRateLimited,
+    message: '$operation rate limited, retry after ${retryAfter.inSeconds}s',
+    userMessage: 'Too many requests. Please wait a moment.',
+    isRecoverable: true,
+    recoveryAction: RecoveryAction.retry,
+  );
+  ```
+
+### Fix 57: MLModelRepository.getActiveModels — method doesn't exist (line 5654)
+- **Use case (5654):** `_mlModelRepository.getActiveModels(input.profileId)`
+- **Repo (11914-11925):** Only has `getLatest`, `getByProfile`, `save`, `delete`, `deleteOldVersions`
+- **Fix:** Change use case call to `_mlModelRepository.getByProfile(input.profileId)` (functionally equivalent)
+
+### Fix 58: SleepEntryRepository — missing getByDateRange method (line 5787)
+- **Use case (5787):** `_sleepRepository.getByDateRange(input.profileId, startDate, now)`
+- **Repo (11505-11522):** Only has `getByProfile`, `getForNight`, `getAverages`
+- **Fix:** Add to SleepEntryRepository (after line 11521):
+  ```dart
+  Future<Result<List<SleepEntry>, AppError>> getByDateRange(
+    String profileId,
+    int startDate,  // Epoch ms
+    int endDate,    // Epoch ms
+  );
+  ```
+
+### Fix 59: RateLimitOperation — missing `prediction` enum value (line 5641/5735)
+- **Use case:** `RateLimitOperation.prediction`
+- **Enum (10522-10527):** Has `sync`, `photoUpload`, `reportGeneration`, `dataExport`, `wearableSync` — NO `prediction`
+- **Fix:** Add to enum: `prediction(1, Duration(minutes: 1)),  // 1 per minute`
+
+### Fix 60: GetConditionLogsUseCase — passes profileId where conditionId expected (line 4654)
+- **Current (4654):** `_repository.getByCondition(input.profileId, input.conditionId, ...)`
+- **Repo signature:** First positional param is `conditionId`, not `profileId`
+- **Fix:** Combined with Fix 55 — change to `_repository.getByCondition(input.conditionId, startDate: input.startDate, endDate: input.endDate)`
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -461,13 +525,13 @@ The following decisions were made by the user on 2026-02-08:
 **Phase 3: DateTime (Fixes 13-14)** — 2 edits
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
 **Phase 5: Entity definition gaps (Fixes 28-29, 41, 47)** — Add missing fields to Profile, Pattern, HealthInsight; fix UserAccount `lastLoginAt`→`lastSignInAt`
-**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44, 53, 54)** — Fix field names and missing args in use case code
+**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44, 53, 54, 57, 60)** — Fix field names, wrong args, wrong method calls in use case code
 **Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
 **Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
 **Phase 9: Wearable import contradictions (Fixes 36, 38, 43)** — Fix ImportedDataLog entity, add missing fields/methods
-**Phase 10: Repository signature fixes (Fixes 39, 42)** — Fix findSimilar signature, add getByProfile
-**Phase 11: Missing error factories (Fixes 48-49, 52)** — Add AuthError.invalidToken, AuthError.accountDeactivated, WearableError.notConnected
-**Phase 12: Missing input fields (Fixes 50-51)** — Add fields to SyncWearableDataInput and ConnectWearableInput
+**Phase 10: Repository signature fixes (Fixes 39, 42, 55, 58)** — Fix findSimilar, add getByProfile, fix getByCondition params, add getByDateRange
+**Phase 11: Missing error factories (Fixes 48-49, 52, 56)** — Add AuthError.invalidToken, AuthError.accountDeactivated, WearableError.notConnected, NetworkError.rateLimited
+**Phase 12: Missing input fields + enum values (Fixes 50-51, 59)** — Add fields to SyncWearableDataInput, ConnectWearableInput; add `prediction` to RateLimitOperation
 **Phase 13: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
 
 **All changes are spec-text-only.** No implementation code changes needed. No tests affected.
@@ -476,7 +540,7 @@ The following decisions were made by the user on 2026-02-08:
 
 ## Estimated Scope
 
-- 54 targeted edits to 22_API_CONTRACTS.md
+- 60 targeted edits to 22_API_CONTRACTS.md
 - 0 implementation changes
 - 0 test changes
 - Expected next /spec-review result: 0 violations
