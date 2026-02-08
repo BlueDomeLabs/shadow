@@ -1,13 +1,14 @@
 {
-  "lastInstanceId": "spec-audit-pass3-012",
-  "lastAction": "updating-audit-report-pass3",
-  "taskId": "SPEC-AUDIT-PASS3-UPDATE",
-  "status": "in_progress",
-  "timestamp": "2026-02-08T12:00:00Z",
+  "lastInstanceId": "spec-audit-pass6-012",
+  "lastAction": "completed-fresh-audit-6-passes",
+  "taskId": "SPEC-AUDIT-FRESH",
+  "status": "complete",
+  "timestamp": "2026-02-08T14:00:00Z",
   "filesModified": [
-    ".claude/audit-reports/2026-02-08-fresh-audit.md"
+    ".claude/audit-reports/2026-02-08-fresh-audit.md",
+    ".claude/plans/spec-fix-plan.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Incorporating Pass 3 verification results into the fresh audit report. Pass 3 resolved all open questions: DateTime.now() count settled at 6 (not 0 or 16), entity private ctors confirmed at 20 (not 29), secondary doc violations at 147 (not 190), CorrelationType confirmed DB-stored (FAIL), RateLimitOperation confirmed EXEMPT. User explicitly said do NOT apply fixes yet - only finalize audit report."
+  "notes": "Fresh spec audit complete after 6 verification passes. All counts converged. Committed as 8f3cd1a. NEXT STEPS: Execute the fix plan at .claude/plans/spec-fix-plan.md. The plan has 6 phases: (1) 3 impl fixes to supplement.dart + health_enums.dart + build_runner, (2) ~38 fixes to 22_API_CONTRACTS.md, (3) ~147 fixes to 10 secondary docs, (4) 5 repository fixes, (5) verification, (6) re-audit. Additionally, Pass 6 found 5 NEW issues to add to the plan: (a) Auth service contract mismatch at line 10356 (canReadProfile vs canRead, Result<bool> vs bool) - spec contract must match impl which uses canRead/canWrite returning Future<bool>, (b) Missing GetConditionLogsUseCase referenced at line 8332, (c) Missing GetFluidsEntriesUseCase referenced at line 8477, (d) searchExcludingCategories() call missing profileId at line 5018, (e) DietViolation mapping table errors at line ~12502. All are spec-only fixes. 1205 tests passing, 0 analyzer issues."
 }
