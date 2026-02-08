@@ -262,6 +262,100 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## CRITICAL: Use Case vs Entity/Repository Contradictions — Wearable & Intelligence (9 items)
+
+### Fix 36: ImportedDataLog — completely different schema in use case vs entity (lines 6507-6523 vs 10902-10914)
+- **Use case constructs ImportedDataLog as a summary object:**
+  - `source: input.platform.name` (String), `recordCount`, `skippedCount`, `errorCount`, `syncRangeStart`, `syncRangeEnd`
+- **Entity definition is a per-record log:**
+  - `sourcePlatform` (WearablePlatform enum), `sourceRecordId` (required), `targetEntityType` (required), `targetEntityId` (required), `sourceTimestamp` (required)
+- **Fix:** The use case design (import session summary) is more practical for the sync flow. Update the entity definition to match the use case:
+  - Change `sourcePlatform: WearablePlatform` to `source: String` (platform name)
+  - Replace `sourceRecordId`, `targetEntityType`, `targetEntityId`, `sourceTimestamp` with `recordCount: int`, `skippedCount: int`, `errorCount: int`, `syncRangeStart: int`, `syncRangeEnd: int`
+  - Remove `rawData`
+  - Update mapping table accordingly
+
+### Fix 37: SleepEntry — _importSleep uses 4 wrong field names (lines 6615-6630)
+- **Use case uses:** `sleepStart`, `sleepEnd`, `quality`, `externalId`
+- **Entity has:** `bedTime`, `wakeTime`, *(no quality field)*, `importExternalId`
+- **Fix (use case code):**
+  - Line 6619: Change `sleepStart: sleep.sleepStart` to `bedTime: sleep.sleepStart`
+  - Line 6620: Change `sleepEnd: sleep.sleepEnd` to `wakeTime: sleep.sleepEnd`
+  - Line 6621: Remove `quality: sleep.quality` (no equivalent entity field)
+  - Line 6623: Change `externalId: sleep.externalId` to `importExternalId: sleep.externalId`
+  - Line 6624: Keep `importSource: sleep.source` (correct)
+
+### Fix 38: ActivityLog — _importActivity missing required `adHocActivities` (line 6580-6595)
+- **Entity (line 11416):** `required List<String> adHocActivities` — no @Default, so it's required
+- **Use case (line 6580):** Doesn't pass `adHocActivities` to ActivityLog constructor
+- **Fix:** Add `adHocActivities: [],` to the _importActivity ActivityLog construction after line 6585
+
+### Fix 39: PatternRepository.findSimilar — signature mismatch (line 5408 vs 9872-9876)
+- **Use case (line 5408):** `_patternRepository.findSimilar(pattern)` — passes a Pattern object
+- **Repository (line 9872):** `findSimilar(String patternId, {double minSimilarity, int? limit})` — expects String ID, returns `Result<List<Pattern>>`
+- **Use case also treats result as single Pattern (line 5409):** `existing.valueOrNull != null` then `.copyWith`
+- **Fix (repository definition):** Change signature to:
+  ```
+  Future<Result<Pattern?, AppError>> findSimilar(Pattern pattern);
+  ```
+  This matches the use case semantics: "find an existing pattern similar to this one, return it or null"
+
+### Fix 40: ActivityLogRepository.getByExternalId — wrong arg count (line 6571 vs 11443)
+- **Use case (line 6571):** `getByExternalId(profileId, activity.externalId)` — 2 args
+- **Repository (line 11443):** `getByExternalId(String profileId, String importSource, String importExternalId)` — 3 args
+- **Fix (use case code):** Change to `getByExternalId(profileId, activity.source, activity.externalId)`
+
+### Fix 41: HealthInsight — missing `insightKey` field (lines 5583/5587 vs 9759-9776)
+- **Use case references:** `i.insightKey` at lines 5583 and 5587 for deduplication
+- **Entity definition (9759-9776):** No `insightKey` field
+- **Fix (entity definition):** Add `required String insightKey,  // Stable key for deduplication across generations` after line 9766
+
+### Fix 42: HealthInsightRepository — missing `getByProfile` method (line 5578 vs 9891-9899)
+- **Use case (line 5578):** `_insightRepository.getByProfile(input.profileId, includeDismissed: false)`
+- **Repository (lines 9891-9899):** Only has `getActive(...)` and `dismiss(...)` — no `getByProfile`
+- **Fix (repository definition):** Add method after line 9897:
+  ```
+  Future<Result<List<HealthInsight>, AppError>> getByProfile(
+    String profileId, {
+    bool includeDismissed = false,
+  });
+  ```
+
+### Fix 43: SleepEntryRepository — missing `getByExternalId` method (line 6607 vs 11505-11522)
+- **Use case (line 6607):** `_sleepRepository.getByExternalId(profileId, sleep.externalId)`
+- **Repository (lines 11505-11522):** No `getByExternalId` method
+- **Fix (repository definition):** Add method after line 11521:
+  ```
+  Future<Result<SleepEntry?, AppError>> getByExternalId(
+    String profileId,
+    String importSource,
+    String importExternalId,
+  );
+  ```
+  Also fix the use case call (line 6607) to pass 3 args: `getByExternalId(profileId, sleep.source, sleep.externalId)`
+
+### Fix 44: LogFoodUseCase — silently drops `mealType` from input (line 2956 vs input line 2927)
+- **LogFoodInput (line 2927):** has `MealType? mealType`
+- **FoodLog construction (line 2956):** does NOT pass `mealType` to entity
+- **Fix:** Add `mealType: input.mealType,` to the FoodLog construction after line 2960
+
+---
+
+## LOW: Minor Use Case Issues (2 items)
+
+### Fix 45: _detectFlare references phantom `Severity` type (line 4635)
+- **Current:** `bool _detectFlare(Severity severity, Condition condition)` — `Severity` type doesn't exist
+- **Also calls:** `severity.toStorageScale()` which is on `ConditionSeverity`, not `Severity`
+- **Method is never called** from the use case code above it
+- **Fix:** Change to `bool _detectFlare(ConditionSeverity severity, Condition condition)` or remove dead method
+
+### Fix 46: CreateConditionInput missing `triggers` field (line 4466-4478)
+- **Entity (line 11065):** `@Default([]) List<String> triggers`
+- **Input:** No `triggers` field — users can't set triggers at creation time
+- **Fix:** Add `@Default([]) List<String> triggers,` to CreateConditionInput and pass to entity construction
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -281,10 +375,13 @@ The following decisions were made by the user on 2026-02-08:
 **Phase 2: Unchecked Results (Fixes 6-12)** — 7 edits adding result capture + failure checks
 **Phase 3: DateTime (Fixes 13-14)** — 2 edits
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
-**Phase 5: Entity definition gaps (Fixes 28-29)** — Add missing fields to Profile and Pattern entities
-**Phase 6: Use case field name fix (Fix 35)** — Change `userId` to `ownerId` in auth use case
+**Phase 5: Entity definition gaps (Fixes 28-29, 41)** — Add missing fields to Profile, Pattern, HealthInsight entities
+**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44)** — Fix field names and missing args in use case code
 **Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
 **Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
+**Phase 9: Wearable import contradictions (Fixes 36, 38, 43)** — Fix ImportedDataLog entity, add missing fields/methods
+**Phase 10: Repository signature fixes (Fixes 39, 42)** — Fix findSimilar signature, add getByProfile
+**Phase 11: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
 
 **All changes are spec-text-only.** No implementation code changes needed. No tests affected.
 
@@ -292,7 +389,7 @@ The following decisions were made by the user on 2026-02-08:
 
 ## Estimated Scope
 
-- 35 targeted edits to 22_API_CONTRACTS.md
+- 46 targeted edits to 22_API_CONTRACTS.md
 - 0 implementation changes
 - 0 test changes
 - Expected next /spec-review result: 0 violations
