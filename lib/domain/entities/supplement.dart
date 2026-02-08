@@ -55,6 +55,8 @@ class Supplement with _$Supplement {
 /// Ingredient in a supplement (e.g., Vitamin D3, Magnesium Citrate).
 @freezed
 class SupplementIngredient with _$SupplementIngredient {
+  const SupplementIngredient._();
+
   const factory SupplementIngredient({
     required String name,
     double? quantity,
@@ -74,6 +76,8 @@ class SupplementIngredient with _$SupplementIngredient {
 /// `schedules` column (see 10_DATABASE_SCHEMA.md for details).
 @freezed
 class SupplementSchedule with _$SupplementSchedule {
+  const SupplementSchedule._();
+
   const factory SupplementSchedule({
     required SupplementAnchorEvent anchorEvent,
     required SupplementTimingType timingType,

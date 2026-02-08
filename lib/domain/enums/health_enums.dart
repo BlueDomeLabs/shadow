@@ -247,7 +247,20 @@ enum AlertPriority {
   );
 }
 
-enum WearablePlatform { healthkit, googlefit, fitbit, garmin, oura, whoop }
+enum WearablePlatform {
+  healthkit(0),
+  googlefit(1),
+  fitbit(2),
+  garmin(3),
+  oura(4),
+  whoop(5);
+
+  final int value;
+  const WearablePlatform(this.value);
+
+  static WearablePlatform fromValue(int value) => WearablePlatform.values
+      .firstWhere((e) => e.value == value, orElse: () => healthkit);
+}
 
 /// CANONICAL: This is the authoritative definition of notification types.
 /// See 37_NOTIFICATIONS.md for implementation details.

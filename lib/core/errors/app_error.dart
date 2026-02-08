@@ -344,6 +344,18 @@ final class NetworkError extends AppError {
     isRecoverable: false,
     recoveryAction: RecoveryAction.contactSupport,
   );
+
+  static const String codeRateLimited = 'NET_RATE_LIMITED';
+
+  factory NetworkError.rateLimited(
+    String operation, [
+    Duration? retryAfter,
+  ]) => NetworkError._(
+    code: codeRateLimited,
+    message:
+        'Rate limit exceeded for $operation${retryAfter != null ? '. Retry after ${retryAfter.inSeconds}s' : ''}',
+    userMessage: 'Too many requests. Please try again later.',
+  );
 }
 
 // =============================================================================

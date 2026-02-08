@@ -681,13 +681,13 @@ class __$$SupplementIngredientImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$SupplementIngredientImpl implements _SupplementIngredient {
+class _$SupplementIngredientImpl extends _SupplementIngredient {
   const _$SupplementIngredientImpl({
     required this.name,
     this.quantity,
     this.unit,
     this.notes,
-  });
+  }) : super._();
 
   factory _$SupplementIngredientImpl.fromJson(Map<String, dynamic> json) =>
       _$$SupplementIngredientImplFromJson(json);
@@ -740,13 +740,14 @@ class _$SupplementIngredientImpl implements _SupplementIngredient {
   }
 }
 
-abstract class _SupplementIngredient implements SupplementIngredient {
+abstract class _SupplementIngredient extends SupplementIngredient {
   const factory _SupplementIngredient({
     required final String name,
     final double? quantity,
     final DosageUnit? unit,
     final String? notes,
   }) = _$SupplementIngredientImpl;
+  const _SupplementIngredient._() : super._();
 
   factory _SupplementIngredient.fromJson(Map<String, dynamic> json) =
       _$SupplementIngredientImpl.fromJson;
@@ -949,7 +950,7 @@ class __$$SupplementScheduleImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$SupplementScheduleImpl implements _SupplementSchedule {
+class _$SupplementScheduleImpl extends _SupplementSchedule {
   const _$SupplementScheduleImpl({
     required this.anchorEvent,
     required this.timingType,
@@ -958,7 +959,8 @@ class _$SupplementScheduleImpl implements _SupplementSchedule {
     required this.frequencyType,
     this.everyXDays = 1,
     final List<int> weekdays = const [0, 1, 2, 3, 4, 5, 6],
-  }) : _weekdays = weekdays;
+  }) : _weekdays = weekdays,
+       super._();
 
   factory _$SupplementScheduleImpl.fromJson(Map<String, dynamic> json) =>
       _$$SupplementScheduleImplFromJson(json);
@@ -1041,7 +1043,7 @@ class _$SupplementScheduleImpl implements _SupplementSchedule {
   }
 }
 
-abstract class _SupplementSchedule implements SupplementSchedule {
+abstract class _SupplementSchedule extends SupplementSchedule {
   const factory _SupplementSchedule({
     required final SupplementAnchorEvent anchorEvent,
     required final SupplementTimingType timingType,
@@ -1051,6 +1053,7 @@ abstract class _SupplementSchedule implements SupplementSchedule {
     final int everyXDays,
     final List<int> weekdays,
   }) = _$SupplementScheduleImpl;
+  const _SupplementSchedule._() : super._();
 
   factory _SupplementSchedule.fromJson(Map<String, dynamic> json) =
       _$SupplementScheduleImpl.fromJson;

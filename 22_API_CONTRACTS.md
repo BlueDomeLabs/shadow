@@ -1409,12 +1409,15 @@ enum AlertPriority {
 }
 
 enum WearablePlatform {
-  healthkit,
-  googlefit,
-  fitbit,
-  garmin,
-  oura,
-  whoop,
+  healthkit(0),
+  googlefit(1),
+  fitbit(2),
+  garmin(3),
+  oura(4),
+  whoop(5);
+
+  final int value;
+  const WearablePlatform(this.value);
 }
 
 /// CANONICAL: This is the authoritative definition of notification types.
@@ -2218,6 +2221,73 @@ class LogFluidsEntryUseCase implements UseCase<LogFluidsEntryInput, FluidsEntry>
       return ValidationError.fromFieldErrors(errors);
     }
     return null;
+  }
+}
+
+// lib/domain/usecases/fluids_entries/get_fluids_entries_use_case.dart
+
+@freezed
+class GetFluidsEntriesInput with _$GetFluidsEntriesInput {
+  const factory GetFluidsEntriesInput({
+    required String profileId,
+    required int startDate,       // Epoch milliseconds
+    required int endDate,         // Epoch milliseconds
+  }) = _GetFluidsEntriesInput;
+}
+
+/// Use case to get fluids entries by date range.
+class GetFluidsEntriesUseCase implements UseCase<GetFluidsEntriesInput, List<FluidsEntry>> {
+  final FluidsEntryRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetFluidsEntriesUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<List<FluidsEntry>, AppError>> call(GetFluidsEntriesInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Validation
+    if (input.startDate > input.endDate) {
+      return Failure(
+        ValidationError.fromFieldErrors({
+          'dateRange': ['Start date must be before or equal to end date'],
+        }),
+      );
+    }
+
+    // 3. Repository call
+    return _repository.getByDateRange(input.profileId, input.startDate, input.endDate);
+  }
+}
+
+// lib/domain/usecases/fluids_entries/get_today_fluids_entry_use_case.dart
+
+@freezed
+class GetTodayFluidsEntryInput with _$GetTodayFluidsEntryInput {
+  const factory GetTodayFluidsEntryInput({
+    required String profileId,
+  }) = _GetTodayFluidsEntryInput;
+}
+
+/// Use case to get today's fluids entry.
+class GetTodayFluidsEntryUseCase implements UseCase<GetTodayFluidsEntryInput, FluidsEntry?> {
+  final FluidsEntryRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetTodayFluidsEntryUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<FluidsEntry?, AppError>> call(GetTodayFluidsEntryInput input) async {
+    // 1. Authorization
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Repository call
+    return _repository.getTodayEntry(input.profileId);
   }
 }
 
@@ -4230,6 +4300,8 @@ class UpdateSupplementUseCase implements UseCase<UpdateSupplementInput, Suppleme
 
   @override
   Future<Result<Supplement, AppError>> call(UpdateSupplementInput input) async {
+    final now = DateTime.now();
+
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
@@ -4262,7 +4334,7 @@ class UpdateSupplementUseCase implements UseCase<UpdateSupplementInput, Suppleme
       endDate: input.endDate ?? existing.endDate,
       isArchived: input.isArchived ?? existing.isArchived,
       syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncUpdatedAt: now.millisecondsSinceEpoch,
         syncVersion: existing.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -4315,6 +4387,8 @@ class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supple
 
   @override
   Future<Result<Supplement, AppError>> call(ArchiveSupplementInput input) async {
+    final now = DateTime.now();
+
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
@@ -4336,7 +4410,7 @@ class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supple
     final updated = existing.copyWith(
       isArchived: input.archive,
       syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncUpdatedAt: now.millisecondsSinceEpoch,
         syncVersion: existing.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -4488,6 +4562,8 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
   @override
   Future<Result<ConditionLog, AppError>> call(LogConditionInput input) async {
+    final now = DateTime.now();
+
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
@@ -4517,7 +4593,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
     }
 
     // Timestamp not in future (allow 1 hour tolerance)
-    final oneHourFromNow = DateTime.now().millisecondsSinceEpoch + (60 * 60 * 1000);
+    final oneHourFromNow = now.millisecondsSinceEpoch + (60 * 60 * 1000);
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -4528,7 +4604,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
     // 4. Create log entry
     final id = const Uuid().v4();
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final nowMs = now.millisecondsSinceEpoch;
 
     final log = ConditionLog(
       id: id,
@@ -4544,8 +4620,8 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
       activityId: input.activityId,
       triggers: input.triggers,
       syncMetadata: SyncMetadata(
-        syncCreatedAt: now,
-        syncUpdatedAt: now,
+        syncCreatedAt: nowMs,
+        syncUpdatedAt: nowMs,
         syncDeviceId: '', // Will be populated by repository
       ),
     );
@@ -4559,6 +4635,34 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
   bool _detectFlare(Severity severity, Condition condition) {
     return severity.toStorageScale() >= 7;
   }
+}
+
+// lib/domain/usecases/condition_logs/get_condition_logs_use_case.dart
+
+/// Gets condition logs for a condition within a date range.
+class GetConditionLogsUseCase implements UseCase<GetConditionLogsInput, List<ConditionLog>> {
+  final ConditionLogRepository _repository;
+  final ProfileAuthorizationService _auth;
+
+  GetConditionLogsUseCase(this._repository, this._auth);
+
+  @override
+  Future<Result<List<ConditionLog>, AppError>> call(GetConditionLogsInput input) async {
+    if (!await _auth.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+    return _repository.getByCondition(input.profileId, input.conditionId, input.startDate, input.endDate);
+  }
+}
+
+@freezed
+class GetConditionLogsInput with _$GetConditionLogsInput {
+  const factory GetConditionLogsInput({
+    required String profileId,
+    required String conditionId,
+    int? startDate,
+    int? endDate,
+  }) = _GetConditionLogsInput;
 }
 
 // lib/domain/usecases/conditions/get_condition_trend_use_case.dart
@@ -4853,6 +4957,8 @@ class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
   }
 
   Future<Result<void, AppError>> _deactivateCurrentDiet(String profileId) async {
+    final now = DateTime.now();
+
     final activeResult = await _dietRepository.getActiveDiet(profileId);
     if (activeResult.isFailure) {
       return Failure(activeResult.errorOrNull!);
@@ -4863,12 +4969,13 @@ class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
       final deactivated = activeDiet.copyWith(
         isActive: false,
         syncMetadata: activeDiet.syncMetadata.copyWith(
-          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncUpdatedAt: now.millisecondsSinceEpoch,
           syncVersion: activeDiet.syncMetadata.syncVersion + 1,
           syncIsDirty: true,
         ),
       );
-      await _dietRepository.update(deactivated);
+      final updateResult = await _dietRepository.update(deactivated);
+      if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
     }
 
     return const Success(null);
@@ -4885,6 +4992,7 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
 
   @override
   Future<Result<Diet, AppError>> call(ActivateDietInput input) async {
+    final now = DateTime.now();
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
@@ -4914,7 +5022,7 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
       await _dietRepository.update(currentActive.copyWith(
         isActive: false,
         syncMetadata: currentActive.syncMetadata.copyWith(
-          syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+          syncUpdatedAt: now.millisecondsSinceEpoch,
           syncVersion: currentActive.syncMetadata.syncVersion + 1,
           syncIsDirty: true,
         ),
@@ -4922,11 +5030,11 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
     }
 
     // 6. Activate target diet
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final nowMs = now.millisecondsSinceEpoch;
     final activated = diet.copyWith(
       isActive: true,
       syncMetadata: diet.syncMetadata.copyWith(
-        syncUpdatedAt: now,
+        syncUpdatedAt: nowMs,
         syncVersion: diet.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -4991,7 +5099,7 @@ class PreLogComplianceCheckUseCase
     final impact = _complianceService.calculateImpact(input.profileId, violations);
 
     // 7. Find alternatives
-    final alternativesResult = await _findAlternatives(food, violations);
+    final alternativesResult = await _findAlternatives(input.profileId, food, violations);
     final alternatives = alternativesResult.isSuccess
         ? alternativesResult.valueOrNull!
         : <FoodItem>[];
@@ -5005,6 +5113,7 @@ class PreLogComplianceCheckUseCase
   }
 
   Future<Result<List<FoodItem>, AppError>> _findAlternatives(
+    String profileId,
     FoodItem food,
     List<DietRule> violatedRules,
   ) async {
@@ -5016,6 +5125,7 @@ class PreLogComplianceCheckUseCase
 
     // Exclude those categories and find similar foods
     return _foodItemRepository.searchExcludingCategories(
+      profileId,
       food.name,
       excludeCategories: categories,
       limit: 5,
@@ -5298,14 +5408,16 @@ class DetectPatternsUseCase implements UseCaseWithInput<List<Pattern>, DetectPat
       final existing = await _patternRepository.findSimilar(pattern);
       if (existing.isSuccess && existing.valueOrNull != null) {
         // Update existing pattern's confidence/last observed
-        await _patternRepository.update(existing.valueOrNull!.copyWith(
+        final updateResult = await _patternRepository.update(existing.valueOrNull!.copyWith(
           confidence: pattern.confidence,
           lastObservedAt: DateTime.now().millisecondsSinceEpoch,
           observationCount: existing.valueOrNull!.observationCount + 1,
         ));
+        if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
       } else {
         // Create new pattern
-        await _patternRepository.create(pattern);
+        final createResult = await _patternRepository.create(pattern);
+        if (createResult.isFailure) return Failure(createResult.errorOrNull!);
       }
     }
 
@@ -5532,8 +5644,9 @@ class GeneratePredictiveAlertsUseCase
       return Failure(rateLimitResult.errorOrNull!);
     }
     if (!rateLimitResult.valueOrNull!.isAllowed) {
-      return Failure(RateLimitError(
-        'Prediction limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      return Failure(NetworkError.rateLimited(
+        'prediction',
+        Duration(seconds: rateLimitResult.valueOrNull!.retryAfterSeconds),
       ));
     }
 
@@ -6301,8 +6414,9 @@ class SyncWearableDataUseCase
       return Failure(rateLimitResult.errorOrNull!);
     }
     if (!rateLimitResult.valueOrNull!.isAllowed) {
-      return Failure(RateLimitError(
-        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      return Failure(NetworkError.rateLimited(
+        'sync',
+        Duration(seconds: rateLimitResult.valueOrNull!.retryAfterSeconds),
       ));
     }
 
@@ -6353,7 +6467,7 @@ class SyncWearableDataUseCase
         final result = await _importActivity(input.profileId, input.clientId, activity);
         if (result.isSuccess) {
           importedCount++;
-        } else if (result.errorOrNull is DuplicateError) {
+        } else if (result.errorOrNull is ValidationError) {
           skippedCount++;
         } else {
           errorCount++;
@@ -6367,7 +6481,7 @@ class SyncWearableDataUseCase
         final result = await _importSleep(input.profileId, input.clientId, sleep);
         if (result.isSuccess) {
           importedCount++;
-        } else if (result.errorOrNull is DuplicateError) {
+        } else if (result.errorOrNull is ValidationError) {
           skippedCount++;
         } else {
           errorCount++;
@@ -6381,7 +6495,7 @@ class SyncWearableDataUseCase
         final result = await _importWater(input.profileId, input.clientId, water);
         if (result.isSuccess) {
           importedCount++;
-        } else if (result.errorOrNull is DuplicateError) {
+        } else if (result.errorOrNull is ValidationError) {
           skippedCount++;
         } else {
           errorCount++;
@@ -6459,7 +6573,7 @@ class SyncWearableDataUseCase
       activity.externalId,
     );
     if (existing.isSuccess && existing.valueOrNull != null) {
-      return Failure(DuplicateError('Activity already imported'));
+      return Failure(ValidationError.duplicate('externalId', activity.externalId));
     }
 
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -6495,7 +6609,7 @@ class SyncWearableDataUseCase
       sleep.externalId,
     );
     if (existing.isSuccess && existing.valueOrNull != null) {
-      return Failure(DuplicateError('Sleep entry already imported'));
+      return Failure(ValidationError.duplicate('externalId', sleep.externalId));
     }
 
     final entry = SleepEntry(
@@ -6811,8 +6925,9 @@ class PushChangesUseCase implements UseCase<PushChangesInput, PushChangesResult>
       return Failure(rateLimitResult.errorOrNull!);
     }
     if (!rateLimitResult.valueOrNull!.isAllowed) {
-      return Failure(RateLimitError(
-        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      return Failure(NetworkError.rateLimited(
+        'sync',
+        Duration(seconds: rateLimitResult.valueOrNull!.retryAfterSeconds),
       ));
     }
 
@@ -6899,8 +7014,9 @@ class PullChangesUseCase implements UseCase<PullChangesInput, PullChangesResult>
       return Failure(rateLimitResult.errorOrNull!);
     }
     if (!rateLimitResult.valueOrNull!.isAllowed) {
-      return Failure(RateLimitError(
-        'Sync limit exceeded. Try again in ${rateLimitResult.valueOrNull!.retryAfterSeconds}s',
+      return Failure(NetworkError.rateLimited(
+        'sync',
+        Duration(seconds: rateLimitResult.valueOrNull!.retryAfterSeconds),
       ));
     }
 
@@ -7051,6 +7167,7 @@ class Supplement with _$Supplement {
 /// Ingredient in a supplement (e.g., Vitamin D3, Magnesium Citrate)
 @freezed
 class SupplementIngredient with _$SupplementIngredient {
+  const SupplementIngredient._();
   const factory SupplementIngredient({
     required String name,              // e.g., "Vitamin D3", "Magnesium Citrate"
     double? quantity,                  // Amount of this ingredient
@@ -7091,6 +7208,7 @@ class SupplementIngredient with _$SupplementIngredient {
 /// 3. If schedules have different timing, store as JSON in `schedules_json` column
 @freezed
 class SupplementSchedule with _$SupplementSchedule {
+  const SupplementSchedule._();
   const factory SupplementSchedule({
     required SupplementAnchorEvent anchorEvent,  // Wake, breakfast, lunch, dinner, bed
     required SupplementTimingType timingType,    // With, before, after, specific time
@@ -8036,7 +8154,7 @@ class CurrentProfile extends _$CurrentProfile {
   Future<Result<void, AppError>> switchProfile(String profileId) async {
     final current = state.valueOrNull;
     if (current == null) {
-      return Failure(StateError('No profile state available'));
+      return Failure(BusinessError.invalidState('ProfileState', 'null', 'initialized'));
     }
 
     final profile = current.accessibleProfiles.firstWhereOrNull(
@@ -8074,7 +8192,7 @@ class CurrentProfile extends _$CurrentProfile {
   Future<Result<void, AppError>> deleteProfile(String profileId) async {
     final current = state.valueOrNull;
     if (current == null) {
-      return Failure(StateError('No profile state available'));
+      return Failure(BusinessError.invalidState('ProfileState', 'null', 'initialized'));
     }
 
     if (current.accessibleProfiles.length <= 1) {
@@ -8122,22 +8240,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'supplement_provider.g.dart';
 
-@freezed
-class SupplementListState with _$SupplementListState {
-  const factory SupplementListState({
-    @Default([]) List<Supplement> supplements,
-    @Default([]) List<Supplement> archivedSupplements,
-    @Default(false) bool isLoading,
-    @Default(false) bool showArchived,
-    AppError? error,
-  }) = _SupplementListState;
-
-  // Computed
-  List<Supplement> get activeSupplements =>
-      supplements.where((s) => !s.isArchived).toList();
-  List<Supplement> get displayedSupplements =>
-      showArchived ? supplements : activeSupplements;
-}
+// SupplementListState: See Section 7 (line ~7862) for canonical definition
 
 @riverpod
 class SupplementList extends _$SupplementList {
@@ -9319,6 +9422,7 @@ enum FoodCategory {
 
 @freezed
 class DietRule with _$DietRule {
+  const DietRule._();
   const factory DietRule({
     required String id,
     required String clientId,         // REQUIRED: For database merging
@@ -9348,6 +9452,7 @@ class DietRule with _$DietRule {
 
 @freezed
 class DietViolation with _$DietViolation {
+  const DietViolation._();
   const factory DietViolation({
     required String id,
     required String clientId,
@@ -9552,6 +9657,7 @@ class ComplianceStats with _$ComplianceStats {
 /// Daily compliance record
 @freezed
 class DailyCompliance with _$DailyCompliance {
+  const DailyCompliance._();
   const factory DailyCompliance({
     required int dateEpoch,                // Epoch milliseconds (midnight of date)
     required double score,
@@ -9575,6 +9681,7 @@ For complete specifications, see [42_INTELLIGENCE_SYSTEM.md](42_INTELLIGENCE_SYS
 ```dart
 @freezed
 class Pattern with _$Pattern {
+  const Pattern._();
   const factory Pattern({
     required String id,
     required String clientId,
@@ -9593,19 +9700,7 @@ class Pattern with _$Pattern {
   }) = _Pattern;
 }
 
-enum PatternType {
-  temporal(0),
-  cyclical(1),
-  sequential(2),
-  cluster(3),
-  dosage(4);
-
-  final int value;
-  const PatternType(this.value);
-
-  static PatternType fromValue(int value) =>
-    PatternType.values.firstWhere((e) => e.value == value, orElse: () => temporal);
-}
+// PatternType: See Section 7 (line ~1342) for canonical definition
 ```
 
 ### TriggerCorrelation Entity
@@ -9613,6 +9708,7 @@ enum PatternType {
 ```dart
 @freezed
 class TriggerCorrelation with _$TriggerCorrelation {
+  const TriggerCorrelation._();
   const factory TriggerCorrelation({
     required String id,
     required String clientId,
@@ -9643,7 +9739,15 @@ class TriggerCorrelation with _$TriggerCorrelation {
   }) = _TriggerCorrelation;
 }
 
-enum CorrelationType { positive, negative, neutral, doseResponse }
+enum CorrelationType {
+  positive(0),
+  negative(1),
+  neutral(2),
+  doseResponse(3);
+
+  final int value;
+  const CorrelationType(this.value);
+}
 ```
 
 ### HealthInsight Entity
@@ -9651,6 +9755,7 @@ enum CorrelationType { positive, negative, neutral, doseResponse }
 ```dart
 @freezed
 class HealthInsight with _$HealthInsight {
+  const HealthInsight._();
   const factory HealthInsight({
     required String id,
     required String clientId,
@@ -9678,6 +9783,7 @@ class HealthInsight with _$HealthInsight {
 /// Evidence supporting a health insight
 @freezed
 class InsightEvidence with _$InsightEvidence {
+  const InsightEvidence._();
   const factory InsightEvidence({
     required String entityType,        // 'condition_log', 'food_log', 'supplement_intake', etc.
     required String entityId,          // ID of the supporting record
@@ -9697,6 +9803,7 @@ class InsightEvidence with _$InsightEvidence {
 ```dart
 @freezed
 class PredictiveAlert with _$PredictiveAlert {
+  const PredictiveAlert._();
   const factory PredictiveAlert({
     required String id,
     required String clientId,
@@ -9717,13 +9824,24 @@ class PredictiveAlert with _$PredictiveAlert {
   }) = _PredictiveAlert;
 }
 
-enum PredictionType { flareUp, menstrualStart, ovulation, triggerExposure, missedSupplement, poorSleep }
+enum PredictionType {
+  flareUp(0),
+  menstrualStart(1),
+  ovulation(2),
+  triggerExposure(3),
+  missedSupplement(4),
+  poorSleep(5);
+
+  final int value;
+  const PredictionType(this.value);
+}
 
 /// VALUE OBJECT - Embedded in PredictiveAlert entity, not a standalone entity.
 /// Does not require id, clientId, profileId, or syncMetadata.
 /// Factor contributing to a predictive alert
 @freezed
 class PredictionFactor with _$PredictionFactor {
+  const PredictionFactor._();
   const factory PredictionFactor({
     required String name,              // Factor name (e.g., "High stress yesterday")
     required double weight,            // Contribution to prediction (0.0-1.0)
@@ -9767,6 +9885,7 @@ abstract class TriggerCorrelationRepository implements EntityRepository<TriggerC
   Future<Result<List<TriggerCorrelation>, AppError>> getByTrigger(String triggerType, String triggerId);
   Future<Result<List<TriggerCorrelation>, AppError>> getByOutcome(String outcomeType, String outcomeId);
   Future<Result<List<TriggerCorrelation>, AppError>> getPositive(String profileId, String outcomeId);
+  Future<Result<TriggerCorrelation, AppError>> upsert(TriggerCorrelation correlation);
 }
 
 abstract class HealthInsightRepository implements EntityRepository<HealthInsight, String> {
@@ -9998,14 +10117,7 @@ class WearableConnection with _$WearableConnection {
   bool get canWriteWater => writePermissions.contains('water');
 }
 
-enum WearablePlatform {
-  healthkit,   // Apple HealthKit (iOS/watchOS)
-  googlefit,   // Google Fit (Android)
-  fitbit,      // Fitbit Web API
-  garmin,      // Garmin Connect
-  oura,        // Oura Ring
-  whoop,       // WHOOP
-}
+// WearablePlatform: See Section 7 (line ~1411) for canonical definition
 ```
 
 ### WearableConnectionRepository
@@ -10353,13 +10465,13 @@ class GetPendingNotificationsUseCase
 /// ALL use cases MUST use this service before accessing profile data.
 abstract class ProfileAuthorizationService {
   /// Check if current user can read profile data
-  Future<Result<bool, AppError>> canReadProfile(String profileId);
+  Future<bool> canRead(String profileId);
 
   /// Check if current user can write to profile
-  Future<Result<bool, AppError>> canWriteProfile(String profileId);
+  Future<bool> canWrite(String profileId);
 
   /// Check if current user owns the profile
-  Future<Result<bool, AppError>> isProfileOwner(String profileId);
+  Future<bool> isProfileOwner(String profileId);
 
   /// Get all profiles current user can access
   Future<Result<List<ProfileAccess>, AppError>> getAccessibleProfiles();
@@ -10385,11 +10497,7 @@ class ProfileAccess with _$ProfileAccess {
       _$ProfileAccessFromJson(json);
 }
 
-enum AccessLevel {
-  readOnly,   // Can view data only
-  readWrite,  // Can view and modify data
-  owner,      // Full control including deletion and sharing
-}
+// AccessLevel: See Section 7 (line ~1624) for canonical definition
 ```
 
 ### 9.2 Rate Limiting Service
@@ -10458,6 +10566,7 @@ abstract class AuditLogService {
 
 @freezed
 class AuditLogEntry with _$AuditLogEntry {
+  const AuditLogEntry._();
   const factory AuditLogEntry({
     required String id,
     required String clientId,     // Required for database merging
@@ -10479,37 +10588,40 @@ class AuditLogEntry with _$AuditLogEntry {
 
 enum AuditEventType {
   // Data operations (PHI)
-  dataAccess,             // Read PHI
-  dataModify,             // Create/update PHI
-  dataDelete,             // Delete PHI
-  dataExport,             // Export to file/external
-  dataSync,               // PHI synced to cloud storage (Google Drive/iCloud)
+  dataAccess(0),             // Read PHI
+  dataModify(1),             // Create/update PHI
+  dataDelete(2),             // Delete PHI
+  dataExport(3),             // Export to file/external
+  dataSync(4),               // PHI synced to cloud storage (Google Drive/iCloud)
 
   // Authorization
-  authorizationGrant,     // Share profile access
-  authorizationRevoke,    // Revoke profile access
-  authorizationDenied,    // Failed access attempt (access denied)
-  profileShare,           // Share profile via QR
-  reportGenerate,         // Generate PDF report
+  authorizationGrant(5),     // Share profile access
+  authorizationRevoke(6),    // Revoke profile access
+  authorizationDenied(7),    // Failed access attempt (access denied)
+  profileShare(8),           // Share profile via QR
+  reportGenerate(9),         // Generate PDF report
 
   // Authentication
-  login,                  // Successful authentication
-  logout,                 // User sign out
-  authenticationFailed,   // Failed login attempt
-  passwordChanged,        // Password reset/change
+  login(10),                  // Successful authentication
+  logout(11),                 // User sign out
+  authenticationFailed(12),   // Failed login attempt
+  passwordChanged(13),        // Password reset/change
 
   // Token operations
-  tokenRefresh,           // Refresh token used
-  tokenRevoke,            // Token invalidated
+  tokenRefresh(14),           // Refresh token used
+  tokenRevoke(15),            // Token invalidated
 
   // Device management
-  deviceRegistration,     // New device registered
-  deviceRemoval,          // Device removed/deactivated
-  sessionTermination,     // Session ended (timeout or forced)
+  deviceRegistration(16),     // New device registered
+  deviceRemoval(17),          // Device removed/deactivated
+  sessionTermination(18),     // Session ended (timeout or forced)
 
   // Security events
-  encryptionKeyRotation,  // Encryption key rotated
-  rateLimitExceeded,      // Rate limit violation
+  encryptionKeyRotation(19),  // Encryption key rotated
+  rateLimitExceeded(20);      // Rate limit violation
+
+  final int value;
+  const AuditEventType(this.value);
 }
 
 /// CRITICAL: Log BOTH success and failure cases for all operations.
@@ -10592,6 +10704,7 @@ Future<Result<void, AppError>> accessSharedProfile(String profileId, String auth
 ```dart
 @freezed
 class ConditionCategory with _$ConditionCategory {
+  const ConditionCategory._();
   const factory ConditionCategory({
     required String id,
     required String clientId,
@@ -10618,6 +10731,7 @@ This entity would be stored in a separate `user_food_categories` table if implem
 ```dart
 @freezed
 class FoodItemCategory with _$FoodItemCategory {
+  const FoodItemCategory._();
   const factory FoodItemCategory({
     required String id,
     required String clientId,
@@ -10678,6 +10792,7 @@ class HipaaAuthorization with _$HipaaAuthorization {
 /// Matches database table: profile_access_logs
 @freezed
 class ProfileAccessLog with _$ProfileAccessLog {
+  const ProfileAccessLog._();
   const factory ProfileAccessLog({
     required String id,
     required String clientId,              // Required for database merging
@@ -10775,9 +10890,6 @@ abstract class ImportedDataLogRepository implements EntityRepository<ImportedDat
     WearablePlatform platform,
     String sourceRecordId,
   );
-
-  final int value;
-  const ProfileAccessAction(this.value);
 }
 ```
 
@@ -10786,6 +10898,7 @@ abstract class ImportedDataLogRepository implements EntityRepository<ImportedDat
 ```dart
 @freezed
 class ImportedDataLog with _$ImportedDataLog {
+  const ImportedDataLog._();
   const factory ImportedDataLog({
     required String id,
     required String clientId,
@@ -10810,6 +10923,7 @@ class ImportedDataLog with _$ImportedDataLog {
 ```dart
 @freezed
 class FhirExport with _$FhirExport {
+  const FhirExport._();
   const factory FhirExport({
     required String id,
     required String clientId,
@@ -11111,9 +11225,9 @@ abstract class IntakeLogRepository implements EntityRepository<IntakeLog, String
     String profileId,
     int date,  // Epoch ms (start of day)
   );
-  Future<Result<void, AppError>> markTaken(String id, int actualTime);  // Epoch ms
-  Future<Result<void, AppError>> markSkipped(String id, String? reason);
-  Future<Result<void, AppError>> markSnoozed(String id, int snoozeDurationMinutes);
+  Future<Result<IntakeLog, AppError>> markTaken(String id, int actualTime);  // Epoch ms
+  Future<Result<IntakeLog, AppError>> markSkipped(String id, String? reason);
+  Future<Result<IntakeLog, AppError>> markSnoozed(String id, int snoozeDurationMinutes);
 }
 ```
 
@@ -11256,6 +11370,7 @@ abstract class FoodLogRepository implements EntityRepository<FoodLog, String> {
 
 @freezed
 class Activity with _$Activity implements Syncable {
+  const Activity._();
   const factory Activity({
     required String id,
     required String clientId,
@@ -11291,6 +11406,7 @@ abstract class ActivityRepository implements EntityRepository<Activity, String> 
 
 @freezed
 class ActivityLog with _$ActivityLog implements Syncable {
+  const ActivityLog._();
   const factory ActivityLog({
     required String id,
     required String clientId,
@@ -11358,6 +11474,7 @@ enum WakingFeeling {
 
 @freezed
 class SleepEntry with _$SleepEntry implements Syncable {
+  const SleepEntry._();
   const factory SleepEntry({
     required String id,
     required String clientId,
@@ -11378,8 +11495,6 @@ class SleepEntry with _$SleepEntry implements Syncable {
 
   factory SleepEntry.fromJson(Map<String, dynamic> json) =>
       _$SleepEntryFromJson(json);
-
-  const SleepEntry._();
 
   int? get totalSleepMinutes {
     if (wakeTime == null) return null;
@@ -12390,23 +12505,24 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | Direct |
-| brand | brand | String | TEXT | Direct |
-| ingredients | ingredients | List<String> | TEXT | JSON array |
+| name | name | String | TEXT | Direct |
 | form | form | SupplementForm | TEXT | .name |
 | customForm | custom_form | String? | TEXT | Direct |
 | dosageQuantity | dosage_quantity | int | INTEGER | Direct |
-| dosageUnit | dosage_unit | DosageUnit? | TEXT | .name |
-| anchorEvents | anchor_events | List<AnchorEvent> | TEXT | Comma-separated names |
-| timingType | timing_type | TimingType | INTEGER | .value |
-| offsetMinutes | offset_minutes | int? | INTEGER | Direct |
-| specificTimeMinutes | specific_time_minutes | int? | INTEGER | Minutes from midnight |
-| frequencyType | frequency_type | FrequencyType | INTEGER | .value |
-| everyXDays | every_x_days | int? | INTEGER | Direct |
-| weekdays | weekdays | List<int>? | TEXT | Comma-separated |
+| dosageUnit | dosage_unit | DosageUnit | TEXT | .name |
+| brand | brand | String | TEXT | Direct (default: '') |
+| notes | notes | String | TEXT | Direct (default: '') |
+| ingredients | ingredients | List\<SupplementIngredient\> | TEXT | JSON array |
+| schedules | schedules | List\<SupplementSchedule\> | TEXT | JSON array |
 | startDate | start_date | int? | INTEGER | Epoch ms |
 | endDate | end_date | int? | INTEGER | Epoch ms |
 | isArchived | is_archived | bool | INTEGER | 0/1 |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
+
+**Notes:**
+- `ingredients` stores `List<SupplementIngredient>` as a JSON array in DB
+- `schedules` stores `List<SupplementSchedule>` as a JSON array in DB
+- The primary schedule may also have flattened DB columns (`anchor_events`, `timing_type`, `offset_minutes`, `specific_time_minutes`, `frequency_type`, `every_x_days`, `weekdays`) per 10_DATABASE_SCHEMA.md
 
 ### 13.3 FluidsEntry Entity ↔ fluids_entries Table
 
@@ -12438,6 +12554,8 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | fileHash | file_hash | String? | TEXT | SHA-256 hash |
 | fileSizeBytes | file_size_bytes | int? | INTEGER | Direct |
 | isFileUploaded | is_file_uploaded | bool | INTEGER | 0/1 |
+| notes | notes | String | TEXT | Direct (default: '') |
+| photoIds | photo_ids | List\<String\> | TEXT | JSON array (default: []) |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
 
 **Notes:**
@@ -12445,6 +12563,7 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 - `hasBowelData` and `hasUrineData` are computed getters in entity, stored as `has_bowel_movement`/`has_urine_movement` in DB
 - `bowelCustomCondition` and `urineCustomCondition` DB columns exist for "custom" enum values but are not in current entity
 - File sync fields are for bowel/urine photo uploads
+- `notes` and `photoIds` are general fields for the entire fluids entry
 
 ### 13.4 Diet Entity ↔ diets Table
 
@@ -12497,8 +12616,9 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | ruleId | rule_id | String | TEXT | FK to diet_rules |
 | foodLogId | food_log_id | String | TEXT | FK to food_logs |
 | timestamp | timestamp | int | INTEGER | Epoch ms |
-| severity | severity | ViolationSeverity | INTEGER | .value |
-| notes | notes | String? | TEXT | Direct |
+| ruleType | rule_type | DietRuleType | INTEGER | .value |
+| severity | severity | RuleSeverity | INTEGER | .value |
+| message | message | String | TEXT | Direct |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See below |
 
 ### 13.7 SyncMetadata Column Mapping
@@ -12538,15 +12658,14 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 |--------------|-----------|-------------|---------|------------|
 | id | id | String | TEXT | Direct |
 | clientId | client_id | String | TEXT | Direct |
-| ownerId | owner_id | String | TEXT | FK to user_accounts |
-| displayName | display_name | String | TEXT | Direct |
-| dateOfBirth | date_of_birth | int? | INTEGER | Epoch ms |
-| avatarPath | avatar_path | String? | TEXT | Direct |
-| dietType | diet_type | DietType? | INTEGER | .value |
+| name | name | String | TEXT | Direct |
+| birthDate | birth_date | int? | INTEGER | Epoch ms |
+| biologicalSex | biological_sex | BiologicalSex? | INTEGER | .value |
+| ethnicity | ethnicity | String? | TEXT | Direct |
+| notes | notes | String? | TEXT | Direct |
+| ownerId | owner_id | String? | TEXT | FK to user_accounts |
+| dietType | diet_type | ProfileDietType | INTEGER | .value (default: none) |
 | dietDescription | diet_description | String? | TEXT | Direct |
-| cloudStorageUrl | cloud_storage_url | String? | TEXT | Avatar file sync |
-| fileHash | file_hash | String? | TEXT | SHA-256 hash |
-| isFileUploaded | is_file_uploaded | bool | INTEGER | 0/1 |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.10 ProfileAccess Entity ↔ profile_access Table
@@ -12788,6 +12907,10 @@ This section documents the exact mapping between Dart entity fields and SQLite d
 | clientId | client_id | String | TEXT | Direct |
 | profileId | profile_id | String | TEXT | FK to profiles |
 | name | name | String | TEXT | Direct |
+| description | description | String? | TEXT | Direct |
+| iconName | icon_name | String? | TEXT | Direct |
+| colorValue | color_value | int? | INTEGER | Direct |
+| sortOrder | sort_order | int | INTEGER | Direct (default: 0) |
 | syncMetadata | sync_* | SyncMetadata | 9 columns | See 13.7 |
 
 ### 13.24 PhotoArea Entity ↔ photo_areas Table
@@ -13451,38 +13574,13 @@ Future<Result<List<T>, AppError>> getAll(String profileId) async {
 
 ```dart
 // INPUT DTO: @freezed, no syncMetadata, for passing data INTO use cases
-@freezed
-class CreateDietInput with _$CreateDietInput {
-  const factory CreateDietInput({
-    required String profileId,
-    required String clientId,
-    required String name,
-    // NO id, NO syncMetadata
-  }) = _CreateDietInput;
-}
+// CreateDietInput: See Section 8.4 (line ~10128) for canonical definition
 
 // OUTPUT/RESULT: @freezed, no syncMetadata, computed/returned from use cases
-@freezed
-class ComplianceCheckResult with _$ComplianceCheckResult {
-  const factory ComplianceCheckResult({
-    required bool isCompliant,
-    required double compliancePercentage,
-    // NO id, NO syncMetadata - not persisted
-  }) = _ComplianceCheckResult;
-}
+// ComplianceCheckResult: See Section 8.3 (line ~9447) for canonical definition
 
 // PERSISTED ENTITY: @freezed, MUST have 4 required fields
-@freezed
-class Diet with _$Diet {
-  const factory Diet({
-    required String id,              // REQUIRED
-    required String clientId,        // REQUIRED
-    required String profileId,       // REQUIRED
-    required String name,
-    // ... other fields
-    required SyncMetadata syncMetadata, // REQUIRED
-  }) = _Diet;
-}
+// Diet: See Section 8.3 (line ~9254) for canonical definition
 ```
 
 ### 15.4 Foreign Key ON DELETE Behaviors
@@ -13520,19 +13618,7 @@ class Diet with _$Diet {
 class SupplementList extends _$SupplementList {
   @override
   Future<SupplementListState> build(String profileId) async {
-    // build() cannot return Result - framework requirement
-    final result = await _useCase.call(GetSupplementsInput(profileId: profileId));
-    return result.when(
-      success: (supplements) => SupplementListState(supplements: supplements),
-      failure: (error) => throw error, // AsyncValue handles this
-    );
-  }
-
-  // Custom actions CAN and MUST return Result
-  Future<Result<Supplement, AppError>> addSupplement(Supplement s) async {
-    return _useCase.call(CreateSupplementInput(...));
-  }
-}
+// SupplementList: See Section 7 (line ~7766) for canonical definition
 ```
 
 ### 15.6 Weekday Convention
