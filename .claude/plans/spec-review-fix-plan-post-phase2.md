@@ -505,6 +505,87 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## CRITICAL: Provider Layer + Missing Class Definitions (9 items)
+
+### Fix 61: Profile entity — missing `waterGoalMl` field (line 11000 vs 8589)
+- **Provider (8589):** `currentProfile?.waterGoalMl ?? 2500`
+- **Entity (11000-11032):** No `waterGoalMl` field
+- **Fix:** Add `@Default(2500) int waterGoalMl,` to Profile entity after line 11015
+
+### Fix 62: SupplementList.addSupplement — passes Supplement instead of CreateSupplementInput (line 7898)
+- **Provider (7896-7898):** `addSupplement(Supplement supplement)` → `useCase(supplement)`
+- **Use case (4177):** `CreateSupplementUseCase implements UseCase<CreateSupplementInput, Supplement>`
+- **Fix:** Change method signature and body:
+  ```dart
+  Future<Result<Supplement, AppError>> addSupplement(CreateSupplementInput input) async {
+    final useCase = ref.read(createSupplementUseCaseProvider);
+    final result = await useCase(input);
+  ```
+
+### Fix 63: GetConditionsInput — no `activeOnly` field (line 8421 vs 4432)
+- **Provider (8419-8422):** `GetConditionsInput(profileId: profileId, activeOnly: true)`
+- **Input (4432-4438):** Has `ConditionStatus? status` and `bool includeArchived`, NOT `activeOnly`
+- **Fix:** Change provider to `GetConditionsInput(profileId: profileId, status: ConditionStatus.active)`
+
+### Fix 64: GetNotificationSchedulesInput — class undefined (line 8718)
+- **Provider (8718):** `GetNotificationSchedulesInput(profileId: profileId)`
+- **Nowhere:** Class is never defined
+- **Fix:** Add to notification input section:
+  ```dart
+  @freezed
+  class GetNotificationSchedulesInput with _$GetNotificationSchedulesInput {
+    const factory GetNotificationSchedulesInput({
+      required String profileId,
+      NotificationType? type,
+      @Default(false) bool enabledOnly,
+    }) = _GetNotificationSchedulesInput;
+  }
+  ```
+
+### Fix 65: Profile use case layer — 5 use cases + 3 input classes entirely missing
+- **Provider references:** `createProfileUseCaseProvider` (8176), `updateProfileUseCaseProvider` (8661), `deleteProfileUseCaseProvider` (8210), `setCurrentProfileUseCaseProvider` (8170), `getCurrentUserUseCaseProvider` (8869)
+- **Input classes needed:** `CreateProfileInput`, `UpdateProfileInput` (with `waterGoalMl`), `DeleteProfileInput`
+- **Fix:** Add a "Profile Use Cases" section with all 5 use case stubs and 3 input classes. This is a larger addition (~60-80 lines).
+
+### Fix 66: getAccessibleProfiles — returns ProfileAccess not Profile (line 8139 vs 10477)
+- **Provider (8139-8145):** Calls `getAccessibleProfilesUseCase()`, uses result as `List<Profile>` (accesses `p.isDefault`, `p.id`)
+- **ProfileAuthorizationService (10477):** `getAccessibleProfiles()` returns `Result<List<ProfileAccess>, AppError>`
+- **ProfileAccess (10486-10494):** Has `profileId`, `profileName`, `accessLevel` — not `id`, `isDefault`
+- **Fix:** The use case should fetch Profile entities, not ProfileAccess. Change provider to use a dedicated use case that: fetches ProfileAccess list → for each, loads Profile by profileId. Define this in Fix 65.
+
+### Fix 67: DietViolation — missing `wasDismissed` field (lines 5232-5233 vs 9454-9472)
+- **Use case (5232-5233):** `v.wasDismissed != true` and `v.wasDismissed == true`
+- **Entity (9454-9472):** No `wasDismissed` field
+- **Fix:** Add `@Default(false) bool wasDismissed,` to DietViolation entity after line 9467
+
+### Fix 68: SyncConflict — class referenced but never defined (lines 6897, 6985)
+- **PushChangesResult (6897):** `required List<SyncConflict> conflicts`
+- **PullChangesResult (6985):** `required List<SyncConflict> conflicts`
+- **Fix:** Add class definition:
+  ```dart
+  @freezed
+  class SyncConflict with _$SyncConflict {
+    const factory SyncConflict({
+      required String id,
+      required String entityType,
+      required String entityId,
+      required String localVersion,
+      required String remoteVersion,
+      required int localUpdatedAt,    // Epoch ms
+      required int remoteUpdatedAt,   // Epoch ms
+      ConflictResolution? resolution,
+    }) = _SyncConflict;
+  }
+  ```
+
+### Fix 69: PreLogComplianceCheck — passes DateTime instead of int to service method (line 5085-5086)
+- **Line 5085:** `final logTime = DateTime.fromMillisecondsSinceEpoch(input.logTimeEpoch);`
+- **Line 5086:** `checkFoodAgainstRules(food, diet.rules, logTime)` — passes DateTime
+- **Line 9590 (same service):** `checkFoodAgainstRules(input.foodItem, diet.rules, input.logTimeEpoch)` — passes int
+- **Fix:** Remove line 5085 and change line 5086 to: `checkFoodAgainstRules(food, diet.rules, input.logTimeEpoch)`
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -522,17 +603,18 @@ The following decisions were made by the user on 2026-02-08:
 
 **Phase 1: Error types (Fixes 1-5)** — 5 simple text replacements
 **Phase 2: Unchecked Results (Fixes 6-12)** — 7 edits adding result capture + failure checks
-**Phase 3: DateTime (Fixes 13-14)** — 2 edits
+**Phase 3: DateTime (Fixes 13-14, 69)** — 3 edits
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
-**Phase 5: Entity definition gaps (Fixes 28-29, 41, 47)** — Add missing fields to Profile, Pattern, HealthInsight; fix UserAccount `lastLoginAt`→`lastSignInAt`
-**Phase 6: Use case field name fixes (Fixes 35, 37, 40, 44, 53, 54, 57, 60)** — Fix field names, wrong args, wrong method calls in use case code
+**Phase 5: Entity definition gaps (Fixes 28-29, 41, 47, 61, 67)** — Add missing fields to Profile (waterGoalMl, isDefault, avatarUrl), Pattern, HealthInsight, UserAccount, DietViolation
+**Phase 6: Use case/provider field name fixes (Fixes 35, 37, 40, 44, 53, 54, 57, 60, 62, 63)** — Fix field names, wrong args, wrong types in use case + provider code
 **Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
 **Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
 **Phase 9: Wearable import contradictions (Fixes 36, 38, 43)** — Fix ImportedDataLog entity, add missing fields/methods
 **Phase 10: Repository signature fixes (Fixes 39, 42, 55, 58)** — Fix findSimilar, add getByProfile, fix getByCondition params, add getByDateRange
 **Phase 11: Missing error factories (Fixes 48-49, 52, 56)** — Add AuthError.invalidToken, AuthError.accountDeactivated, WearableError.notConnected, NetworkError.rateLimited
-**Phase 12: Missing input fields + enum values (Fixes 50-51, 59)** — Add fields to SyncWearableDataInput, ConnectWearableInput; add `prediction` to RateLimitOperation
-**Phase 13: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
+**Phase 12: Missing input fields + enum values (Fixes 50-51, 59, 64)** — Add fields to SyncWearableDataInput, ConnectWearableInput, GetNotificationSchedulesInput; add `prediction` to RateLimitOperation
+**Phase 13: Missing class definitions (Fixes 65, 66, 68)** — Profile use case layer (5 use cases + 3 inputs), getAccessibleProfiles type fix, SyncConflict class
+**Phase 14: Minor cleanups (Fixes 45-46)** — Fix phantom type, add triggers to input
 
 **All changes are spec-text-only.** No implementation code changes needed. No tests affected.
 
@@ -540,7 +622,7 @@ The following decisions were made by the user on 2026-02-08:
 
 ## Estimated Scope
 
-- 60 targeted edits to 22_API_CONTRACTS.md
+- 69 targeted edits to 22_API_CONTRACTS.md
 - 0 implementation changes
 - 0 test changes
 - Expected next /spec-review result: 0 violations
