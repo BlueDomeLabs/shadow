@@ -1,16 +1,17 @@
 {
-  "lastInstanceId": "spec-fix-convergence-005",
-  "lastAction": "handoff-after-pass5",
-  "taskId": "SPEC-FIX-EXECUTE",
+  "lastInstanceId": "spec-fix-convergence-006",
+  "lastAction": "handoff-for-agent-teams",
+  "taskId": "SPEC-REVIEW-COMPREHENSIVE",
   "status": "in_progress",
-  "timestamp": "2026-02-08T22:30:00Z",
+  "timestamp": "2026-02-08T23:00:00Z",
   "filesModified": [
     ".claude/plans/spec-review-fix-plan-post-phase2.md",
     ".claude/audit-reports/2026-02-08-spec-review-contradictions-pass3.md",
     ".claude/audit-reports/2026-02-08-spec-review-contradictions-pass4.md",
-    ".claude/audit-reports/2026-02-08-spec-review-contradictions-pass5.md"
+    ".claude/audit-reports/2026-02-08-spec-review-contradictions-pass5.md",
+    ".claude/audit-reports/2026-02-08-spec-review-contradictions-pass6.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Five /spec-review passes COMPLETE. Fix plan at .claude/plans/spec-review-fix-plan-post-phase2.md now has 69 items across 14 phases. All user decisions resolved. All fixes are spec-text-only edits to 22_API_CONTRACTS.md. Commits: 00e63ef (pass3, Fixes 47-54), 68659a7 (pass4, Fixes 55-60), 6f4fc79 (pass5, Fixes 61-69). Audit reports at .claude/audit-reports/2026-02-08-spec-review-contradictions-pass{3,4,5}.md. NEXT STEPS: 1) Execute the 69-item fix plan SERIALLY (user explicitly prefers NO parallel agents for spec work). Start with Phase 1 and proceed through Phase 14. Each fix is a targeted edit to 22_API_CONTRACTS.md. 2) Run /spec-review to verify convergence to 0 violations. 3) Then proceed with Phase 3 of original plan (~170 edits across 10 secondary docs). 1205 tests passing, 0 analyzer issues."
+  "notes": "Six /spec-review passes COMPLETE (passes 3-6 this session). Fix plan at .claude/plans/spec-review-fix-plan-post-phase2.md now has 78 items across 16 phases. All fixes are spec-text-only edits to 22_API_CONTRACTS.md. Commits: 00e63ef (pass3), 68659a7 (pass4), 6f4fc79 (pass5), e33f84c (pass6). NEXT STEPS: User wants a COMPREHENSIVE /spec-review using Agent Teams (CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 now set in ~/.claude/settings.json). Create an agent team with each agent reviewing a different aspect of the spec. Agents should communicate peer-to-peer for consistency. The spec is 22_API_CONTRACTS.md (~13,500 lines). Previous 6 passes found 78 issues — there may be more. Audit reports at .claude/audit-reports/2026-02-08-spec-review-contradictions-pass{3,4,5,6}.md. 1205 tests passing, 0 analyzer issues."
 }
