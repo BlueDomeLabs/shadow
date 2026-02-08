@@ -185,6 +185,83 @@ The following decisions were made by the user on 2026-02-08:
 
 ---
 
+## CRITICAL: Entity Definition vs Use Case Code Contradictions (2 items)
+
+### Fix 28: Profile entity missing 3 fields used in auth use case (line 6798-6804)
+- **Auth use case constructs Profile with:**
+  - `userId: user.id` — but entity (line 11011) has `ownerId`, not `userId`
+  - `isDefault: true` — field does NOT exist in entity (lines 11003-11016)
+  - `avatarUrl: googleUser.avatarUrl` — field does NOT exist in entity
+- **Profile mapping table 13.9** also missing `isDefault` and `avatarUrl`
+- **Fix (entity definition, lines 11003-11016):**
+  - Add `@Default(false) bool isDefault,` field
+  - Add `String? avatarUrl,` field
+  - Keep `ownerId` as-is (it's correct), fix use case line 6801 from `userId: user.id` to `ownerId: user.id`
+- **Fix (mapping table 13.9):**
+  - Add `isDefault | is_default | bool | INTEGER | 0/1`
+  - Add `avatarUrl | avatar_url | String? | TEXT | Direct`
+- **Fix (ProfileProvider, line 8143):** Already uses `p.isDefault` — will compile once entity has the field
+
+### Fix 29: Pattern entity missing 3 fields used in DetectPatternsUseCase (lines 5403, 5412-5414)
+- **Use case references:**
+  - `p.relatedConditionId` (line 5403) — NOT in Pattern entity (lines 9685-9700)
+  - `lastObservedAt:` (line 5413) — NOT in Pattern entity
+  - `observationCount:` (line 5414) — NOT in Pattern entity
+- **Fix (Pattern entity definition, after line 9698):**
+  - Add `String? relatedConditionId,   // FK to condition this pattern relates to`
+  - Add `int? lastObservedAt,          // Epoch milliseconds - last time pattern was observed`
+  - Add `@Default(1) int observationCount,  // Number of times pattern observed`
+- **Fix (mapping table 13.29):**
+  - Add `relatedConditionId | related_condition_id | String? | TEXT | FK to conditions`
+  - Add `lastObservedAt | last_observed_at | int? | INTEGER | Epoch ms`
+  - Add `observationCount | observation_count | int | INTEGER | Default 1`
+
+---
+
+## HIGH: Additional Entity-DB Mapping Contradictions (5 items)
+
+### Fix 30: FoodLog mapping missing `mealType` (line 12743-12754)
+- **Entity (line 11330):** `MealType? mealType`
+- **Mapping table 13.14:** No `mealType` field
+- **Fix:** Add row: `mealType | meal_type | MealType? | INTEGER | .value (0=breakfast, 1=lunch, 2=dinner, 3=snack)`
+
+### Fix 31: JournalEntry mapping missing `mood` (line 12806-12818)
+- **Entity (line 11541):** `int? mood  // Mood rating 1-10, optional`
+- **Mapping table 13.18:** No `mood` field
+- **Fix:** Add row: `mood | mood | int? | INTEGER | 1-10 scale`
+
+### Fix 32: Condition mapping missing `triggers`, wrong `status` storage format (lines 12841-12862)
+- **Missing field:** Entity (line 11065) has `@Default([]) List<String> triggers` but mapping has no `triggers` row
+- **Wrong storage format:** Mapping (line 12855) stores `ConditionStatus` as `TEXT 'active' | 'resolved'`, but entity enum has explicit int values (`active(0), resolved(1)`)
+- **Fix:**
+  - Add row: `triggers | triggers | List<String> | TEXT | JSON array (default: [])`
+  - Change status row to: `status | status | ConditionStatus | INTEGER | .value (0=active, 1=resolved)`
+
+### Fix 33: Supplement mapping stores enums as TEXT instead of INTEGER (lines 12509, 12512)
+- **Current:**
+  - `form | form | SupplementForm | TEXT | .name`
+  - `dosageUnit | dosage_unit | DosageUnit | TEXT | .name`
+- **Both enums have explicit int values** (SupplementForm: 0-6, DosageUnit: 0-8)
+- **Fix:**
+  - `form | form | SupplementForm | INTEGER | .value (0=capsule, 1=powder, ..., 6=other)`
+  - `dosageUnit | dosage_unit | DosageUnit | INTEGER | .value (0=g, 1=mg, ..., 8=custom)`
+
+### Fix 34: HealthInsight mapping has AlertPriority int values backwards (line 13038)
+- **Current:** `priority | priority | AlertPriority | INTEGER | .value (0=high, 1=medium, 2=low)`
+- **Actual enum:** `low(0), medium(1), high(2), critical(3)`
+- **Fix:** `priority | priority | AlertPriority | INTEGER | .value (0=low, 1=medium, 2=high, 3=critical)`
+
+---
+
+## HIGH: Use Case Field Name Mismatch (1 item)
+
+### Fix 35: Auth use case uses `userId` instead of `ownerId` for Profile (line 6801)
+- **Current:** `userId: user.id,`
+- **Fix:** `ownerId: user.id,`
+- **Note:** This is part of Fix 28 but listed separately since it's a different location (use case code vs entity definition)
+
+---
+
 ## REMOVED: Items Not Needing Fixes
 
 ### Removed: Enum int values for TrendGranularity, TrendDirection, ConflictResolution
@@ -204,8 +281,10 @@ The following decisions were made by the user on 2026-02-08:
 **Phase 2: Unchecked Results (Fixes 6-12)** — 7 edits adding result capture + failure checks
 **Phase 3: DateTime (Fixes 13-14)** — 2 edits
 **Phase 4: Duplicates + field names (Fixes 15-16)** — Remove duplicate definitions, fix avatarUrl
-**Phase 5: Mapping tables (Fixes 17-21)** — 5 table rewrites in Section 13
-**Phase 6: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
+**Phase 5: Entity definition gaps (Fixes 28-29)** — Add missing fields to Profile and Pattern entities
+**Phase 6: Use case field name fix (Fix 35)** — Change `userId` to `ownerId` in auth use case
+**Phase 7: Mapping tables (Fixes 17-21, 30-34)** — 10 table updates in Section 13
+**Phase 8: Cross-refs + numbering (Fixes 22-27)** — 6 low-risk formatting edits
 
 **All changes are spec-text-only.** No implementation code changes needed. No tests affected.
 
@@ -213,7 +292,7 @@ The following decisions were made by the user on 2026-02-08:
 
 ## Estimated Scope
 
-- 27 targeted edits to 22_API_CONTRACTS.md
+- 35 targeted edits to 22_API_CONTRACTS.md
 - 0 implementation changes
 - 0 test changes
 - Expected next /spec-review result: 0 violations
