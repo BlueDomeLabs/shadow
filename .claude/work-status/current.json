@@ -1,20 +1,24 @@
 {
-  "lastInstanceId": "phase3-screens-008",
-  "lastAction": "completed-tier1-logging-screens",
+  "lastInstanceId": "phase3-screens-009",
+  "lastAction": "committed-phase-a-b-with-deviation-fixes",
   "taskId": "PHASE3-TIER1-SCREENS",
   "status": "complete",
-  "timestamp": "2026-02-07T16:00:00Z",
+  "timestamp": "2026-02-07T17:00:00Z",
   "filesModified": [
+    "lib/domain/enums/health_enums.dart",
+    "lib/domain/entities/intake_log.dart",
+    "lib/domain/entities/food_log.dart",
+    "lib/domain/entities/condition.dart",
+    "lib/domain/usecases/intake_logs/mark_snoozed_use_case.dart",
     "lib/presentation/screens/intake_logs/intake_log_screen.dart",
-    "test/presentation/screens/intake_logs/intake_log_screen_test.dart",
     "lib/presentation/screens/condition_logs/condition_log_screen.dart",
-    "test/presentation/screens/condition_logs/condition_log_screen_test.dart",
     "lib/presentation/screens/food_logs/food_log_screen.dart",
-    "test/presentation/screens/food_logs/food_log_screen_test.dart",
     "lib/presentation/screens/fluids_entries/fluids_entry_screen.dart",
-    "test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart"
+    "10_DATABASE_SCHEMA.md",
+    "22_API_CONTRACTS.md",
+    "test/unit/domain/enums/health_enums_test.dart"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "Phase A + Phase B COMPLETE. Domain layer updated (snoozed status, mealType, triggers). 4 Tier 1 logging screens implemented: IntakeLog (49 tests), ConditionLog (49 tests), FoodLog (39 tests), FluidsEntry (69 tests). Total: 1205 tests passing, 0 analyzer issues. All changes UNCOMMITTED. SPEC_REVIEW: FluidsEntry has comments about UrineCondition enum gap (spec lists 'Yellow' but enum has 'amber'/'darkYellow') and BowelCondition accessibility label discrepancy (Section 18.5 says 'Bristol stool scale 1 to 7' but Section 6.1 uses named conditions). Next: commit all Phase A + B changes, then continue with remaining screens per 38_UI_FIELD_SPECIFICATIONS.md."
+  "notes": "Phase A + Phase B COMPLETE AND COMMITTED. All deviations fixed: (1) Added UrineCondition.yellow(2) per UI spec Section 6.1 - renumbered darkYellow→3 through custom→7, (2) Updated 10_DATABASE_SCHEMA.md fluids_entries: timestamp→entry_date, added import_source/import_external_id/notes/photo_ids columns, fixed has_bowel/urine_movement defaults, (3) Updated 22_API_CONTRACTS.md: added mealType to LogFoodInput/UpdateFoodLogInput, completed LogFluidsEntryUseCase entity construction, fixed entryDate→entry_date mapping. 1205 tests passing, 0 analyzer issues. All changes COMMITTED (commit 11b7f1d). /spec-review and /implementation-review reports saved to .claude/audit-reports/. Next: continue with remaining screens per 38_UI_FIELD_SPECIFICATIONS.md and 34_PROJECT_TRACKER.md."
 }
