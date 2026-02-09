@@ -8882,6 +8882,9 @@ Future<List<PendingNotification>> pendingNotifications(
     windowEndEpoch: endOfDay.millisecondsSinceEpoch,
   ));
 
+  if (result.isFailure) {
+    throw result.errorOrNull!;
+  }
   return result.valueOrNull ?? [];
 }
 ```
@@ -13859,11 +13862,15 @@ group('Quiet Hours Queuing', () {
 
   test('discards stale notifications older than 24 hours', () async {
     // Given: Notification queued 25 hours ago
+    final now = DateTime.now().millisecondsSinceEpoch;
     final oldNotification = QueuedNotification(
       id: 'test-stale-notification',
+      clientId: 'test-client-id',
       type: NotificationType.supplementIndividual,
       profileId: profileId,
-      originalScheduledTime: DateTime.now().millisecondsSinceEpoch - (25 * 60 * 60 * 1000), // 25 hours ago, epoch ms
+      originalScheduledTime: now - (25 * 60 * 60 * 1000), // 25 hours ago, epoch ms
+      queuedAt: now - (25 * 60 * 60 * 1000),
+      payload: const {},
     );
     queueNotification(oldNotification);
 
