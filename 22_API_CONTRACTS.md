@@ -63,21 +63,24 @@ final class Failure<T, E> extends Result<T, E> {
 /// Actions that can be taken to recover from an error
 enum RecoveryAction {
   /// No recovery possible - user must accept the error
-  none,
+  none(0),
   /// Retry the operation (transient failure)
-  retry,
+  retry(1),
   /// Refresh the authentication token
-  refreshToken,
+  refreshToken(2),
   /// User must re-authenticate (sign in again)
-  reAuthenticate,
+  reAuthenticate(3),
   /// User should check app settings
-  goToSettings,
+  goToSettings(4),
   /// User should contact support
-  contactSupport,
+  contactSupport(5),
   /// User should check network connection
-  checkConnection,
+  checkConnection(6),
   /// User should free up storage space
-  freeStorage,
+  freeStorage(7);
+
+  final int value;
+  const RecoveryAction(this.value);
 }
 
 sealed class AppError implements Exception {
@@ -139,6 +142,7 @@ final class DatabaseError extends AppError {
   static const String codeNotFound = 'DB_NOT_FOUND';
   static const String codeMigrationFailed = 'DB_MIGRATION_FAILED';
   static const String codeConnectionFailed = 'DB_CONNECTION_FAILED';
+  static const String codeTransactionFailed = 'DB_TRANSACTION_FAILED';
   static const String codeConstraintViolation = 'DB_CONSTRAINT_VIOLATION';
 
   factory DatabaseError.queryFailed(String details, [dynamic error, StackTrace? stack]) =>
@@ -168,20 +172,29 @@ final class DatabaseError extends AppError {
       stackTrace: stack,
     );
 
-  factory DatabaseError.updateFailed(String table, String id, [dynamic error, StackTrace? stack]) =>
+  factory DatabaseError.updateFailed(String table, [dynamic error, StackTrace? stack]) =>
     DatabaseError._(
       code: codeUpdateFailed,
-      message: 'Failed to update $table with id $id',
+      message: 'Failed to update $table',
       userMessage: 'Unable to update data. Please try again.',
       originalError: error,
       stackTrace: stack,
     );
 
-  factory DatabaseError.deleteFailed(String table, String id, [dynamic error, StackTrace? stack]) =>
+  factory DatabaseError.deleteFailed(String table, [dynamic error, StackTrace? stack]) =>
     DatabaseError._(
       code: codeDeleteFailed,
-      message: 'Failed to delete from $table with id $id',
+      message: 'Failed to delete from $table',
       userMessage: 'Unable to delete data. Please try again.',
+      originalError: error,
+      stackTrace: stack,
+    );
+
+  factory DatabaseError.transactionFailed(String operation, [dynamic error, StackTrace? stack]) =>
+    DatabaseError._(
+      code: codeTransactionFailed,
+      message: 'Transaction failed during $operation',
+      userMessage: 'Unable to complete the operation. Please try again.',
       originalError: error,
       stackTrace: stack,
     );
@@ -328,6 +341,7 @@ final class NetworkError extends AppError {
   static const String codeNoConnection = 'NET_NO_CONNECTION';
   static const String codeTimeout = 'NET_TIMEOUT';
   static const String codeServerError = 'NET_SERVER_ERROR';
+  static const String codeRateLimited = 'NET_RATE_LIMITED';
   static const String codeSslError = 'NET_SSL_ERROR';
 
   factory NetworkError.noConnection() => NetworkError._(
@@ -348,6 +362,13 @@ final class NetworkError extends AppError {
     message: 'Server error $statusCode: $details',
     userMessage: 'Server error. Please try again later.',
     originalError: error,
+  );
+
+  factory NetworkError.rateLimited(String operation, [Duration? retryAfter]) => NetworkError._(
+    code: codeRateLimited,
+    message: 'Rate limited during $operation${retryAfter != null ? ', retry after ${retryAfter.inSeconds}s' : ''}',
+    userMessage: 'Too many requests. Please wait a moment and try again.',
+    recoveryAction: RecoveryAction.retry,
   );
 
   factory NetworkError.sslError(String host, [dynamic error, StackTrace? stack]) => NetworkError._(
@@ -1728,6 +1749,20 @@ typedef BaseRepositoryContract<T, ID> = EntityRepository<T, ID>;
 
 ```dart
 // lib/data/datasources/local/base_local_data_source.dart
+
+/// Base interface for database model classes that map entities to/from database rows.
+abstract class Model<T> {
+  Map<String, dynamic> toMap();
+  Model<T> copyWith({
+    String? id,
+    int? syncCreatedAt,
+    int? syncUpdatedAt,
+    int? syncVersion,
+    bool? syncIsDirty,
+    int? syncStatus,
+    int? syncDeletedAt,
+  });
+}
 
 abstract class BaseLocalDataSource<T extends Syncable, M extends Model<T>> {
   final Database _database;
@@ -3683,10 +3718,10 @@ class FluidsEntryLocalDataSource extends BaseLocalDataSource<FluidsEntry, Fluids
       final rows = await _database.query('''
         SELECT * FROM fluids_entries
         WHERE profile_id = ?
-          AND timestamp >= ?
-          AND timestamp < ?
+          AND entry_date >= ?
+          AND entry_date < ?
           AND sync_deleted_at IS NULL
-        ORDER BY timestamp DESC
+        ORDER BY entry_date DESC
       ''', [profileId, start, end]);
 
       return Success(rows.map(_fromRow).toList());
@@ -3706,11 +3741,11 @@ class FluidsEntryLocalDataSource extends BaseLocalDataSource<FluidsEntry, Fluids
       final rows = await _database.query('''
         SELECT * FROM fluids_entries
         WHERE profile_id = ?
-          AND timestamp >= ?
-          AND timestamp < ?
+          AND entry_date >= ?
+          AND entry_date < ?
           AND basal_body_temperature IS NOT NULL
           AND sync_deleted_at IS NULL
-        ORDER BY timestamp ASC
+        ORDER BY entry_date ASC
       ''', [profileId, start, end]);
 
       return Success(rows.map(_fromRow).toList());
@@ -3730,10 +3765,10 @@ class FluidsEntryLocalDataSource extends BaseLocalDataSource<FluidsEntry, Fluids
       final rows = await _database.query('''
         SELECT * FROM fluids_entries
         WHERE profile_id = ?
-          AND timestamp >= ?
-          AND timestamp < ?
+          AND entry_date >= ?
+          AND entry_date < ?
           AND sync_deleted_at IS NULL
-        ORDER BY timestamp DESC
+        ORDER BY entry_date DESC
         LIMIT 1
       ''', [profileId, startOfDay, endOfDay]);
 
@@ -7884,6 +7919,8 @@ part 'supplement_provider.g.dart';
 class SupplementListState with _$SupplementListState {
   const factory SupplementListState({
     @Default([]) List<Supplement> supplements,
+    @Default([]) List<Supplement> archivedSupplements,
+    @Default(false) bool showArchived,
     @Default(false) bool isLoading,
     AppError? error,
   }) = _SupplementListState;
@@ -8560,6 +8597,7 @@ part 'fluids_provider.g.dart';
 
 @freezed
 class FluidsState with _$FluidsState {
+  const FluidsState._();
   const factory FluidsState({
     FluidsEntry? todayEntry,
     @Default([]) List<FluidsEntry> weekEntries,
@@ -8588,7 +8626,7 @@ class FluidsEntryList extends _$FluidsEntryList {
 
     // Fetch today's entry
     final todayUseCase = ref.read(getTodayFluidsEntryUseCaseProvider);
-    final todayResult = await todayUseCase(profileId);
+    final todayResult = await todayUseCase(GetTodayFluidsEntryInput(profileId: profileId));
 
     // Fetch week's entries
     final weekUseCase = ref.read(getFluidsEntriesUseCaseProvider);
@@ -8620,7 +8658,7 @@ class FluidsEntryList extends _$FluidsEntryList {
   Future<Result<FluidsEntry, AppError>> addWater(int amountMl) async {
     final current = state.valueOrNull;
     if (current == null || _profileId == null) {
-      return Failure(StateError('No fluids state available'));
+      return Failure(BusinessError.preconditionFailed('fluids operation', 'No fluids state available'));
     }
 
     // Optimistic update
@@ -8667,7 +8705,7 @@ class FluidsEntryList extends _$FluidsEntryList {
   /// Update water goal
   Future<Result<void, AppError>> setWaterGoal(int goalMl) async {
     final current = state.valueOrNull;
-    if (current == null) return Failure(StateError('No state'));
+    if (current == null) return Failure(BusinessError.preconditionFailed('fluids operation', 'No state available'));
 
     state = AsyncData(current.copyWith(dailyWaterGoalMl: goalMl));
 
@@ -8985,6 +9023,7 @@ part 'sync_provider.g.dart';
 
 @freezed
 class SyncState with _$SyncState {
+  const SyncState._();
   const factory SyncState({
     @Default(false) bool isSyncing,
     @Default(0) int pendingChanges,
@@ -9017,7 +9056,7 @@ class SyncNotifier extends _$SyncNotifier {
 
   Future<Result<PushChangesResult, AppError>> pushChanges() async {
     final current = state.valueOrNull;
-    if (current == null) return Failure(StateError('No sync state'));
+    if (current == null) return Failure(BusinessError.preconditionFailed('sync operation', 'No sync state available'));
 
     state = AsyncData(current.copyWith(isSyncing: true, error: null));
 
@@ -9050,7 +9089,7 @@ class SyncNotifier extends _$SyncNotifier {
 
   Future<Result<PullChangesResult, AppError>> pullChanges() async {
     final current = state.valueOrNull;
-    if (current == null) return Failure(StateError('No sync state'));
+    if (current == null) return Failure(BusinessError.preconditionFailed('sync operation', 'No sync state available'));
 
     state = AsyncData(current.copyWith(isSyncing: true, error: null));
 
@@ -9478,6 +9517,7 @@ class DietViolation with _$DietViolation {
     required RuleSeverity severity,
     required String message,
     required int timestamp,          // Epoch milliseconds
+    @Default(false) bool wasDismissed,
     required SyncMetadata syncMetadata,
   }) = _DietViolation;
 
@@ -9709,6 +9749,8 @@ class Pattern with _$Pattern {
     required int detectedAt,        // Epoch milliseconds
     required int dataRangeStart,    // Epoch milliseconds
     required int dataRangeEnd,      // Epoch milliseconds
+    required int observationCount,
+    required int lastObservedAt,    // Epoch milliseconds
     @Default(true) bool isActive,
     required SyncMetadata syncMetadata,
   }) = _Pattern;
@@ -9774,6 +9816,7 @@ class HealthInsight with _$HealthInsight {
     required String id,
     required String clientId,
     required String profileId,
+    required String insightKey,       // Deduplication key for insight
     required InsightCategory category,
     required AlertPriority priority,
     required String title,
@@ -10838,16 +10881,17 @@ abstract class RateLimitService {
 }
 
 enum RateLimitOperation {
-  sync(60, Duration(minutes: 1)),              // 60 per minute
-  photoUpload(10, Duration(minutes: 1)),      // 10 per minute
-  reportGeneration(5, Duration(minutes: 1)),  // 5 per minute
-  dataExport(2, Duration(minutes: 1)),        // 2 per minute
-  wearableSync(1, Duration(minutes: 5));      // 1 per 5 minutes per platform
+  sync(0, 60, Duration(minutes: 1)),              // 60 per minute
+  photoUpload(1, 10, Duration(minutes: 1)),      // 10 per minute
+  reportGeneration(2, 5, Duration(minutes: 1)),  // 5 per minute
+  dataExport(3, 2, Duration(minutes: 1)),        // 2 per minute
+  wearableSync(4, 1, Duration(minutes: 5));      // 1 per 5 minutes per platform
 
+  final int value;
   final int maxRequests;
   final Duration window;
 
-  const RateLimitOperation(this.maxRequests, this.window);
+  const RateLimitOperation(this.value, this.maxRequests, this.window);
 }
 
 @freezed
@@ -11132,6 +11176,21 @@ class HipaaAuthorization with _$HipaaAuthorization {
 }
 
 // NOTE: AuthorizationDuration enum is defined in Section 3.2 above
+
+/// Repository for HIPAA authorization records
+abstract class HipaaAuthorizationRepository implements EntityRepository<HipaaAuthorization, String> {
+  /// Get all authorizations for a profile
+  Future<Result<List<HipaaAuthorization>, AppError>> getByProfile(String profileId);
+
+  /// Get active (non-revoked, non-expired) authorizations
+  Future<Result<List<HipaaAuthorization>, AppError>> getActive(String profileId);
+
+  /// Get authorization for a specific grantee
+  Future<Result<HipaaAuthorization?, AppError>> getByGrantee(String profileId, String grantedToUserId);
+
+  /// Revoke an authorization
+  Future<Result<void, AppError>> revoke(String id, String reason);
+}
 ```
 
 ### 10.4 ProfileAccessLog Entity
@@ -11496,6 +11555,8 @@ abstract class ConditionLogRepository implements EntityRepository<ConditionLog, 
   /// Get condition logs for a specific condition.
   Future<Result<List<ConditionLog>, AppError>> getByCondition(
     String conditionId, {
+    int? startDate,     // Epoch milliseconds
+    int? endDate,       // Epoch milliseconds
     int? limit,
     int? offset,
   });
@@ -12142,9 +12203,7 @@ class DeviceRegistration with _$DeviceRegistration {
   factory DeviceRegistration.fromJson(Map<String, dynamic> json) =>
       _$DeviceRegistrationFromJson(json);
 
-  bool get isStale => DateTime.now().difference(
-    DateTime.fromMillisecondsSinceEpoch(lastSeenAt)
-  ).inDays > 30;
+  bool get isStale => DateTime.now().millisecondsSinceEpoch - lastSeenAt > 30 * 24 * 60 * 60 * 1000;
 }
 
 enum DeviceType {
@@ -12448,7 +12507,7 @@ abstract class ProfileAccessRepository implements EntityRepository<ProfileAccess
 
 ## 11. Enforcement Mechanisms
 
-### 8.1 Custom Lint Rules
+### 11.1 Custom Lint Rules
 
 ```yaml
 # analysis_options.yaml
@@ -12467,7 +12526,7 @@ custom_lint:
     - require_semantic_labels: true
 ```
 
-### 8.2 Pre-commit Checks
+### 11.2 Pre-commit Checks
 
 ```bash
 #!/bin/bash
@@ -12722,7 +12781,6 @@ class SyncReminderService {
   /// Threshold for triggering sync reminder
   static const int syncReminderDays = 7;
 
-  /// Check if sync reminder should be shown
   /// Check if sync reminder should be shown
   /// Uses epoch ms arithmetic per 02_CODING_STANDARDS.md (no DateTime in domain)
   bool shouldShowSyncReminder(String profileId) {
