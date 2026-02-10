@@ -2121,6 +2121,47 @@ class GetSupplementsUseCase implements UseCase<GetSupplementsInput, List<Supplem
   }
 }
 
+// lib/domain/usecases/supplements/get_supplement_by_id_use_case.dart
+
+class GetSupplementByIdUseCase implements UseCase<String, Supplement?> {
+  final SupplementRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetSupplementByIdUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Supplement?, AppError>> call(String id) async {
+    final result = await _repository.getById(id);
+    if (result.isFailure) return Failure(result.errorOrNull!);
+    final supplement = result.valueOrNull;
+    if (supplement != null && !await _authService.canRead(supplement.profileId)) {
+      return Failure(AuthError.profileAccessDenied(supplement.profileId));
+    }
+    return Success(supplement);
+  }
+}
+
+@riverpod
+GetSupplementByIdUseCase getSupplementByIdUseCase(Ref ref) =>
+    GetSupplementByIdUseCase(
+      ref.read(supplementRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
+@riverpod
+DeleteEntityUseCase deleteSupplementUseCase(Ref ref) =>
+    DeleteEntityUseCase(
+      ref.read(supplementRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
+@riverpod
+DeleteEntityUseCase deleteNotificationScheduleUseCase(Ref ref) =>
+    DeleteEntityUseCase(
+      ref.read(notificationScheduleRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
 // lib/domain/usecases/fluids/log_fluids_entry_use_case.dart
 
 @freezed
@@ -8469,7 +8510,7 @@ class ConditionList extends _$ConditionList {
     final conditionsUseCase = ref.read(getConditionsUseCaseProvider);
     final conditionsResult = await conditionsUseCase(GetConditionsInput(
       profileId: profileId,
-      activeOnly: true,
+      status: ConditionStatus.active,
     ));
 
     if (conditionsResult.isFailure) {
@@ -8565,9 +8606,9 @@ class ConditionList extends _$ConditionList {
 @riverpod
 Future<ConditionTrend?> conditionTrend(
   Ref ref,
-  String conditionId, {
-  int days = 30,
-}) async {
+  String conditionId,
+  int days,  // Positional — Riverpod code gen does not support optional named params
+) async {
   final profileId = ref.watch(currentProfileIdProvider);
   if (profileId == null) return null;
 
@@ -8722,9 +8763,9 @@ class FluidsEntryList extends _$FluidsEntryList {
 @riverpod
 Future<List<FluidsEntry>> bbtChartData(
   Ref ref,
-  String profileId, {
-  int days = 30,
-}) async {
+  String profileId,
+  int days,  // Positional — Riverpod code gen does not support optional named params
+) async {
   final now = DateTime.now().millisecondsSinceEpoch;
   final startDate = now - (days * Duration.millisecondsPerDay);
 
@@ -9241,7 +9282,25 @@ class ProviderErrorDisplay extends ConsumerWidget {
           icon: const Icon(Icons.settings),
           label: const Text('Open Settings'),
         );
-      default:
+      case RecoveryAction.refreshToken:
+        return ElevatedButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Refresh Session'),
+        );
+      case RecoveryAction.contactSupport:
+        return OutlinedButton.icon(
+          onPressed: () => context.go('/settings/support'),
+          icon: const Icon(Icons.support_agent),
+          label: const Text('Contact Support'),
+        );
+      case RecoveryAction.freeStorage:
+        return OutlinedButton.icon(
+          onPressed: () => context.go('/settings/storage'),
+          icon: const Icon(Icons.storage),
+          label: const Text('Free Storage'),
+        );
+      case RecoveryAction.none:
         return const SizedBox.shrink();
     }
   }
