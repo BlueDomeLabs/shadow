@@ -6,10 +6,11 @@
 |------|-------|--------|
 | 1 | Entity field-by-field comparison (15 entities + SyncMetadata) | COMPLETE |
 | 2 | Repository method signatures (15 repositories) | COMPLETE |
-| 3 | Use case input classes + logic (100+ files) | PENDING |
-| 4 | DAO/Table column alignment (15 DAOs, 14 tables) | PENDING |
+| 3 | Use case input classes + logic (100+ files) | PENDING — LARGEST PASS |
+| 4 | DAO/Table column alignment (14 tables) | COMPLETE |
 | 5 | Enum values alignment | COMPLETE |
-| 6 | Core types (SyncMetadata, AppError, Result, base use cases) | PENDING |
+| 6 | Core types (SyncMetadata, AppError, Result, base use cases) | COMPLETE |
+| 7 | Implementation Gap Analysis (what's missing) | COMPLETE |
 
 ## Implementation Inventory
 
@@ -620,3 +621,489 @@ These enums are defined in the spec but belong to subsystems not yet built:
 **24 of 28 implemented enums are exact matches.** 4 enums are missing their int values — a clear pattern violation of Rule 9.1.1. These are straightforward fixes (add int values + constructor). ~17 spec enums are not yet implemented but belong to unbuilt subsystems.
 
 **Ready for Pass 3/4/6 (remaining passes).**
+
+---
+
+## Pass 6: Core Types (AppError, Result, Base Use Cases, SyncMetadata)
+
+### Method
+For each core type:
+1. Read the implementation file
+2. Find the spec definition in 22_API_CONTRACTS.md
+3. Compare class structure, codes, factories, methods, parameters
+4. Log every deviation
+
+---
+
+### Pass 6 Results Summary
+
+| Core Type | Match? | Issues | Severity |
+|-----------|:---:|:---:|:---:|
+| Result<T, E> | EXACT MATCH | 0 | NONE |
+| UseCase<Input, Output> | EXACT MATCH | 0 | NONE |
+| UseCaseNoInput<Output> | EXACT MATCH | 0 | NONE |
+| UseCaseNoOutput<Input> | EXACT MATCH | 0 | NONE |
+| UseCaseWithInput<Output, Input> | EXACT MATCH | 0 | NONE |
+| AppError (base sealed class) | EXACT MATCH | 0 | NONE |
+| **DatabaseError** | **NO** | 3 | **HIGH** |
+| AuthError | MATCH | 0 | NONE |
+| NetworkError | NEAR MATCH | 2 | LOW |
+| ValidationError | EXACT MATCH | 0 | NONE |
+| SyncError | EXACT MATCH | 0 | NONE |
+| WearableError | EXACT MATCH | 0 | NONE |
+| DietError | NEAR MATCH | 1 | LOW |
+| IntelligenceError | EXACT MATCH | 0 | NONE |
+| BusinessError | EXACT MATCH | 0 | NONE |
+| NotificationError | EXACT MATCH | 0 | NONE |
+| SyncMetadata | EXACT MATCH | 0 | NONE |
+| Syncable interface | EXACT MATCH | 0 | NONE |
+| SyncStatus enum | EXACT MATCH | 0 | NONE |
+| RecoveryAction enum | NO (int values) | 1 | HIGH (already P5-3) |
+
+**Totals: 16 exact matches, 1 HIGH (DatabaseError), 2 LOW, 1 already tracked (RecoveryAction P5-3)**
+
+---
+
+### Per-Type Detailed Comparison
+
+#### 1. Result<T, E> — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md Section 1
+- **Impl:** lib/core/types/result.dart
+- Sealed class with Success and Failure subtypes, all methods match
+
+#### 2. Base Use Case Interfaces (4) — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md Section 4.5
+- **Impl:** lib/domain/usecases/base_use_case.dart
+- `UseCase<Input, Output>`, `UseCaseNoInput<Output>`, `UseCaseNoOutput<Input>`, `UseCaseWithInput<Output, Input>` — all match
+
+#### 3. AppError Base — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 86
+- **Impl:** lib/core/errors/app_error.dart line 31
+- Fields: code, message, userMessage, originalError, stackTrace — all match
+- Getters: isRecoverable, recoveryAction — both match
+
+#### 4. DatabaseError — HIGH SEVERITY
+- **Spec:** 22_API_CONTRACTS.md line 116
+- **Impl:** lib/core/errors/app_error.dart line 57
+
+| Issue | Spec | Implementation | Severity |
+|-------|------|----------------|----------|
+| Missing error code | `codeTransactionFailed = 'DB_TRANSACTION_FAILED'` | NOT PRESENT | HIGH |
+| Missing factory | `transactionFailed(String operation, [dynamic error, StackTrace? stack])` | NOT PRESENT | HIGH |
+| Extra parameter | `updateFailed(String table, [dynamic error, StackTrace? stack])` | `updateFailed(String table, String id, [dynamic error, StackTrace? stack])` | MEDIUM |
+| Extra parameter | `deleteFailed(String table, [dynamic error, StackTrace? stack])` | `deleteFailed(String table, String id, [dynamic error, StackTrace? stack])` | MEDIUM |
+
+**Impact:**
+- Missing `transactionFailed` means DB transaction errors must use a generic error type
+- Extra `id` parameter in `updateFailed`/`deleteFailed` provides more context in error messages but deviates from spec
+
+**Assessment on updateFailed/deleteFailed:** The extra `id` parameter is useful for debugging — error messages show which specific record failed. The spec version is simpler but less informative. Consider updating spec to include `id`.
+
+#### 5. AuthError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 236
+- **Impl:** lib/core/errors/app_error.dart line 189
+- 7 error codes: all match
+- 7 factories: all match (tokenExpired uses `const` optimization — functionally identical)
+
+#### 6. NetworkError — LOW SEVERITY (minor text differences)
+- **Spec:** 22_API_CONTRACTS.md line 319
+- **Impl:** lib/core/errors/app_error.dart line 279
+- 5 error codes: all match
+- Minor differences:
+  - `codeRateLimited` declared after `sslError` factory (line 348) instead of with other codes (cosmetic)
+  - `rateLimited` message text: "Rate limit exceeded for" vs spec "Rate limited during" (minor)
+  - `rateLimited` userMessage: "Please try again later." vs spec "Please wait a moment and try again." (minor)
+  - `noConnection()` uses `const` optimization (functionally identical)
+
+#### 7. ValidationError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 387
+- **Impl:** lib/core/errors/app_error.dart line 365
+- 8 error codes, all factories, fieldErrors map, helper methods — all match
+
+#### 8. SyncError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 496
+- **Impl:** lib/core/errors/app_error.dart line 486
+- 5 error codes, 5 factories — all match
+
+#### 9. WearableError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 572
+- **Impl:** lib/core/errors/app_error.dart line 580
+- 7 error codes, 7 factories — all match
+
+#### 10. DietError — LOW SEVERITY
+- **Spec:** 22_API_CONTRACTS.md line 662
+- **Impl:** lib/core/errors/app_error.dart line 686
+- 6 error codes, 6 factories — all match
+- `multipleActiveDiets()` uses `const` optimization (functionally identical)
+- Missing Rule Conflict Detection Criteria comment block from spec (informational only — lines 698-727 in spec are a documentation comment, not executable code)
+
+#### 11. IntelligenceError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 769
+- **Impl:** lib/core/errors/app_error.dart line 762
+- 6 error codes, 6 factories — all match
+
+#### 12. BusinessError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 857
+- **Impl:** lib/core/errors/app_error.dart line 869
+- 5 error codes, 5 factories — all match
+
+#### 13. NotificationError — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 929
+- **Impl:** lib/core/errors/app_error.dart line 946
+- 6 error codes, 6 factories — all match
+- `permissionDenied()` uses `const` optimization (functionally identical)
+
+#### 14. SyncMetadata — EXACT MATCH
+- **Spec:** 22_API_CONTRACTS.md line 1037
+- **Impl:** lib/domain/entities/sync_metadata.dart
+- Already verified in Pass 1 — 9 fields, all factory methods, computed properties all match
+
+#### 15. Syncable + SyncStatus — EXACT MATCH
+- Both verified in Pass 1 and Pass 5 respectively
+
+---
+
+### Pass 6 Action Items
+
+| ID | Severity | Issue | Recommended Action |
+|----|----------|-------|-------------------|
+| P6-1 | HIGH | DatabaseError missing `codeTransactionFailed` and `transactionFailed()` factory | Add to implementation |
+| P6-2 | MEDIUM | DatabaseError `updateFailed`/`deleteFailed` have extra `id` parameter not in spec | **Decide:** Update spec to include `id` (better debugging) OR remove from impl |
+| P6-3 | LOW | NetworkError `rateLimited` message text differs slightly from spec | Align message text with spec |
+| P6-4 | LOW | DietError missing Rule Conflict Detection Criteria comment | Add comment (informational only) |
+
+---
+
+### Pass 6 Verdict
+
+**16 of 19 core types are exact matches.** The main finding is DatabaseError missing `transactionFailed` (HIGH). NetworkError and DietError have minor text/comment differences (LOW). RecoveryAction's missing int values was already tracked as P5-3.
+
+The core type layer is well-implemented. Result, base use cases, and 7 of 10 error subclasses are exact matches with the spec.
+
+---
+
+## Pass 4: Table Column Alignment (14 Implemented Tables)
+
+### Method
+For each Drift table definition:
+1. Read the implementation file (lib/data/datasources/local/tables/)
+2. Find the spec definition in 22_API_CONTRACTS.md Section 13
+3. Compare column-by-column: name, type, nullable, defaults
+4. Log every deviation
+
+---
+
+### Pass 4 Results Summary
+
+| Table | Spec Section | Columns Match? | Issues | Severity |
+|-------|:---:|:---:|:---:|:---:|
+| supplements | 13.2 | YES | 0 | NONE |
+| fluids_entries | 13.3 | YES (with noted extras) | 0 | NONE |
+| conditions | 13.20 | YES | 0 | NONE |
+| condition_logs | 13.21 | YES | 0 | NONE |
+| activities | 13.15 | YES | 0 | NONE |
+| activity_logs | 13.16 | YES | 0 | NONE |
+| **food_items** | **13.13** | **NO** | 2 | **MEDIUM** |
+| food_logs | 13.14 | YES | 0 | NONE |
+| **intake_logs** | **13.12** | **NO** | SPEC INCONSISTENCY | **HIGH (spec bug)** |
+| journal_entries | 13.18 | YES | 0 | NONE |
+| photo_areas | 13.24 | YES | 0 | NONE |
+| **photo_entries** | **13.25** | **NO** | 1 | **MEDIUM** |
+| flare_ups | 13.22 | YES | 0 | NONE |
+| sleep_entries | 13.17 | YES | 0 | NONE |
+
+**Totals: 11 exact matches, 1 spec inconsistency (HIGH), 2 with deviations (MEDIUM)**
+
+---
+
+### Per-Table Detailed Comparison
+
+#### 1. Supplements — MATCH
+All 16 entity columns + 9 sync columns present. Column names, types, and nullability all match spec Section 13.2.
+
+#### 2. FluidsEntries — MATCH (with noted extras)
+All spec columns present. Extra DB columns `bowel_custom_condition` and `urine_custom_condition` exist — these are explicitly noted in spec Section 13.3: "bowelCustomCondition and urineCustomCondition DB columns exist for 'custom' enum values but are not in current entity."
+
+#### 3. Conditions — MATCH
+All 18 entity columns + 9 sync columns match spec Section 13.20.
+
+#### 4. ConditionLogs — MATCH
+All 16 entity columns + 9 sync columns match spec Section 13.21.
+
+#### 5. Activities — MATCH
+All 9 entity columns + 9 sync columns match spec Section 13.15.
+
+#### 6. ActivityLogs — MATCH
+All 10 entity columns + 9 sync columns match spec Section 13.16.
+
+#### 7. FoodItems — MEDIUM SEVERITY
+
+| Issue | Spec (13.13) | Implementation | Deviation |
+|-------|-------------|----------------|-----------|
+| serving_size type | TEXT (String?) | REAL (double?) | **Type mismatch** — spec says "1 cup", "100g" as text; impl stores numeric value |
+| serving_unit | NOT IN SPEC | TEXT (String?) | **Extra column** — impl splits serving into value + unit |
+
+**Impact:** The spec models `servingSize` as a free-text string like "1 cup" or "100g". The implementation stores it as a numeric value with a separate unit column. This changes the data model but is arguably more structured. Entity `FoodItem` has `servingSize` as `String?` per spec, but the table stores REAL — the DAO must handle this conversion.
+
+#### 8. FoodLogs — MATCH
+All 8 entity columns + 9 sync columns match spec Section 13.14.
+
+#### 9. IntakeLogs — HIGH SEVERITY (Spec Internal Inconsistency)
+
+**The spec's Section 13.12 table definition does NOT match the entity definition in Section 10.10.**
+
+| Section 13.12 (Table) | Section 10.10 (Entity) | Implementation Table |
+|----------------------|----------------------|---------------------|
+| timestamp | scheduledTime | scheduled_time |
+| intake_time (IntakeTime enum) | status (IntakeLogStatus enum) | status |
+| dosage_amount (REAL) | actualTime (int?) | actual_time |
+| notes (TEXT) | reason (String?) | reason |
+| — | note (String?) | note |
+| — | snoozeDurationMinutes (int?) | snooze_duration_minutes |
+
+**The implementation table matches the entity definition (Section 10.10), NOT Section 13.12.** This is the correct approach — the table should match the entity. Section 13.12 appears to be from an older version of the IntakeLog entity.
+
+**Verdict:** This is a SPEC BUG — Section 13.12 needs to be updated to match the current IntakeLog entity.
+
+#### 10. JournalEntries — MATCH
+All 9 entity columns + 9 sync columns match spec Section 13.18.
+
+#### 11. PhotoAreas — MATCH
+All 8 entity columns + 9 sync columns match spec Section 13.24.
+
+#### 12. PhotoEntries — MEDIUM SEVERITY
+
+| Issue | Spec (13.25) | Implementation | Deviation |
+|-------|-------------|----------------|-----------|
+| FK column name | `photo_area_id` | `area_id` | Column name mismatch |
+
+**Impact:** The entity field is `photoAreaId` which should map to `photo_area_id` in the DB. The implementation uses `area_id` instead. This is a naming inconsistency that could cause issues if code references the column by name.
+
+#### 13. FlareUps — MATCH
+All 11 entity columns + 9 sync columns match spec Section 13.22.
+
+#### 14. SleepEntries — MATCH
+All 13 entity columns + 9 sync columns match spec Section 13.17.
+
+---
+
+### Sync Metadata Columns (Systematic Check)
+
+All 14 tables have the 9 sync metadata columns per spec Section 13.7:
+- `sync_created_at` (INTEGER, non-null)
+- `sync_updated_at` (INTEGER, nullable)
+- `sync_deleted_at` (INTEGER, nullable)
+- `sync_last_synced_at` (INTEGER, nullable)
+- `sync_status` (INTEGER, default 0)
+- `sync_version` (INTEGER, default 1)
+- `sync_device_id` (TEXT, nullable)
+- `sync_is_dirty` (BOOLEAN, default true)
+- `conflict_data` (TEXT, nullable)
+
+**Note:** Spec Section 13.7 lists `sync_device_id` as nullable, which matches the table impl. However, the entity's `syncDeviceId` is `required String`. The DAO handles this by defaulting to empty string when null in DB.
+
+---
+
+### Pass 4 Action Items
+
+| ID | Severity | Issue | Recommended Action |
+|----|----------|-------|-------------------|
+| P4-1 | HIGH | Spec Section 13.12 (IntakeLog table) is outdated — doesn't match entity Section 10.10 | **Update spec** Section 13.12 to match entity: scheduledTime, status, actualTime, reason, note, snoozeDurationMinutes |
+| P4-2 | MEDIUM | FoodItems table: `serving_size` is REAL instead of TEXT, extra `serving_unit` column | **Decide:** Keep structured format (REAL+unit) and update spec, OR revert to single TEXT column |
+| P4-3 | MEDIUM | PhotoEntries table: FK column `area_id` should be `photo_area_id` per spec | Rename column to `photo_area_id` for consistency |
+
+---
+
+### Pass 4 Verdict
+
+**11 of 14 tables are exact column matches.** The main finding is a spec internal inconsistency (IntakeLog table definition is outdated). The FoodItems serving_size type mismatch and PhotoEntries FK naming are medium issues. All 14 tables correctly implement the 9-column sync metadata pattern.
+
+---
+
+## Implementation Gap Analysis
+
+### Overview
+
+The spec (22_API_CONTRACTS.md) defines 41 database tables (Section 13.42). The implementation has **14 of 41** tables built, covering the core health tracking entities. The remaining 27 tables belong to subsystems not yet implemented.
+
+---
+
+### What IS Implemented (14 Entity Subsystems)
+
+| Layer | Components | Count |
+|-------|-----------|:---:|
+| Entities | supplement, fluids_entry, condition, condition_log, activity, activity_log, flare_up, food_item, food_log, intake_log, journal_entry, photo_area, photo_entry, sleep_entry + sync_metadata | 15 |
+| Repository Interfaces | Base + 14 entity-specific | 15 |
+| Repository Implementations | 14 (all entities) | 14 |
+| Drift Tables | 14 (all entities) | 14 |
+| DAOs | 14 (all entities) | 14 |
+| Use Cases | ~70 non-generated files across 14 subdirectories | ~70 |
+| Riverpod Providers | 14 entity sets + DI | 14+ |
+| Screens | 12 screens (list/edit for several entities) | 12 |
+| Core Types | Result, AppError (10 subclasses), base use cases, SyncMetadata | 15+ |
+| Enums | 28 implemented (of 48 total in spec) | 28 |
+
+**Test Count: 1205 passing**
+
+---
+
+### What IS NOT Implemented (27 Missing Table Subsystems)
+
+#### Tier 1: Auth & Profile Management (Essential for Multi-User)
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| UserAccount | 13.8 | YES — needed for auth |
+| Profile | 13.9 | YES — needed for profile switching |
+| ProfileAccess | 13.10 | YES — needed for shared profiles |
+| DeviceRegistration | 13.11 | NO — enhancement |
+
+**Missing use cases:** GetCurrentUser, GetAccessibleProfiles, SetCurrentProfile, CreateProfile, DeleteProfile, UpdateProfile (noted as P9-2 in spec review)
+
+#### Tier 2: Diet Management
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| Diet | 13.4 | NO — standalone feature |
+| DietRule | 13.5 | NO — depends on Diet |
+| DietViolation | 13.6 | NO — depends on Diet |
+
+**Missing:** Complete diet subsystem — entities, repositories, use cases, tables, DAOs, screens
+
+#### Tier 3: Notification System
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| NotificationSchedule | 13.26 | NO — enhancement |
+
+**Missing:** Notification scheduling service, platform integration (iOS/Android), quiet hours logic
+
+#### Tier 4: Intelligence & ML
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| Pattern | 13.29 | NO — advanced feature |
+| TriggerCorrelation | 13.30 | NO — advanced feature |
+| HealthInsight | 13.31 | NO — advanced feature |
+| PredictiveAlert | 13.32 | NO — advanced feature |
+| MLModel | 13.33 | NO — advanced feature |
+| PredictionFeedback | 13.34 | NO — advanced feature |
+
+**Missing:** Complete intelligence engine — pattern detection, correlation analysis, ML inference, insight generation
+
+#### Tier 5: Wearable Integration
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| WearableConnection | 13.35 | NO — enhancement |
+| ImportedDataLog | 13.36 | NO — depends on wearable |
+
+**Missing:** Platform-specific integrations (HealthKit, Google Fit, Fitbit, Garmin, Oura, Whoop)
+
+#### Tier 6: Medical/Compliance
+| Entity | Spec Table Section | Blocking? |
+|--------|:---:|:---:|
+| Document | 13.19 | NO — document management |
+| ConditionCategory | 13.23 | NO — condition organization |
+| FhirExport | 13.37 | NO — medical export |
+| HipaaAuthorization | 13.38 | NO — compliance |
+| ProfileAccessLog | 13.39 | NO — compliance |
+| AuditLogEntry | 13.40 | NO — compliance |
+| BowelUrineLog | 13.41 | NO — legacy migration |
+| FoodItemCategory | 13.27 | NO — food categorization |
+| UserFoodCategory | 13.28 | NO — food categorization |
+
+---
+
+### Missing Screens (from 38_UI_FIELD_SPECIFICATIONS.md)
+
+| Screen | Has Entity? | Has Use Cases? | Has Provider? | Screen Exists? |
+|--------|:---:|:---:|:---:|:---:|
+| Activity List/Edit | YES | YES | YES | **NO** |
+| Activity Log | YES | YES | YES | **NO** |
+| Journal Entry | YES | YES | YES | **NO** |
+| Photo Area List | YES | YES | YES | **NO** |
+| Photo Entry | YES | YES | YES | **NO** |
+| Flare-Up | YES | YES | YES | **NO** |
+| Dashboard/Home | — | — | — | **NO** |
+| Settings | — | — | — | **NO** |
+| Profile Management | NO | NO | NO | **NO** |
+| Diet Management | NO | NO | NO | **NO** |
+| Notification Settings | NO | NO | NO | **NO** |
+| Wearable Connections | NO | NO | NO | **NO** |
+| Intelligence/Insights | NO | NO | NO | **NO** |
+
+**6 screens have complete backend support but no screen implementation yet.** These are the lowest-hanging fruit.
+
+---
+
+### Missing Core Infrastructure
+
+| Service | Status | Notes |
+|---------|--------|-------|
+| Sync Engine | NOT STARTED | Conflict resolution, cloud sync |
+| Auth Service | STUB ONLY | ProfileAuthorizationService exists but no real auth |
+| Notification Service | NOT STARTED | Platform-specific notification delivery |
+| Wearable Service | NOT STARTED | HealthKit/GoogleFit integrations |
+| ML Inference Engine | NOT STARTED | TFLite model execution |
+| Cloud Storage Service | NOT STARTED | Photo/file uploads |
+| FHIR Export Service | NOT STARTED | Medical data export |
+| Rate Limiting Service | NOT STARTED | API rate limiting |
+| Audit Logging Service | NOT STARTED | HIPAA-compliant audit trail |
+| Database Migration | PARTIAL | Schema defined but migration logic not tested |
+
+---
+
+### Completion Percentages by Layer
+
+| Layer | Implemented | Total Spec | % |
+|-------|:---------:|:--------:|:---:|
+| Core Types (Result, errors, enums) | 43 | ~68 | 63% |
+| Entities | 15 | ~40 | 38% |
+| Repository Interfaces | 15 | ~40 | 38% |
+| Repository Implementations | 14 | ~40 | 35% |
+| Tables | 14 | 41 | 34% |
+| DAOs | 14 | 41 | 34% |
+| Use Cases | ~70 | ~200+ | ~35% |
+| Providers | 14 sets | ~25+ sets | 56% |
+| Screens | 12 | ~25+ | ~48% |
+| Tests | 1205 | — | — |
+
+**Overall estimated completion: ~35-40% of total spec scope.**
+
+---
+
+### Recommended Priority Order for Remaining Work
+
+1. **Auth/Profile** (Tier 1) — Required for multi-user. Blocking.
+2. **Missing Screens** (6 with backend ready) — Activity, ActivityLog, Journal, PhotoArea, PhotoEntry, FlareUp
+3. **Dashboard/Home Screen** — Core user experience
+4. **Diet Management** (Tier 2) — Major feature
+5. **Notification System** (Tier 3) — User engagement
+6. **Wearable Integration** (Tier 5) — Platform differentiator
+7. **Intelligence/ML** (Tier 4) — Advanced analytics
+8. **Medical/Compliance** (Tier 6) — Regulatory compliance
+
+---
+
+## Cumulative Findings Summary (All Passes)
+
+### By Severity
+
+| Severity | Count | Details |
+|----------|:---:|---------|
+| HIGH | 10 | P1-1, P2-1, P2-2, P2-3, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 10 | P1-2, P1-3, P2-4, P6-2, P4-2, P4-3, + systematic S-1, S-2 |
+| LOW | 12 | P1-4, P1-5, P2-5, P2-6, P5-5, P6-3, P6-4, + minor text diffs |
+
+### HIGH Priority Fix List
+
+| ID | Component | Issue | Fix Effort |
+|----|-----------|-------|:---:|
+| P1-1 | ActivityLog entity | activityIds/adHocActivities required→@Default([]) | 5 min |
+| P2-1 | ConditionLogRepository | getByCondition missing startDate/endDate params | 10 min |
+| P2-2 | FlareUpRepository | Missing getTriggerCounts method | 15 min |
+| P2-3 | IntakeLogRepository | markTaken/markSkipped/markSnoozed return void not IntakeLog | 20 min |
+| P5-1 | DietPresetType enum | Missing int values (spec has 0-19) | 5 min |
+| P5-2 | InsightCategory enum | Missing int values (spec has 0-8) | 5 min |
+| P5-3 | RecoveryAction enum | Missing int values (spec has 0-7) | 5 min |
+| P5-4 | AccessLevel enum | Missing int values (spec has 0-2) | 5 min |
+| P6-1 | DatabaseError | Missing codeTransactionFailed + factory | 10 min |
+| P4-1 | Spec Section 13.12 | IntakeLog table definition outdated | Spec fix |
+
+**Total estimated fix time for all HIGH issues: ~85 minutes**
