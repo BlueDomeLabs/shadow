@@ -108,6 +108,17 @@ class FlareUpRepositoryImpl extends BaseRepository<FlareUp>
       _dao.getOngoing(profileId);
 
   @override
+  Future<Result<Map<String, int>, AppError>> getTriggerCounts(
+    String conditionId, {
+    required int startDate,
+    required int endDate,
+  }) => _dao.getTriggerCounts(
+    conditionId,
+    startDate: startDate,
+    endDate: endDate,
+  );
+
+  @override
   Future<Result<FlareUp, AppError>> endFlareUp(String id, int endDate) =>
       _dao.endFlareUp(id, endDate);
 }

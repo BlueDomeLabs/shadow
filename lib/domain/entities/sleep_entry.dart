@@ -12,7 +12,7 @@ part 'sleep_entry.g.dart';
 /// Tracks bed time, wake time, sleep stages, dreams, and waking feeling.
 /// All timestamps are epoch milliseconds.
 @Freezed(toJson: true, fromJson: true)
-class SleepEntry with _$SleepEntry {
+class SleepEntry with _$SleepEntry implements Syncable {
   const SleepEntry._();
 
   @JsonSerializable(explicitToJson: true)

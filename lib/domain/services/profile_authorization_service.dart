@@ -41,7 +41,15 @@ class ProfileAccess {
 
 /// Access levels for profile authorization.
 enum AccessLevel {
-  readOnly, // Can view data only
-  readWrite, // Can view and modify data
-  owner, // Full control including deletion and sharing
+  readOnly(0), // Can view data only
+  readWrite(1), // Can view and modify data
+  owner(2); // Full control including deletion and sharing
+
+  final int value;
+  const AccessLevel(this.value);
+
+  static AccessLevel fromValue(int value) => AccessLevel.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => readOnly,
+  );
 }

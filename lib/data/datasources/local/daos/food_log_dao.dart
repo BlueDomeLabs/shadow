@@ -1,6 +1,8 @@
 // lib/data/datasources/local/daos/food_log_dao.dart
 // Data Access Object for food_logs table per 22_API_CONTRACTS.md
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
@@ -265,8 +267,8 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
     profileId: row.profileId,
     timestamp: row.timestamp,
     mealType: row.mealType != null ? MealType.fromValue(row.mealType!) : null,
-    foodItemIds: _parseList(row.foodItemIds),
-    adHocItems: _parseList(row.adHocItems),
+    foodItemIds: _parseJsonList(row.foodItemIds),
+    adHocItems: _parseJsonList(row.adHocItems),
     notes: row.notes,
     syncMetadata: SyncMetadata(
       syncCreatedAt: row.syncCreatedAt,
@@ -289,8 +291,8 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
         profileId: Value(entity.profileId),
         timestamp: Value(entity.timestamp),
         mealType: Value(entity.mealType?.value),
-        foodItemIds: Value(entity.foodItemIds.join(',')),
-        adHocItems: Value(entity.adHocItems.join(',')),
+        foodItemIds: Value(jsonEncode(entity.foodItemIds)),
+        adHocItems: Value(jsonEncode(entity.adHocItems)),
         notes: Value(entity.notes),
         syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
         syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
@@ -303,9 +305,14 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
         conflictData: Value(entity.syncMetadata.conflictData),
       );
 
-  /// Parse comma-separated string to list.
-  List<String> _parseList(String value) {
+  /// Parse JSON array string to list.
+  List<String> _parseJsonList(String value) {
     if (value.isEmpty) return [];
-    return value.split(',').where((s) => s.isNotEmpty).toList();
+    try {
+      final list = jsonDecode(value) as List<dynamic>;
+      return list.map((item) => item.toString()).toList();
+    } on Exception {
+      return [];
+    }
   }
 }

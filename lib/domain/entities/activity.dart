@@ -11,7 +11,7 @@ part 'activity.g.dart';
 /// Per 22_API_CONTRACTS.md Section 10.13.
 /// Activities can be archived (seasonal/paused) and reactivated later.
 @Freezed(toJson: true, fromJson: true)
-class Activity with _$Activity {
+class Activity with _$Activity implements Syncable {
   const Activity._();
 
   @JsonSerializable(explicitToJson: true)
@@ -32,5 +32,5 @@ class Activity with _$Activity {
       _$ActivityFromJson(json);
 
   /// Whether this activity is currently active (not archived).
-  bool get isActive => !isArchived;
+  bool get isActive => !isArchived && syncMetadata.syncDeletedAt == null;
 }

@@ -203,6 +203,7 @@ class PhotoAreaDao extends DatabaseAccessor<AppDatabase>
               isArchived: const Value(true),
               syncUpdatedAt: Value(now),
               syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.modified.value),
             ),
           );
 

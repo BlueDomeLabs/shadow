@@ -64,9 +64,9 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
   Future<ValidationError?> _validate(FoodItem item, String profileId) async {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-100 characters
-    if (item.name.length < 2 || item.name.length > 100) {
-      errors['name'] = ['Food item name must be 2-100 characters'];
+    // Name validation: 2-200 characters per ValidationRules.foodNameMaxLength
+    if (item.name.length < 2 || item.name.length > 200) {
+      errors['name'] = ['Food item name must be 2-200 characters'];
     }
 
     // Complex items must have simple item IDs

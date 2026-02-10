@@ -30,9 +30,9 @@ class GetConditionLogsUseCase
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 2. Repository call
-    return _repository.getByProfile(
-      input.profileId,
+    // 2. Repository call — query by condition per spec
+    return _repository.getByCondition(
+      input.conditionId,
       startDate: input.startDate,
       endDate: input.endDate,
       limit: input.limit,

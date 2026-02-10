@@ -165,7 +165,7 @@ void main() {
       ).thenAnswer((_) async => Success(existingLog));
       when(
         mockRepository.markTaken('log-001', 1704067500000),
-      ).thenAnswer((_) async => const Success(null));
+      ).thenAnswer((_) async => Success(existingLog));
 
       final result = await useCase(
         const MarkTakenInput(
@@ -280,7 +280,7 @@ void main() {
       ).thenAnswer((_) async => Success(existingLog));
       when(
         mockRepository.markSkipped('log-001', 'Felt sick'),
-      ).thenAnswer((_) async => const Success(null));
+      ).thenAnswer((_) async => Success(existingLog));
 
       final result = await useCase(
         const MarkSkippedInput(
@@ -317,7 +317,7 @@ void main() {
       ).thenAnswer((_) async => Success(existingLog));
       when(
         mockRepository.markSkipped('log-001', null),
-      ).thenAnswer((_) async => const Success(null));
+      ).thenAnswer((_) async => Success(existingLog));
 
       final result = await useCase(
         const MarkSkippedInput(id: 'log-001', profileId: testProfileId),

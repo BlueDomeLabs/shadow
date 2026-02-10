@@ -4,28 +4,34 @@
 /// Actions that can be taken to recover from an error
 enum RecoveryAction {
   /// No recovery possible - user must accept the error
-  none,
+  none(0),
 
   /// Retry the operation (transient failure)
-  retry,
+  retry(1),
 
   /// Refresh the authentication token
-  refreshToken,
+  refreshToken(2),
 
   /// User must re-authenticate (sign in again)
-  reAuthenticate,
+  reAuthenticate(3),
 
   /// User should check app settings
-  goToSettings,
+  goToSettings(4),
 
   /// User should contact support
-  contactSupport,
+  contactSupport(5),
 
   /// User should check network connection
-  checkConnection,
+  checkConnection(6),
 
   /// User should free up storage space
-  freeStorage,
+  freeStorage(7);
+
+  final int value;
+  const RecoveryAction(this.value);
+
+  static RecoveryAction fromValue(int value) => RecoveryAction.values
+      .firstWhere((e) => e.value == value, orElse: () => none);
 }
 
 sealed class AppError implements Exception {
@@ -83,6 +89,7 @@ final class DatabaseError extends AppError {
   static const String codeMigrationFailed = 'DB_MIGRATION_FAILED';
   static const String codeConnectionFailed = 'DB_CONNECTION_FAILED';
   static const String codeConstraintViolation = 'DB_CONSTRAINT_VIOLATION';
+  static const String codeTransactionFailed = 'DB_TRANSACTION_FAILED';
 
   factory DatabaseError.queryFailed(
     String details, [
@@ -179,6 +186,18 @@ final class DatabaseError extends AppError {
     stackTrace: stack,
     isRecoverable: false,
     recoveryAction: RecoveryAction.none,
+  );
+
+  factory DatabaseError.transactionFailed(
+    String operation, [
+    dynamic error,
+    StackTrace? stack,
+  ]) => DatabaseError._(
+    code: codeTransactionFailed,
+    message: 'Transaction failed during $operation',
+    userMessage: 'Unable to complete the operation. Please try again.',
+    originalError: error,
+    stackTrace: stack,
   );
 }
 
@@ -353,8 +372,8 @@ final class NetworkError extends AppError {
   ]) => NetworkError._(
     code: codeRateLimited,
     message:
-        'Rate limit exceeded for $operation${retryAfter != null ? '. Retry after ${retryAfter.inSeconds}s' : ''}',
-    userMessage: 'Too many requests. Please try again later.',
+        'Rate limited during $operation${retryAfter != null ? ', retry after ${retryAfter.inSeconds}s' : ''}',
+    userMessage: 'Too many requests. Please wait a moment and try again.',
   );
 }
 

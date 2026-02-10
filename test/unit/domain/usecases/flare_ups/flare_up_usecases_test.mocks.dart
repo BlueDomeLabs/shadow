@@ -139,6 +139,32 @@ class MockFlareUpRepository extends _i1.Mock implements _i2.FlareUpRepository {
           as _i3.Future<_i4.Result<List<_i5.FlareUp>, _i6.AppError>>);
 
   @override
+  _i3.Future<_i4.Result<Map<String, int>, _i6.AppError>> getTriggerCounts(
+    String? conditionId, {
+    required int? startDate,
+    required int? endDate,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #getTriggerCounts,
+              [conditionId],
+              {#startDate: startDate, #endDate: endDate},
+            ),
+            returnValue:
+                _i3.Future<_i4.Result<Map<String, int>, _i6.AppError>>.value(
+                  _i7.dummyValue<_i4.Result<Map<String, int>, _i6.AppError>>(
+                    this,
+                    Invocation.method(
+                      #getTriggerCounts,
+                      [conditionId],
+                      {#startDate: startDate, #endDate: endDate},
+                    ),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<Map<String, int>, _i6.AppError>>);
+
+  @override
   _i3.Future<_i4.Result<_i5.FlareUp, _i6.AppError>> endFlareUp(
     String? id,
     int? endDate,

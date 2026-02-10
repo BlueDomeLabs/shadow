@@ -14,7 +14,7 @@ part 'photo_area.g.dart';
 /// - sortOrder: Display order
 /// - isArchived: Soft delete flag
 @Freezed(toJson: true, fromJson: true)
-class PhotoArea with _$PhotoArea {
+class PhotoArea with _$PhotoArea implements Syncable {
   const PhotoArea._();
 
   @JsonSerializable(explicitToJson: true)

@@ -14,7 +14,7 @@ part 'photo_entry.g.dart';
 /// - timestamp: Epoch milliseconds
 /// - File sync metadata for cloud upload tracking
 @Freezed(toJson: true, fromJson: true)
-class PhotoEntry with _$PhotoEntry {
+class PhotoEntry with _$PhotoEntry implements Syncable {
   const PhotoEntry._();
 
   @JsonSerializable(explicitToJson: true)

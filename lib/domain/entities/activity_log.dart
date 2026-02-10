@@ -11,7 +11,7 @@ part 'activity_log.g.dart';
 /// Per 22_API_CONTRACTS.md Section 10.14.
 /// Supports both predefined activities (by ID) and ad-hoc activities.
 @Freezed(toJson: true, fromJson: true)
-class ActivityLog with _$ActivityLog {
+class ActivityLog with _$ActivityLog implements Syncable {
   const ActivityLog._();
 
   @JsonSerializable(explicitToJson: true)

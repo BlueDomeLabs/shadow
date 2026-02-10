@@ -12,7 +12,7 @@ part 'food_item.g.dart';
 /// Per 22_API_CONTRACTS.md Section 10.11.
 /// Supports simple items and complex items (recipes composed of simple items).
 @Freezed(toJson: true, fromJson: true)
-class FoodItem with _$FoodItem {
+class FoodItem with _$FoodItem implements Syncable {
   const FoodItem._();
 
   @JsonSerializable(explicitToJson: true)
@@ -50,5 +50,5 @@ class FoodItem with _$FoodItem {
   bool get hasNutritionalInfo => calories != null || carbsGrams != null;
 
   /// Whether this item is currently active (not archived).
-  bool get isActive => !isArchived;
+  bool get isActive => !isArchived && syncMetadata.syncDeletedAt == null;
 }

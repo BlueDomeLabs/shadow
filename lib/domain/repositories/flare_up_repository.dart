@@ -36,6 +36,13 @@ abstract class FlareUpRepository implements EntityRepository<FlareUp, String> {
   /// Get ongoing flare-ups for a profile.
   Future<Result<List<FlareUp>, AppError>> getOngoing(String profileId);
 
+  /// Get trigger frequency counts for a condition within a date range.
+  Future<Result<Map<String, int>, AppError>> getTriggerCounts(
+    String conditionId, {
+    required int startDate,
+    required int endDate,
+  });
+
   /// End a flare-up by setting the endDate.
   Future<Result<FlareUp, AppError>> endFlareUp(String id, int endDate);
 }

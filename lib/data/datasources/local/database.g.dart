@@ -16687,10 +16687,12 @@ class $PhotoEntriesTable extends PhotoEntries
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _areaIdMeta = const VerificationMeta('areaId');
+  static const VerificationMeta _photoAreaIdMeta = const VerificationMeta(
+    'photoAreaId',
+  );
   @override
-  late final GeneratedColumn<String> areaId = GeneratedColumn<String>(
-    'area_id',
+  late final GeneratedColumn<String> photoAreaId = GeneratedColumn<String>(
+    'photo_area_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -16885,7 +16887,7 @@ class $PhotoEntriesTable extends PhotoEntries
     id,
     clientId,
     profileId,
-    areaId,
+    photoAreaId,
     timestamp,
     filePath,
     notes,
@@ -16936,13 +16938,16 @@ class $PhotoEntriesTable extends PhotoEntries
     } else if (isInserting) {
       context.missing(_profileIdMeta);
     }
-    if (data.containsKey('area_id')) {
+    if (data.containsKey('photo_area_id')) {
       context.handle(
-        _areaIdMeta,
-        areaId.isAcceptableOrUnknown(data['area_id']!, _areaIdMeta),
+        _photoAreaIdMeta,
+        photoAreaId.isAcceptableOrUnknown(
+          data['photo_area_id']!,
+          _photoAreaIdMeta,
+        ),
       );
     } else if (isInserting) {
-      context.missing(_areaIdMeta);
+      context.missing(_photoAreaIdMeta);
     }
     if (data.containsKey('timestamp')) {
       context.handle(
@@ -17100,9 +17105,9 @@ class $PhotoEntriesTable extends PhotoEntries
         DriftSqlType.string,
         data['${effectivePrefix}profile_id'],
       )!,
-      areaId: attachedDatabase.typeMapping.read(
+      photoAreaId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}area_id'],
+        data['${effectivePrefix}photo_area_id'],
       )!,
       timestamp: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -17181,7 +17186,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
   final String id;
   final String clientId;
   final String profileId;
-  final String areaId;
+  final String photoAreaId;
   final int timestamp;
   final String filePath;
   final String? notes;
@@ -17202,7 +17207,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
     required this.id,
     required this.clientId,
     required this.profileId,
-    required this.areaId,
+    required this.photoAreaId,
     required this.timestamp,
     required this.filePath,
     this.notes,
@@ -17226,7 +17231,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
     map['id'] = Variable<String>(id);
     map['client_id'] = Variable<String>(clientId);
     map['profile_id'] = Variable<String>(profileId);
-    map['area_id'] = Variable<String>(areaId);
+    map['photo_area_id'] = Variable<String>(photoAreaId);
     map['timestamp'] = Variable<int>(timestamp);
     map['file_path'] = Variable<String>(filePath);
     if (!nullToAbsent || notes != null) {
@@ -17269,7 +17274,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
       id: Value(id),
       clientId: Value(clientId),
       profileId: Value(profileId),
-      areaId: Value(areaId),
+      photoAreaId: Value(photoAreaId),
       timestamp: Value(timestamp),
       filePath: Value(filePath),
       notes: notes == null && nullToAbsent
@@ -17316,7 +17321,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
       id: serializer.fromJson<String>(json['id']),
       clientId: serializer.fromJson<String>(json['clientId']),
       profileId: serializer.fromJson<String>(json['profileId']),
-      areaId: serializer.fromJson<String>(json['areaId']),
+      photoAreaId: serializer.fromJson<String>(json['photoAreaId']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
       filePath: serializer.fromJson<String>(json['filePath']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -17342,7 +17347,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
       'id': serializer.toJson<String>(id),
       'clientId': serializer.toJson<String>(clientId),
       'profileId': serializer.toJson<String>(profileId),
-      'areaId': serializer.toJson<String>(areaId),
+      'photoAreaId': serializer.toJson<String>(photoAreaId),
       'timestamp': serializer.toJson<int>(timestamp),
       'filePath': serializer.toJson<String>(filePath),
       'notes': serializer.toJson<String?>(notes),
@@ -17366,7 +17371,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
     String? id,
     String? clientId,
     String? profileId,
-    String? areaId,
+    String? photoAreaId,
     int? timestamp,
     String? filePath,
     Value<String?> notes = const Value.absent(),
@@ -17387,7 +17392,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
     id: id ?? this.id,
     clientId: clientId ?? this.clientId,
     profileId: profileId ?? this.profileId,
-    areaId: areaId ?? this.areaId,
+    photoAreaId: photoAreaId ?? this.photoAreaId,
     timestamp: timestamp ?? this.timestamp,
     filePath: filePath ?? this.filePath,
     notes: notes.present ? notes.value : this.notes,
@@ -17420,7 +17425,9 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
       id: data.id.present ? data.id.value : this.id,
       clientId: data.clientId.present ? data.clientId.value : this.clientId,
       profileId: data.profileId.present ? data.profileId.value : this.profileId,
-      areaId: data.areaId.present ? data.areaId.value : this.areaId,
+      photoAreaId: data.photoAreaId.present
+          ? data.photoAreaId.value
+          : this.photoAreaId,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
       filePath: data.filePath.present ? data.filePath.value : this.filePath,
       notes: data.notes.present ? data.notes.value : this.notes,
@@ -17470,7 +17477,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
           ..write('id: $id, ')
           ..write('clientId: $clientId, ')
           ..write('profileId: $profileId, ')
-          ..write('areaId: $areaId, ')
+          ..write('photoAreaId: $photoAreaId, ')
           ..write('timestamp: $timestamp, ')
           ..write('filePath: $filePath, ')
           ..write('notes: $notes, ')
@@ -17496,7 +17503,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
     id,
     clientId,
     profileId,
-    areaId,
+    photoAreaId,
     timestamp,
     filePath,
     notes,
@@ -17521,7 +17528,7 @@ class PhotoEntryRow extends DataClass implements Insertable<PhotoEntryRow> {
           other.id == this.id &&
           other.clientId == this.clientId &&
           other.profileId == this.profileId &&
-          other.areaId == this.areaId &&
+          other.photoAreaId == this.photoAreaId &&
           other.timestamp == this.timestamp &&
           other.filePath == this.filePath &&
           other.notes == this.notes &&
@@ -17544,7 +17551,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
   final Value<String> id;
   final Value<String> clientId;
   final Value<String> profileId;
-  final Value<String> areaId;
+  final Value<String> photoAreaId;
   final Value<int> timestamp;
   final Value<String> filePath;
   final Value<String?> notes;
@@ -17566,7 +17573,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
     this.id = const Value.absent(),
     this.clientId = const Value.absent(),
     this.profileId = const Value.absent(),
-    this.areaId = const Value.absent(),
+    this.photoAreaId = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.filePath = const Value.absent(),
     this.notes = const Value.absent(),
@@ -17589,7 +17596,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
     required String id,
     required String clientId,
     required String profileId,
-    required String areaId,
+    required String photoAreaId,
     required int timestamp,
     required String filePath,
     this.notes = const Value.absent(),
@@ -17610,7 +17617,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
   }) : id = Value(id),
        clientId = Value(clientId),
        profileId = Value(profileId),
-       areaId = Value(areaId),
+       photoAreaId = Value(photoAreaId),
        timestamp = Value(timestamp),
        filePath = Value(filePath),
        syncCreatedAt = Value(syncCreatedAt);
@@ -17618,7 +17625,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
     Expression<String>? id,
     Expression<String>? clientId,
     Expression<String>? profileId,
-    Expression<String>? areaId,
+    Expression<String>? photoAreaId,
     Expression<int>? timestamp,
     Expression<String>? filePath,
     Expression<String>? notes,
@@ -17641,7 +17648,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
       if (id != null) 'id': id,
       if (clientId != null) 'client_id': clientId,
       if (profileId != null) 'profile_id': profileId,
-      if (areaId != null) 'area_id': areaId,
+      if (photoAreaId != null) 'photo_area_id': photoAreaId,
       if (timestamp != null) 'timestamp': timestamp,
       if (filePath != null) 'file_path': filePath,
       if (notes != null) 'notes': notes,
@@ -17666,7 +17673,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
     Value<String>? id,
     Value<String>? clientId,
     Value<String>? profileId,
-    Value<String>? areaId,
+    Value<String>? photoAreaId,
     Value<int>? timestamp,
     Value<String>? filePath,
     Value<String?>? notes,
@@ -17689,7 +17696,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
       id: id ?? this.id,
       clientId: clientId ?? this.clientId,
       profileId: profileId ?? this.profileId,
-      areaId: areaId ?? this.areaId,
+      photoAreaId: photoAreaId ?? this.photoAreaId,
       timestamp: timestamp ?? this.timestamp,
       filePath: filePath ?? this.filePath,
       notes: notes ?? this.notes,
@@ -17722,8 +17729,8 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
     if (profileId.present) {
       map['profile_id'] = Variable<String>(profileId.value);
     }
-    if (areaId.present) {
-      map['area_id'] = Variable<String>(areaId.value);
+    if (photoAreaId.present) {
+      map['photo_area_id'] = Variable<String>(photoAreaId.value);
     }
     if (timestamp.present) {
       map['timestamp'] = Variable<int>(timestamp.value);
@@ -17785,7 +17792,7 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
           ..write('id: $id, ')
           ..write('clientId: $clientId, ')
           ..write('profileId: $profileId, ')
-          ..write('areaId: $areaId, ')
+          ..write('photoAreaId: $photoAreaId, ')
           ..write('timestamp: $timestamp, ')
           ..write('filePath: $filePath, ')
           ..write('notes: $notes, ')
@@ -25131,7 +25138,7 @@ typedef $$PhotoEntriesTableCreateCompanionBuilder =
       required String id,
       required String clientId,
       required String profileId,
-      required String areaId,
+      required String photoAreaId,
       required int timestamp,
       required String filePath,
       Value<String?> notes,
@@ -25155,7 +25162,7 @@ typedef $$PhotoEntriesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> clientId,
       Value<String> profileId,
-      Value<String> areaId,
+      Value<String> photoAreaId,
       Value<int> timestamp,
       Value<String> filePath,
       Value<String?> notes,
@@ -25199,8 +25206,8 @@ class $$PhotoEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get areaId => $composableBuilder(
-    column: $table.areaId,
+  ColumnFilters<String> get photoAreaId => $composableBuilder(
+    column: $table.photoAreaId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25309,8 +25316,8 @@ class $$PhotoEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get areaId => $composableBuilder(
-    column: $table.areaId,
+  ColumnOrderings<String> get photoAreaId => $composableBuilder(
+    column: $table.photoAreaId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -25413,8 +25420,10 @@ class $$PhotoEntriesTableAnnotationComposer
   GeneratedColumn<String> get profileId =>
       $composableBuilder(column: $table.profileId, builder: (column) => column);
 
-  GeneratedColumn<String> get areaId =>
-      $composableBuilder(column: $table.areaId, builder: (column) => column);
+  GeneratedColumn<String> get photoAreaId => $composableBuilder(
+    column: $table.photoAreaId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
@@ -25523,7 +25532,7 @@ class $$PhotoEntriesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> clientId = const Value.absent(),
                 Value<String> profileId = const Value.absent(),
-                Value<String> areaId = const Value.absent(),
+                Value<String> photoAreaId = const Value.absent(),
                 Value<int> timestamp = const Value.absent(),
                 Value<String> filePath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -25545,7 +25554,7 @@ class $$PhotoEntriesTableTableManager
                 id: id,
                 clientId: clientId,
                 profileId: profileId,
-                areaId: areaId,
+                photoAreaId: photoAreaId,
                 timestamp: timestamp,
                 filePath: filePath,
                 notes: notes,
@@ -25569,7 +25578,7 @@ class $$PhotoEntriesTableTableManager
                 required String id,
                 required String clientId,
                 required String profileId,
-                required String areaId,
+                required String photoAreaId,
                 required int timestamp,
                 required String filePath,
                 Value<String?> notes = const Value.absent(),
@@ -25591,7 +25600,7 @@ class $$PhotoEntriesTableTableManager
                 id: id,
                 clientId: clientId,
                 profileId: profileId,
-                areaId: areaId,
+                photoAreaId: photoAreaId,
                 timestamp: timestamp,
                 filePath: filePath,
                 notes: notes,

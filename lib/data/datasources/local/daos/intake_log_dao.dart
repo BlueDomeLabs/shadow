@@ -289,7 +289,10 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Mark an intake as taken.
-  Future<Result<void, AppError>> markTaken(String id, int actualTime) async {
+  Future<Result<domain.IntakeLog, AppError>> markTaken(
+    String id,
+    int actualTime,
+  ) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
       final rowsAffected =
@@ -309,14 +312,17 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
         return Failure(DatabaseError.notFound('IntakeLog', id));
       }
 
-      return const Success(null);
+      return getById(id);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.updateFailed('intake_logs', id, e, stack));
     }
   }
 
   /// Mark an intake as skipped.
-  Future<Result<void, AppError>> markSkipped(String id, String? reason) async {
+  Future<Result<domain.IntakeLog, AppError>> markSkipped(
+    String id,
+    String? reason,
+  ) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
       final rowsAffected =
@@ -336,14 +342,14 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
         return Failure(DatabaseError.notFound('IntakeLog', id));
       }
 
-      return const Success(null);
+      return getById(id);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.updateFailed('intake_logs', id, e, stack));
     }
   }
 
   /// Mark an intake as snoozed.
-  Future<Result<void, AppError>> markSnoozed(
+  Future<Result<domain.IntakeLog, AppError>> markSnoozed(
     String id,
     int snoozeDurationMinutes,
   ) async {
@@ -366,7 +372,7 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
         return Failure(DatabaseError.notFound('IntakeLog', id));
       }
 
-      return const Success(null);
+      return getById(id);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.updateFailed('intake_logs', id, e, stack));
     }

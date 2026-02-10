@@ -62,9 +62,9 @@ class CreateJournalEntryUseCase
   ValidationError? _validate(CreateJournalEntryInput input) {
     final errors = <String, List<String>>{};
 
-    // Content validation: 1-50000 characters
-    if (input.content.isEmpty || input.content.length > 50000) {
-      errors['content'] = ['Content must be 1-50000 characters'];
+    // Content validation: 10-50000 characters per ValidationRules.journalContentMinLength
+    if (input.content.length < 10 || input.content.length > 50000) {
+      errors['content'] = ['Content must be 10-50000 characters'];
     }
 
     // Title validation: 1-200 characters if provided

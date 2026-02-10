@@ -124,52 +124,58 @@ class MockIntakeLogRepository extends _i1.Mock
           as _i3.Future<_i4.Result<List<_i5.IntakeLog>, _i6.AppError>>);
 
   @override
-  _i3.Future<_i4.Result<void, _i6.AppError>> markTaken(
+  _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>> markTaken(
     String? id,
     int? actualTime,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#markTaken, [id, actualTime]),
-            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
-              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
-                this,
-                Invocation.method(#markTaken, [id, actualTime]),
-              ),
-            ),
+            returnValue:
+                _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>.value(
+                  _i8.dummyValue<_i4.Result<_i5.IntakeLog, _i6.AppError>>(
+                    this,
+                    Invocation.method(#markTaken, [id, actualTime]),
+                  ),
+                ),
           )
-          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+          as _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>);
 
   @override
-  _i3.Future<_i4.Result<void, _i6.AppError>> markSkipped(
+  _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>> markSkipped(
     String? id,
     String? reason,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#markSkipped, [id, reason]),
-            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
-              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
-                this,
-                Invocation.method(#markSkipped, [id, reason]),
-              ),
-            ),
+            returnValue:
+                _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>.value(
+                  _i8.dummyValue<_i4.Result<_i5.IntakeLog, _i6.AppError>>(
+                    this,
+                    Invocation.method(#markSkipped, [id, reason]),
+                  ),
+                ),
           )
-          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+          as _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>);
 
   @override
-  _i3.Future<_i4.Result<void, _i6.AppError>> markSnoozed(
+  _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>> markSnoozed(
     String? id,
     int? snoozeDurationMinutes,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#markSnoozed, [id, snoozeDurationMinutes]),
-            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
-              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
-                this,
-                Invocation.method(#markSnoozed, [id, snoozeDurationMinutes]),
-              ),
-            ),
+            returnValue:
+                _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>.value(
+                  _i8.dummyValue<_i4.Result<_i5.IntakeLog, _i6.AppError>>(
+                    this,
+                    Invocation.method(#markSnoozed, [
+                      id,
+                      snoozeDurationMinutes,
+                    ]),
+                  ),
+                ),
           )
-          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+          as _i3.Future<_i4.Result<_i5.IntakeLog, _i6.AppError>>);
 
   @override
   _i3.Future<_i4.Result<List<_i5.IntakeLog>, _i6.AppError>> getAll({

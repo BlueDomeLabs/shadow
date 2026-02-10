@@ -14,7 +14,7 @@ part 'flare_up.g.dart';
 /// - severity: 1-10 scale
 /// - triggers: List of trigger descriptions
 @Freezed(toJson: true, fromJson: true)
-class FlareUp with _$FlareUp {
+class FlareUp with _$FlareUp implements Syncable {
   const FlareUp._();
 
   @JsonSerializable(explicitToJson: true)

@@ -12,7 +12,7 @@ part 'supplement.g.dart';
 /// Contains dosage information, scheduling, and sync metadata.
 /// Supplements can have multiple schedules for complex dosing regimens.
 @Freezed(toJson: true, fromJson: true)
-class Supplement with _$Supplement {
+class Supplement with _$Supplement implements Syncable {
   const Supplement._();
 
   @JsonSerializable(explicitToJson: true)

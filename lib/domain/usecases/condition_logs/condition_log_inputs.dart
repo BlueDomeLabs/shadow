@@ -10,6 +10,7 @@ part 'condition_log_inputs.freezed.dart';
 class GetConditionLogsInput with _$GetConditionLogsInput {
   const factory GetConditionLogsInput({
     required String profileId,
+    required String conditionId,
     int? startDate, // Epoch ms
     int? endDate, // Epoch ms
     int? limit,

@@ -1,6 +1,8 @@
 // lib/data/datasources/local/daos/journal_entry_dao.dart
 // Data Access Object for journal_entries table per 22_API_CONTRACTS.md
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
@@ -293,7 +295,7 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
     content: row.content,
     title: row.title,
     mood: row.mood,
-    tags: _parseList(row.tags),
+    tags: _parseJsonList(row.tags),
     audioUrl: row.audioUrl,
     syncMetadata: SyncMetadata(
       syncCreatedAt: row.syncCreatedAt,
@@ -318,9 +320,7 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
         content: Value(entity.content),
         title: Value(entity.title),
         mood: Value(entity.mood),
-        tags: Value(
-          (entity.tags?.isNotEmpty ?? false) ? entity.tags!.join(',') : null,
-        ),
+        tags: Value(_encodeTagsList(entity.tags)),
         audioUrl: Value(entity.audioUrl),
         syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
         syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
@@ -333,10 +333,21 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
         conflictData: Value(entity.syncMetadata.conflictData),
       );
 
-  /// Parse comma-separated string to list, returning null if empty.
-  List<String>? _parseList(String? value) {
+  /// Encode tags list to JSON string, returning null if empty/null.
+  String? _encodeTagsList(List<String>? tags) {
+    if (tags == null || tags.isEmpty) return null;
+    return jsonEncode(tags);
+  }
+
+  /// Parse JSON array string to list, returning null if empty.
+  List<String>? _parseJsonList(String? value) {
     if (value == null || value.isEmpty) return null;
-    final result = value.split(',').where((s) => s.isNotEmpty).toList();
-    return result.isEmpty ? null : result;
+    try {
+      final list = jsonDecode(value) as List<dynamic>;
+      final result = list.map((item) => item.toString()).toList();
+      return result.isEmpty ? null : result;
+    } on Exception {
+      return null;
+    }
   }
 }

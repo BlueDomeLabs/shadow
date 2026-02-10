@@ -93,9 +93,17 @@ class ConditionLogRepositoryImpl extends BaseRepository<ConditionLog>
   @override
   Future<Result<List<ConditionLog>, AppError>> getByCondition(
     String conditionId, {
+    int? startDate,
+    int? endDate,
     int? limit,
     int? offset,
-  }) => _dao.getByCondition(conditionId, limit: limit, offset: offset);
+  }) => _dao.getByCondition(
+    conditionId,
+    startDate: startDate,
+    endDate: endDate,
+    limit: limit,
+    offset: offset,
+  );
 
   @override
   Future<Result<List<ConditionLog>, AppError>> getByDateRange(

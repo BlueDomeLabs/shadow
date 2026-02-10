@@ -68,6 +68,7 @@ void main() {
         overrides: [
           conditionLogListProvider(
             testProfileId,
+            cond.id,
           ).overrideWith(() => _MockConditionLogList([])),
         ],
         child: MaterialApp(
@@ -82,6 +83,7 @@ void main() {
         overrides: [
           conditionLogListProvider(
             testProfileId,
+            cond.id,
           ).overrideWith(() => _MockConditionLogList([log])),
         ],
         child: MaterialApp(
@@ -638,6 +640,7 @@ void main() {
             overrides: [
               conditionLogListProvider(
                 testProfileId,
+                condition.id,
               ).overrideWith(_ErrorOnLogConditionLogList.new),
             ],
             child: MaterialApp(
@@ -672,6 +675,7 @@ void main() {
             overrides: [
               conditionLogListProvider(
                 testProfileId,
+                condition.id,
               ).overrideWith(() => _MockConditionLogList([])),
             ],
             child: MaterialApp(
@@ -818,7 +822,10 @@ class _MockConditionLogList extends ConditionLogList {
   _MockConditionLogList(this._logs);
 
   @override
-  Future<List<ConditionLog>> build(String profileId) async => _logs;
+  Future<List<ConditionLog>> build(
+    String profileId,
+    String conditionId,
+  ) async => _logs;
 
   @override
   Future<void> log(LogConditionInput input) async {
@@ -829,7 +836,10 @@ class _MockConditionLogList extends ConditionLogList {
 /// Mock notifier that simulates a failure on log.
 class _ErrorOnLogConditionLogList extends ConditionLogList {
   @override
-  Future<List<ConditionLog>> build(String profileId) async => [];
+  Future<List<ConditionLog>> build(
+    String profileId,
+    String conditionId,
+  ) async => [];
 
   @override
   Future<void> log(LogConditionInput input) async {

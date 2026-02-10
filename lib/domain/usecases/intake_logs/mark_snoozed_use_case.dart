@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/repositories/intake_log_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/usecases/base_use_case.dart';
@@ -15,7 +16,7 @@ import 'package:shadow_app/domain/usecases/intake_logs/intake_log_inputs.dart';
 /// 2. Validation - Verify the intake exists and belongs to profile
 /// 3. Validation - Verify snooze duration is valid
 /// 4. Repository Call - Execute operation
-class MarkSnoozedUseCase implements UseCase<MarkSnoozedInput, void> {
+class MarkSnoozedUseCase implements UseCase<MarkSnoozedInput, IntakeLog> {
   final IntakeLogRepository _repository;
   final ProfileAuthorizationService _authService;
 
@@ -25,7 +26,7 @@ class MarkSnoozedUseCase implements UseCase<MarkSnoozedInput, void> {
   static const validDurations = [5, 10, 15, 30, 60];
 
   @override
-  Future<Result<void, AppError>> call(MarkSnoozedInput input) async {
+  Future<Result<IntakeLog, AppError>> call(MarkSnoozedInput input) async {
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));

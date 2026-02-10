@@ -11,7 +11,7 @@ part 'condition_log.g.dart';
 /// Records severity, notes, photos, triggers, and flare status for a condition
 /// at a specific point in time.
 @Freezed(toJson: true, fromJson: true)
-class ConditionLog with _$ConditionLog {
+class ConditionLog with _$ConditionLog implements Syncable {
   const ConditionLog._();
 
   @JsonSerializable(explicitToJson: true)

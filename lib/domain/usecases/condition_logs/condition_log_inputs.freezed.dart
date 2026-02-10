@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$GetConditionLogsInput {
   String get profileId => throw _privateConstructorUsedError;
+  String get conditionId => throw _privateConstructorUsedError;
   int? get startDate => throw _privateConstructorUsedError; // Epoch ms
   int? get endDate => throw _privateConstructorUsedError; // Epoch ms
   int? get limit => throw _privateConstructorUsedError;
@@ -39,6 +40,7 @@ abstract class $GetConditionLogsInputCopyWith<$Res> {
   @useResult
   $Res call({
     String profileId,
+    String conditionId,
     int? startDate,
     int? endDate,
     int? limit,
@@ -65,6 +67,7 @@ class _$GetConditionLogsInputCopyWithImpl<
   @override
   $Res call({
     Object? profileId = null,
+    Object? conditionId = null,
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? limit = freezed,
@@ -75,6 +78,10 @@ class _$GetConditionLogsInputCopyWithImpl<
             profileId: null == profileId
                 ? _value.profileId
                 : profileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            conditionId: null == conditionId
+                ? _value.conditionId
+                : conditionId // ignore: cast_nullable_to_non_nullable
                       as String,
             startDate: freezed == startDate
                 ? _value.startDate
@@ -109,6 +116,7 @@ abstract class _$$GetConditionLogsInputImplCopyWith<$Res>
   @useResult
   $Res call({
     String profileId,
+    String conditionId,
     int? startDate,
     int? endDate,
     int? limit,
@@ -132,6 +140,7 @@ class __$$GetConditionLogsInputImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? profileId = null,
+    Object? conditionId = null,
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? limit = freezed,
@@ -142,6 +151,10 @@ class __$$GetConditionLogsInputImplCopyWithImpl<$Res>
         profileId: null == profileId
             ? _value.profileId
             : profileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        conditionId: null == conditionId
+            ? _value.conditionId
+            : conditionId // ignore: cast_nullable_to_non_nullable
                   as String,
         startDate: freezed == startDate
             ? _value.startDate
@@ -169,6 +182,7 @@ class __$$GetConditionLogsInputImplCopyWithImpl<$Res>
 class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
   const _$GetConditionLogsInputImpl({
     required this.profileId,
+    required this.conditionId,
     this.startDate,
     this.endDate,
     this.limit,
@@ -177,6 +191,8 @@ class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
 
   @override
   final String profileId;
+  @override
+  final String conditionId;
   @override
   final int? startDate;
   // Epoch ms
@@ -190,7 +206,7 @@ class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
 
   @override
   String toString() {
-    return 'GetConditionLogsInput(profileId: $profileId, startDate: $startDate, endDate: $endDate, limit: $limit, offset: $offset)';
+    return 'GetConditionLogsInput(profileId: $profileId, conditionId: $conditionId, startDate: $startDate, endDate: $endDate, limit: $limit, offset: $offset)';
   }
 
   @override
@@ -200,6 +216,8 @@ class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
             other is _$GetConditionLogsInputImpl &&
             (identical(other.profileId, profileId) ||
                 other.profileId == profileId) &&
+            (identical(other.conditionId, conditionId) ||
+                other.conditionId == conditionId) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
@@ -208,8 +226,15 @@ class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, profileId, startDate, endDate, limit, offset);
+  int get hashCode => Object.hash(
+    runtimeType,
+    profileId,
+    conditionId,
+    startDate,
+    endDate,
+    limit,
+    offset,
+  );
 
   /// Create a copy of GetConditionLogsInput
   /// with the given fields replaced by the non-null parameter values.
@@ -227,6 +252,7 @@ class _$GetConditionLogsInputImpl implements _GetConditionLogsInput {
 abstract class _GetConditionLogsInput implements GetConditionLogsInput {
   const factory _GetConditionLogsInput({
     required final String profileId,
+    required final String conditionId,
     final int? startDate,
     final int? endDate,
     final int? limit,
@@ -235,6 +261,8 @@ abstract class _GetConditionLogsInput implements GetConditionLogsInput {
 
   @override
   String get profileId;
+  @override
+  String get conditionId;
   @override
   int? get startDate; // Epoch ms
   @override

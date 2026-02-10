@@ -277,6 +277,7 @@ GetConditionLogsUseCase getConditionLogsUseCase(Ref ref) =>
 @riverpod
 LogConditionUseCase logConditionUseCase(Ref ref) => LogConditionUseCase(
   ref.read(conditionLogRepositoryProvider),
+  ref.read(conditionRepositoryProvider),
   ref.read(profileAuthorizationServiceProvider),
 );
 

@@ -16,11 +16,13 @@ class ConditionLogList extends _$ConditionLogList {
   static final _log = logger.scope('ConditionLogList');
 
   @override
-  Future<List<ConditionLog>> build(String profileId) async {
-    _log.debug('Loading condition logs for profile: $profileId');
+  Future<List<ConditionLog>> build(String profileId, String conditionId) async {
+    _log.debug('Loading condition logs for condition: $conditionId');
 
     final useCase = ref.read(getConditionLogsUseCaseProvider);
-    final result = await useCase(GetConditionLogsInput(profileId: profileId));
+    final result = await useCase(
+      GetConditionLogsInput(profileId: profileId, conditionId: conditionId),
+    );
 
     return result.when(
       success: (logs) {

@@ -564,7 +564,12 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
       // exists for editing existing condition logs. Using log() for both modes.
       // When editing, a new log entry is created with the same conditionId.
       await ref
-          .read(conditionLogListProvider(widget.profileId).notifier)
+          .read(
+            conditionLogListProvider(
+              widget.profileId,
+              widget.condition.id,
+            ).notifier,
+          )
           .log(
             LogConditionInput(
               profileId: widget.profileId,

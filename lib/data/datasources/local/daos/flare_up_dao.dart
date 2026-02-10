@@ -262,6 +262,38 @@ class FlareUpDao extends DatabaseAccessor<AppDatabase> with _$FlareUpDaoMixin {
     }
   }
 
+  /// Get trigger frequency counts for a condition within a date range.
+  Future<Result<Map<String, int>, AppError>> getTriggerCounts(
+    String conditionId, {
+    required int startDate,
+    required int endDate,
+  }) async {
+    try {
+      final query = select(flareUps)
+        ..where(
+          (f) =>
+              f.conditionId.equals(conditionId) &
+              f.startDate.isBiggerOrEqualValue(startDate) &
+              f.startDate.isSmallerOrEqualValue(endDate) &
+              f.syncDeletedAt.isNull(),
+        );
+
+      final rows = await query.get();
+      final counts = <String, int>{};
+      for (final row in rows) {
+        final triggers = _parseJsonList(row.triggers);
+        for (final trigger in triggers) {
+          counts[trigger] = (counts[trigger] ?? 0) + 1;
+        }
+      }
+      return Success(counts);
+    } on Exception catch (e, stack) {
+      return Failure(
+        DatabaseError.queryFailed('flare_ups', e.toString(), stack),
+      );
+    }
+  }
+
   /// Get modified since timestamp.
   Future<Result<List<domain.FlareUp>, AppError>> getModifiedSince(
     int since,

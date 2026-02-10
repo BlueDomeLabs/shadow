@@ -566,7 +566,7 @@ final getConditionLogsUseCaseProvider =
 typedef GetConditionLogsUseCaseRef =
     AutoDisposeProviderRef<GetConditionLogsUseCase>;
 String _$logConditionUseCaseHash() =>
-    r'86fe18a6ea2edacd9b1b67619ce742abe43e6c59';
+    r'676f945f89897ff4215ab6f316c6a1a7eb731ccb';
 
 /// LogConditionUseCase provider.
 ///

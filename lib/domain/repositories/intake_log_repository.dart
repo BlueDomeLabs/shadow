@@ -39,16 +39,16 @@ abstract class IntakeLogRepository
   );
 
   /// Mark an intake as taken.
-  Future<Result<void, AppError>> markTaken(
+  Future<Result<IntakeLog, AppError>> markTaken(
     String id,
     int actualTime, // Epoch ms
   );
 
   /// Mark an intake as skipped.
-  Future<Result<void, AppError>> markSkipped(String id, String? reason);
+  Future<Result<IntakeLog, AppError>> markSkipped(String id, String? reason);
 
   /// Mark an intake as snoozed.
-  Future<Result<void, AppError>> markSnoozed(
+  Future<Result<IntakeLog, AppError>> markSnoozed(
     String id,
     int snoozeDurationMinutes,
   );

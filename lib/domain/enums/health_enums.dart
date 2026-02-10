@@ -198,38 +198,50 @@ enum PatternType {
 
 /// Diet preset types - predefined diet configurations
 enum DietPresetType {
-  vegan,
-  vegetarian,
-  pescatarian,
-  paleo,
-  keto,
-  ketoStrict,
-  lowCarb,
-  mediterranean,
-  whole30,
-  aip, // Autoimmune Protocol
-  lowFodmap,
-  glutenFree,
-  dairyFree,
-  if168, // Intermittent Fasting 16:8
-  if186, // Intermittent Fasting 18:6
-  if204, // Intermittent Fasting 20:4
-  omad, // One Meal A Day
-  fiveTwoDiet, // 5:2 Fasting
-  zone,
-  custom,
+  vegan(0),
+  vegetarian(1),
+  pescatarian(2),
+  paleo(3),
+  keto(4),
+  ketoStrict(5),
+  lowCarb(6),
+  mediterranean(7),
+  whole30(8),
+  aip(9), // Autoimmune Protocol
+  lowFodmap(10),
+  glutenFree(11),
+  dairyFree(12),
+  if168(13), // Intermittent Fasting 16:8
+  if186(14), // Intermittent Fasting 18:6
+  if204(15), // Intermittent Fasting 20:4
+  omad(16), // One Meal A Day
+  fiveTwoDiet(17), // 5:2 Fasting
+  zone(18),
+  custom(19);
+
+  final int value;
+  const DietPresetType(this.value);
+
+  static DietPresetType fromValue(int value) => DietPresetType.values
+      .firstWhere((e) => e.value == value, orElse: () => custom);
 }
 
 enum InsightCategory {
-  daily,
-  summary, // Weekly/monthly summaries
-  pattern,
-  trigger,
-  progress,
-  compliance,
-  anomaly,
-  milestone,
-  recommendation, // Actionable recommendations
+  daily(0),
+  summary(1), // Weekly/monthly summaries
+  pattern(2),
+  trigger(3),
+  progress(4),
+  compliance(5),
+  anomaly(6),
+  milestone(7),
+  recommendation(8); // Actionable recommendations
+
+  final int value;
+  const InsightCategory(this.value);
+
+  static InsightCategory fromValue(int value) => InsightCategory.values
+      .firstWhere((e) => e.value == value, orElse: () => daily);
 }
 
 enum AlertPriority {

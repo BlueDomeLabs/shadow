@@ -151,7 +151,9 @@ class PhotoEntryDao extends DatabaseAccessor<AppDatabase>
   }) async {
     try {
       var query = select(photoEntries)
-        ..where((p) => p.areaId.equals(photoAreaId) & p.syncDeletedAt.isNull())
+        ..where(
+          (p) => p.photoAreaId.equals(photoAreaId) & p.syncDeletedAt.isNull(),
+        )
         ..orderBy([(p) => OrderingTerm.desc(p.timestamp)]);
 
       if (startDate != null) {
@@ -264,7 +266,7 @@ class PhotoEntryDao extends DatabaseAccessor<AppDatabase>
     id: row.id,
     clientId: row.clientId,
     profileId: row.profileId,
-    photoAreaId: row.areaId,
+    photoAreaId: row.photoAreaId,
     timestamp: row.timestamp,
     filePath: row.filePath,
     notes: row.notes,
@@ -291,7 +293,7 @@ class PhotoEntryDao extends DatabaseAccessor<AppDatabase>
         id: Value(entity.id),
         clientId: Value(entity.clientId),
         profileId: Value(entity.profileId),
-        areaId: Value(entity.photoAreaId),
+        photoAreaId: Value(entity.photoAreaId),
         timestamp: Value(entity.timestamp),
         filePath: Value(entity.filePath),
         notes: Value(entity.notes),

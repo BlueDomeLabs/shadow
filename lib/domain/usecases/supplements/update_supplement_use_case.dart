@@ -46,7 +46,7 @@ class UpdateSupplementUseCase
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 4. Apply updates (copyWith pattern)
+    // 4. Apply updates (copyWith pattern — syncMetadata managed by BaseRepository)
     final updated = existing.copyWith(
       name: input.name ?? existing.name,
       form: input.form ?? existing.form,
@@ -60,11 +60,6 @@ class UpdateSupplementUseCase
       startDate: input.startDate ?? existing.startDate,
       endDate: input.endDate ?? existing.endDate,
       isArchived: input.isArchived ?? existing.isArchived,
-      syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncVersion: existing.syncMetadata.syncVersion + 1,
-        syncIsDirty: true,
-      ),
     );
 
     // 5. Validate updated entity
@@ -80,14 +75,50 @@ class UpdateSupplementUseCase
   ValidationError? _validateUpdated(Supplement supplement) {
     final errors = <String, List<String>>{};
 
+    // Name validation
     final nameError = ValidationRules.supplementName(supplement.name);
     if (nameError != null) errors['name'] = [nameError];
 
+    // Brand validation (optional but max length)
+    if (supplement.brand.isNotEmpty) {
+      final brandError = ValidationRules.brand(supplement.brand);
+      if (brandError != null) errors['brand'] = [brandError];
+    }
+
+    // Custom form required when form is 'other'
     if (supplement.form == SupplementForm.other &&
         (supplement.customForm == null || supplement.customForm!.isEmpty)) {
       errors['customForm'] = [
         'Custom form name is required when form is "Other"',
       ];
+    }
+
+    // Dosage quantity must be positive
+    if (supplement.dosageQuantity <= 0) {
+      errors['dosageQuantity'] = ['Dosage quantity must be greater than 0'];
+    }
+
+    // Ingredients count limit
+    final ingredientsError = ValidationRules.ingredientsCount(
+      supplement.ingredients.length,
+    );
+    if (ingredientsError != null) errors['ingredients'] = [ingredientsError];
+
+    // Schedules count limit
+    final schedulesError = ValidationRules.schedulesCount(
+      supplement.schedules.length,
+    );
+    if (schedulesError != null) errors['schedules'] = [schedulesError];
+
+    // Date range validation
+    if (supplement.startDate != null && supplement.endDate != null) {
+      final dateError = ValidationRules.dateRange(
+        supplement.startDate!,
+        supplement.endDate!,
+        'startDate',
+        'endDate',
+      );
+      if (dateError != null) errors['dateRange'] = [dateError];
     }
 
     if (errors.isNotEmpty) {

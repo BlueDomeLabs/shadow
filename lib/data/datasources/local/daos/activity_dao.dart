@@ -26,7 +26,7 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
     try {
       var query = select(activities)
         ..where((a) => a.syncDeletedAt.isNull())
-        ..orderBy([(a) => OrderingTerm.desc(a.syncCreatedAt)]);
+        ..orderBy([(a) => OrderingTerm.asc(a.name)]);
 
       if (profileId != null) {
         query = query..where((a) => a.profileId.equals(profileId));
@@ -151,7 +151,7 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
     try {
       var query = select(activities)
         ..where((a) => a.profileId.equals(profileId) & a.syncDeletedAt.isNull())
-        ..orderBy([(a) => OrderingTerm.desc(a.syncCreatedAt)]);
+        ..orderBy([(a) => OrderingTerm.asc(a.name)]);
 
       if (!includeArchived) {
         query = query..where((a) => a.isArchived.equals(false));
@@ -204,6 +204,7 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
               isArchived: const Value(true),
               syncUpdatedAt: Value(now),
               syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.modified.value),
             ),
           );
 
@@ -228,6 +229,7 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
               isArchived: const Value(false),
               syncUpdatedAt: Value(now),
               syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.modified.value),
             ),
           );
 

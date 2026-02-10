@@ -12,7 +12,7 @@ part 'food_log.g.dart';
 /// Per 22_API_CONTRACTS.md Section 10.12.
 /// Supports both predefined food items (by ID) and ad-hoc items.
 @Freezed(toJson: true, fromJson: true)
-class FoodLog with _$FoodLog {
+class FoodLog with _$FoodLog implements Syncable {
   const FoodLog._();
 
   @JsonSerializable(explicitToJson: true)

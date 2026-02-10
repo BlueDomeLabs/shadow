@@ -1,6 +1,8 @@
 // lib/data/datasources/local/daos/activity_log_dao.dart
 // Data Access Object for activity_logs table per 22_API_CONTRACTS.md
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
@@ -266,8 +268,8 @@ class ActivityLogDao extends DatabaseAccessor<AppDatabase>
     clientId: row.clientId,
     profileId: row.profileId,
     timestamp: row.timestamp,
-    activityIds: _parseList(row.activityIds),
-    adHocActivities: _parseList(row.adHocActivities),
+    activityIds: _parseJsonList(row.activityIds),
+    adHocActivities: _parseJsonList(row.adHocActivities),
     duration: row.duration,
     notes: row.notes,
     importSource: row.importSource,
@@ -292,8 +294,8 @@ class ActivityLogDao extends DatabaseAccessor<AppDatabase>
         clientId: Value(entity.clientId),
         profileId: Value(entity.profileId),
         timestamp: Value(entity.timestamp),
-        activityIds: Value(entity.activityIds.join(',')),
-        adHocActivities: Value(entity.adHocActivities.join(',')),
+        activityIds: Value(jsonEncode(entity.activityIds)),
+        adHocActivities: Value(jsonEncode(entity.adHocActivities)),
         duration: Value(entity.duration),
         notes: Value(entity.notes),
         importSource: Value(entity.importSource),
@@ -309,9 +311,14 @@ class ActivityLogDao extends DatabaseAccessor<AppDatabase>
         conflictData: Value(entity.syncMetadata.conflictData),
       );
 
-  /// Parse comma-separated string to list.
-  List<String> _parseList(String value) {
+  /// Parse JSON array string to list.
+  List<String> _parseJsonList(String value) {
     if (value.isEmpty) return [];
-    return value.split(',').where((s) => s.isNotEmpty).toList();
+    try {
+      final list = jsonDecode(value) as List<dynamic>;
+      return list.map((item) => item.toString()).toList();
+    } on Exception {
+      return [];
+    }
   }
 }

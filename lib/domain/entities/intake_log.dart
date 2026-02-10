@@ -12,7 +12,7 @@ part 'intake_log.g.dart';
 /// Records scheduled vs actual intake times, status (taken/skipped/missed),
 /// and optional reason/notes.
 @Freezed(toJson: true, fromJson: true)
-class IntakeLog with _$IntakeLog {
+class IntakeLog with _$IntakeLog implements Syncable {
   const IntakeLog._();
 
   @JsonSerializable(explicitToJson: true)

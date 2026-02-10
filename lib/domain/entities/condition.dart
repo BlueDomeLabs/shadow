@@ -12,7 +12,7 @@ part 'condition.g.dart';
 /// Conditions can be skin conditions, chronic issues, symptoms, etc.
 /// They can have baseline photos and be linked to activities.
 @Freezed(toJson: true, fromJson: true)
-class Condition with _$Condition {
+class Condition with _$Condition implements Syncable {
   const Condition._();
 
   @JsonSerializable(explicitToJson: true)
@@ -50,5 +50,8 @@ class Condition with _$Condition {
   bool get isResolved => status == ConditionStatus.resolved;
 
   /// Whether the condition is currently active (not archived, not resolved)
-  bool get isActive => !isArchived && status == ConditionStatus.active;
+  bool get isActive =>
+      !isArchived &&
+      status == ConditionStatus.active &&
+      syncMetadata.syncDeletedAt == null;
 }

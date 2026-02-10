@@ -64,9 +64,9 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
   Future<ValidationError?> _validate(CreateFoodItemInput input) async {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-100 characters
-    if (input.name.length < 2 || input.name.length > 100) {
-      errors['name'] = ['Food item name must be 2-100 characters'];
+    // Name validation: 2-200 characters per ValidationRules.foodNameMaxLength
+    if (input.name.length < 2 || input.name.length > 200) {
+      errors['name'] = ['Food item name must be 2-200 characters'];
     }
 
     // Complex items must have simple item IDs

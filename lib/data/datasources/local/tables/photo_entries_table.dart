@@ -15,7 +15,8 @@ class PhotoEntries extends Table {
   // Core fields
   TextColumn get clientId => text().named('client_id')();
   TextColumn get profileId => text().named('profile_id')();
-  TextColumn get areaId => text().named('area_id')(); // FK to photo_areas
+  TextColumn get photoAreaId =>
+      text().named('photo_area_id')(); // FK to photo_areas
   IntColumn get timestamp => integer()();
   TextColumn get filePath => text().named('file_path')();
   TextColumn get notes => text().nullable()();

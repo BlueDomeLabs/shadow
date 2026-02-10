@@ -26,6 +26,8 @@ abstract class ConditionLogRepository
   /// Get condition logs for a specific condition.
   Future<Result<List<ConditionLog>, AppError>> getByCondition(
     String conditionId, {
+    int? startDate, // Epoch ms
+    int? endDate, // Epoch ms
     int? limit,
     int? offset,
   });

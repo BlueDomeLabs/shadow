@@ -6,7 +6,7 @@ part of 'condition_log_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$conditionLogListHash() => r'58b73fff3505df2188360fcf35e98ca278bfd7ea';
+String _$conditionLogListHash() => r'7772be3dcb6f32023b69585224b21564b44bfb9b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -32,8 +32,9 @@ class _SystemHash {
 abstract class _$ConditionLogList
     extends BuildlessAutoDisposeAsyncNotifier<List<ConditionLog>> {
   late final String profileId;
+  late final String conditionId;
 
-  FutureOr<List<ConditionLog>> build(String profileId);
+  FutureOr<List<ConditionLog>> build(String profileId, String conditionId);
 }
 
 /// Provider for managing condition log list with profile scope.
@@ -54,15 +55,15 @@ class ConditionLogListFamily extends Family<AsyncValue<List<ConditionLog>>> {
   /// Provider for managing condition log list with profile scope.
   ///
   /// Copied from [ConditionLogList].
-  ConditionLogListProvider call(String profileId) {
-    return ConditionLogListProvider(profileId);
+  ConditionLogListProvider call(String profileId, String conditionId) {
+    return ConditionLogListProvider(profileId, conditionId);
   }
 
   @override
   ConditionLogListProvider getProviderOverride(
     covariant ConditionLogListProvider provider,
   ) {
-    return call(provider.profileId);
+    return call(provider.profileId, provider.conditionId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -92,9 +93,11 @@ class ConditionLogListProvider
   /// Provider for managing condition log list with profile scope.
   ///
   /// Copied from [ConditionLogList].
-  ConditionLogListProvider(String profileId)
+  ConditionLogListProvider(String profileId, String conditionId)
     : this._internal(
-        () => ConditionLogList()..profileId = profileId,
+        () => ConditionLogList()
+          ..profileId = profileId
+          ..conditionId = conditionId,
         from: conditionLogListProvider,
         name: r'conditionLogListProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -104,6 +107,7 @@ class ConditionLogListProvider
         allTransitiveDependencies:
             ConditionLogListFamily._allTransitiveDependencies,
         profileId: profileId,
+        conditionId: conditionId,
       );
 
   ConditionLogListProvider._internal(
@@ -114,15 +118,17 @@ class ConditionLogListProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.profileId,
+    required this.conditionId,
   }) : super.internal();
 
   final String profileId;
+  final String conditionId;
 
   @override
   FutureOr<List<ConditionLog>> runNotifierBuild(
     covariant ConditionLogList notifier,
   ) {
-    return notifier.build(profileId);
+    return notifier.build(profileId, conditionId);
   }
 
   @override
@@ -130,13 +136,16 @@ class ConditionLogListProvider
     return ProviderOverride(
       origin: this,
       override: ConditionLogListProvider._internal(
-        () => create()..profileId = profileId,
+        () => create()
+          ..profileId = profileId
+          ..conditionId = conditionId,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         profileId: profileId,
+        conditionId: conditionId,
       ),
     );
   }
@@ -149,13 +158,16 @@ class ConditionLogListProvider
 
   @override
   bool operator ==(Object other) {
-    return other is ConditionLogListProvider && other.profileId == profileId;
+    return other is ConditionLogListProvider &&
+        other.profileId == profileId &&
+        other.conditionId == conditionId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, profileId.hashCode);
+    hash = _SystemHash.combine(hash, conditionId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -167,6 +179,9 @@ mixin ConditionLogListRef
     on AutoDisposeAsyncNotifierProviderRef<List<ConditionLog>> {
   /// The parameter `profileId` of this provider.
   String get profileId;
+
+  /// The parameter `conditionId` of this provider.
+  String get conditionId;
 }
 
 class _ConditionLogListProviderElement
@@ -180,6 +195,8 @@ class _ConditionLogListProviderElement
 
   @override
   String get profileId => (origin as ConditionLogListProvider).profileId;
+  @override
+  String get conditionId => (origin as ConditionLogListProvider).conditionId;
 }
 
 // ignore_for_file: type=lint

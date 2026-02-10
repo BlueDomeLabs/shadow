@@ -12,7 +12,7 @@ part 'fluids_entry.g.dart';
 /// Tracks water intake, bowel movements, urine, menstruation, BBT,
 /// and custom fluid types. All timestamps are epoch milliseconds.
 @Freezed(toJson: true, fromJson: true)
-class FluidsEntry with _$FluidsEntry {
+class FluidsEntry with _$FluidsEntry implements Syncable {
   const FluidsEntry._();
 
   @JsonSerializable(explicitToJson: true)

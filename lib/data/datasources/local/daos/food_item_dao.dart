@@ -1,6 +1,8 @@
 // lib/data/datasources/local/daos/food_item_dao.dart
 // Data Access Object for food_items table per 22_API_CONTRACTS.md
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
@@ -208,6 +210,7 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
               isArchived: const Value(true),
               syncUpdatedAt: Value(now),
               syncIsDirty: const Value(true),
+              syncStatus: Value(SyncStatus.modified.value),
             ),
           );
 
@@ -261,7 +264,7 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
     profileId: row.profileId,
     name: row.name,
     type: FoodItemType.fromValue(row.type),
-    simpleItemIds: _parseList(row.simpleItemIds),
+    simpleItemIds: _parseJsonList(row.simpleItemIds),
     isUserCreated: row.isUserCreated,
     isArchived: row.isArchived,
     servingSize: _buildServingSize(row.servingSize, row.servingUnit),
@@ -293,7 +296,7 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
       profileId: Value(entity.profileId),
       name: Value(entity.name),
       type: Value(entity.type.value),
-      simpleItemIds: Value(entity.simpleItemIds.join(',')),
+      simpleItemIds: Value(jsonEncode(entity.simpleItemIds)),
       isUserCreated: Value(entity.isUserCreated),
       isArchived: Value(entity.isArchived),
       servingSize: Value(servingSize),
@@ -316,10 +319,15 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
-  /// Parse comma-separated string to list.
-  List<String> _parseList(String? value) {
+  /// Parse JSON array string to list.
+  List<String> _parseJsonList(String? value) {
     if (value == null || value.isEmpty) return [];
-    return value.split(',').where((s) => s.isNotEmpty).toList();
+    try {
+      final list = jsonDecode(value) as List<dynamic>;
+      return list.map((item) => item.toString()).toList();
+    } on Exception {
+      return [];
+    }
   }
 
   /// Build serving size string from numeric value and unit.
@@ -334,13 +342,29 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Parse serving size string to numeric value and unit.
+  ///
+  /// Handles formats like "1 cup", "100 g", "100g", "1.5 fl oz".
   (double?, String?) _parseServingSize(String? servingSize) {
     if (servingSize == null || servingSize.isEmpty) return (null, null);
-    // Try to parse "1 cup" or "100g" format
-    final parts = servingSize.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty) return (null, null);
-    final size = double.tryParse(parts[0]);
-    final unit = parts.length > 1 ? parts.sublist(1).join(' ') : null;
-    return (size, unit);
+    final trimmed = servingSize.trim();
+    // Try splitting on whitespace first ("1 cup", "1.5 fl oz")
+    final parts = trimmed.split(RegExp(r'\s+'));
+    if (parts.length > 1) {
+      final size = double.tryParse(parts[0]);
+      if (size != null) {
+        return (size, parts.sublist(1).join(' '));
+      }
+    }
+    // Try extracting leading number from concatenated format ("100g", "1.5ml")
+    final match = RegExp(r'^(\d+\.?\d*)\s*(.+)$').firstMatch(trimmed);
+    if (match != null) {
+      final size = double.tryParse(match.group(1)!);
+      final unit = match.group(2)!.trim();
+      return (size, unit.isNotEmpty ? unit : null);
+    }
+    // Try parsing as pure number
+    final size = double.tryParse(trimmed);
+    if (size != null) return (size, null);
+    return (null, null);
   }
 }

@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/repositories/intake_log_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/usecases/base_use_case.dart';
@@ -14,14 +15,14 @@ import 'package:shadow_app/domain/usecases/intake_logs/intake_log_inputs.dart';
 /// 1. Authorization - Check profile write access FIRST
 /// 2. Validation - Verify the intake exists and belongs to profile
 /// 3. Repository Call - Execute operation
-class MarkSkippedUseCase implements UseCase<MarkSkippedInput, void> {
+class MarkSkippedUseCase implements UseCase<MarkSkippedInput, IntakeLog> {
   final IntakeLogRepository _repository;
   final ProfileAuthorizationService _authService;
 
   MarkSkippedUseCase(this._repository, this._authService);
 
   @override
-  Future<Result<void, AppError>> call(MarkSkippedInput input) async {
+  Future<Result<IntakeLog, AppError>> call(MarkSkippedInput input) async {
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));

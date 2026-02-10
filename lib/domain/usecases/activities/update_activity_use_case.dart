@@ -58,9 +58,9 @@ class UpdateActivityUseCase implements UseCase<UpdateActivityInput, Activity> {
   ValidationError? _validate(Activity activity) {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-100 characters
-    if (activity.name.length < 2 || activity.name.length > 100) {
-      errors['name'] = ['Activity name must be 2-100 characters'];
+    // Name validation: 2-200 characters per ValidationRules.activityNameMaxLength
+    if (activity.name.length < 2 || activity.name.length > 200) {
+      errors['name'] = ['Activity name must be 2-200 characters'];
     }
 
     // Duration validation: 1-1440 minutes

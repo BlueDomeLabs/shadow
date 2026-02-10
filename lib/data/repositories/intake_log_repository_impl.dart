@@ -111,15 +111,15 @@ class IntakeLogRepositoryImpl extends BaseRepository<IntakeLog>
   ) => _dao.getPendingForDate(profileId, date);
 
   @override
-  Future<Result<void, AppError>> markTaken(String id, int actualTime) =>
+  Future<Result<IntakeLog, AppError>> markTaken(String id, int actualTime) =>
       _dao.markTaken(id, actualTime);
 
   @override
-  Future<Result<void, AppError>> markSkipped(String id, String? reason) =>
+  Future<Result<IntakeLog, AppError>> markSkipped(String id, String? reason) =>
       _dao.markSkipped(id, reason);
 
   @override
-  Future<Result<void, AppError>> markSnoozed(
+  Future<Result<IntakeLog, AppError>> markSnoozed(
     String id,
     int snoozeDurationMinutes,
   ) => _dao.markSnoozed(id, snoozeDurationMinutes);

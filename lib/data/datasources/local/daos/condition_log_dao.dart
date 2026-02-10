@@ -1,6 +1,8 @@
 // lib/data/datasources/local/daos/condition_log_dao.dart
 // Data Access Object for condition_logs table per 22_API_CONTRACTS.md Section 10.9
 
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
@@ -229,6 +231,8 @@ class ConditionLogDao extends DatabaseAccessor<AppDatabase>
   /// Get condition logs for a specific condition.
   Future<Result<List<domain.ConditionLog>, AppError>> getByCondition(
     String conditionId, {
+    int? startDate,
+    int? endDate,
     int? limit,
     int? offset,
   }) async {
@@ -239,6 +243,13 @@ class ConditionLogDao extends DatabaseAccessor<AppDatabase>
         )
         ..orderBy([(c) => OrderingTerm.desc(c.timestamp)]);
 
+      if (startDate != null) {
+        query = query
+          ..where((c) => c.timestamp.isBiggerOrEqualValue(startDate));
+      }
+      if (endDate != null) {
+        query = query..where((c) => c.timestamp.isSmallerOrEqualValue(endDate));
+      }
       if (limit != null) {
         query = query..limit(limit, offset: offset);
       }
@@ -308,7 +319,7 @@ class ConditionLogDao extends DatabaseAccessor<AppDatabase>
 
   /// Convert database row to domain ConditionLog entity.
   domain.ConditionLog _rowToEntity(ConditionLogRow row) {
-    final flarePhotoIdsList = _parseFlarePhotoIds(row.flarePhotoIds);
+    final flarePhotoIdsList = _parseJsonList(row.flarePhotoIds);
 
     return domain.ConditionLog(
       id: row.id,
@@ -352,7 +363,7 @@ class ConditionLogDao extends DatabaseAccessor<AppDatabase>
         severity: Value(entity.severity),
         notes: Value(entity.notes),
         isFlare: Value(entity.isFlare),
-        flarePhotoIds: Value(entity.flarePhotoIds.join(',')),
+        flarePhotoIds: Value(jsonEncode(entity.flarePhotoIds)),
         photoPath: Value(entity.photoPath),
         activityId: Value(entity.activityId),
         triggers: Value(entity.triggers),
@@ -371,12 +382,14 @@ class ConditionLogDao extends DatabaseAccessor<AppDatabase>
         conflictData: Value(entity.syncMetadata.conflictData),
       );
 
-  List<String> _parseFlarePhotoIds(String commaList) {
-    if (commaList.isEmpty) return [];
-    return commaList
-        .split(',')
-        .map((id) => id.trim())
-        .where((id) => id.isNotEmpty)
-        .toList();
+  /// Parse JSON array string to list.
+  List<String> _parseJsonList(String value) {
+    if (value.isEmpty) return [];
+    try {
+      final list = jsonDecode(value) as List<dynamic>;
+      return list.map((item) => item.toString()).toList();
+    } on Exception {
+      return [];
+    }
   }
 }

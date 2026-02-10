@@ -58,9 +58,9 @@ class CreateActivityUseCase implements UseCase<CreateActivityInput, Activity> {
   ValidationError? _validate(CreateActivityInput input) {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-100 characters
-    if (input.name.length < 2 || input.name.length > 100) {
-      errors['name'] = ['Activity name must be 2-100 characters'];
+    // Name validation: 2-200 characters per ValidationRules.activityNameMaxLength
+    if (input.name.length < 2 || input.name.length > 200) {
+      errors['name'] = ['Activity name must be 2-200 characters'];
     }
 
     // Duration validation: 1-1440 minutes (max 24 hours)

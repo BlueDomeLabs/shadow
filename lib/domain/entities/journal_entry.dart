@@ -15,7 +15,7 @@ part 'journal_entry.g.dart';
 /// - tags: Optional list of tags
 /// - audioUrl: Optional audio attachment URL
 @Freezed(toJson: true, fromJson: true)
-class JournalEntry with _$JournalEntry {
+class JournalEntry with _$JournalEntry implements Syncable {
   const JournalEntry._();
 
   @JsonSerializable(explicitToJson: true)
