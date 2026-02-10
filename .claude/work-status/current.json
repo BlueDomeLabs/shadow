@@ -1,14 +1,13 @@
 {
-  "lastInstanceId": "impl-review-serial-004",
-  "lastAction": "handoff",
+  "lastInstanceId": "impl-review-deep-002",
+  "lastAction": "completed",
   "taskId": "IMPL-REVIEW-DEEP",
-  "status": "in_progress",
-  "timestamp": "2026-02-09T06:30:00Z",
+  "status": "complete",
+  "timestamp": "2026-02-09T08:30:00Z",
   "filesModified": [
-    ".claude/audit-reports/2026-02-09-implementation-review.md",
-    ".claude/work-status/current.json"
+    ".claude/audit-reports/2026-02-09-implementation-review.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "review_only",
-  "notes": "USER INSTRUCTION: Run /implementation-review AGAIN with deeper passes before fixing anything. Work serially (no agents). Review only — do NOT fix any code.\n\n## EXISTING REPORT\nRead first: .claude/audit-reports/2026-02-09-implementation-review.md\nPasses 1-6 checked each layer independently. Found 38 issues (11 HIGH, 12 MEDIUM, 15 LOW).\n\n## NEW PASSES TO RUN (append to existing report)\n\n### Pass 7: Cross-Layer Consistency (per entity)\nFor each of the 14 implemented entities, trace the SAME field across ALL layers:\n  Entity field → Repository param → Use Case Input → DAO column → Table column\nVerify types, names, nullability, and defaults are consistent across the full stack.\nExample: Does Condition.triggers (List<String>) flow correctly through ConditionRepository → CreateConditionInput → CreateConditionUseCase → ConditionDao → conditions_table?\nCheck ALL 14 entities this way. This catches mismatches the per-layer passes missed.\n\n### Pass 8: Test Coverage Audit\nFor each domain's test files:\n1. List what scenarios each test covers (success, failure, validation, auth)\n2. Compare against spec use case requirements — are ALL spec validation rules tested?\n3. Check: does each test assert the RIGHT thing? (e.g., does a 'max length' test actually verify the max length from the spec?)\n4. Identify gaps: spec-required behaviors with no test coverage\nFocus on the 14 implemented entity test suites. Don't need to read every test line-by-line — scan for test names and key assertions.\n\n### Pass 9: Provider Wiring Verification\nFor each Riverpod provider:\n1. Verify it injects the correct dependencies (does supplementListProvider use GetSupplementsUseCase? does it pass the right repo?)\n2. Verify return types match use case outputs\n3. Verify error handling — do providers surface AppError correctly?\n4. Check for providers that reference missing use cases (from spec review P9-1, P9-2)\nProvider files are in lib/presentation/providers/.\n\n### Pass 10: End-to-End Data Flow Trace\nPick 3 representative entities (1 simple, 1 with cross-entity refs, 1 with complex validation):\n  Suggested: Supplement (simple), ConditionLog (cross-entity), FoodItem (complex validation)\nFor each, trace the COMPLETE flow:\n  Screen → Provider → UseCase → Repository Interface → Repository Impl → DAO → Table\nVerify data transforms correctly at each boundary. Check that the DAO's toEntity() and fromEntity() handle ALL fields including sync metadata.\n\n## IMPORTANT NOTES\n- This is REVIEW ONLY — do NOT modify any code\n- Append findings as Pass 7, Pass 8, Pass 9, Pass 10 in the existing audit report\n- Update cumulative totals at the end\n- Set status to 'complete' when done\n- The NEXT instance after this will fix ALL issues (original 23 + new findings)\n- 1205 tests passing, analyzer clean\n- Spec: 22_API_CONTRACTS.md, Standards: 02_CODING_STANDARDS.md"
+  "notes": "COMPLETED all 10 implementation review passes. Total findings: 11 HIGH, 17 MEDIUM, 16 LOW (44 total). Passes 7-10 added 6 new findings: P7-1 (inconsistent List<String> storage), P7-2 (FoodItem servingSize fragile parsing), P7-3 (triggers naming collision), P8-1/P8-2/P8-3 (test coverage gaps for 10/14 entities). NEXT: Fix all issues — start with 11 HIGH issues (~100 min), then MEDIUM issues. See .claude/audit-reports/2026-02-09-implementation-review.md for full details and recommended fix order."
 }

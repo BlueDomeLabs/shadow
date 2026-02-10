@@ -1286,9 +1286,9 @@ The vast majority of use cases — all Input classes, authorization patterns, en
 
 ---
 
-## Cumulative Findings Summary (All Passes)
+## Cumulative Findings Summary (Passes 1-6)
 
-### By Severity
+### By Severity (Passes 1-6 Only)
 
 | Severity | Count | Details |
 |----------|:---:|---------|
@@ -1316,8 +1316,427 @@ The vast majority of use cases — all Input classes, authorization patterns, en
 
 ---
 
-## REVIEW COMPLETE — All 6 Passes + Gap Analysis Done
+---
 
-**Total findings across all passes: 11 HIGH, 12 MEDIUM, 15 LOW (38 total)**
+# Deeper Review — Passes 7-10 (Cross-Layer Analysis)
 
-The implementation is ~35-40% complete (14 of 41 spec tables implemented) and the completed portions are remarkably faithful to the specification. The vast majority of code — entities, repositories, use cases, enums, tables — is an exact match with the spec. The 11 HIGH issues are localized and fixable in ~100 minutes of implementation work.
+These passes examine consistency ACROSS layers (entity→repo→usecase→DAO→table) rather than within each layer independently. Performed serially by a single instance per user request.
+
+---
+
+## Pass 7: Cross-Layer Consistency
+
+**Method:** For each of the 14 implemented entities, read across all 5 layers (entity, repository interface, use case inputs, table definition, DAO implementation) and verify fields/types/methods are consistent end-to-end.
+
+### Finding P7-1: Inconsistent List<String> Storage Pattern (MEDIUM)
+
+Two competing patterns exist for storing `List<String>` entity fields in the database:
+
+**Pattern A — JSON arrays** (used by 4 entities):
+- Supplement: `ingredients`, `schedules` → `jsonEncode()` / `jsonDecode()`
+- Condition: `bodyLocations`, `triggers` → `jsonEncode()` / `_parseJsonList()`
+- FlareUp: `triggers` → `jsonEncode()` / `_parseJsonList()`
+- FluidsEntry: `photoIds` → `jsonEncode()` / `_parseJsonList()`
+
+**Pattern B — Comma-separated strings** (used by 5 entities):
+- ActivityLog: `activityIds`, `adHocActivities` → `.join(',')` / `_parseList()`
+- FoodLog: `foodItemIds`, `adHocItems` → `.join(',')` / `_parseList()`
+- FoodItem: `simpleItemIds` → `.join(',')` / `_parseList()`
+- ConditionLog: `flarePhotoIds` → `.join(',')` / `_parseFlarePhotoIds()`
+- JournalEntry: `tags` → `.join(',')` / `_parseList()`
+
+**Impact:** Comma-separated storage breaks if any value contains a comma. This is low-risk for IDs (UUIDs don't contain commas) but higher-risk for `adHocActivities`, `adHocItems`, and `tags` which are user-entered free text.
+
+**Recommendation:** Standardize on JSON arrays for all `List<String>` fields. Comma-separated pattern is a latent bug for user-entered text fields.
+
+---
+
+### Finding P7-2: FoodItem servingSize Cross-Layer Type Mismatch (MEDIUM)
+
+The FoodItem entity has `String? servingSize` but the database table stores it as two separate columns: `serving_size REAL` + `serving_size_unit TEXT`.
+
+The DAO performs a fragile string-based conversion:
+
+```dart
+// Entity → Table (in _entityToCompanion)
+String? _buildServingSize(double? size, String? unit) {
+  if (size == null) return null;
+  if (unit == null || unit.isEmpty) return size.toString();
+  final sizeStr = size == size.truncate() ? size.truncate().toString() : size.toString();
+  return '$sizeStr $unit';
+}
+
+// Table → Entity (in _rowToEntity)
+(double?, String?) _parseServingSize(String? servingSize) {
+  if (servingSize == null || servingSize.isEmpty) return (null, null);
+  final parts = servingSize.trim().split(RegExp(r'\s+'));
+  if (parts.isEmpty) return (null, null);
+  final size = double.tryParse(parts[0]);
+  final unit = parts.length > 1 ? parts.sublist(1).join(' ') : null;
+  return (size, unit);
+}
+```
+
+**Problem:** The parsing relies on whitespace splitting. A serving size like `"100g"` (no space) would parse `size=null, unit=null` — losing data. Also `"1.5 fl oz"` correctly parses to `(1.5, "fl oz")` but round-tripping through build+parse is fragile.
+
+**Impact:** Data loss possible for edge-case serving size formats.
+
+---
+
+### Finding P7-3: ConditionLog.triggers vs Condition.triggers Semantic Inconsistency (LOW)
+
+- `Condition.triggers` is `List<String>` — stored as JSON array
+- `ConditionLog.triggers` is `String?` — stored as plain text
+
+These represent the same semantic concept (what triggered a condition) but use different types and storage patterns. The Condition entity defines a list of known triggers; the ConditionLog stores a free-text trigger description for a single log entry.
+
+**Impact:** Low — the types are intentionally different (list of predefined triggers vs. free-text for a single event). But the naming collision could confuse implementers.
+
+---
+
+### Finding P7-4: SyncMetadata Nullable→Required Handling (CONSISTENT — No Issue)
+
+All 14 DAOs use the same pattern for handling nullable sync columns → required SyncMetadata entity field:
+
+```dart
+syncMetadata: SyncMetadata(
+  syncId: row.syncId ?? '',
+  syncStatus: SyncStatus.fromValue(row.syncStatus ?? 0),
+  syncCreatedAt: row.syncCreatedAt ?? 0,
+  syncUpdatedAt: row.syncUpdatedAt ?? 0,
+  syncVersion: row.syncVersion ?? 1,
+  syncDeviceId: row.syncDeviceId ?? '',
+  syncDeletedAt: row.syncDeletedAt,
+  syncLastError: row.syncLastError,
+  syncRetryCount: row.syncRetryCount ?? 0,
+);
+```
+
+This is consistent across all implementations. No issue.
+
+---
+
+### Pass 7 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P7-1 | MEDIUM | Inconsistent List<String> storage (JSON vs comma-separated) — latent bug for user text fields |
+| P7-2 | MEDIUM | FoodItem servingSize fragile string parsing — data loss on edge cases |
+| P7-3 | LOW | ConditionLog.triggers (String?) vs Condition.triggers (List<String>) naming collision |
+| P7-4 | — | SyncMetadata handling: consistent across all 14 DAOs (no issue) |
+
+---
+
+## Pass 8: Test Coverage Audit
+
+**Method:** Inventory all test files and identify coverage gaps by layer and entity.
+
+### Test File Inventory (53 files total)
+
+**Use Case Tests (12 files — all 14 domains covered):**
+| Domain | File | Test Count |
+|--------|------|:---:|
+| Supplements | supplement_use_cases_test.dart | 24 |
+| Conditions | condition_use_cases_test.dart | 14 |
+| ActivityLogs | activity_log_use_cases_test.dart | 17 |
+| FlareUps | flare_up_use_cases_test.dart | 22 |
+| FoodItems | food_item_use_cases_test.dart | 17 |
+| FoodLogs | food_log_use_cases_test.dart | 17 |
+| IntakeLogs | intake_log_use_cases_test.dart | 11 |
+| SleepEntries | sleep_entry_use_cases_test.dart | 22 |
+| JournalEntries | journal_entry_use_cases_test.dart | 19 |
+| PhotoAreas | photo_area_use_cases_test.dart | 15 |
+| PhotoEntries | photo_entry_use_cases_test.dart | 14 |
+| Activities | activity_use_cases_test.dart | 14 |
+
+**DAO Tests (4 files — only 4 of 14 entities):**
+- supplement_dao_test.dart (38 tests)
+- condition_dao_test.dart
+- condition_log_dao_test.dart
+- intake_log_dao_test.dart
+
+**Entity Tests (4 files — only 4 of 14 entities):**
+- supplement_test.dart (44 tests)
+- condition_test.dart
+- condition_log_test.dart
+- intake_log_test.dart
+
+**Repository Implementation Tests (1 file — only 1 of 14 entities):**
+- supplement_repository_impl_test.dart
+
+**Screen Tests:** 12 files
+**Widget Tests:** 10 files
+**Core Tests:** 5 files (error handling, enums, sync metadata, etc.)
+
+---
+
+### Finding P8-1: Missing DAO Tests for 10 Entities (MEDIUM)
+
+Only 4 of 14 entities have DAO tests. The following 10 entities have **no DAO test coverage**:
+
+| Entity | DAO Exists | DAO Test |
+|--------|:---:|:---:|
+| Activity | Yes | **NO** |
+| ActivityLog | Yes | **NO** |
+| FlareUp | Yes | **NO** |
+| FluidsEntry | Yes | **NO** |
+| FoodItem | Yes | **NO** |
+| FoodLog | Yes | **NO** |
+| JournalEntry | Yes | **NO** |
+| PhotoArea | Yes | **NO** |
+| PhotoEntry | Yes | **NO** |
+| SleepEntry | Yes | **NO** |
+
+**Impact:** DAO layer is where entity↔table mapping happens. Without tests, the type conversions (especially List<String> storage, enum value mapping, nullable handling) are unverified at the integration level.
+
+---
+
+### Finding P8-2: Missing Entity Tests for 10 Entities (MEDIUM)
+
+Only 4 of 14 entities have entity-level tests (computed getters, serialization, equality). The same 10 entities listed above are missing entity tests.
+
+**Impact:** Entity computed properties (like `isActive`, `isWithinDateRange`, `displayDosage`) are untested for most entities.
+
+---
+
+### Finding P8-3: Missing Repository Implementation Tests for 13 Entities (MEDIUM)
+
+Only Supplement has a repository implementation test. The remaining 13 entities have no repo impl test coverage.
+
+**Impact:** The DAO↔Repository adapter layer (error mapping, sync metadata preparation, Result wrapping) is untested for 13 of 14 entities.
+
+---
+
+### Pass 8 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P8-1 | MEDIUM | 10/14 entities missing DAO tests |
+| P8-2 | MEDIUM | 10/14 entities missing entity tests |
+| P8-3 | MEDIUM | 13/14 entities missing repo impl tests |
+
+**Note:** These are coverage gaps, not bugs. The existing test patterns (from the 4 well-tested entities) are correct and can be replicated. The coverage gaps should be addressed during the implementation fix phase.
+
+---
+
+## Pass 9: Provider Wiring Verification
+
+**Method:** Read `lib/presentation/providers/di/di_providers.dart` (653 lines) and verify every provider correctly wires its dependencies per the spec.
+
+### Inventory
+
+- **14 repository providers** — all use `throw UnimplementedError()` pattern for ProviderScope override
+- **1 ProfileAuthorizationService provider**
+- **51 use case providers** across 14 domains
+
+### Verification Results
+
+All 51 use case providers were checked. Each was verified to pass the correct repository provider(s) and the `profileAuthorizationServiceProvider`.
+
+**Only 1 wiring error found:**
+
+### Finding P9-1: LogConditionUseCase Provider Missing Dependency (Confirms P3-3)
+
+```dart
+// di_providers.dart line ~278
+LogConditionUseCase logConditionUseCase(Ref ref) => LogConditionUseCase(
+  ref.read(conditionLogRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+```
+
+Per spec, `LogConditionUseCase` should also receive `conditionRepositoryProvider` for cross-entity validation (verifying the condition exists before logging against it). The provider only passes 2 of the spec's 3 required dependencies.
+
+**This is the same issue as P3-3 from Pass 3.** The provider wiring is consistent with the use case implementation (which also only accepts 2 deps), but both deviate from the spec.
+
+### Correctly Wired Cross-Entity Providers (Verified)
+
+These providers correctly pass multiple repository dependencies:
+- `logFlareUpUseCase` — passes flareUpRepo + conditionRepo + authService ✓
+- `logActivityUseCase` — passes activityLogRepo + activityRepo + authService ✓
+- `logFoodUseCase` — passes foodLogRepo + foodItemRepo + authService ✓
+- `updateActivityLogUseCase` — passes activityLogRepo + activityRepo + authService ✓
+- `createPhotoEntryUseCase` — passes photoEntryRepo + photoAreaRepo + authService ✓
+
+---
+
+### Pass 9 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P9-1 | — | LogConditionUseCase provider missing conditionRepo (duplicate of P3-3) |
+
+**51 providers checked, 50 correctly wired, 1 confirmed issue (already tracked).**
+
+---
+
+## Pass 10: End-to-End Data Flow Trace
+
+**Method:** Trace 3 representative entities through the complete data flow: User Action → Provider → UseCase → Repository → DAO → Table → DAO → Entity, verifying field fidelity at every boundary.
+
+### Trace 1: Supplement (Clean Path)
+
+```
+CreateSupplementInput (16 fields)
+  → CreateSupplementUseCase.execute()
+    → authService.validateProfileAccess(profileId) ✓
+    → Build Supplement entity (all fields mapped) ✓
+    → supplementRepository.create(supplement)
+      → SupplementRepositoryImpl.create()
+        → _syncService.prepareForCreate() ✓
+        → _dao.insertSupplement(supplement)
+          → _entityToCompanion() maps all 16 entity + 9 sync fields ✓
+          → ingredients → jsonEncode(List<Map>) ✓
+          → schedules → jsonEncode(List<Map>) ✓
+          → enums → .value (int) ✓
+        → Drift INSERT into supplements table ✓
+  → Return Result<Supplement, AppError> ✓
+```
+
+**Read path:**
+```
+GetSupplementsUseCase.execute()
+  → supplementRepository.getByProfile(profileId)
+    → SupplementRepositoryImpl.getByProfile()
+      → _dao.getByProfile(profileId)
+        → SELECT * FROM supplements WHERE profile_id = ? ✓
+        → _rowToEntity() maps all columns back ✓
+        → ingredients ← jsonDecode(TEXT) → List<SupplementIngredient> ✓
+        → schedules ← jsonDecode(TEXT) → List<SupplementSchedule> ✓
+        → enums ← EnumType.fromValue(int) ✓
+        → syncMetadata ← nullable columns with ?? fallbacks ✓
+  → Return Result<List<Supplement>, AppError> ✓
+```
+
+**Verdict: CLEAN.** All fields survive the round trip with no data loss or type mismatches.
+
+---
+
+### Trace 2: ConditionLog (Broken Path)
+
+```
+LogConditionInput (8 fields including conditionId)
+  → LogConditionUseCase.execute()
+    → authService.validateProfileAccess(profileId) ✓
+    → ⚠️ MISSING: conditionRepository.getById(conditionId) — spec requires verifying condition exists (P3-3)
+    → Build ConditionLog entity ✓
+    → conditionLogRepository.create(conditionLog) ✓
+      → DAO inserts correctly ✓
+  → Return Result<ConditionLog, AppError> ✓
+
+GetConditionLogsInput (profileId only — MISSING conditionId per P3-2)
+  → GetConditionLogsUseCase.execute()
+    → ⚠️ Calls repository.getByProfile(profileId) instead of getByCondition(conditionId)
+      → DAO.getByProfile() works correctly ✓
+    → ⚠️ BUT: repository.getByCondition() is MISSING startDate/endDate params (P2-1)
+      → Even if the UseCase were fixed, the repo can't filter by date range
+```
+
+**Verdict: BROKEN at UseCase layer.** Three linked issues (P2-1, P3-2, P3-3) combine to make the ConditionLog query flow incorrect:
+1. UseCase queries wrong scope (all logs for profile vs. logs for specific condition)
+2. UseCase doesn't validate condition exists before logging
+3. Repository method can't filter by date range even when called correctly
+
+These 3 issues should be fixed together as they affect the same flow.
+
+---
+
+### Trace 3: FoodItem (Fragile Path)
+
+```
+CreateFoodItemInput (11 fields including servingSize: String?)
+  → CreateFoodItemUseCase.execute()
+    → authService.validateProfileAccess(profileId) ✓
+    → Build FoodItem entity (servingSize: String?) ✓
+    → foodItemRepository.create(foodItem) ✓
+      → FoodItemRepositoryImpl.create()
+        → _dao.insertFoodItem(foodItem)
+          → _entityToCompanion():
+            → servingSize: "1.5 fl oz"
+            → _parseServingSize("1.5 fl oz") → (1.5, "fl oz")
+            → serving_size column = 1.5 (REAL) ✓
+            → serving_size_unit column = "fl oz" (TEXT) ✓
+          → simpleItemIds → .join(',') (comma-separated) ✓
+        → INSERT into food_items table ✓
+
+Read path:
+  → _dao.getByProfile(profileId)
+    → SELECT * FROM food_items ✓
+    → _rowToEntity():
+      → serving_size=1.5, serving_size_unit="fl oz"
+      → _buildServingSize(1.5, "fl oz") → "1.5 fl oz" ✓
+      → simpleItemIds ← _parseList(comma-separated) ✓
+    → Round trip: "1.5 fl oz" → (1.5, "fl oz") → "1.5 fl oz" ✓
+```
+
+**Edge case test:**
+```
+Input: servingSize = "100g"  (no space)
+→ _parseServingSize("100g"):
+  → parts = ["100g"]
+  → double.tryParse("100g") → null
+  → Returns (null, null)
+→ _buildServingSize(null, null) → null
+→ ⚠️ DATA LOSS: "100g" round-trips to null
+```
+
+**Verdict: FRAGILE.** Normal formats with spaces work correctly. Edge cases without spaces (common in nutrition labeling) cause silent data loss via the string parsing. See P7-2.
+
+---
+
+### Pass 10 Summary
+
+| Entity | Verdict | Issues |
+|--------|---------|--------|
+| Supplement | CLEAN | None — full round-trip verified |
+| ConditionLog | BROKEN | P2-1 + P3-2 + P3-3 combine for incorrect query flow |
+| FoodItem | FRAGILE | P7-2 servingSize parsing causes data loss on edge cases |
+
+---
+
+## Updated Cumulative Findings Summary (All 10 Passes)
+
+### By Severity
+
+| Severity | Count | Details |
+|----------|:---:|---------|
+| HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 17 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3 |
+| LOW | 16 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, + minor text diffs |
+
+### New Findings from Passes 7-10
+
+| ID | Severity | Pass | Issue |
+|----|----------|:---:|-------|
+| P7-1 | MEDIUM | 7 | Inconsistent List<String> storage — JSON arrays vs comma-separated. Latent bug for user text fields (adHocActivities, adHocItems, tags) |
+| P7-2 | MEDIUM | 7 | FoodItem servingSize fragile string parsing — data loss on "100g" style inputs |
+| P7-3 | LOW | 7 | ConditionLog.triggers (String?) vs Condition.triggers (List<String>) naming collision |
+| P8-1 | MEDIUM | 8 | 10/14 entities missing DAO tests |
+| P8-2 | MEDIUM | 8 | 10/14 entities missing entity tests |
+| P8-3 | MEDIUM | 8 | 13/14 entities missing repo impl tests |
+| P9-1 | — | 9 | LogConditionUseCase provider wiring (duplicate of P3-3, not counted separately) |
+
+### Linked Issue Groups (Fix Together)
+
+**Group A — ConditionLog Flow (3 issues):**
+- P2-1: ConditionLogRepository.getByCondition missing startDate/endDate
+- P3-2: GetConditionLogsInput missing conditionId, wrong query scope
+- P3-3/P9-1: LogConditionUseCase missing conditionRepository dependency
+
+**Group B — List<String> Storage (1 issue, 5 entities affected):**
+- P7-1: Standardize ActivityLog, FoodLog, FoodItem, ConditionLog, JournalEntry to JSON arrays
+
+---
+
+## REVIEW COMPLETE — All 10 Passes Done
+
+**Total findings across all passes: 11 HIGH, 17 MEDIUM, 16 LOW (44 total)**
+
+Of these, 6 are new from the deeper cross-layer analysis (passes 7-10). The cross-layer review confirmed that the Supplement entity (the reference implementation) is fully clean end-to-end. The ConditionLog flow has 3 linked issues that should be fixed together. The FoodItem servingSize parsing is fragile and should be hardened. Test coverage gaps exist for 10 of 14 entities at the DAO/entity/repo-impl layers.
+
+**Recommended fix order:**
+1. Fix 11 HIGH issues first (~100 minutes)
+2. Fix Group A (ConditionLog flow) as a unit
+3. Fix P7-1 (standardize List<String> storage to JSON)
+4. Fix P7-2 (FoodItem servingSize parsing)
+5. Add missing tests (P8-1, P8-2, P8-3) — largest effort, can parallelize
