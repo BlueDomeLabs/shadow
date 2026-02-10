@@ -6536,9 +6536,9 @@ class SyncWearableDataUseCase
       connection: connection,
       startDate: syncStart,
       endDate: syncEnd,
-      dataTypes: input.dataTypes.isEmpty
+      dataTypes: (input.dataTypes == null || input.dataTypes!.isEmpty)
           ? connection.readPermissions
-          : input.dataTypes,
+          : input.dataTypes!,
     );
     if (platformDataResult.isFailure) {
       // Update connection with error
