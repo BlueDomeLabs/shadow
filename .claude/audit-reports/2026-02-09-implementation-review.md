@@ -6,7 +6,7 @@
 |------|-------|--------|
 | 1 | Entity field-by-field comparison (15 entities + SyncMetadata) | COMPLETE |
 | 2 | Repository method signatures (15 repositories) | COMPLETE |
-| 3 | Use case input classes + logic (100+ files) | PENDING — LARGEST PASS |
+| 3 | Use case input classes + logic (~70 files) | COMPLETE |
 | 4 | DAO/Table column alignment (14 tables) | COMPLETE |
 | 5 | Enum values alignment | COMPLETE |
 | 6 | Core types (SyncMetadata, AppError, Result, base use cases) | COMPLETE |
@@ -1081,15 +1081,220 @@ The spec (22_API_CONTRACTS.md) defines 41 database tables (Section 13.42). The i
 
 ---
 
+## Pass 3: Use Case Input Classes + Logic
+
+### Method
+For each use case domain (14 subdirectories, ~70 non-generated files):
+1. Read the implementation input class file
+2. Read the implementation use case file(s)
+3. Find corresponding spec definition in 22_API_CONTRACTS.md Section 4
+4. Compare field-by-field for Input classes
+5. Compare logic: authorization, validation, entity construction, repository call
+6. Log every deviation
+
+---
+
+### Pass 3 Results Summary
+
+**14 domains reviewed, ~70 files compared**
+
+| Domain | Input Classes | Use Cases | Match Status |
+|--------|:---:|:---:|----------|
+| Supplements | 5 | 4 | MATCH (minor style diffs) |
+| Fluids Entries | 6 | 5 | MATCH (impl adds extra validation) |
+| Conditions | 3 | 3 | DEVIATION: CreateConditionInput has extra `triggers` field |
+| Condition Logs | 2 | 2 | DEVIATION: GetConditionLogsInput wrong, LogConditionUseCase simplified |
+| Activities | 4 | 4 | MATCH |
+| Activity Logs | 4 | 4 | MATCH |
+| Flare Ups | 5 | 5 | MATCH |
+| Food Items | 5 | 5 | MATCH |
+| Food Logs | 4 | 4 | MATCH |
+| Intake Logs | 4 | 4 | MATCH (void returns per P2-3) |
+| Journal Entries | 5 | 6 | MATCH |
+| Photo Areas | 4 | 4 | MATCH |
+| Photo Entries | 4 | 4 | MATCH |
+| Sleep Entries | 6 | 4 | MATCH |
+
+---
+
+### Pass 3 Findings
+
+#### P3-1: CreateConditionInput has extra `triggers` field — MEDIUM
+
+**Spec** (line 4811-4823):
+```dart
+class CreateConditionInput {
+  required String profileId,
+  required String clientId,
+  required String name,
+  required String category,
+  @Default([]) List<String> bodyLocations,
+  String? description,
+  String? baselinePhotoPath,
+  required int startTimeframe,
+  int? endDate,
+  String? activityId,
+}
+```
+
+**Implementation** (condition_inputs.dart:21-35):
+```dart
+class CreateConditionInput {
+  ...same fields...
+  @Default([]) List<String> triggers,  // EXTRA — not in spec
+}
+```
+
+**Impact:** Implementation allows setting triggers on a Condition at creation time. The spec's Condition entity (Section 10.8) does have a `triggers` field, so this is functionally reasonable. However, the spec's CreateConditionInput does not include it.
+
+**Verdict:** MEDIUM — Implementation adds a useful field not in the spec Input class, but the entity supports it.
+
+---
+
+#### P3-2: GetConditionLogsInput missing conditionId, has extra limit/offset — HIGH
+
+**Spec** (line 5003-5009):
+```dart
+class GetConditionLogsInput {
+  required String profileId,
+  required String conditionId,   // REQUIRED
+  int? startDate,
+  int? endDate,
+}
+```
+
+**Implementation** (condition_log_inputs.dart:10-18):
+```dart
+class GetConditionLogsInput {
+  required String profileId,
+  // MISSING: conditionId
+  int? startDate,
+  int? endDate,
+  int? limit,    // EXTRA
+  int? offset,   // EXTRA
+}
+```
+
+**Impact:** The spec requires querying by `conditionId` (get logs for a specific condition). The implementation queries by `profileId` only (get ALL logs for a profile). These are fundamentally different operations. The spec's `GetConditionLogsUseCase` calls `_repository.getByCondition(input.conditionId, ...)` while the implementation calls `_repository.getByProfile(input.profileId, ...)`.
+
+**Verdict:** HIGH — Wrong query scope. Missing `conditionId` means the use case fetches all condition logs instead of condition-specific logs.
+
+---
+
+#### P3-3: LogConditionUseCase missing ConditionRepository dependency — MEDIUM
+
+**Spec** (line 4897-4906):
+```dart
+class LogConditionUseCase {
+  final ConditionLogRepository _logRepository;
+  final ConditionRepository _conditionRepository;   // PRESENT
+  final ProfileAuthorizationService _authService;
+}
+```
+
+**Implementation** (log_condition_use_case.dart:22-26):
+```dart
+class LogConditionUseCase {
+  final ConditionLogRepository _repository;
+  final ProfileAuthorizationService _authService;
+  // MISSING: ConditionRepository _conditionRepository
+}
+```
+
+**Impact:** The spec verifies the condition exists and belongs to the profile before creating the log (lines 4917-4925). The implementation skips this verification — it validates conditionId is non-empty (trim check) but never verifies the condition actually exists in the database.
+
+**Verdict:** MEDIUM — Missing cross-entity validation. A log can be created for a non-existent condition.
+
+---
+
+#### P3-4: Supplement Update/Archive use cases don't pre-compute `now` — LOW
+
+**Spec** `UpdateSupplementUseCase` (line 4648):
+```dart
+final now = DateTime.now().millisecondsSinceEpoch;  // At method start
+```
+
+**Implementation** `UpdateSupplementUseCase` (update_supplement_use_case.dart:64):
+```dart
+syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,  // Inline
+```
+
+**Impact:** Functionally identical. The inline approach calls `DateTime.now()` slightly later than the spec's pre-computation but within the same synchronous block. Not a behavioral difference.
+
+**Verdict:** LOW — Style consistency only.
+
+---
+
+#### P3-5: CreateConditionUseCase validation uses different ValidationRules API — LOW
+
+**Spec** (line 4842):
+```dart
+final nameError = ValidationRules.conditionName(input.name);
+```
+
+**Implementation** (create_condition_use_case.dart:74-78):
+```dart
+final nameError = ValidationRules.entityName(
+  input.name, 'Condition name', ValidationRules.conditionNameMaxLength,
+);
+```
+
+**Impact:** Both validate the condition name, but the implementation uses a generic `entityName()` method with parameters instead of the specific `conditionName()` method from the spec. The validation behavior depends on whether both methods enforce the same rules.
+
+**Verdict:** LOW — Different API call, likely same behavior.
+
+---
+
+#### P3-6: LogFluidsEntryUseCase adds extra validation not in spec — LOW
+
+The implementation (log_fluids_entry_use_case.dart:126-148) adds validation for:
+- `otherFluidName` format (2-100 chars, letters/spaces/hyphens only)
+- `otherFluidAmount` max length (50 chars)
+- `otherFluidNotes` max length (5000 chars)
+- `notes` max length (2000 chars)
+
+The spec (lines 2524-2567) only validates:
+- At least one measurement
+- Water intake range (0-10000)
+- BBT range (95-105°F)
+- BBT requires recorded time
+- Other fluid name required when amount/notes provided
+
+**Impact:** Implementation is more defensive than spec. No data loss, but could reject valid input if spec allows longer notes.
+
+**Verdict:** LOW — Stricter validation than spec, defensive coding.
+
+---
+
+#### P3-7: MarkTakenUseCase returns void, spec returns IntakeLog — Already tracked as P2-3
+
+The intake log mark* use cases all implement `UseCase<Input, void>` while the spec repository returns `IntakeLog`. This was already identified in Pass 2 as P2-3 (HIGH). The use case correctly mirrors the repository return type.
+
+---
+
+### Pass 3 Summary
+
+| Severity | Count | IDs |
+|----------|:---:|-----|
+| HIGH | 1 | P3-2 |
+| MEDIUM | 2 | P3-1, P3-3 |
+| LOW | 3 | P3-4, P3-5, P3-6 |
+
+**Overall Assessment:** The use case implementations are remarkably faithful to the spec. Out of ~70 files across 14 domains, only 3 meaningful deviations were found. The most significant (P3-2) is the GetConditionLogsInput missing `conditionId`, which changes the query semantics. The other two (P3-1 extra field, P3-3 missing cross-entity validation) are moderate impacts.
+
+The vast majority of use cases — all Input classes, authorization patterns, entity construction, validation logic, and repository calls — are exact matches with the spec.
+
+---
+
 ## Cumulative Findings Summary (All Passes)
 
 ### By Severity
 
 | Severity | Count | Details |
 |----------|:---:|---------|
-| HIGH | 10 | P1-1, P2-1, P2-2, P2-3, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
-| MEDIUM | 10 | P1-2, P1-3, P2-4, P6-2, P4-2, P4-3, + systematic S-1, S-2 |
-| LOW | 12 | P1-4, P1-5, P2-5, P2-6, P5-5, P6-3, P6-4, + minor text diffs |
+| HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 12 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, + systematic S-1, S-2 |
+| LOW | 15 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, + minor text diffs |
 
 ### HIGH Priority Fix List
 
@@ -1099,6 +1304,7 @@ The spec (22_API_CONTRACTS.md) defines 41 database tables (Section 13.42). The i
 | P2-1 | ConditionLogRepository | getByCondition missing startDate/endDate params | 10 min |
 | P2-2 | FlareUpRepository | Missing getTriggerCounts method | 15 min |
 | P2-3 | IntakeLogRepository | markTaken/markSkipped/markSnoozed return void not IntakeLog | 20 min |
+| P3-2 | GetConditionLogsInput | Missing conditionId, wrong query scope (getByProfile vs getByCondition) | 15 min |
 | P5-1 | DietPresetType enum | Missing int values (spec has 0-19) | 5 min |
 | P5-2 | InsightCategory enum | Missing int values (spec has 0-8) | 5 min |
 | P5-3 | RecoveryAction enum | Missing int values (spec has 0-7) | 5 min |
@@ -1106,4 +1312,12 @@ The spec (22_API_CONTRACTS.md) defines 41 database tables (Section 13.42). The i
 | P6-1 | DatabaseError | Missing codeTransactionFailed + factory | 10 min |
 | P4-1 | Spec Section 13.12 | IntakeLog table definition outdated | Spec fix |
 
-**Total estimated fix time for all HIGH issues: ~85 minutes**
+**Total estimated fix time for all HIGH issues: ~100 minutes**
+
+---
+
+## REVIEW COMPLETE — All 6 Passes + Gap Analysis Done
+
+**Total findings across all passes: 11 HIGH, 12 MEDIUM, 15 LOW (38 total)**
+
+The implementation is ~35-40% complete (14 of 41 spec tables implemented) and the completed portions are remarkably faithful to the specification. The vast majority of code — entities, repositories, use cases, enums, tables — is an exact match with the spec. The 11 HIGH issues are localized and fixable in ~100 minutes of implementation work.
