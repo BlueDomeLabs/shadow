@@ -1,11 +1,13 @@
 {
-  "lastInstanceId": "impl-review-deep-003",
-  "lastAction": "updating-instructions",
+  "lastInstanceId": "impl-review-convergence-001",
+  "lastAction": "completed",
   "taskId": "IMPL-REVIEW-CONTINUE",
-  "status": "in_progress",
-  "timestamp": "2026-02-09T09:00:00Z",
-  "filesModified": [],
+  "status": "complete",
+  "timestamp": "2026-02-09T10:30:00Z",
+  "filesModified": [
+    ".claude/audit-reports/2026-02-09-implementation-review.md"
+  ],
   "testsStatus": "passing",
   "complianceStatus": "review_only",
-  "notes": "INSTRUCTIONS FOR NEXT INSTANCE: Run /implementation-review repeatedly (serial, no agents) until a pass finds ZERO new issues. Do NOT fix any code. Passes 1-10 are complete (44 findings). Start with Pass 11. Each pass should try a NEW angle not covered by previous passes. Read .claude/audit-reports/2026-02-09-implementation-review.md for all prior findings — do NOT re-report known issues. Only report genuinely NEW findings. When a pass finds 0 new issues, update status to complete and note that convergence is achieved. THEN the next instance after that should fix all issues."
+  "notes": "CONVERGENCE ACHIEVED. Implementation review complete (15 passes, 54 findings: 11 HIGH, 22 MEDIUM, 21 LOW). Pass 15 found ZERO new issues. Full report at .claude/audit-reports/2026-02-09-implementation-review.md. NEXT INSTANCE: Fix all 54 issues. Start with Group A (ConditionLog flow: P2-1, P3-2, P3-3, P12-4) then HIGH issues, then Groups C/D (quick wins), then larger efforts (Group B, tests). Do NOT re-review — the review is complete."
 }

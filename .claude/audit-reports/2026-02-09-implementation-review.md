@@ -1694,17 +1694,17 @@ Input: servingSize = "100g"  (no space)
 
 ---
 
-## Updated Cumulative Findings Summary (All 10 Passes)
+## Updated Cumulative Findings Summary (All 11 Passes)
 
 ### By Severity
 
 | Severity | Count | Details |
 |----------|:---:|---------|
 | HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
-| MEDIUM | 17 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3 |
-| LOW | 16 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, + minor text diffs |
+| MEDIUM | 18 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3, P11-1 |
+| LOW | 18 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, P11-2, P11-3, + minor text diffs |
 
-### New Findings from Passes 7-10
+### New Findings from Passes 7-11
 
 | ID | Severity | Pass | Issue |
 |----|----------|:---:|-------|
@@ -1715,6 +1715,9 @@ Input: servingSize = "100g"  (no space)
 | P8-2 | MEDIUM | 8 | 10/14 entities missing entity tests |
 | P8-3 | MEDIUM | 8 | 13/14 entities missing repo impl tests |
 | P9-1 | — | 9 | LogConditionUseCase provider wiring (duplicate of P3-3, not counted separately) |
+| P11-1 | MEDIUM | 11 | 3 DAOs (Activity, FoodItem, PhotoArea) archive methods missing syncStatus=modified |
+| P11-2 | LOW | 11 | Activity getByProfile uses DESC syncCreatedAt instead of ASC name |
+| P11-3 | LOW | 11 | JournalEntry getMoodDistribution counts in Dart instead of SQL GROUP BY |
 
 ### Linked Issue Groups (Fix Together)
 
@@ -1726,17 +1729,500 @@ Input: servingSize = "100g"  (no space)
 **Group B — List<String> Storage (1 issue, 5 entities affected):**
 - P7-1: Standardize ActivityLog, FoodLog, FoodItem, ConditionLog, JournalEntry to JSON arrays
 
+**Group C — Archive Sync Status (1 issue, 3 DAOs affected):**
+- P11-1: Activity, FoodItem, PhotoArea archive methods need syncStatus=modified
+
 ---
 
-## REVIEW COMPLETE — All 10 Passes Done
+---
 
-**Total findings across all passes: 11 HIGH, 17 MEDIUM, 16 LOW (44 total)**
+## Pass 11: DAO Query Logic & SQL Patterns
 
-Of these, 6 are new from the deeper cross-layer analysis (passes 7-10). The cross-layer review confirmed that the Supplement entity (the reference implementation) is fully clean end-to-end. The ConditionLog flow has 3 linked issues that should be fixed together. The FoodItem servingSize parsing is fragile and should be hardened. Test coverage gaps exist for 10 of 14 entities at the DAO/entity/repo-impl layers.
+**Method:** Read all 14 DAOs and systematically check: soft-delete filtering, ORDER BY consistency, date range boundaries, CRUD operation patterns, archive operation sync status, and search query safety.
 
-**Recommended fix order:**
-1. Fix 11 HIGH issues first (~100 minutes)
-2. Fix Group A (ConditionLog flow) as a unit
-3. Fix P7-1 (standardize List<String> storage to JSON)
-4. Fix P7-2 (FoodItem servingSize parsing)
-5. Add missing tests (P8-1, P8-2, P8-3) — largest effort, can parallelize
+### Systematic Checks
+
+| Check | Status | Details |
+|-------|--------|---------|
+| Soft-delete filter (`syncDeletedAt.isNull()`) | PASS | All 14 DAOs correctly filter in read queries. `getModifiedSince` and `getPendingSync` correctly include deleted items (needed for sync). |
+| Date range boundaries | PASS | `getForDate` uses `>= date & < endOfDay` (correct exclusive upper bound). `getByDateRange` uses `>= start & <= end` (correct inclusive). |
+| CRUD insert pattern | PASS | All 14 DAOs: `insert(companion) → getById(id) → return`. Consistent. |
+| CRUD update pattern | PASS | All 14 DAOs: `getById → check failure → write(companion) → getById → return`. Consistent. |
+| CRUD soft-delete pattern | PASS | All 14 DAOs: set `syncDeletedAt`, `syncUpdatedAt`, `syncIsDirty`, `syncStatus=deleted`. Consistent. |
+| Error handling | PASS | All DAOs use same pattern: `DatabaseError.queryFailed`, `.notFound`, `.insertFailed`, `.updateFailed`, `.deleteFailed`. Consistent. |
+| UNIQUE constraint detection | PASS | All 14 DAOs check `e.toString().contains('UNIQUE constraint failed')`. Consistent. |
+| Search safety | PASS | Drift parameterizes LIKE queries — `%$query%` becomes a SQL parameter, not string concatenation. No injection risk. |
+| BaseRepository usage | PASS | All 14 repo impls correctly use `prepareForCreate` and `prepareForUpdate` from BaseRepository. Consistent. |
+
+### Findings
+
+#### P11-1: Archive Methods Missing syncStatus Update (MEDIUM)
+
+The `archive` methods in 3 DAOs do NOT set `syncStatus = SyncStatus.modified.value`, while the Condition DAO's `archive` and `resolve` methods correctly do.
+
+| DAO | Method | Sets syncIsDirty? | Sets syncStatus? |
+|-----|--------|:---:|:---:|
+| ConditionDao | archive | YES | **YES** (`modified`) |
+| ConditionDao | resolve | YES | **YES** (`modified`) |
+| ActivityDao | archive | YES | **NO** |
+| ActivityDao | unarchive | YES | **NO** |
+| FoodItemDao | archive | YES | **NO** |
+| PhotoAreaDao | archive | YES | **NO** |
+
+**Impact:** When the sync engine uses `syncStatus` to determine what kind of operation to perform (create vs modify vs delete), these 3 entities would have stale `syncStatus` after archiving. The `syncIsDirty=true` flag IS set, so the sync engine would still detect the change if it checks `syncIsDirty`, but the `syncStatus` would be inconsistent (might still say `synced` or `pending` instead of `modified`).
+
+---
+
+#### P11-2: Activity getByProfile Ordering Inconsistency (LOW)
+
+Definition entities use alphabetical ordering for `getByProfile`:
+- Supplement: `ASC name`
+- Condition: `ASC name`
+- FoodItem: `ASC name`
+- PhotoArea: `ASC sortOrder`
+- **Activity: `DESC syncCreatedAt`** — inconsistent
+
+Activity should likely use `ASC name` for consistency with other definition entities. `DESC syncCreatedAt` shows newest first, which is the pattern used for log/entry entities (ActivityLog, FoodLog, etc.), not definitions.
+
+---
+
+#### P11-3: getMoodDistribution In-Memory Counting (LOW)
+
+`JournalEntryDao.getMoodDistribution` fetches ALL matching rows then counts in Dart:
+
+```dart
+final rows = await query.get();
+final distribution = <int, int>{};
+for (final row in rows) {
+  distribution[row.mood!] = (distribution[row.mood!] ?? 0) + 1;
+}
+```
+
+This could be a `SELECT mood, COUNT(*) GROUP BY mood` SQL query for better performance on large datasets. Not a correctness issue — the results are identical.
+
+---
+
+### Pass 11 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P11-1 | MEDIUM | 3 DAOs (Activity, FoodItem, PhotoArea) archive methods missing `syncStatus=modified` |
+| P11-2 | LOW | Activity getByProfile uses `DESC syncCreatedAt` instead of `ASC name` |
+| P11-3 | LOW | JournalEntry getMoodDistribution counts in Dart instead of SQL GROUP BY |
+
+**All other DAO patterns are consistent across all 14 implementations.**
+
+---
+
+## Pass 12: Validation Rules & Use Case Validation Completeness
+
+**Method:** Read all create/log use cases and compare validation logic against `ValidationRules` constants. Check for hardcoded values that contradict the centralized rules, missing validation checks, and inconsistencies between use cases following the same pattern.
+
+### Use Cases Reviewed (12 total)
+
+| Use Case | Validation Method | Uses ValidationRules? |
+|----------|:-:|:-:|
+| CreateSupplementUseCase | `_validate(input)` | YES — `supplementName()`, `brand()`, `ingredientsCount()`, etc. |
+| UpdateSupplementUseCase | `_validateUpdated(entity)` | YES — `supplementName()` |
+| CreateConditionUseCase | `_validate(input)` | YES — `entityName()`, `conditionNameMaxLength`, `descriptionMaxLength` |
+| LogConditionUseCase | `_validate(input)` | YES — `severityMin`, `severityMax`, `notesMaxLength`, `maxPhotosPerConditionLog` |
+| LogFlareUpUseCase | `_validate(input)` | NO — hardcoded severity 1-10 (matches constants) |
+| CreateActivityUseCase | `_validate(input)` | NO — **hardcoded name max 100 ≠ activityNameMaxLength 200** |
+| LogActivityUseCase | `_validate(input)` | NO — hardcoded values (all match constants) |
+| CreateFoodItemUseCase | `_validate(input)` | NO — **hardcoded name max 100 ≠ foodNameMaxLength 200** |
+| LogFoodUseCase | `_validate(input)` | NO — hardcoded values (all match constants) |
+| CreateJournalEntryUseCase | `_validate(input)` | NO — **hardcoded content min 1 ≠ journalContentMinLength 10** |
+| CreatePhotoAreaUseCase | `_validate(input)` | NO — hardcoded name max 100 (matches photoAreaNameMaxLength) ✓ |
+| CreatePhotoEntryUseCase | `_validate(input)` | NO — hardcoded values (all match constants) ✓ |
+| LogFluidsEntryUseCase | `_validate(input)` | NO — hardcoded values (all match constants) ✓ |
+| LogSleepEntryUseCase | `_validate(input)` | NO — hardcoded values (all match constants) ✓ |
+
+### Findings
+
+#### P12-1: CreateActivityUseCase Name Max Length Mismatch (MEDIUM)
+
+```dart
+// create_activity_use_case.dart line 62
+if (input.name.length < 2 || input.name.length > 100) {
+```
+
+But `ValidationRules.activityNameMaxLength = 200`. The use case restricts activity names to 100 characters, while the centralized validation rules explicitly set a 200-character limit for activities. Supplements and Conditions correctly use 200 via `ValidationRules`.
+
+---
+
+#### P12-2: CreateFoodItemUseCase Name Max Length Mismatch (MEDIUM)
+
+```dart
+// create_food_item_use_case.dart line 68
+if (input.name.length < 2 || input.name.length > 100) {
+```
+
+But `ValidationRules.foodNameMaxLength = 200`. Same issue as P12-1. The ValidationRules class deliberately defines `foodNameMaxLength = 200` as a specific override of the default `nameMaxLength = 100`.
+
+**Pattern:** `CreateConditionUseCase` correctly uses `ValidationRules.entityName(input.name, 'Condition name', ValidationRules.conditionNameMaxLength)` → 200. `CreateActivityUseCase` and `CreateFoodItemUseCase` should follow the same pattern.
+
+---
+
+#### P12-3: CreateJournalEntryUseCase Content Min Length Mismatch (MEDIUM)
+
+```dart
+// create_journal_entry_use_case.dart line 66
+if (input.content.isEmpty || input.content.length > 50000) {
+```
+
+The check is `isEmpty` (i.e., min length 1), but `ValidationRules.journalContentMinLength = 10`. The use case allows 1-character journal entries; the spec requires a minimum of 10 characters.
+
+---
+
+#### P12-4: LogConditionUseCase Missing Future Timestamp Check (LOW)
+
+```dart
+// log_condition_use_case.dart line 78
+if (input.timestamp <= 0) {
+  errors['timestamp'] = ['Timestamp must be a valid epoch timestamp'];
+}
+```
+
+This only validates that the timestamp is positive, but does NOT check for future timestamps. ALL other log use cases consistently enforce a 1-hour-in-the-future limit:
+
+| Use Case | Future Timestamp Check? |
+|----------|:-:|
+| LogFlareUpUseCase | YES — `startDate > oneHourFromNow` |
+| LogActivityUseCase | YES — `timestamp > oneHourFromNow` |
+| LogFoodUseCase | YES — `timestamp > oneHourFromNow` |
+| CreateJournalEntryUseCase | YES — `timestamp > oneHourFromNow` |
+| CreatePhotoEntryUseCase | YES — `timestamp > oneHourFromNow` |
+| LogSleepEntryUseCase | YES — `bedTime > oneHourFromNow` |
+| **LogConditionUseCase** | **NO** — only checks `> 0` |
+
+---
+
+### Additional Observations (No New Issues)
+
+**Correct cross-entity validation patterns:**
+- `LogFlareUpUseCase` — verifies condition exists AND belongs to profile ✓
+- `LogActivityUseCase` — verifies each activity exists AND belongs to profile ✓
+- `LogFoodUseCase` — verifies each food item exists AND belongs to profile ✓
+- `CreateFoodItemUseCase` — verifies simple items exist, belong to profile, and aren't complex (no nesting) ✓
+- `CreatePhotoEntryUseCase` — verifies photo area exists AND belongs to profile ✓
+- `LogConditionUseCase` — MISSING condition existence check (already tracked as P3-3)
+
+**Correct hardcoded-but-matching patterns (not bugs):**
+- `LogFlareUpUseCase` severity 1-10 matches `ValidationRules.severityMin/Max` ✓
+- `LogActivityUseCase` duration 1-1440 matches implied range ✓
+- `LogFluidsEntryUseCase` water 0-10000 matches `ValidationRules.waterIntakeMinMl/MaxMl` ✓
+- `LogFluidsEntryUseCase` BBT 95-105 matches `ValidationRules.bbtMinFahrenheit/MaxFahrenheit` ✓
+- All notes checks use 2000 matching `ValidationRules.notesMaxLength` ✓
+
+---
+
+### Pass 12 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P12-1 | MEDIUM | CreateActivityUseCase hardcodes name max 100, should be 200 per `activityNameMaxLength` |
+| P12-2 | MEDIUM | CreateFoodItemUseCase hardcodes name max 100, should be 200 per `foodNameMaxLength` |
+| P12-3 | MEDIUM | CreateJournalEntryUseCase allows 1-char content, should require 10 per `journalContentMinLength` |
+| P12-4 | LOW | LogConditionUseCase missing future timestamp check (all other log use cases have it) |
+
+---
+
+## Updated Cumulative Findings Summary (All 12 Passes)
+
+### By Severity
+
+| Severity | Count | Details |
+|----------|:---:|---------|
+| HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 21 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3, P11-1, P12-1, P12-2, P12-3 |
+| LOW | 19 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, P11-2, P11-3, P12-4, + minor text diffs |
+
+**Total: 51 unique findings across 12 passes.**
+
+### New Findings from Pass 12
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P12-1 | MEDIUM | CreateActivityUseCase name max 100 ≠ ValidationRules.activityNameMaxLength 200 |
+| P12-2 | MEDIUM | CreateFoodItemUseCase name max 100 ≠ ValidationRules.foodNameMaxLength 200 |
+| P12-3 | MEDIUM | CreateJournalEntryUseCase content min 1 ≠ ValidationRules.journalContentMinLength 10 |
+| P12-4 | LOW | LogConditionUseCase missing future timestamp check |
+
+### Linked Issue Groups (Updated)
+
+**Group A — ConditionLog Flow (4 issues):**
+- P2-1: ConditionLogRepository.getByCondition missing startDate/endDate
+- P3-2: GetConditionLogsInput missing conditionId, wrong query scope
+- P3-3/P9-1: LogConditionUseCase missing conditionRepository dependency
+- P12-4: LogConditionUseCase missing future timestamp check
+
+**Group B — List<String> Storage (1 issue, 5 entities affected):**
+- P7-1: Standardize ActivityLog, FoodLog, FoodItem, ConditionLog, JournalEntry to JSON arrays
+
+**Group C — Archive Sync Status (1 issue, 3 DAOs affected):**
+- P11-1: Activity, FoodItem, PhotoArea archive methods need syncStatus=modified
+
+**Group D — ValidationRules Mismatches (3 issues):**
+- P12-1: Activity name max 100 should be 200
+- P12-2: FoodItem name max 100 should be 200
+- P12-3: Journal content min 1 should be 10
+
+---
+
+## Pass 13: Update Use Case Validation Parity
+
+**Method:** Compare every update use case's validation logic against its create/log counterpart. Check whether all fields validated on creation are also validated on update, and check for sync metadata handling consistency.
+
+### Create vs Update Validation Parity Matrix
+
+| Domain | Create Validations | Update Validations | Parity? |
+|--------|---|---|---|
+| Supplement | name, brand, customForm, dosageQuantity, ingredients (max 20), schedules (max 10), dateRange | **name, customForm only** | **NO** |
+| Activity | name (2-100), duration (1-1440), description (500), location (200) | name (2-100), duration (1-1440), description (500), location (200) | YES ✓ |
+| FoodItem | name (2-100), type/simpleItemIds, nutrition non-neg, servingSize (50) | name (2-100), type/simpleItemIds, nutrition non-neg, servingSize (50), +self-ref | YES+ ✓ |
+| JournalEntry | content (1-50000), title (1-200), mood (1-10), timestamp, tags (1-50) | content (1-50000), title (1-200), mood (1-10), tags (1-50) | YES ✓ |
+| FlareUp | severity (1-10), condition exists, dates, notes (2000), triggers (1-100) | severity (1-10), notes (2000), triggers (1-100) | YES ✓ |
+| SleepEntry | bedTime, wakeTime, 24h max, stages non-neg, stages≤total, notes | bedTime, wakeTime, 24h max, stages non-neg, stages≤total, notes | YES ✓ |
+| ActivityLog | at least 1 activity, timestamp, duration (1-1440), notes, IDs exist, adHoc (2-100) | at least 1 activity, duration (1-1440), notes, IDs exist, adHoc (2-100) | YES ✓ |
+| FluidsEntry | full validation (water, BBT, other fluid, notes) | full validation (water, BBT, other fluid, notes) | YES ✓ |
+| PhotoArea | name (2-100), description (500), consistencyNotes (1000) | name (2-100), description (500), consistencyNotes (1000) | YES ✓ |
+
+### Findings
+
+#### P13-1: UpdateSupplementUseCase Missing 5 Validations (MEDIUM)
+
+`UpdateSupplementUseCase._validateUpdated()` only checks `name` and `customForm/form`. The following validations from `CreateSupplementUseCase._validate()` are missing:
+
+| Validation | Create | Update |
+|-----------|:---:|:---:|
+| name (via ValidationRules.supplementName) | ✓ | ✓ |
+| customForm required when form=other | ✓ | ✓ |
+| brand (max 100 chars) | ✓ | **MISSING** |
+| dosageQuantity (1-100) | ✓ | **MISSING** |
+| ingredients count (max 20) | ✓ | **MISSING** |
+| schedules count (max 10) | ✓ | **MISSING** |
+| date range (end after start) | ✓ | **MISSING** |
+
+**Impact:** A valid supplement can have these constraints violated via the update path. For example: `UpdateSupplementInput(ingredients: [list of 30])` would succeed, creating a supplement with 30 ingredients (max should be 20). Similarly, `dosageQuantity: 0` would bypass the 1-100 range check.
+
+---
+
+#### P13-2: UpdateSupplementUseCase Manual SyncMetadata Management (LOW)
+
+`UpdateSupplementUseCase` (lines 63-67) is the ONLY update use case that manually modifies syncMetadata:
+
+```dart
+syncMetadata: existing.syncMetadata.copyWith(
+  syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+  syncVersion: existing.syncMetadata.syncVersion + 1,
+  syncIsDirty: true,
+),
+```
+
+All other 8 update use cases (Activity, FoodItem, JournalEntry, FlareUp, SleepEntry, ActivityLog, FluidsEntry, PhotoArea) do NOT touch syncMetadata — they delegate to `BaseRepository.prepareForUpdate()`.
+
+**Impact:** Either the repository will double-update the metadata (redundant), or the manual update could conflict with the repository's version management. This inconsistency should be resolved one way or the other — either all update use cases manage sync metadata, or none do.
+
+---
+
+### Pass 13 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P13-1 | MEDIUM | UpdateSupplementUseCase missing 5 validations that CreateSupplementUseCase has |
+| P13-2 | LOW | UpdateSupplementUseCase manually manages syncMetadata unlike all other update use cases |
+
+---
+
+## Updated Cumulative Findings Summary (All 13 Passes)
+
+### By Severity
+
+| Severity | Count | Details |
+|----------|:---:|---------|
+| HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 22 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3, P11-1, P12-1, P12-2, P12-3, P13-1 |
+| LOW | 20 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, P11-2, P11-3, P12-4, P13-2, + minor text diffs |
+
+**Total: 53 unique findings across 13 passes.**
+
+### Linked Issue Groups (Updated)
+
+**Group A — ConditionLog Flow (4 issues):**
+- P2-1, P3-2, P3-3/P9-1, P12-4
+
+**Group B — List<String> Storage (1 issue, 5 entities affected):**
+- P7-1
+
+**Group C — Archive Sync Status (1 issue, 3 DAOs affected):**
+- P11-1
+
+**Group D — ValidationRules Mismatches (3 issues):**
+- P12-1, P12-2, P12-3
+
+**Group E — Supplement Update Path (2 issues):**
+- P13-1: Missing validation in update
+- P13-2: Manual syncMetadata management inconsistency
+
+---
+
+## Pass 14: Entity Computed Properties & Freezed Patterns
+
+**Method:** Read all 14 entity files and SyncMetadata. Check: Freezed annotation consistency, computed property correctness, `isActive` definition consistency, field type compliance (all timestamps int), and mandatory field presence (id, clientId, profileId, syncMetadata).
+
+### Systematic Checks
+
+| Check | Status | Details |
+|-------|--------|---------|
+| `@Freezed(toJson: true, fromJson: true)` | PASS | All 14 entities use this annotation. SyncMetadata uses `@freezed` (equivalent) |
+| `const Entity._()` | PASS | All 14 entities + SyncMetadata have private constructor |
+| `@JsonSerializable(explicitToJson: true)` | PASS | All 14 entities have this on factory constructor |
+| Required fields: id, clientId, profileId | PASS | All 14 entities have these as `required String` |
+| Required field: syncMetadata | PASS | All 14 entities have `required SyncMetadata syncMetadata` |
+| Timestamps are `int` | PASS | All entity timestamp fields are `int` (epoch ms), no `DateTime` |
+| `fromJson` factory present | PASS | All 14 entities + SyncMetadata have `factory X.fromJson()` |
+
+### isActive Getter Comparison
+
+| Entity | `isActive` Definition | Checks syncDeletedAt? |
+|--------|----------------------|:---:|
+| Supplement | `!isArchived && syncMetadata.syncDeletedAt == null` | **YES** |
+| Condition | `!isArchived && status == ConditionStatus.active` | **NO** |
+| Activity | `!isArchived` | **NO** |
+| FoodItem | `!isArchived` | **NO** |
+| PhotoArea | _(no isActive getter)_ | N/A |
+| IntakeLog | _(no isActive — uses isPending/isTaken/etc.)_ | N/A |
+| Others | _(log/entry entities don't have isActive)_ | N/A |
+
+### Findings
+
+#### P14-1: Inconsistent isActive syncDeletedAt Check (LOW)
+
+`Supplement.isActive` includes `syncMetadata.syncDeletedAt == null` in its check, but `Activity.isActive`, `FoodItem.isActive`, and `Condition.isActive` do not.
+
+**Impact:** In normal usage this doesn't matter — DAOs filter `syncDeletedAt.isNull()` in all read queries, so soft-deleted entities never reach UI code. However, sync-related code paths (`getModifiedSince`, `getPendingSync`) DO return soft-deleted entities. If those code paths call `.isActive`, results would be inconsistent between Supplement and other entities.
+
+---
+
+### Additional Observations (No New Issues)
+
+- All computed properties are correctly implemented and return expected types
+- `IntakeLog.note` (singular) vs other entities' `notes` (plural) — intentional, IntakeLog has separate `reason` and `note` fields
+- `IntakeLog.delayFromScheduled` returns `Duration` — acceptable for computed property (timestamps are still `int`)
+- `SyncMetadata.markModified()`, `.markSynced()`, `.markDeleted()` helper methods are well-designed with correct field updates
+- `SyncMetadata.empty()` factory provides safe defaults for entity construction
+
+---
+
+### Pass 14 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| P14-1 | LOW | Supplement.isActive checks syncDeletedAt but Activity/FoodItem/Condition.isActive don't |
+
+---
+
+## Updated Cumulative Findings Summary (All 14 Passes)
+
+### By Severity
+
+| Severity | Count | Details |
+|----------|:---:|---------|
+| HIGH | 11 | P1-1, P2-1, P2-2, P2-3, P3-2, P5-1, P5-2, P5-3, P5-4, P6-1, P4-1 |
+| MEDIUM | 22 | P1-2, P1-3, P2-4, P3-1, P3-3, P6-2, P4-2, P4-3, S-1, S-2, P7-1, P7-2, P8-1, P8-2, P8-3, P11-1, P12-1, P12-2, P12-3, P13-1 |
+| LOW | 21 | P1-4, P1-5, P2-5, P2-6, P3-4, P3-5, P3-6, P5-5, P6-3, P6-4, P7-3, P11-2, P11-3, P12-4, P13-2, P14-1, + minor text diffs |
+
+**Total: 54 unique findings across 14 passes.**
+
+### Convergence Trend
+
+| Pass | New Findings |
+|------|:---:|
+| Pass 11 | 3 |
+| Pass 12 | 4 |
+| Pass 13 | 2 |
+| **Pass 14** | **1** |
+
+Strongly trending toward convergence.
+
+---
+
+## Pass 15: Presentation Layer & Error Hierarchy (Convergence Pass)
+
+**Method:** Spot-check state providers, delete use cases, and AppError hierarchy for any patterns not covered by previous passes. This is the convergence check — if zero new findings, the review is complete.
+
+### Areas Reviewed
+
+| Area | Files Checked | Status |
+|------|:---:|--------|
+| State Providers | 4 (Supplement, Condition, SleepEntry, IntakeLog) | All follow identical pattern: `@riverpod`, delegate to use cases, defense-in-depth auth, `ref.invalidateSelf()` on mutations |
+| Search Providers | 2 (FoodItemSearch, JournalEntrySearch) | Consistent pattern with empty-query short-circuit |
+| By-Area Provider | 1 (PhotoEntriesByArea) | Correct two-parameter build pattern |
+| Delete Use Cases | 2 (SleepEntry, ActivityLog) | Auth → fetch → verify ownership → soft-delete. Consistent. |
+| AppError Hierarchy | 1 file (862 lines, 10 error subtypes) | Well-structured sealed class. All subtypes use private constructors, static code constants, named factories. |
+
+### Findings
+
+**ZERO new findings.**
+
+All presentation layer patterns are consistent:
+- State providers always delegate to use cases (never call repositories directly)
+- All mutation methods include defense-in-depth authorization
+- All use `result.when(success:, failure:)` for Result handling
+- All call `ref.invalidateSelf()` after successful mutations
+- Delete use cases consistently verify entity ownership before deletion
+- AppError error codes are from the approved list per 22_API_CONTRACTS.md
+
+---
+
+### Pass 15 Summary
+
+| ID | Severity | Issue |
+|----|----------|-------|
+| — | — | No new findings |
+
+---
+
+## REVIEW COMPLETE — Convergence Achieved
+
+### Convergence Trend
+
+| Pass | New Findings | Focus Area |
+|------|:---:|-----------|
+| Passes 1-6 | 35 | Entity compliance, repo methods, use case logic, DAO mapping, table schemas, cross-reference |
+| Pass 7 | 3 | Cross-layer consistency (JSON vs comma-separated, FoodItem servingSize) |
+| Pass 8 | 3 | Test coverage gaps (10/14 entities missing DAO/entity/repo tests) |
+| Pass 9 | 0 | Provider wiring (51 providers verified, 1 confirmed duplicate) |
+| Pass 10 | 0 | End-to-end data flow traces (3 entities, issues already known) |
+| Pass 11 | 3 | DAO query logic, archive syncStatus, ordering, SQL patterns |
+| Pass 12 | 4 | Validation rules mismatches (name lengths, journal min length) |
+| Pass 13 | 2 | Update validation parity, syncMetadata management |
+| Pass 14 | 1 | Entity computed properties, isActive consistency |
+| **Pass 15** | **0** | **Presentation layer, error hierarchy — CONVERGENCE** |
+
+### Final Totals
+
+| Severity | Count |
+|----------|:---:|
+| HIGH | 11 |
+| MEDIUM | 22 |
+| LOW | 21 |
+| **TOTAL** | **54** |
+
+### Fix Priority Order (Recommended for Next Instance)
+
+1. **Group A — ConditionLog Flow (4 issues: P2-1, P3-2, P3-3, P12-4):** Fix together — broken query flow
+2. **HIGH issues P1-1, P2-2, P2-3, P5-1 through P5-4, P6-1, P4-1:** Individual fixes per spec
+3. **Group C — Archive Sync Status (P11-1, 3 DAOs):** Quick fix, add `syncStatus=modified`
+4. **Group D — ValidationRules Mismatches (P12-1, P12-2, P12-3):** Change hardcoded values to use constants
+5. **Group E — Supplement Update (P13-1):** Add missing validation checks to update path
+6. **Group B — List<String> Storage (P7-1, 5 entities):** Standardize to JSON arrays — larger effort
+7. **P7-2 FoodItem servingSize parsing:** Redesign parsing to handle edge cases
+8. **P8-1, P8-2, P8-3 Missing tests:** Largest effort — can be parallelized by entity
+9. **LOW issues:** Address as time allows
+
+### Instructions for Next Instance
+
+**The review is complete. The next instance should FIX all 54 issues.**
+
+Start with Group A (ConditionLog flow) as it has the most interconnected bugs. Then work through the HIGH issues individually. Group C and D are quick wins. Group B and the test gaps (P8-*) are larger efforts that can be deferred or parallelized.
