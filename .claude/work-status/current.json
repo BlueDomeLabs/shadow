@@ -1,13 +1,13 @@
 {
-  "lastInstanceId": "spec-review-serial-010",
-  "lastAction": "in_progress",
-  "taskId": "SPEC-REVIEW-COMPREHENSIVE",
+  "lastInstanceId": "impl-review-serial-001",
+  "lastAction": "handoff",
+  "taskId": "IMPL-REVIEW-SERIAL",
   "status": "in_progress",
-  "timestamp": "2026-02-09T00:30:00Z",
+  "timestamp": "2026-02-09T03:00:00Z",
   "filesModified": [
-    "22_API_CONTRACTS.md"
+    ".claude/audit-reports/2026-02-09-implementation-review.md"
   ],
-  "testsStatus": "passing",
-  "complianceStatus": "verified",
-  "notes": "SPEC REVIEW — ALL HIGH+ ISSUES RESOLVED.\n\n## Compliance Status\n1205 tests passing, analyzer clean, no formatting issues.\n\n## Fixes Applied This Commit (serial-010)\n- TS-9: GetConditionsInput provider: activeOnly→status: ConditionStatus.active\n- TS-30: conditionTrend provider: optional named param→positional param\n- TS-31: bbtChartData provider: optional named param→positional param\n- XR-7: GetSupplementByIdUseCase + provider registration added\n- SC-9: ProviderErrorDisplay exhaustive switch (refreshToken, contactSupport, freeStorage, none)\n- CG-9: deleteSupplementUseCaseProvider + deleteNotificationScheduleUseCaseProvider registrations\n\n## All Previous Fixes (cumulative)\nSee git log for commits 26138f4, 2fa6dac, 2f20b7b, 1248b3b, 034265f.\n~36 fixes applied across all sections of 22_API_CONTRACTS.md.\n\n## Items Silently Fixed by Agent Team (verified present in spec)\n- CG-8: Generic use case templates (lines 10516-10569)\n- XR-6: GetBBTEntriesInput + UseCase (lines 10436-10450)\n- XR-8: SignInWithAppleInput + UseCase (lines 10454-10469)\n- XR-9: SyncService convenience methods (lines 10484-10490)\n- CG-4: SyncWearableDataOutput field reconciliation (lines 10404-10409)\n- CG-6: UserFoodCategory entity + repository (lines 11115-11142)\n- XR-10: AuthTokenService.hasValidToken (line 10502)\n\n## Remaining Items (LOW PRIORITY only)\n- TS-26/27: ConnectWearableInput/SyncWearableDataInput field additions (partially fixed)\n\nAll CRITICAL and HIGH issues from passes 7-8 are now resolved.\n\n## LESSON LEARNED\nDo NOT use parallel agents to edit the same file. Serial approach works reliably.\nAlways cross-reference fixes against audit reports before claiming done."
+  "testsStatus": "not_run",
+  "complianceStatus": "review_only",
+  "notes": "IMPLEMENTATION REVIEW IN PROGRESS — 3 of 6 passes complete.\n\n## Completed Passes\n- Pass 1: Entity field-by-field comparison (15 entities) — 1 HIGH, 6 MEDIUM, 8 LOW\n- Pass 2: Repository method signatures (15 repos) — 3 HIGH, 1 MEDIUM, 1 LOW\n- Pass 5: Enum values alignment (28 enums) — 4 HIGH\n\n## Key Findings Summary\n### HIGH (8 total)\n- P1-1: ActivityLog activityIds/adHocActivities required→@Default([])\n- P2-1: ConditionLogRepository.getByCondition missing startDate/endDate params\n- P2-2: FlareUpRepository missing getTriggerCounts method\n- P2-3: IntakeLogRepository markTaken/markSkipped/markSnoozed return void instead of IntakeLog\n- P5-1: DietPresetType missing int values\n- P5-2: InsightCategory missing int values\n- P5-3: RecoveryAction missing int values\n- P5-4: AccessLevel missing int values\n\n### MEDIUM (7 total)\n- P1-2/P1-3: 7 entities missing implements Syncable + spec inconsistency\n- P2-4: ActivityRepository has extra archive/unarchive methods\n\n### LOW (10 total)\n- P1-4: @Freezed annotation style (systematic, all entities)\n- P1-5: 7 extra computed getters\n- P2-5/P2-6: Extra methods in FlareUp/PhotoArea repos\n- P5-5: WearablePlatform extra fromValue()\n\n## Remaining Passes\n- Pass 3: Use case input classes + logic (~100+ files) — LARGEST PASS\n- Pass 4: DAO/Table column alignment (15 DAOs, 14 tables)\n- Pass 6: Core types (SyncMetadata, AppError, Result, base use cases)\n\n## NEXT STEPS FOR NEXT INSTANCE\n1. Read .claude/audit-reports/2026-02-09-implementation-review.md for full report\n2. Continue with Pass 3 (use cases) — compare each use case Input class and logic against 22_API_CONTRACTS.md Section 4\n3. Then Pass 4 (DAOs/Tables) and Pass 6 (Core types)\n4. All work is serial — DO NOT use agent teams\n5. Report is read-only audit — no code changes without user approval"
 }
