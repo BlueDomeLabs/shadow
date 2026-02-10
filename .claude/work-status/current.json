@@ -1,13 +1,11 @@
 {
-  "lastInstanceId": "impl-review-deep-002",
-  "lastAction": "completed",
-  "taskId": "IMPL-REVIEW-DEEP",
-  "status": "complete",
-  "timestamp": "2026-02-09T08:30:00Z",
-  "filesModified": [
-    ".claude/audit-reports/2026-02-09-implementation-review.md"
-  ],
+  "lastInstanceId": "impl-review-deep-003",
+  "lastAction": "updating-instructions",
+  "taskId": "IMPL-REVIEW-CONTINUE",
+  "status": "in_progress",
+  "timestamp": "2026-02-09T09:00:00Z",
+  "filesModified": [],
   "testsStatus": "passing",
   "complianceStatus": "review_only",
-  "notes": "COMPLETED all 10 implementation review passes. Total findings: 11 HIGH, 17 MEDIUM, 16 LOW (44 total). Passes 7-10 added 6 new findings: P7-1 (inconsistent List<String> storage), P7-2 (FoodItem servingSize fragile parsing), P7-3 (triggers naming collision), P8-1/P8-2/P8-3 (test coverage gaps for 10/14 entities). NEXT: Fix all issues — start with 11 HIGH issues (~100 min), then MEDIUM issues. See .claude/audit-reports/2026-02-09-implementation-review.md for full details and recommended fix order."
+  "notes": "INSTRUCTIONS FOR NEXT INSTANCE: Run /implementation-review repeatedly (serial, no agents) until a pass finds ZERO new issues. Do NOT fix any code. Passes 1-10 are complete (44 findings). Start with Pass 11. Each pass should try a NEW angle not covered by previous passes. Read .claude/audit-reports/2026-02-09-implementation-review.md for all prior findings — do NOT re-report known issues. Only report genuinely NEW findings. When a pass finds 0 new issues, update status to complete and note that convergence is achieved. THEN the next instance after that should fix all issues."
 }
