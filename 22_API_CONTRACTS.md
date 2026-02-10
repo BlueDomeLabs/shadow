@@ -1,7 +1,7 @@
 # Shadow API Contracts
 
 **Version:** 1.0
-**Last Updated:** January 30, 2026
+**Last Updated:** February 9, 2026
 **Purpose:** Exact interface definitions that ALL implementations MUST follow
 
 ---
@@ -2045,7 +2045,7 @@ abstract class FluidsEntryRepository implements EntityRepository<FluidsEntry, St
 
 ---
 
-## 4. Use Case Contracts
+## 4.5 Use Case Contracts
 
 ### 4.1 Use Case Base Pattern
 
@@ -2159,6 +2159,273 @@ DeleteEntityUseCase deleteSupplementUseCase(Ref ref) =>
 DeleteEntityUseCase deleteNotificationScheduleUseCase(Ref ref) =>
     DeleteEntityUseCase(
       ref.read(notificationScheduleRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
+// lib/domain/usecases/notifications/get_notification_schedules_use_case.dart
+
+@freezed
+class GetNotificationSchedulesInput with _$GetNotificationSchedulesInput {
+  const factory GetNotificationSchedulesInput({
+    required String profileId,
+  }) = _GetNotificationSchedulesInput;
+}
+
+class GetNotificationSchedulesUseCase
+    implements UseCase<GetNotificationSchedulesInput, List<NotificationSchedule>> {
+  final NotificationScheduleRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  GetNotificationSchedulesUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<List<NotificationSchedule>, AppError>> call(
+    GetNotificationSchedulesInput input,
+  ) async {
+    if (!await _authService.canRead(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+    return _repository.getByProfile(input.profileId);
+  }
+}
+
+@riverpod
+GetNotificationSchedulesUseCase getNotificationSchedulesUseCase(Ref ref) =>
+    GetNotificationSchedulesUseCase(
+      ref.read(notificationScheduleRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
+// lib/domain/usecases/auth/get_current_user_use_case.dart
+
+class GetCurrentUserUseCase implements UseCaseNoInput<UserAccount?> {
+  final UserAccountRepository _repository;
+  final AuthTokenService _tokenService;
+
+  GetCurrentUserUseCase(this._repository, this._tokenService);
+
+  @override
+  Future<Result<UserAccount?, AppError>> call() async {
+    final userId = await _tokenService.getCurrentUserId();
+    if (userId == null) {
+      return const Success(null);
+    }
+    return _repository.getById(userId);
+  }
+}
+
+@riverpod
+GetCurrentUserUseCase getCurrentUserUseCase(Ref ref) =>
+    GetCurrentUserUseCase(
+      ref.read(userAccountRepositoryProvider),
+      ref.read(authTokenServiceProvider),
+    );
+
+// lib/domain/usecases/profiles/profile_use_cases.dart
+
+@freezed
+class CreateProfileInput with _$CreateProfileInput {
+  const factory CreateProfileInput({
+    required String clientId,
+    required String ownerId,
+    required String name,
+    BiologicalSex? biologicalSex,
+    int? birthDate,               // Epoch milliseconds
+    @Default(ProfileDietType.none) ProfileDietType dietType,
+    String? dietDescription,
+    String? ethnicity,
+    String? notes,
+  }) = _CreateProfileInput;
+}
+
+@freezed
+class DeleteProfileInput with _$DeleteProfileInput {
+  const factory DeleteProfileInput({
+    required String profileId,
+  }) = _DeleteProfileInput;
+}
+
+@freezed
+class UpdateProfileInput with _$UpdateProfileInput {
+  const factory UpdateProfileInput({
+    required String profileId,
+    String? name,
+    BiologicalSex? biologicalSex,
+    int? birthDate,               // Epoch milliseconds
+    ProfileDietType? dietType,
+    String? dietDescription,
+    String? ethnicity,
+    String? notes,
+    int? waterGoalMl,             // Used by FluidsEntryList.setWaterGoal
+  }) = _UpdateProfileInput;
+}
+
+class GetAccessibleProfilesUseCase implements UseCaseNoInput<List<Profile>> {
+  final ProfileRepository _repository;
+  final UserAccountRepository _userRepository;
+  final AuthTokenService _tokenService;
+
+  GetAccessibleProfilesUseCase(this._repository, this._userRepository, this._tokenService);
+
+  @override
+  Future<Result<List<Profile>, AppError>> call() async {
+    final userId = await _tokenService.getCurrentUserId();
+    if (userId == null) {
+      return Failure(AuthError.notAuthenticated());
+    }
+    return _repository.getByOwner(userId);
+  }
+}
+
+class SetCurrentProfileUseCase implements UseCase<String, void> {
+  final ProfileRepository _repository;
+  final AuthTokenService _tokenService;
+
+  SetCurrentProfileUseCase(this._repository, this._tokenService);
+
+  @override
+  Future<Result<void, AppError>> call(String profileId) async {
+    final userId = await _tokenService.getCurrentUserId();
+    if (userId == null) {
+      return Failure(AuthError.notAuthenticated());
+    }
+    // Verify profile belongs to user
+    final profileResult = await _repository.getById(profileId);
+    if (profileResult.isFailure) return Failure(profileResult.errorOrNull!);
+    final profile = profileResult.valueOrNull;
+    if (profile == null || profile.ownerId != userId) {
+      return Failure(AuthError.profileAccessDenied(profileId));
+    }
+    // Persist selection (stored locally)
+    return const Success(null);
+  }
+}
+
+class CreateProfileUseCase implements UseCase<CreateProfileInput, Profile> {
+  final ProfileRepository _repository;
+  final AuthTokenService _tokenService;
+
+  CreateProfileUseCase(this._repository, this._tokenService);
+
+  @override
+  Future<Result<Profile, AppError>> call(CreateProfileInput input) async {
+    final userId = await _tokenService.getCurrentUserId();
+    if (userId == null) {
+      return Failure(AuthError.notAuthenticated());
+    }
+    if (input.ownerId != userId) {
+      return Failure(AuthError.profileAccessDenied(input.ownerId));
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final id = const Uuid().v4();
+
+    final profile = Profile(
+      id: id,
+      clientId: input.clientId,
+      ownerId: input.ownerId,
+      name: input.name,
+      biologicalSex: input.biologicalSex,
+      birthDate: input.birthDate,
+      dietType: input.dietType,
+      dietDescription: input.dietDescription,
+      ethnicity: input.ethnicity,
+      notes: input.notes,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '',
+      ),
+    );
+
+    return _repository.create(profile);
+  }
+}
+
+class DeleteProfileUseCase implements UseCase<DeleteProfileInput, void> {
+  final ProfileRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  DeleteProfileUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<void, AppError>> call(DeleteProfileInput input) async {
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+    return _repository.delete(input.profileId);
+  }
+}
+
+class UpdateProfileUseCase implements UseCase<UpdateProfileInput, Profile> {
+  final ProfileRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  UpdateProfileUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Profile, AppError>> call(UpdateProfileInput input) async {
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    final existingResult = await _repository.getById(input.profileId);
+    if (existingResult.isFailure) return Failure(existingResult.errorOrNull!);
+    final existing = existingResult.valueOrNull!;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final updated = existing.copyWith(
+      name: input.name ?? existing.name,
+      biologicalSex: input.biologicalSex ?? existing.biologicalSex,
+      birthDate: input.birthDate ?? existing.birthDate,
+      dietType: input.dietType ?? existing.dietType,
+      dietDescription: input.dietDescription ?? existing.dietDescription,
+      ethnicity: input.ethnicity ?? existing.ethnicity,
+      notes: input.notes ?? existing.notes,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: now,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    return _repository.update(updated);
+  }
+}
+
+@riverpod
+GetAccessibleProfilesUseCase getAccessibleProfilesUseCase(Ref ref) =>
+    GetAccessibleProfilesUseCase(
+      ref.read(profileRepositoryProvider),
+      ref.read(userAccountRepositoryProvider),
+      ref.read(authTokenServiceProvider),
+    );
+
+@riverpod
+SetCurrentProfileUseCase setCurrentProfileUseCase(Ref ref) =>
+    SetCurrentProfileUseCase(
+      ref.read(profileRepositoryProvider),
+      ref.read(authTokenServiceProvider),
+    );
+
+@riverpod
+CreateProfileUseCase createProfileUseCase(Ref ref) =>
+    CreateProfileUseCase(
+      ref.read(profileRepositoryProvider),
+      ref.read(authTokenServiceProvider),
+    );
+
+@riverpod
+DeleteProfileUseCase deleteProfileUseCase(Ref ref) =>
+    DeleteProfileUseCase(
+      ref.read(profileRepositoryProvider),
+      ref.read(profileAuthServiceProvider),
+    );
+
+@riverpod
+UpdateProfileUseCase updateProfileUseCase(Ref ref) =>
+    UpdateProfileUseCase(
+      ref.read(profileRepositoryProvider),
       ref.read(profileAuthServiceProvider),
     );
 
@@ -4378,7 +4645,7 @@ class UpdateSupplementUseCase implements UseCase<UpdateSupplementInput, Suppleme
 
   @override
   Future<Result<Supplement, AppError>> call(UpdateSupplementInput input) async {
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
@@ -4412,7 +4679,7 @@ class UpdateSupplementUseCase implements UseCase<UpdateSupplementInput, Suppleme
       endDate: input.endDate ?? existing.endDate,
       isArchived: input.isArchived ?? existing.isArchived,
       syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: now.millisecondsSinceEpoch,
+        syncUpdatedAt: now,
         syncVersion: existing.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -4465,7 +4732,7 @@ class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supple
 
   @override
   Future<Result<Supplement, AppError>> call(ArchiveSupplementInput input) async {
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
@@ -4488,7 +4755,7 @@ class ArchiveSupplementUseCase implements UseCase<ArchiveSupplementInput, Supple
     final updated = existing.copyWith(
       isArchived: input.archive,
       syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: now.millisecondsSinceEpoch,
+        syncUpdatedAt: now,
         syncVersion: existing.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -4640,7 +4907,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
   @override
   Future<Result<ConditionLog, AppError>> call(LogConditionInput input) async {
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
@@ -4671,7 +4938,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
     }
 
     // Timestamp not in future (allow 1 hour tolerance)
-    final oneHourFromNow = now.millisecondsSinceEpoch + (60 * 60 * 1000);
+    final oneHourFromNow = now + (60 * 60 * 1000);
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -4682,7 +4949,6 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
     // 4. Create log entry
     final id = const Uuid().v4();
-    final nowMs = now.millisecondsSinceEpoch;
 
     final log = ConditionLog(
       id: id,
@@ -4698,8 +4964,8 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
       activityId: input.activityId,
       triggers: input.triggers,
       syncMetadata: SyncMetadata(
-        syncCreatedAt: nowMs,
-        syncUpdatedAt: nowMs,
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
         syncDeviceId: '', // Will be populated by repository
       ),
     );
@@ -4756,7 +5022,17 @@ class GetConditionTrendInput with _$GetConditionTrendInput {
   }) = _GetConditionTrendInput;
 }
 
-enum TrendGranularity { daily, weekly, monthly }
+enum TrendGranularity {
+  daily(0),
+  weekly(1),
+  monthly(2);
+
+  final int value;
+  const TrendGranularity(this.value);
+
+  static TrendGranularity fromValue(int value) =>
+    TrendGranularity.values.firstWhere((e) => e.value == value, orElse: () => daily);
+}
 
 @freezed
 class ConditionTrend with _$ConditionTrend {
@@ -4781,7 +5057,17 @@ class TrendDataPoint with _$TrendDataPoint {
   }) = _TrendDataPoint;
 }
 
-enum TrendDirection { improving, stable, worsening }
+enum TrendDirection {
+  improving(0),
+  stable(1),
+  worsening(2);
+
+  final int value;
+  const TrendDirection(this.value);
+
+  static TrendDirection fromValue(int value) =>
+    TrendDirection.values.firstWhere((e) => e.value == value, orElse: () => stable);
+}
 
 class GetConditionTrendUseCase implements UseCase<GetConditionTrendInput, ConditionTrend> {
   final ConditionLogRepository _repository;
@@ -5035,7 +5321,7 @@ class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
   }
 
   Future<Result<void, AppError>> _deactivateCurrentDiet(String profileId) async {
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
 
     final activeResult = await _dietRepository.getActiveDiet(profileId);
     if (activeResult.isFailure) {
@@ -5047,7 +5333,7 @@ class CreateDietUseCase implements UseCaseWithInput<Diet, CreateDietInput> {
       final deactivated = activeDiet.copyWith(
         isActive: false,
         syncMetadata: activeDiet.syncMetadata.copyWith(
-          syncUpdatedAt: now.millisecondsSinceEpoch,
+          syncUpdatedAt: now,
           syncVersion: activeDiet.syncMetadata.syncVersion + 1,
           syncIsDirty: true,
         ),
@@ -5070,7 +5356,7 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
 
   @override
   Future<Result<Diet, AppError>> call(ActivateDietInput input) async {
-    final now = DateTime.now();
+    final now = DateTime.now().millisecondsSinceEpoch;
     // 1. Authorization
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
@@ -5100,7 +5386,7 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
       await _dietRepository.update(currentActive.copyWith(
         isActive: false,
         syncMetadata: currentActive.syncMetadata.copyWith(
-          syncUpdatedAt: now.millisecondsSinceEpoch,
+          syncUpdatedAt: now,
           syncVersion: currentActive.syncMetadata.syncVersion + 1,
           syncIsDirty: true,
         ),
@@ -5108,11 +5394,10 @@ class ActivateDietUseCase implements UseCaseWithInput<Diet, ActivateDietInput> {
     }
 
     // 6. Activate target diet
-    final nowMs = now.millisecondsSinceEpoch;
     final activated = diet.copyWith(
       isActive: true,
       syncMetadata: diet.syncMetadata.copyWith(
-        syncUpdatedAt: nowMs,
+        syncUpdatedAt: now,
         syncVersion: diet.syncMetadata.syncVersion + 1,
         syncIsDirty: true,
       ),
@@ -7166,9 +7451,15 @@ class ResolveConflictInput with _$ResolveConflictInput {
 }
 
 enum ConflictResolution {
-  keepLocal,   // Use local version, overwrite remote
-  keepRemote,  // Use remote version, overwrite local
-  merge,       // Merge both versions (for compatible changes)
+  keepLocal(0),   // Use local version, overwrite remote
+  keepRemote(1),  // Use remote version, overwrite local
+  merge(2);       // Merge both versions (for compatible changes)
+
+  final int value;
+  const ConflictResolution(this.value);
+
+  static ConflictResolution fromValue(int value) =>
+    ConflictResolution.values.firstWhere((e) => e.value == value, orElse: () => keepLocal);
 }
 
 class ResolveConflictUseCase implements UseCase<ResolveConflictInput, void> {
@@ -9788,7 +10079,7 @@ class DailyCompliance with _$DailyCompliance {
 
 ---
 
-## 7.5 Intelligence System Contracts (Phase 3)
+## 7.6 Intelligence System Contracts (Phase 3)
 
 For complete specifications, see [42_INTELLIGENCE_SYSTEM.md](42_INTELLIGENCE_SYSTEM.md).
 
@@ -10287,7 +10578,7 @@ class HealthInsightModel extends Model<HealthInsight> {
 > NOTE: Full implementations of `toMap()`, `fromEntity()`, and `toEntity()` will follow
 > the patterns established by the database column mappings in Section 13.
 
-## 7.6 Wearable Integration Contracts (Phase 4)
+## 7.7 Wearable Integration Contracts (Phase 4)
 
 For complete specifications, see [43_WEARABLE_INTEGRATION.md](43_WEARABLE_INTEGRATION.md).
 
@@ -10553,12 +10844,15 @@ abstract class SyncService {
 #### AuthTokenService.hasValidToken
 
 ```dart
-/// Additional AuthTokenService method referenced by providers
+/// Additional AuthTokenService methods referenced by providers
 abstract class AuthTokenService {
   // ... existing methods (storeTokens, clearTokens) ...
 
   /// Check if valid auth tokens exist for current session
   Future<bool> hasValidToken();
+
+  /// Get the current authenticated user's ID from stored tokens
+  Future<String?> getCurrentUserId();
 }
 ```
 
@@ -10642,7 +10936,7 @@ class ArchiveEntityUseCase<T extends Syncable, I> implements UseCaseWithInput<vo
 | DeleteFlareUpInput | DeleteEntityUseCase<FlareUp> | Existing generic |
 | EndFlareUpInput | Custom: EndFlareUpUseCase | Sets endDate on FlareUp |
 
-## 7.7 Diet Management Use Cases (Additions)
+## 7.8 Diet Management Use Cases (Additions)
 
 These use cases were identified as missing during specification audit:
 
