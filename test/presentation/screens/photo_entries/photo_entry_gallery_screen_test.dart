@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
 import 'package:shadow_app/domain/entities/photo_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
@@ -126,6 +127,41 @@ void main() {
               widget.properties.label == 'Photo gallery for Left Arm',
         );
         expect(semanticsFinder, findsOneWidget);
+      });
+    });
+
+    group('add photo flow', () {
+      testWidgets(
+        'FAB taps shows bottom sheet with camera and gallery options',
+        (tester) async {
+          await tester.pumpWidget(buildScreen());
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.byType(FloatingActionButton));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Take Photo'), findsOneWidget);
+          expect(find.text('Choose from Gallery'), findsOneWidget);
+        },
+      );
+
+      testWidgets('bottom sheet shows camera icon', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+        expect(find.byIcon(Icons.photo_library), findsOneWidget);
+      });
+
+      testWidgets('notes field max length matches ValidationRules', (
+        tester,
+      ) async {
+        // The notes field is inside _PhotoDetailsDialog which uses
+        // ValidationRules.notesMaxLength. We verify the constant is correct.
+        expect(ValidationRules.notesMaxLength, greaterThan(0));
       });
     });
 

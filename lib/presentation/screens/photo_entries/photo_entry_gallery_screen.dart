@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
 import 'package:shadow_app/domain/entities/photo_entry.dart';
 import 'package:shadow_app/domain/usecases/photo_entries/photo_entries_usecases.dart';
@@ -238,10 +239,18 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
     try {
       final imagePicker = picker.ImagePicker();
       final image = await imagePicker.pickImage(source: source);
-      if (image == null) return;
+      if (image == null || !context.mounted) return;
 
       final file = File(image.path);
       final fileSize = await file.length();
+      if (!context.mounted) return;
+
+      // Show details dialog for notes and date/time
+      final details = await showDialog<_PhotoEntryDetails>(
+        context: context,
+        builder: (context) => _PhotoDetailsDialog(filePath: image.path),
+      );
+      if (details == null || !context.mounted) return;
 
       await ref
           .read(photoEntryListProvider(profileId).notifier)
@@ -250,7 +259,8 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
               profileId: profileId,
               clientId: const Uuid().v4(),
               photoAreaId: photoArea.id,
-              timestamp: DateTime.now().millisecondsSinceEpoch,
+              timestamp: details.timestamp,
+              notes: details.notes?.isNotEmpty ?? false ? details.notes : null,
               filePath: image.path,
               fileSizeBytes: fileSize,
             ),
@@ -315,6 +325,162 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
           );
         }
       }
+    }
+  }
+}
+
+/// Data returned from the photo details dialog.
+class _PhotoEntryDetails {
+  final int timestamp;
+  final String? notes;
+
+  const _PhotoEntryDetails({required this.timestamp, this.notes});
+}
+
+/// Dialog for entering photo details (notes and date/time) after selecting a photo.
+class _PhotoDetailsDialog extends StatefulWidget {
+  final String filePath;
+
+  const _PhotoDetailsDialog({required this.filePath});
+
+  @override
+  State<_PhotoDetailsDialog> createState() => _PhotoDetailsDialogState();
+}
+
+class _PhotoDetailsDialogState extends State<_PhotoDetailsDialog> {
+  final _notesController = TextEditingController();
+  late DateTime _selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDateTime = DateTime.now();
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dateStr =
+        '${_selectedDateTime.month}/${_selectedDateTime.day}/${_selectedDateTime.year}';
+    final hour = _selectedDateTime.hour % 12 == 0
+        ? 12
+        : _selectedDateTime.hour % 12;
+    final minute = _selectedDateTime.minute.toString().padLeft(2, '0');
+    final period = _selectedDateTime.hour >= 12 ? 'PM' : 'AM';
+    final timeStr = '$hour:$minute $period';
+
+    return AlertDialog(
+      title: const Text('Photo Details'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date & Time
+            Semantics(
+              label: 'Photo date and time',
+              child: ExcludeSemantics(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _pickDate,
+                        icon: const Icon(Icons.calendar_today),
+                        label: Text(dateStr),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _pickTime,
+                        icon: const Icon(Icons.access_time),
+                        label: Text(timeStr),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Notes
+            Semantics(
+              label: 'Photo notes, optional',
+              textField: true,
+              child: ExcludeSemantics(
+                child: ShadowTextField(
+                  controller: _notesController,
+                  label: 'Notes',
+                  hintText: 'Notes about this photo',
+                  maxLength: ValidationRules.notesMaxLength,
+                  maxLines: 3,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(
+            context,
+            _PhotoEntryDetails(
+              timestamp: _selectedDateTime.millisecondsSinceEpoch,
+              notes: _notesController.text.trim(),
+            ),
+          ),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDateTime,
+      firstDate: DateTime(2000),
+      lastDate: now,
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDateTime = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _selectedDateTime.hour,
+          _selectedDateTime.minute,
+        );
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDateTime = DateTime(
+          _selectedDateTime.year,
+          _selectedDateTime.month,
+          _selectedDateTime.day,
+          picked.hour,
+          picked.minute,
+        );
+      });
     }
   }
 }

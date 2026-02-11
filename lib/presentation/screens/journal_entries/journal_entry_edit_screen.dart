@@ -408,6 +408,9 @@ class _JournalEntryEditScreenState
     String? error;
     if (content.isEmpty) {
       error = 'Content is required';
+    } else if (content.length < ValidationRules.journalContentMinLength) {
+      error =
+          'Content must be at least ${ValidationRules.journalContentMinLength} characters';
     } else if (content.length > ValidationRules.journalContentMaxLength) {
       error =
           'Content must not exceed ${ValidationRules.journalContentMaxLength} characters';

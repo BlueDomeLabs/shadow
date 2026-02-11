@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/presentation/providers/journal_entries/journal_entry_list_provider.dart';
@@ -124,6 +125,69 @@ void main() {
               widget.properties.label == 'New journal entry form',
         );
         expect(semanticsFinder, findsOneWidget);
+      });
+    });
+
+    group('validation', () {
+      Finder findContentField() => find.descendant(
+        of: find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Entry content, required',
+        ),
+        matching: find.byType(TextField),
+      );
+
+      testWidgets('shows error when content is too short', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Enter text shorter than min length
+        await tester.enterText(findContentField(), 'Short');
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Content must be at least ${ValidationRules.journalContentMinLength} characters',
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('clears error when content meets min length', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Enter short text to trigger error
+        await tester.enterText(findContentField(), 'Short');
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            'Content must be at least ${ValidationRules.journalContentMinLength} characters',
+          ),
+          findsOneWidget,
+        );
+
+        // Enter text that meets min length
+        await tester.enterText(
+          findContentField(),
+          'A' * ValidationRules.journalContentMinLength,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text(
+            'Content must be at least ${ValidationRules.journalContentMinLength} characters',
+          ),
+          findsNothing,
+        );
+      });
+
+      testWidgets('content max length matches ValidationRules', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        final textField = tester.widget<TextField>(findContentField());
+        expect(textField.maxLength, ValidationRules.journalContentMaxLength);
       });
     });
 
