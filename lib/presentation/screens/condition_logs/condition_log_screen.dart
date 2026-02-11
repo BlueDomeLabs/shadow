@@ -288,7 +288,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime,
-      firstDate: DateTime(2000),
+      firstDate: DateTime(ValidationRules.earliestSelectableYear),
       lastDate: now,
     );
     if (picked != null) {

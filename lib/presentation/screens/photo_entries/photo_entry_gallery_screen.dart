@@ -84,7 +84,7 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
     return GridView.builder(
       padding: const EdgeInsets.all(8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+        crossAxisCount: ValidationRules.photoGalleryColumns,
         crossAxisSpacing: 4,
         mainAxisSpacing: 4,
       ),
@@ -450,7 +450,7 @@ class _PhotoDetailsDialogState extends State<_PhotoDetailsDialog> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime,
-      firstDate: DateTime(2000),
+      firstDate: DateTime(ValidationRules.earliestSelectableYear),
       lastDate: now,
     );
     if (picked != null) {

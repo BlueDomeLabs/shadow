@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/usecases/journal_entries/journal_entries_usecases.dart';
 import 'package:shadow_app/presentation/providers/journal_entries/journal_entry_list_provider.dart';
@@ -79,8 +80,9 @@ class JournalEntryListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.timestamp);
     final dateStr = '${date.month}/${date.day}/${date.year}';
-    final snippet = entry.content.length > 100
-        ? '${entry.content.substring(0, 100)}...'
+    final snippet =
+        entry.content.length > ValidationRules.journalSnippetMaxLength
+        ? '${entry.content.substring(0, ValidationRules.journalSnippetMaxLength)}...'
         : entry.content;
 
     return Padding(

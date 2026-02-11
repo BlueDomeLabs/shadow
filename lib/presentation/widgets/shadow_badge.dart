@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/presentation/widgets/widget_enums.dart';
 
@@ -102,7 +103,7 @@ class ShadowBadge extends StatelessWidget {
     this.color,
     this.icon,
     this.count,
-    this.maxCount = 99,
+    this.maxCount = ValidationRules.badgeMaxDisplayCount,
   });
 
   /// Creates a diet type badge.
@@ -117,7 +118,7 @@ class ShadowBadge extends StatelessWidget {
        color = null,
        icon = null,
        count = null,
-       maxCount = 99;
+       maxCount = ValidationRules.badgeMaxDisplayCount;
 
   /// Creates a status badge.
   const ShadowBadge.status({
@@ -131,7 +132,7 @@ class ShadowBadge extends StatelessWidget {
        showIcon = true,
        dietType = null,
        count = null,
-       maxCount = 99;
+       maxCount = ValidationRules.badgeMaxDisplayCount;
 
   /// Creates a count badge.
   const ShadowBadge.count({
@@ -139,7 +140,7 @@ class ShadowBadge extends StatelessWidget {
     required this.count,
     this.color,
     this.size = BadgeSize.medium,
-    this.maxCount = 99,
+    this.maxCount = ValidationRules.badgeMaxDisplayCount,
     this.semanticLabel,
   }) : badgeType = BadgeType.count,
        showIcon = true,

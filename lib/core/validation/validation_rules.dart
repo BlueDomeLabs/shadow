@@ -128,6 +128,13 @@ class ValidationRules {
   static const int maxSyncRetries = 3;
   static const int syncRetryDelaySeconds = 30;
 
+  // ===== UI display constants =====
+  static const int earliestSelectableYear = 2000;
+  static const int journalSnippetMaxLength = 100;
+  static const int defaultPickerMaxTimes = 5;
+  static const int badgeMaxDisplayCount = 99;
+  static const int photoGalleryColumns = 3;
+
   // ===== Validation methods =====
 
   /// Validate entity name with custom field name and max length.

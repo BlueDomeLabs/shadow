@@ -10,6 +10,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/presentation/widgets/widget_enums.dart';
 
@@ -154,7 +155,7 @@ class ShadowPicker extends StatelessWidget {
     this.onDescriptionChanged,
     this.times,
     this.onTimesChanged,
-    this.maxTimes = 5,
+    this.maxTimes = ValidationRules.defaultPickerMaxTimes,
     this.dateValue,
     this.onDateChanged,
     this.firstDate,
@@ -183,7 +184,7 @@ class ShadowPicker extends StatelessWidget {
        onDescriptionChanged = null,
        times = null,
        onTimesChanged = null,
-       maxTimes = 5,
+       maxTimes = ValidationRules.defaultPickerMaxTimes,
        dateValue = null,
        onDateChanged = null,
        firstDate = null,
@@ -211,7 +212,7 @@ class ShadowPicker extends StatelessWidget {
        onDescriptionChanged = null,
        times = null,
        onTimesChanged = null,
-       maxTimes = 5,
+       maxTimes = ValidationRules.defaultPickerMaxTimes,
        dateValue = null,
        onDateChanged = null,
        firstDate = null,
@@ -239,7 +240,7 @@ class ShadowPicker extends StatelessWidget {
        onDaysChanged = null,
        times = null,
        onTimesChanged = null,
-       maxTimes = 5,
+       maxTimes = ValidationRules.defaultPickerMaxTimes,
        dateValue = null,
        onDateChanged = null,
        firstDate = null,
@@ -255,7 +256,7 @@ class ShadowPicker extends StatelessWidget {
     this.hint,
     required this.times,
     required this.onTimesChanged,
-    this.maxTimes = 5,
+    this.maxTimes = ValidationRules.defaultPickerMaxTimes,
   }) : pickerType = PickerType.time,
        showLabels = true,
        orientation = Axis.horizontal,
@@ -299,7 +300,7 @@ class ShadowPicker extends StatelessWidget {
        onDescriptionChanged = null,
        times = null,
        onTimesChanged = null,
-       maxTimes = 5,
+       maxTimes = ValidationRules.defaultPickerMaxTimes,
        selectedItems = null,
        availableItems = null,
        onSelectionChanged = null;
@@ -326,7 +327,7 @@ class ShadowPicker extends StatelessWidget {
        onDescriptionChanged = null,
        times = null,
        onTimesChanged = null,
-       maxTimes = 5,
+       maxTimes = ValidationRules.defaultPickerMaxTimes,
        dateValue = null,
        onDateChanged = null,
        firstDate = null,
