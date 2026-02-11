@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/flare_up.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/condition_repository.dart';
@@ -67,9 +68,12 @@ class LogFlareUpUseCase implements UseCase<LogFlareUpInput, FlareUp> {
   Future<ValidationError?> _validate(LogFlareUpInput input) async {
     final errors = <String, List<String>>{};
 
-    // Severity validation: 1-10
-    if (input.severity < 1 || input.severity > 10) {
-      errors['severity'] = ['Severity must be between 1 and 10'];
+    // Severity validation
+    if (input.severity < ValidationRules.severityMin ||
+        input.severity > ValidationRules.severityMax) {
+      errors['severity'] = [
+        'Severity must be between ${ValidationRules.severityMin} and ${ValidationRules.severityMax}',
+      ];
     }
 
     // Verify condition exists and belongs to profile
@@ -100,14 +104,20 @@ class LogFlareUpUseCase implements UseCase<LogFlareUpInput, FlareUp> {
     }
 
     // Notes max length
-    if (input.notes != null && input.notes!.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (input.notes != null &&
+        input.notes!.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
-    // Trigger descriptions max 100 characters each
+    // Trigger descriptions
     for (final trigger in input.triggers) {
-      if (trigger.isEmpty || trigger.length > 100) {
-        errors['triggers'] = ['Each trigger must be 1-100 characters'];
+      if (trigger.isEmpty ||
+          trigger.length > ValidationRules.triggerMaxLength) {
+        errors['triggers'] = [
+          'Each trigger must be 1-${ValidationRules.triggerMaxLength} characters',
+        ];
         break;
       }
     }

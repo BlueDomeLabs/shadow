@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_items_usecases.dart';
@@ -87,7 +88,7 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
                 controller: _nameController,
                 label: 'Food Name',
                 hintText: 'e.g., Grilled Chicken',
-                maxLength: 200,
+                maxLength: ValidationRules.foodNameMaxLength,
                 textInputAction: TextInputAction.next,
                 errorText: _getNameError(),
                 onChanged: (_) => setState(() {}),
@@ -151,7 +152,7 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
                 controller: _notesController,
                 label: 'Notes',
                 hintText: 'Notes about this food',
-                maxLength: 1000,
+                maxLength: ValidationRules.notesMaxLength,
                 maxLines: 4,
                 textInputAction: TextInputAction.done,
               ),
@@ -213,23 +214,26 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
   String? _getNameError() {
     final name = _nameController.text.trim();
     if (name.isEmpty) return null;
-    if (name.length < 2) return 'Name must be at least 2 characters';
+    if (name.length < ValidationRules.nameMinLength) {
+      return 'Name must be at least ${ValidationRules.nameMinLength} characters';
+    }
     return null;
   }
 
   bool _validateForm() {
     final name = _nameController.text.trim();
-    if (name.isEmpty || name.length < 2) {
+    if (name.isEmpty || name.length < ValidationRules.nameMinLength) {
       showAccessibleSnackBar(
         context: context,
         message: 'Food name is required (min 2 characters)',
       );
       return false;
     }
-    if (name.length > 200) {
+    if (name.length > ValidationRules.foodNameMaxLength) {
       showAccessibleSnackBar(
         context: context,
-        message: 'Food name must be 200 characters or less',
+        message:
+            'Food name must be ${ValidationRules.foodNameMaxLength} characters or less',
       );
       return false;
     }

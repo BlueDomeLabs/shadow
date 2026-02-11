@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/repositories/sleep_entry_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
@@ -121,8 +122,11 @@ class UpdateSleepEntryUseCase
     }
 
     // Notes length validation
-    if (entry.notes != null && entry.notes!.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (entry.notes != null &&
+        entry.notes!.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

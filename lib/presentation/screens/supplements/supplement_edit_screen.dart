@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
@@ -161,7 +162,7 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                       label: 'Supplement Name',
                       hintText: 'e.g., Vitamin D3',
                       errorText: _nameError,
-                      maxLength: 200,
+                      maxLength: ValidationRules.supplementNameMaxLength,
                       textInputAction: TextInputAction.next,
                       onChanged: (_) => _validateName(),
                     ),
@@ -177,7 +178,7 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                       label: 'Brand',
                       hintText: 'e.g., NOW Foods',
                       errorText: _brandError,
-                      maxLength: 200,
+                      maxLength: ValidationRules.nameMaxLength,
                       textInputAction: TextInputAction.next,
                       onChanged: (_) => _validateBrand(),
                     ),
@@ -222,7 +223,7 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                     semanticLabel: 'Custom supplement form, required',
                     hintText: 'e.g., Lozenge',
                     errorText: _customFormError,
-                    maxLength: 100,
+                    maxLength: ValidationRules.nameMaxLength,
                     textInputAction: TextInputAction.next,
                     onChanged: (_) => _validateCustomForm(),
                   ),
@@ -303,7 +304,7 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                       label: 'Notes',
                       hintText: 'Any notes about this supplement',
                       errorText: _notesError,
-                      maxLength: 2000,
+                      maxLength: ValidationRules.notesMaxLength,
                       maxLines: 4,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
@@ -377,10 +378,12 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     String? error;
     if (name.isEmpty) {
       error = 'Supplement name is required';
-    } else if (name.length < 2) {
-      error = 'Name must be at least 2 characters';
-    } else if (name.length > 200) {
-      error = 'Name must not exceed 200 characters';
+    } else if (name.length < ValidationRules.nameMinLength) {
+      error =
+          'Name must be at least ${ValidationRules.nameMinLength} characters';
+    } else if (name.length > ValidationRules.supplementNameMaxLength) {
+      error =
+          'Name must not exceed ${ValidationRules.supplementNameMaxLength} characters';
     }
     setState(() => _nameError = error);
     return error == null;
@@ -389,8 +392,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
   bool _validateBrand() {
     final brand = _brandController.text.trim();
     String? error;
-    if (brand.length > 200) {
-      error = 'Brand must not exceed 200 characters';
+    if (brand.length > ValidationRules.nameMaxLength) {
+      error =
+          'Brand must not exceed ${ValidationRules.nameMaxLength} characters';
     }
     setState(() => _brandError = error);
     return error == null;
@@ -405,8 +409,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     String? error;
     if (customForm.isEmpty) {
       error = 'Custom form is required when Form is Other';
-    } else if (customForm.length > 100) {
-      error = 'Custom form must not exceed 100 characters';
+    } else if (customForm.length > ValidationRules.nameMaxLength) {
+      error =
+          'Custom form must not exceed ${ValidationRules.nameMaxLength} characters';
     }
     setState(() => _customFormError = error);
     return error == null;
@@ -449,8 +454,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
   bool _validateNotes() {
     final notes = _notesController.text.trim();
     String? error;
-    if (notes.length > 2000) {
-      error = 'Notes must not exceed 2000 characters';
+    if (notes.length > ValidationRules.notesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.notesMaxLength} characters';
     }
     setState(() => _notesError = error);
     return error == null;

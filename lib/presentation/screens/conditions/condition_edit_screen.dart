@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/conditions/conditions_usecases.dart';
@@ -182,7 +183,7 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
                       label: 'Condition Name',
                       hintText: 'e.g., Eczema',
                       errorText: _nameError,
-                      maxLength: 200,
+                      maxLength: ValidationRules.conditionNameMaxLength,
                       textInputAction: TextInputAction.next,
                       onChanged: (_) => _validateName(),
                     ),
@@ -276,7 +277,7 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
                       label: 'Description',
                       hintText: 'Describe the condition',
                       errorText: _descriptionError,
-                      maxLength: 2000,
+                      maxLength: ValidationRules.descriptionMaxLength,
                       maxLines: 4,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
@@ -412,10 +413,12 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
     String? error;
     if (name.isEmpty) {
       error = 'Condition name is required';
-    } else if (name.length < 2) {
-      error = 'Name must be at least 2 characters';
-    } else if (name.length > 200) {
-      error = 'Name must not exceed 200 characters';
+    } else if (name.length < ValidationRules.nameMinLength) {
+      error =
+          'Name must be at least ${ValidationRules.nameMinLength} characters';
+    } else if (name.length > ValidationRules.conditionNameMaxLength) {
+      error =
+          'Name must not exceed ${ValidationRules.conditionNameMaxLength} characters';
     }
     setState(() => _nameError = error);
     return error == null;
@@ -442,8 +445,9 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
   bool _validateDescription() {
     final description = _descriptionController.text.trim();
     String? error;
-    if (description.length > 2000) {
-      error = 'Description must not exceed 2000 characters';
+    if (description.length > ValidationRules.descriptionMaxLength) {
+      error =
+          'Description must not exceed ${ValidationRules.descriptionMaxLength} characters';
     }
     setState(() => _descriptionError = error);
     return error == null;

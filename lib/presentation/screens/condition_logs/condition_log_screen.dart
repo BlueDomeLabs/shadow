@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/entities/condition_log.dart';
 import 'package:shadow_app/domain/usecases/condition_logs/condition_logs_usecases.dart';
@@ -203,7 +204,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
                       label: 'Notes',
                       hintText: 'Notes about today',
                       errorText: _notesError,
-                      maxLength: 2000,
+                      maxLength: ValidationRules.notesMaxLength,
                       maxLines: 4,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
@@ -435,7 +436,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
               label: 'Add New Trigger',
               hintText: 'Add new trigger',
               errorText: _newTriggerError,
-              maxLength: 100,
+              maxLength: ValidationRules.triggerMaxLength,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _addNewTrigger(),
             ),
@@ -456,9 +457,10 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
     if (newTrigger.isEmpty) {
       return;
     }
-    if (newTrigger.length > 100) {
+    if (newTrigger.length > ValidationRules.triggerMaxLength) {
       setState(() {
-        _newTriggerError = 'Trigger must not exceed 100 characters';
+        _newTriggerError =
+            'Trigger must not exceed ${ValidationRules.triggerMaxLength} characters';
       });
       return;
     }
@@ -515,8 +517,9 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
   bool _validateNotes() {
     final notes = _notesController.text.trim();
     String? error;
-    if (notes.length > 2000) {
-      error = 'Notes must not exceed 2000 characters';
+    if (notes.length > ValidationRules.notesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.notesMaxLength} characters';
     }
     setState(() => _notesError = error);
     return error == null;

@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/journal_entry_repository.dart';
@@ -62,20 +63,30 @@ class CreateJournalEntryUseCase
   ValidationError? _validate(CreateJournalEntryInput input) {
     final errors = <String, List<String>>{};
 
-    // Content validation: 10-50000 characters per ValidationRules.journalContentMinLength
-    if (input.content.length < 10 || input.content.length > 50000) {
-      errors['content'] = ['Content must be 10-50000 characters'];
+    // Content validation
+    if (input.content.length < ValidationRules.journalContentMinLength ||
+        input.content.length > ValidationRules.journalContentMaxLength) {
+      errors['content'] = [
+        'Content must be ${ValidationRules.journalContentMinLength}-${ValidationRules.journalContentMaxLength} characters',
+      ];
     }
 
-    // Title validation: 1-200 characters if provided
+    // Title validation if provided
     if (input.title != null &&
-        (input.title!.isEmpty || input.title!.length > 200)) {
-      errors['title'] = ['Title must be 1-200 characters'];
+        (input.title!.isEmpty ||
+            input.title!.length > ValidationRules.titleMaxLength)) {
+      errors['title'] = [
+        'Title must be 1-${ValidationRules.titleMaxLength} characters',
+      ];
     }
 
-    // Mood validation: 1-10 if provided
-    if (input.mood != null && (input.mood! < 1 || input.mood! > 10)) {
-      errors['mood'] = ['Mood must be between 1 and 10'];
+    // Mood validation if provided
+    if (input.mood != null &&
+        (input.mood! < ValidationRules.moodMin ||
+            input.mood! > ValidationRules.moodMax)) {
+      errors['mood'] = [
+        'Mood must be between ${ValidationRules.moodMin} and ${ValidationRules.moodMax}',
+      ];
     }
 
     // Timestamp validation (not more than 1 hour in future)
@@ -87,10 +98,12 @@ class CreateJournalEntryUseCase
       ];
     }
 
-    // Tags validation: each tag 1-50 characters
+    // Tags validation
     for (final tag in input.tags) {
-      if (tag.isEmpty || tag.length > 50) {
-        errors['tags'] = ['Each tag must be 1-50 characters'];
+      if (tag.isEmpty || tag.length > ValidationRules.tagMaxLength) {
+        errors['tags'] = [
+          'Each tag must be 1-${ValidationRules.tagMaxLength} characters',
+        ];
         break;
       }
     }

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
@@ -177,7 +178,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
                       label: 'Notes',
                       hintText: 'Any notes about this meal',
                       errorText: _notesError,
-                      maxLength: 1000,
+                      maxLength: ValidationRules.notesMaxLength,
                       maxLines: 4,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
@@ -396,7 +397,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
                   label: 'Ad-hoc Item',
                   hintText: 'Add item not in library...',
                   errorText: _adHocItemError,
-                  maxLength: 100,
+                  maxLength: ValidationRules.nameMaxLength,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _addAdHocItem(),
                   onChanged: (_) {
@@ -440,15 +441,17 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
     final text = _adHocItemController.text.trim();
     if (text.isEmpty) return;
 
-    if (text.length < 2) {
+    if (text.length < ValidationRules.nameMinLength) {
       setState(
-        () => _adHocItemError = 'Item name must be at least 2 characters',
+        () => _adHocItemError =
+            'Item name must be at least ${ValidationRules.nameMinLength} characters',
       );
       return;
     }
-    if (text.length > 100) {
+    if (text.length > ValidationRules.nameMaxLength) {
       setState(
-        () => _adHocItemError = 'Item name must not exceed 100 characters',
+        () => _adHocItemError =
+            'Item name must not exceed ${ValidationRules.nameMaxLength} characters',
       );
       return;
     }
@@ -483,8 +486,9 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
   bool _validateNotes() {
     final notes = _notesController.text.trim();
     String? error;
-    if (notes.length > 1000) {
-      error = 'Notes must not exceed 1000 characters';
+    if (notes.length > ValidationRules.notesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.notesMaxLength} characters';
     }
     setState(() => _notesError = error);
     return error == null;

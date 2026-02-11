@@ -332,9 +332,9 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 |-------|------|----------|------------|---------|-------------|------------|
 | Activity Name | Text | Yes | Min 2 chars | - | "e.g., Morning Jog" | 200 |
 | Description | Text Area | No | - | - | "Describe this activity" | 1000 |
-| Default Duration | Duration Picker | No | 1 min - 24 hours | 30 min | "Typical duration" | - |
+| Default Duration | Duration Picker | Yes | 1 min - 24 hours | - | "Duration in minutes" | - |
 | Location | Text | No | - | - | "e.g., Local park" | 200 |
-| Potential Triggers | Tag Input | No | - | [] | "Add potential trigger" | 100 per tag |
+| Potential Triggers | Text | No | - | - | "e.g., stress, weather" | 500 |
 
 ---
 
@@ -348,7 +348,6 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 | Activities | Multi-select | No | - | [] | "Select activities" | - |
 | Ad-hoc Activities | Tag Input | No | - | [] | "Add unlisted activity" | 100 per tag |
 | Actual Duration | Duration Picker | No | 1 min - 24 hours | From template | "Actual duration" | - |
-| Intensity | Slider | No | 1-10 | 5 | - | - |
 | Notes | Text Area | No | - | - | "Notes about this activity" | 1000 |
 
 ---
@@ -365,11 +364,10 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 | Title | Text | No | - | - | "Entry title (optional)" | 200 |
 | Content | Rich Text Area | Yes | Min 10 chars | - | "Write your thoughts..." | 50000 |
 | Tags | Tag Input | No | - | [] | "Add tags" | 50 per tag |
-| Mood | Emoji Picker | No | 5 options | - | "How are you feeling?" | - |
+| Mood | Slider | No | 1-10 | - | "How are you feeling?" | - |
 | Audio Note | Audio Recorder | No | Max 5 min | - | "Record audio note" | - |
 
-**Mood Options:**
-😊 Great, 🙂 Good, 😐 Neutral, 😕 Low, 😢 Difficult
+**Mood Scale:** 1 (Very Low) to 10 (Excellent)
 
 ---
 
@@ -381,8 +379,9 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
-| Area Name | Text | Yes | Min 2 chars | - | "e.g., Left Arm" | 100 |
-| Consistency Notes | Text Area | No | - | - | "Tips for consistent photos (lighting, angle)" | 500 |
+| Area Name | Text | Yes | Min 2 chars | - | "e.g., Left Arm" | 200 |
+| Description | Text Area | No | - | - | "Describe this area" | 500 |
+| Consistency Notes | Text Area | No | - | - | "Tips for consistent photos (lighting, angle)" | 1000 |
 
 ---
 
@@ -395,7 +394,6 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 | Photo | Camera/Gallery | Yes | Max 10MB raw, 2MB after compression | - | - | - |
 | Date & Time | DateTime Picker | Yes | Not future | Now | - | - |
 | Notes | Text | No | - | - | "Notes about this photo" | 500 |
-| Condition Link | Dropdown | No | Active conditions | - | "Link to condition" | - |
 
 ---
 

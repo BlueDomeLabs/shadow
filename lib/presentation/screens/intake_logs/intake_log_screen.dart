@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/intake_logs/intake_logs_usecases.dart';
@@ -267,7 +268,7 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
                           label: 'Custom Reason',
                           hintText: 'Describe reason',
                           errorText: _customReasonError,
-                          maxLength: 200,
+                          maxLength: ValidationRules.skipReasonMaxLength,
                           textInputAction: TextInputAction.next,
                           onChanged: (_) => _validateCustomReason(),
                         ),
@@ -289,7 +290,7 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
                       label: 'Notes',
                       hintText: 'Any additional notes',
                       errorText: _notesError,
-                      maxLength: 500,
+                      maxLength: ValidationRules.intakeNotesMaxLength,
                       maxLines: 4,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
@@ -365,8 +366,9 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
     String? error;
     if (customReason.isEmpty) {
       error = 'Custom reason is required when Other is selected';
-    } else if (customReason.length > 200) {
-      error = 'Custom reason must not exceed 200 characters';
+    } else if (customReason.length > ValidationRules.skipReasonMaxLength) {
+      error =
+          'Custom reason must not exceed ${ValidationRules.skipReasonMaxLength} characters';
     }
     setState(() => _customReasonError = error);
     return error == null;
@@ -375,8 +377,9 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
   bool _validateNotes() {
     final notes = _notesController.text.trim();
     String? error;
-    if (notes.length > 500) {
-      error = 'Notes must not exceed 500 characters';
+    if (notes.length > ValidationRules.intakeNotesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.intakeNotesMaxLength} characters';
     }
     setState(() => _notesError = error);
     return error == null;

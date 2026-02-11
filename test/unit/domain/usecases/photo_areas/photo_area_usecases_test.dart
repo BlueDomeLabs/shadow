@@ -5,6 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/photo_area_repository.dart';
@@ -125,7 +126,8 @@ void main() {
         CreatePhotoAreaInput(
           profileId: testProfileId,
           clientId: testClientId,
-          name: 'A' * 101, // Too long (> 100 characters)
+          name:
+              'A' * (ValidationRules.photoAreaNameMaxLength + 1), // Exceeds max
         ),
       );
 
@@ -144,7 +146,8 @@ void main() {
           profileId: testProfileId,
           clientId: testClientId,
           name: 'Face Left',
-          description: 'A' * 501, // Too long (> 500 characters)
+          description:
+              'A' * (ValidationRules.descriptionMaxLength + 1), // Exceeds max
         ),
       );
 

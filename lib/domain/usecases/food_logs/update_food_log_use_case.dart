@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/repositories/food_item_repository.dart';
 import 'package:shadow_app/domain/repositories/food_log_repository.dart';
@@ -69,8 +70,11 @@ class UpdateFoodLogUseCase implements UseCase<UpdateFoodLogInput, FoodLog> {
     }
 
     // Notes max length
-    if (log.notes != null && log.notes!.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (log.notes != null &&
+        log.notes!.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     // Verify food item IDs exist and belong to profile
@@ -89,8 +93,11 @@ class UpdateFoodLogUseCase implements UseCase<UpdateFoodLogInput, FoodLog> {
 
     // Validate ad-hoc item names
     for (final name in log.adHocItems) {
-      if (name.length < 2 || name.length > 100) {
-        errors['adHocItems'] = ['Ad-hoc item names must be 2-100 characters'];
+      if (name.length < ValidationRules.nameMinLength ||
+          name.length > ValidationRules.nameMaxLength) {
+        errors['adHocItems'] = [
+          'Ad-hoc item names must be ${ValidationRules.nameMinLength}-${ValidationRules.nameMaxLength} characters',
+        ];
         break;
       }
     }

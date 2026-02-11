@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/photo_area_repository.dart';
@@ -92,8 +93,11 @@ class CreatePhotoEntryUseCase
     }
 
     // Notes max length
-    if (input.notes != null && input.notes!.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (input.notes != null &&
+        input.notes!.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

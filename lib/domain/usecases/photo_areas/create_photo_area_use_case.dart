@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/photo_area_repository.dart';
@@ -57,21 +58,28 @@ class CreatePhotoAreaUseCase
   ValidationError? _validate(CreatePhotoAreaInput input) {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-100 characters
-    if (input.name.length < 2 || input.name.length > 100) {
-      errors['name'] = ['Area name must be 2-100 characters'];
+    // Name validation
+    if (input.name.length < ValidationRules.nameMinLength ||
+        input.name.length > ValidationRules.photoAreaNameMaxLength) {
+      errors['name'] = [
+        'Area name must be ${ValidationRules.nameMinLength}-${ValidationRules.photoAreaNameMaxLength} characters',
+      ];
     }
 
     // Description max length
-    if (input.description != null && input.description!.length > 500) {
-      errors['description'] = ['Description must be 500 characters or less'];
+    if (input.description != null &&
+        input.description!.length > ValidationRules.descriptionMaxLength) {
+      errors['description'] = [
+        'Description must be ${ValidationRules.descriptionMaxLength} characters or less',
+      ];
     }
 
     // Consistency notes max length
     if (input.consistencyNotes != null &&
-        input.consistencyNotes!.length > 1000) {
+        input.consistencyNotes!.length >
+            ValidationRules.consistencyNotesMaxLength) {
       errors['consistencyNotes'] = [
-        'Consistency notes must be 1000 characters or less',
+        'Consistency notes must be ${ValidationRules.consistencyNotesMaxLength} characters or less',
       ];
     }
 

@@ -937,6 +937,7 @@ All errors extend the sealed `AppError` base class, which provides:
 4. **User-Friendly Messages**: `userMessage` is shown to users, `message` is for logs
 5. **Log with Context**: Include operation, entity type, IDs in log calls
 6. **Recover When Possible**: Check `isRecoverable` and `recoveryAction` for guidance
+7. **No Hardcoded Validation Limits**: All validation limits (field lengths, numeric ranges, collection sizes) MUST reference constants from `ValidationRules` in `lib/core/validation/validation_rules.dart`. Never hardcode numeric limits in use case validation. Error messages MUST use string interpolation with the constant (e.g., `'Name must be ${ValidationRules.nameMaxLength} characters or less'`). This ensures limits are centralized, maintainable, and consistent across all use cases.
 
 ```dart
 // CORRECT: Handle Result pattern

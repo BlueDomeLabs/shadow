@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/repositories/fluids_entry_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
@@ -82,22 +83,24 @@ class UpdateFluidsEntryUseCase
   ) {
     final errors = <String, List<String>>{};
 
-    // Water intake validation (0 - 10,000 mL)
+    // Water intake validation
     final waterIntake = input.waterIntakeMl ?? existing.waterIntakeMl;
     if (waterIntake != null) {
-      if (waterIntake < 0 || waterIntake > 10000) {
+      if (waterIntake < ValidationRules.waterIntakeMinMl ||
+          waterIntake > ValidationRules.waterIntakeMaxMl) {
         errors['waterIntakeMl'] = [
-          'Water intake must be between 0 and 10,000 mL',
+          'Water intake must be between ${ValidationRules.waterIntakeMinMl} and ${ValidationRules.waterIntakeMaxMl} mL',
         ];
       }
     }
 
-    // BBT validation (95.0 - 105.0°F)
+    // BBT validation
     final bbt = input.basalBodyTemperature ?? existing.basalBodyTemperature;
     if (bbt != null) {
-      if (bbt < 95.0 || bbt > 105.0) {
+      if (bbt < ValidationRules.bbtMinFahrenheit ||
+          bbt > ValidationRules.bbtMaxFahrenheit) {
         errors['basalBodyTemperature'] = [
-          'BBT must be between 95.0 and 105.0°F',
+          'BBT must be between ${ValidationRules.bbtMinFahrenheit} and ${ValidationRules.bbtMaxFahrenheit}°F',
         ];
       }
       // Recording time is required for BBT
@@ -122,8 +125,11 @@ class UpdateFluidsEntryUseCase
     }
 
     if (otherName != null && otherName.isNotEmpty) {
-      if (otherName.length < 2 || otherName.length > 100) {
-        errors['otherFluidName'] = ['Fluid name must be 2-100 characters'];
+      if (otherName.length < ValidationRules.customFluidNameMinLength ||
+          otherName.length > ValidationRules.customFluidNameMaxLength) {
+        errors['otherFluidName'] = [
+          'Fluid name must be ${ValidationRules.customFluidNameMinLength}-${ValidationRules.customFluidNameMaxLength} characters',
+        ];
       } else if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(otherName)) {
         errors['otherFluidName'] = [
           'Fluid name can only contain letters, spaces, hyphens, and apostrophes',
@@ -131,18 +137,26 @@ class UpdateFluidsEntryUseCase
       }
     }
 
-    if (otherAmount != null && otherAmount.length > 50) {
-      errors['otherFluidAmount'] = ['Amount must be 50 characters or less'];
+    if (otherAmount != null &&
+        otherAmount.length > ValidationRules.otherFluidAmountMaxLength) {
+      errors['otherFluidAmount'] = [
+        'Amount must be ${ValidationRules.otherFluidAmountMaxLength} characters or less',
+      ];
     }
 
-    if (otherNotes != null && otherNotes.length > 5000) {
-      errors['otherFluidNotes'] = ['Notes must be 5000 characters or less'];
+    if (otherNotes != null &&
+        otherNotes.length > ValidationRules.otherFluidNotesMaxLength) {
+      errors['otherFluidNotes'] = [
+        'Notes must be ${ValidationRules.otherFluidNotesMaxLength} characters or less',
+      ];
     }
 
     // General notes validation
     final notes = input.notes ?? existing.notes;
-    if (notes.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (notes.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

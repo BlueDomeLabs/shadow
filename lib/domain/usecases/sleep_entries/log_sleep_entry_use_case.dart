@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/sleep_entry_repository.dart';
@@ -118,8 +119,10 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
     }
 
     // Notes length validation
-    if (input.notes.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (input.notes.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     // Import source validation (if provided)

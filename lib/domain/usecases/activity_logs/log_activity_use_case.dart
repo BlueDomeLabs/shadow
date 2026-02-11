@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/activity_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/activity_log_repository.dart';
@@ -80,16 +81,21 @@ class LogActivityUseCase implements UseCase<LogActivityInput, ActivityLog> {
       ];
     }
 
-    // Duration validation if provided (1-1440 minutes)
+    // Duration validation if provided
     if (input.duration != null) {
-      if (input.duration! < 1 || input.duration! > 1440) {
-        errors['duration'] = ['Duration must be between 1 and 1440 minutes'];
+      if (input.duration! < ValidationRules.activityDurationMinMinutes ||
+          input.duration! > ValidationRules.activityDurationMaxMinutes) {
+        errors['duration'] = [
+          'Duration must be between ${ValidationRules.activityDurationMinMinutes} and ${ValidationRules.activityDurationMaxMinutes} minutes',
+        ];
       }
     }
 
     // Notes max length
-    if (input.notes.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (input.notes.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     // Verify activity IDs exist and belong to profile
@@ -106,11 +112,12 @@ class LogActivityUseCase implements UseCase<LogActivityInput, ActivityLog> {
       }
     }
 
-    // Validate ad-hoc activity names (2-100 characters each)
+    // Validate ad-hoc activity names
     for (final name in input.adHocActivities) {
-      if (name.length < 2 || name.length > 100) {
+      if (name.length < ValidationRules.nameMinLength ||
+          name.length > ValidationRules.nameMaxLength) {
         errors['adHocActivities'] = [
-          'Ad-hoc activity names must be 2-100 characters',
+          'Ad-hoc activity names must be ${ValidationRules.nameMinLength}-${ValidationRules.nameMaxLength} characters',
         ];
         break;
       }

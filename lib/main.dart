@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/presentation/screens/home/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,6 @@ class ShadowApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       useMaterial3: true,
     ),
-    home: const Scaffold(
-      body: Center(child: Text('Shadow - Phase 1 Foundation')),
-    ),
+    home: const HomeScreen(),
   );
 }

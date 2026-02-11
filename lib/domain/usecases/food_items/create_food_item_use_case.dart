@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -64,9 +65,12 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
   Future<ValidationError?> _validate(CreateFoodItemInput input) async {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-200 characters per ValidationRules.foodNameMaxLength
-    if (input.name.length < 2 || input.name.length > 200) {
-      errors['name'] = ['Food item name must be 2-200 characters'];
+    // Name validation
+    if (input.name.length < ValidationRules.nameMinLength ||
+        input.name.length > ValidationRules.foodNameMaxLength) {
+      errors['name'] = [
+        'Food item name must be ${ValidationRules.nameMinLength}-${ValidationRules.foodNameMaxLength} characters',
+      ];
     }
 
     // Complex items must have simple item IDs
@@ -125,8 +129,11 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
     }
 
     // Serving size max length
-    if (input.servingSize != null && input.servingSize!.length > 50) {
-      errors['servingSize'] = ['Serving size must be 50 characters or less'];
+    if (input.servingSize != null &&
+        input.servingSize!.length > ValidationRules.servingSizeMaxLength) {
+      errors['servingSize'] = [
+        'Serving size must be ${ValidationRules.servingSizeMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

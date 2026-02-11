@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/activity_log.dart';
 import 'package:shadow_app/domain/repositories/activity_log_repository.dart';
 import 'package:shadow_app/domain/repositories/activity_repository.dart';
@@ -73,14 +74,20 @@ class UpdateActivityLogUseCase
 
     // Duration validation if provided
     if (log.duration != null) {
-      if (log.duration! < 1 || log.duration! > 1440) {
-        errors['duration'] = ['Duration must be between 1 and 1440 minutes'];
+      if (log.duration! < ValidationRules.activityDurationMinMinutes ||
+          log.duration! > ValidationRules.activityDurationMaxMinutes) {
+        errors['duration'] = [
+          'Duration must be between ${ValidationRules.activityDurationMinMinutes} and ${ValidationRules.activityDurationMaxMinutes} minutes',
+        ];
       }
     }
 
     // Notes max length
-    if (log.notes != null && log.notes!.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (log.notes != null &&
+        log.notes!.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     // Verify activity IDs exist and belong to profile
@@ -99,9 +106,10 @@ class UpdateActivityLogUseCase
 
     // Validate ad-hoc activity names
     for (final name in log.adHocActivities) {
-      if (name.length < 2 || name.length > 100) {
+      if (name.length < ValidationRules.nameMinLength ||
+          name.length > ValidationRules.nameMaxLength) {
         errors['adHocActivities'] = [
-          'Ad-hoc activity names must be 2-100 characters',
+          'Ad-hoc activity names must be ${ValidationRules.nameMinLength}-${ValidationRules.nameMaxLength} characters',
         ];
         break;
       }

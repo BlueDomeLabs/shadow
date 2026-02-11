@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -418,13 +419,13 @@ void main() {
     });
 
     group('validation', () {
-      testWidgets('notes max length is 1000', (tester) async {
+      testWidgets('notes max length matches ValidationRules', (tester) async {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
         await scrollToBottom(tester);
 
-        // Verify the ShadowTextField for notes has maxLength 1000
+        // Verify the ShadowTextField for notes has maxLength from ValidationRules
         final notesField = tester.widget<ShadowTextField>(
           find.byWidgetPredicate(
             (widget) =>
@@ -432,7 +433,7 @@ void main() {
                 widget.hintText == 'Any notes about this meal',
           ),
         );
-        expect(notesField.maxLength, 1000);
+        expect(notesField.maxLength, ValidationRules.notesMaxLength);
       });
     });
 

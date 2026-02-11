@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/sleep_entries/sleep_entries_usecases.dart';
@@ -384,7 +385,7 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
       label: 'Notes',
       hintText: 'Any notes about your sleep',
       maxLines: 4,
-      maxLength: 1000,
+      maxLength: ValidationRules.notesMaxLength,
     ),
   );
 

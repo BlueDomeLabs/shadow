@@ -2873,8 +2873,8 @@ class CreateActivityUseCase implements UseCase<CreateActivityInput, Activity> {
     }
 
     // Description max length
-    if (input.description != null && input.description!.length > 500) {
-      errors['description'] = ['Description must be 500 characters or less'];
+    if (input.description != null && input.description!.length > 1000) {
+      errors['description'] = ['Description must be 1000 characters or less'];
     }
 
     // Location max length
@@ -3601,13 +3601,13 @@ class CreatePhotoAreaUseCase implements UseCase<CreatePhotoAreaInput, PhotoArea>
     final errors = <String, List<String>>{};
 
     // Name validation: 2-100 characters
-    if (input.name.length < 2 || input.name.length > 100) {
-      errors['name'] = ['Area name must be 2-100 characters'];
+    if (input.name.length < 2 || input.name.length > 200) {
+      errors['name'] = ['Area name must be 2-200 characters'];
     }
 
     // Description max length
-    if (input.description != null && input.description!.length > 500) {
-      errors['description'] = ['Description must be 500 characters or less'];
+    if (input.description != null && input.description!.length > 1000) {
+      errors['description'] = ['Description must be 1000 characters or less'];
     }
 
     // Consistency notes max length
@@ -7713,13 +7713,28 @@ class ValidationRules {
   static const int activityNameMaxLength = 200;   // Activities can have longer names
   static const int foodNameMaxLength = 200;       // Foods can have longer names
   static const int dietNameMaxLength = 50;        // Diet names are shorter
-  static const int photoAreaNameMaxLength = 100;
+  static const int photoAreaNameMaxLength = 200;  // Photo area names can be descriptive
 
   // Notes and content limits
   static const int notesMaxLength = 2000;         // Standard notes for most entities
   static const int journalContentMinLength = 10;
   static const int journalContentMaxLength = 50000; // Journals can be much longer
-  static const int descriptionMaxLength = 500;
+  static const int descriptionMaxLength = 1000;   // Descriptions benefit from detail
+  static const int locationMaxLength = 200;
+  static const int consistencyNotesMaxLength = 1000;
+  static const int titleMaxLength = 200;
+  static const int tagMaxLength = 50;
+  static const int triggerMaxLength = 100;
+  static const int servingSizeMaxLength = 50;
+  static const int otherFluidNotesMaxLength = 5000;
+
+  // Activity duration
+  static const int activityDurationMinMinutes = 1;
+  static const int activityDurationMaxMinutes = 1440; // 24 hours
+
+  // Mood scale
+  static const int moodMin = 1;
+  static const int moodMax = 10;
 
   // Custom fluid naming
   static const int customFluidNameMinLength = 2;

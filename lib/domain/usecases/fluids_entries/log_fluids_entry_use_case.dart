@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/fluids_entry_repository.dart';
@@ -89,21 +90,22 @@ class LogFluidsEntryUseCase
       errors['general'] = ['At least one measurement is required'];
     }
 
-    // Water intake validation (0 - 10,000 mL)
+    // Water intake validation
     if (input.waterIntakeMl != null) {
-      if (input.waterIntakeMl! < 0 || input.waterIntakeMl! > 10000) {
+      if (input.waterIntakeMl! < ValidationRules.waterIntakeMinMl ||
+          input.waterIntakeMl! > ValidationRules.waterIntakeMaxMl) {
         errors['waterIntakeMl'] = [
-          'Water intake must be between 0 and 10,000 mL',
+          'Water intake must be between ${ValidationRules.waterIntakeMinMl} and ${ValidationRules.waterIntakeMaxMl} mL',
         ];
       }
     }
 
-    // BBT validation (95.0 - 105.0°F)
+    // BBT validation
     if (input.basalBodyTemperature != null) {
-      if (input.basalBodyTemperature! < 95.0 ||
-          input.basalBodyTemperature! > 105.0) {
+      if (input.basalBodyTemperature! < ValidationRules.bbtMinFahrenheit ||
+          input.basalBodyTemperature! > ValidationRules.bbtMaxFahrenheit) {
         errors['basalBodyTemperature'] = [
-          'BBT must be between 95.0 and 105.0°F',
+          'BBT must be between ${ValidationRules.bbtMinFahrenheit} and ${ValidationRules.bbtMaxFahrenheit}°F',
         ];
       }
       // Recording time is required for BBT
@@ -124,10 +126,14 @@ class LogFluidsEntryUseCase
     }
 
     if (input.otherFluidName != null && input.otherFluidName!.isNotEmpty) {
-      // Name: 2-100 characters, letters/spaces/hyphens/apostrophes only
-      if (input.otherFluidName!.length < 2 ||
-          input.otherFluidName!.length > 100) {
-        errors['otherFluidName'] = ['Fluid name must be 2-100 characters'];
+      // Name validation: letters/spaces/hyphens/apostrophes only
+      if (input.otherFluidName!.length <
+              ValidationRules.customFluidNameMinLength ||
+          input.otherFluidName!.length >
+              ValidationRules.customFluidNameMaxLength) {
+        errors['otherFluidName'] = [
+          'Fluid name must be ${ValidationRules.customFluidNameMinLength}-${ValidationRules.customFluidNameMaxLength} characters',
+        ];
       } else if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(input.otherFluidName!)) {
         errors['otherFluidName'] = [
           'Fluid name can only contain letters, spaces, hyphens, and apostrophes',
@@ -135,17 +141,27 @@ class LogFluidsEntryUseCase
       }
     }
 
-    if (input.otherFluidAmount != null && input.otherFluidAmount!.length > 50) {
-      errors['otherFluidAmount'] = ['Amount must be 50 characters or less'];
+    if (input.otherFluidAmount != null &&
+        input.otherFluidAmount!.length >
+            ValidationRules.otherFluidAmountMaxLength) {
+      errors['otherFluidAmount'] = [
+        'Amount must be ${ValidationRules.otherFluidAmountMaxLength} characters or less',
+      ];
     }
 
-    if (input.otherFluidNotes != null && input.otherFluidNotes!.length > 5000) {
-      errors['otherFluidNotes'] = ['Notes must be 5000 characters or less'];
+    if (input.otherFluidNotes != null &&
+        input.otherFluidNotes!.length >
+            ValidationRules.otherFluidNotesMaxLength) {
+      errors['otherFluidNotes'] = [
+        'Notes must be ${ValidationRules.otherFluidNotesMaxLength} characters or less',
+      ];
     }
 
     // General notes validation
-    if (input.notes.length > 2000) {
-      errors['notes'] = ['Notes must be 2000 characters or less'];
+    if (input.notes.length > ValidationRules.notesMaxLength) {
+      errors['notes'] = [
+        'Notes must be ${ValidationRules.notesMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

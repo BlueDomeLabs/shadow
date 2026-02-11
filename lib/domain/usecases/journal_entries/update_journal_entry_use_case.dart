@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/repositories/journal_entry_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
@@ -61,27 +62,39 @@ class UpdateJournalEntryUseCase
   ValidationError? _validate(JournalEntry entry) {
     final errors = <String, List<String>>{};
 
-    // Content validation: 10-50000 characters per ValidationRules.journalContentMinLength
-    if (entry.content.length < 10 || entry.content.length > 50000) {
-      errors['content'] = ['Content must be 10-50000 characters'];
+    // Content validation
+    if (entry.content.length < ValidationRules.journalContentMinLength ||
+        entry.content.length > ValidationRules.journalContentMaxLength) {
+      errors['content'] = [
+        'Content must be ${ValidationRules.journalContentMinLength}-${ValidationRules.journalContentMaxLength} characters',
+      ];
     }
 
-    // Title validation: 1-200 characters if provided
+    // Title validation if provided
     if (entry.title != null &&
-        (entry.title!.isEmpty || entry.title!.length > 200)) {
-      errors['title'] = ['Title must be 1-200 characters'];
+        (entry.title!.isEmpty ||
+            entry.title!.length > ValidationRules.titleMaxLength)) {
+      errors['title'] = [
+        'Title must be 1-${ValidationRules.titleMaxLength} characters',
+      ];
     }
 
-    // Mood validation: 1-10 if provided
-    if (entry.mood != null && (entry.mood! < 1 || entry.mood! > 10)) {
-      errors['mood'] = ['Mood must be between 1 and 10'];
+    // Mood validation if provided
+    if (entry.mood != null &&
+        (entry.mood! < ValidationRules.moodMin ||
+            entry.mood! > ValidationRules.moodMax)) {
+      errors['mood'] = [
+        'Mood must be between ${ValidationRules.moodMin} and ${ValidationRules.moodMax}',
+      ];
     }
 
-    // Tags validation: each tag 1-50 characters
+    // Tags validation
     if (entry.tags != null) {
       for (final tag in entry.tags!) {
-        if (tag.isEmpty || tag.length > 50) {
-          errors['tags'] = ['Each tag must be 1-50 characters'];
+        if (tag.isEmpty || tag.length > ValidationRules.tagMaxLength) {
+          errors['tags'] = [
+            'Each tag must be 1-${ValidationRules.tagMaxLength} characters',
+          ];
           break;
         }
       }

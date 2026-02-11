@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecases.dart';
@@ -501,7 +502,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         label: 'Water Notes',
         hintText: 'e.g., with lemon',
         errorText: _waterNotesError,
-        maxLength: 200,
+        maxLength: ValidationRules.waterIntakeNotesMaxLength,
         textInputAction: TextInputAction.next,
         onChanged: (_) => _validateWaterNotes(),
       ),
@@ -572,7 +573,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     label: 'Custom Condition',
     hintText: 'Describe',
     errorText: _bowelCustomConditionError,
-    maxLength: 100,
+    maxLength: ValidationRules.nameMaxLength,
     textInputAction: TextInputAction.next,
     onChanged: (_) => _validateBowelCustomCondition(),
   );
@@ -672,7 +673,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     label: 'Custom Color',
     hintText: 'Describe',
     errorText: _urineCustomColorError,
-    maxLength: 100,
+    maxLength: ValidationRules.nameMaxLength,
     textInputAction: TextInputAction.next,
     onChanged: (_) => _validateUrineCustomColor(),
   );
@@ -840,7 +841,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         label: 'Fluid Name',
         hintText: 'e.g., Sweat, Mucus',
         errorText: _otherFluidNameError,
-        maxLength: 100,
+        maxLength: ValidationRules.customFluidNameMaxLength,
         textInputAction: TextInputAction.next,
         onChanged: (_) => _validateOtherFluidName(),
       ),
@@ -856,7 +857,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         label: 'Amount',
         hintText: 'e.g., Light, Heavy, 2 tbsp',
         errorText: _otherFluidAmountError,
-        maxLength: 100,
+        maxLength: ValidationRules.otherFluidAmountMaxLength,
         textInputAction: TextInputAction.next,
         onChanged: (_) => _validateOtherFluidAmount(),
       ),
@@ -872,7 +873,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         label: 'Notes',
         hintText: 'Additional details',
         errorText: _otherFluidNotesError,
-        maxLength: 500,
+        maxLength: ValidationRules.otherFluidNotesMaxLength,
         maxLines: 3,
         keyboardType: TextInputType.multiline,
         textInputAction: TextInputAction.newline,
@@ -913,6 +914,10 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   };
 
   // === Formatting Helpers ===
+
+  /// Formats a temperature value, stripping trailing .0 for whole numbers.
+  String _formatTemp(double value) =>
+      value % 1 == 0 ? value.toInt().toString() : value.toString();
 
   String _formatDateTime(DateTime dt) {
     final months = [
@@ -992,8 +997,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   bool _validateWaterNotes() {
     final notes = _waterNotesController.text.trim();
     String? error;
-    if (notes.length > 200) {
-      error = 'Notes must not exceed 200 characters';
+    if (notes.length > ValidationRules.waterIntakeNotesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.waterIntakeNotesMaxLength} characters';
     }
     setState(() => _waterNotesError = error);
     return error == null;
@@ -1008,8 +1014,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     String? error;
     if (text.isEmpty) {
       error = 'Description is required when Custom is selected';
-    } else if (text.length > 100) {
-      error = 'Description must not exceed 100 characters';
+    } else if (text.length > ValidationRules.nameMaxLength) {
+      error =
+          'Description must not exceed ${ValidationRules.nameMaxLength} characters';
     }
     setState(() => _bowelCustomConditionError = error);
     return error == null;
@@ -1024,8 +1031,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     String? error;
     if (text.isEmpty) {
       error = 'Description is required when Custom is selected';
-    } else if (text.length > 100) {
-      error = 'Description must not exceed 100 characters';
+    } else if (text.length > ValidationRules.nameMaxLength) {
+      error =
+          'Description must not exceed ${ValidationRules.nameMaxLength} characters';
     }
     setState(() => _urineCustomColorError = error);
     return error == null;
@@ -1039,14 +1047,18 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       if (value == null) {
         error = 'Please enter a valid temperature';
       } else if (_useMetricBBT) {
-        // Celsius: 35-40.5
-        if (value < 35 || value > 40.5) {
-          error = 'Temperature must be between 35 and 40.5 \u00B0C';
+        // Celsius
+        if (value < ValidationRules.bbtMinCelsius ||
+            value > ValidationRules.bbtMaxCelsius) {
+          error =
+              'Temperature must be between ${_formatTemp(ValidationRules.bbtMinCelsius)} and ${_formatTemp(ValidationRules.bbtMaxCelsius)} \u00B0C';
         }
       } else {
-        // Fahrenheit: 95-105
-        if (value < 95 || value > 105) {
-          error = 'Temperature must be between 95 and 105 \u00B0F';
+        // Fahrenheit
+        if (value < ValidationRules.bbtMinFahrenheit ||
+            value > ValidationRules.bbtMaxFahrenheit) {
+          error =
+              'Temperature must be between ${_formatTemp(ValidationRules.bbtMinFahrenheit)} and ${_formatTemp(ValidationRules.bbtMaxFahrenheit)} \u00B0F';
         }
       }
     }
@@ -1057,8 +1069,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   bool _validateOtherFluidName() {
     final text = _otherFluidNameController.text.trim();
     String? error;
-    if (text.length > 100) {
-      error = 'Name must not exceed 100 characters';
+    if (text.length > ValidationRules.customFluidNameMaxLength) {
+      error =
+          'Name must not exceed ${ValidationRules.customFluidNameMaxLength} characters';
     }
     setState(() => _otherFluidNameError = error);
     return error == null;
@@ -1067,8 +1080,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   bool _validateOtherFluidAmount() {
     final text = _otherFluidAmountController.text.trim();
     String? error;
-    if (text.length > 100) {
-      error = 'Amount must not exceed 100 characters';
+    if (text.length > ValidationRules.otherFluidAmountMaxLength) {
+      error =
+          'Amount must not exceed ${ValidationRules.otherFluidAmountMaxLength} characters';
     }
     setState(() => _otherFluidAmountError = error);
     return error == null;
@@ -1077,8 +1091,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   bool _validateOtherFluidNotes() {
     final text = _otherFluidNotesController.text.trim();
     String? error;
-    if (text.length > 500) {
-      error = 'Notes must not exceed 500 characters';
+    if (text.length > ValidationRules.otherFluidNotesMaxLength) {
+      error =
+          'Notes must not exceed ${ValidationRules.otherFluidNotesMaxLength} characters';
     }
     setState(() => _otherFluidNotesError = error);
     return error == null;

@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/activity.dart';
 import 'package:shadow_app/domain/repositories/activity_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
@@ -58,26 +59,36 @@ class UpdateActivityUseCase implements UseCase<UpdateActivityInput, Activity> {
   ValidationError? _validate(Activity activity) {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-200 characters per ValidationRules.activityNameMaxLength
-    if (activity.name.length < 2 || activity.name.length > 200) {
-      errors['name'] = ['Activity name must be 2-200 characters'];
+    // Name validation
+    if (activity.name.length < ValidationRules.nameMinLength ||
+        activity.name.length > ValidationRules.activityNameMaxLength) {
+      errors['name'] = [
+        'Activity name must be ${ValidationRules.nameMinLength}-${ValidationRules.activityNameMaxLength} characters',
+      ];
     }
 
-    // Duration validation: 1-1440 minutes
-    if (activity.durationMinutes < 1 || activity.durationMinutes > 1440) {
+    // Duration validation
+    if (activity.durationMinutes < ValidationRules.activityDurationMinMinutes ||
+        activity.durationMinutes > ValidationRules.activityDurationMaxMinutes) {
       errors['durationMinutes'] = [
-        'Duration must be between 1 and 1440 minutes',
+        'Duration must be between ${ValidationRules.activityDurationMinMinutes} and ${ValidationRules.activityDurationMaxMinutes} minutes',
       ];
     }
 
     // Description max length
-    if (activity.description != null && activity.description!.length > 500) {
-      errors['description'] = ['Description must be 500 characters or less'];
+    if (activity.description != null &&
+        activity.description!.length > ValidationRules.descriptionMaxLength) {
+      errors['description'] = [
+        'Description must be ${ValidationRules.descriptionMaxLength} characters or less',
+      ];
     }
 
     // Location max length
-    if (activity.location != null && activity.location!.length > 200) {
-      errors['location'] = ['Location must be 200 characters or less'];
+    if (activity.location != null &&
+        activity.location!.length > ValidationRules.locationMaxLength) {
+      errors['location'] = [
+        'Location must be ${ValidationRules.locationMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {

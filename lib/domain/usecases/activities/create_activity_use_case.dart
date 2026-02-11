@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/activity.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/activity_repository.dart';
@@ -58,26 +59,36 @@ class CreateActivityUseCase implements UseCase<CreateActivityInput, Activity> {
   ValidationError? _validate(CreateActivityInput input) {
     final errors = <String, List<String>>{};
 
-    // Name validation: 2-200 characters per ValidationRules.activityNameMaxLength
-    if (input.name.length < 2 || input.name.length > 200) {
-      errors['name'] = ['Activity name must be 2-200 characters'];
+    // Name validation
+    if (input.name.length < ValidationRules.nameMinLength ||
+        input.name.length > ValidationRules.activityNameMaxLength) {
+      errors['name'] = [
+        'Activity name must be ${ValidationRules.nameMinLength}-${ValidationRules.activityNameMaxLength} characters',
+      ];
     }
 
-    // Duration validation: 1-1440 minutes (max 24 hours)
-    if (input.durationMinutes < 1 || input.durationMinutes > 1440) {
+    // Duration validation
+    if (input.durationMinutes < ValidationRules.activityDurationMinMinutes ||
+        input.durationMinutes > ValidationRules.activityDurationMaxMinutes) {
       errors['durationMinutes'] = [
-        'Duration must be between 1 and 1440 minutes',
+        'Duration must be between ${ValidationRules.activityDurationMinMinutes} and ${ValidationRules.activityDurationMaxMinutes} minutes',
       ];
     }
 
     // Description max length
-    if (input.description != null && input.description!.length > 500) {
-      errors['description'] = ['Description must be 500 characters or less'];
+    if (input.description != null &&
+        input.description!.length > ValidationRules.descriptionMaxLength) {
+      errors['description'] = [
+        'Description must be ${ValidationRules.descriptionMaxLength} characters or less',
+      ];
     }
 
     // Location max length
-    if (input.location != null && input.location!.length > 200) {
-      errors['location'] = ['Location must be 200 characters or less'];
+    if (input.location != null &&
+        input.location!.length > ValidationRules.locationMaxLength) {
+      errors['location'] = [
+        'Location must be ${ValidationRules.locationMaxLength} characters or less',
+      ];
     }
 
     if (errors.isNotEmpty) {
