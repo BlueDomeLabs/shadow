@@ -2008,7 +2008,7 @@ abstract class SupplementRepository implements EntityRepository<Supplement, Stri
   Future<Result<List<Supplement>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
 }
 
@@ -2717,7 +2717,7 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
 
     // Bed time validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.bedTime > oneHourFromNow) {
       errors['bedTime'] = ['Bed time cannot be more than 1 hour in the future'];
     }
@@ -2992,7 +2992,7 @@ class LogActivityUseCase implements UseCase<LogActivityInput, ActivityLog> {
 
     // Timestamp validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -3327,7 +3327,7 @@ class LogFoodUseCase implements UseCase<LogFoodInput, FoodLog> {
 
     // Timestamp validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -3479,7 +3479,7 @@ class CreateJournalEntryUseCase implements UseCase<CreateJournalEntryInput, Jour
 
     // Timestamp validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -3734,7 +3734,7 @@ class CreatePhotoEntryUseCase implements UseCase<CreatePhotoEntryInput, PhotoEnt
 
     // Timestamp validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -3870,7 +3870,7 @@ class LogFlareUpUseCase implements UseCase<LogFlareUpInput, FlareUp> {
 
     // Start date validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.startDate > oneHourFromNow) {
       errors['startDate'] = ['Start date cannot be more than 1 hour in the future'];
     }
@@ -3989,7 +3989,7 @@ class SupplementLocalDataSource extends BaseLocalDataSource<Supplement, Suppleme
   Future<Result<List<Supplement>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) async {
     try {
       final searchTerm = '%${query.toLowerCase()}%';
@@ -4258,7 +4258,7 @@ class HealthInsightLocalDataSource extends BaseLocalDataSource<HealthInsight, He
     String profileId, {
     InsightCategory? category,
     int? minPriority,
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -4938,7 +4938,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
     }
 
     // Timestamp not in future (allow 1 hour tolerance)
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = ['Timestamp cannot be more than 1 hour in the future'];
     }
@@ -7820,6 +7820,48 @@ class ValidationRules {
   static const int maxSyncBatchSize = 500;
   static const int maxSyncRetries = 3;
   static const int syncRetryDelaySeconds = 30;
+
+  // ===== UI display constants =====
+  static const int earliestSelectableYear = 2000;
+  static const int journalSnippetMaxLength = 100;
+  static const int defaultPickerMaxTimes = 5;
+  static const int badgeMaxDisplayCount = 99;
+  static const int photoGalleryColumns = 3;
+
+  // ===== Time validation constants =====
+  static const int maxFutureTimestampToleranceMs = 60 * 60 * 1000; // 1 hour
+
+  // ===== Search defaults =====
+  static const int defaultSearchLimit = 20;
+
+  // ===== Meal time detection =====
+  // Per 38_UI_FIELD_SPECIFICATIONS.md Section 5.1
+  static const int breakfastStartHour = 5;
+  static const int breakfastEndHour = 10;
+  static const int lunchStartHour = 11;
+  static const int lunchEndHour = 14;
+  static const int dinnerStartHour = 15;
+  static const int dinnerEndHour = 20;
+
+  // ===== Sleep UI constraints =====
+  static const int timesAwakenedMax = 20;
+
+  // ===== Intake snooze durations =====
+  // Per 38_UI_FIELD_SPECIFICATIONS.md Section 4.2
+  static const List<int> validSnoozeDurationMinutes = [5, 10, 15, 30, 60];
+
+  // ===== Import source validation =====
+  static const List<String> validSleepImportSources = [
+    'healthkit',
+    'googlefit',
+    'apple_watch',
+    'fitbit',
+    'garmin',
+    'manual',
+  ];
+
+  // ===== Tag display =====
+  static const int tagPreviewMaxCount = 3;
 }
 
 // lib/core/validation/validators.dart
@@ -11971,7 +12013,7 @@ class IntakeLog with _$IntakeLog {
     @Default(IntakeLogStatus.pending) IntakeLogStatus status,
     String? reason,                       // Why skipped/missed
     String? note,
-    int? snoozeDurationMinutes,           // 5/10/15/30/60 min when snoozed
+    int? snoozeDurationMinutes,           // See ValidationRules.validSnoozeDurationMinutes
     required SyncMetadata syncMetadata,
   }) = _IntakeLog;
 
@@ -12067,7 +12109,7 @@ abstract class FoodItemRepository implements EntityRepository<FoodItem, String> 
   Future<Result<List<FoodItem>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
   Future<Result<void, AppError>> archive(String id);
 
@@ -12076,7 +12118,7 @@ abstract class FoodItemRepository implements EntityRepository<FoodItem, String> 
     String profileId,
     String query, {
     required List<String> excludeCategories,
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
 }
 ```
@@ -12642,7 +12684,7 @@ abstract class DocumentRepository implements EntityRepository<Document, String> 
   Future<Result<List<Document>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
   Future<Result<List<Document>, AppError>> getPendingUpload();
 }
