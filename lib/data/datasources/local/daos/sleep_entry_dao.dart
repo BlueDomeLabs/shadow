@@ -175,7 +175,7 @@ class SleepEntryDao extends DatabaseAccessor<AppDatabase>
   ) async {
     try {
       // Get entries within the day (date to date + 24 hours)
-      final endOfDay = date + 86400000; // 24 hours in ms
+      final endOfDay = date + Duration.millisecondsPerDay; // 24 hours in ms
       final query = select(sleepEntries)
         ..where(
           (s) =>

@@ -75,7 +75,7 @@ class UpdateSleepEntryUseCase
 
     // Bed time must be in the past or near present
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (entry.bedTime > oneHourFromNow) {
       errors['bedTime'] = ['Bed time cannot be more than 1 hour in the future'];
     }
@@ -87,7 +87,7 @@ class UpdateSleepEntryUseCase
       }
 
       // Wake time should not be more than 24 hours after bed time
-      final maxWakeTime = entry.bedTime + (24 * 60 * 60 * 1000);
+      final maxWakeTime = entry.bedTime + Duration.millisecondsPerDay;
       if (entry.wakeTime! > maxWakeTime) {
         errors['wakeTime'] = ['Sleep duration cannot exceed 24 hours'];
       }

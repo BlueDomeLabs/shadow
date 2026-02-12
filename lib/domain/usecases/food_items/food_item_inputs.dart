@@ -39,7 +39,7 @@ class SearchFoodItemsInput with _$SearchFoodItemsInput {
   const factory SearchFoodItemsInput({
     required String profileId,
     required String query,
-    @Default(20) int limit,
+    @Default(20) int limit, // Value matches ValidationRules.defaultSearchLimit
   }) = _SearchFoodItemsInput;
 }
 

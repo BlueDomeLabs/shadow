@@ -267,7 +267,7 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
     int date, // Start of day epoch ms
   ) async {
     try {
-      final endOfDay = date + (24 * 60 * 60 * 1000) - 1;
+      final endOfDay = date + Duration.millisecondsPerDay - 1;
       final query = select(intakeLogs)
         ..where(
           (i) =>

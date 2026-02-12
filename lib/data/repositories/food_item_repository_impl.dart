@@ -4,6 +4,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/repositories/base_repository.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -91,7 +92,7 @@ class FoodItemRepositoryImpl extends BaseRepository<FoodItem>
   Future<Result<List<FoodItem>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) => _dao.search(profileId, query, limit: limit);
 
   @override
@@ -102,7 +103,7 @@ class FoodItemRepositoryImpl extends BaseRepository<FoodItem>
     String profileId,
     String query, {
     required List<String> excludeCategories,
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) =>
       // TODO: Implement category filtering when FoodItemCategory junction is available
       _dao.search(profileId, query, limit: limit);

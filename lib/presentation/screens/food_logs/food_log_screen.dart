@@ -72,9 +72,18 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
   /// - All other times -> Snack
   static MealType _detectMealType(DateTime dateTime) {
     final hour = dateTime.hour;
-    if (hour >= 5 && hour <= 10) return MealType.breakfast;
-    if (hour >= 11 && hour <= 14) return MealType.lunch;
-    if (hour >= 15 && hour <= 20) return MealType.dinner;
+    if (hour >= ValidationRules.breakfastStartHour &&
+        hour <= ValidationRules.breakfastEndHour) {
+      return MealType.breakfast;
+    }
+    if (hour >= ValidationRules.lunchStartHour &&
+        hour <= ValidationRules.lunchEndHour) {
+      return MealType.lunch;
+    }
+    if (hour >= ValidationRules.dinnerStartHour &&
+        hour <= ValidationRules.dinnerEndHour) {
+      return MealType.dinner;
+    }
     return MealType.snack;
   }
 

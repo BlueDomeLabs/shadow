@@ -180,7 +180,7 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
   ) async {
     try {
       // Get entries within the day (date to date + 24 hours)
-      final endOfDay = date + 86400000; // 24 hours in ms
+      final endOfDay = date + Duration.millisecondsPerDay; // 24 hours in ms
       final query = select(foodLogs)
         ..where(
           (f) =>

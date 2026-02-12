@@ -348,9 +348,10 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
             ),
             Slider(
               value: _severity,
-              min: 1,
-              max: 10,
-              divisions: 9,
+              min: ValidationRules.severityMin.toDouble(),
+              max: ValidationRules.severityMax.toDouble(),
+              divisions:
+                  ValidationRules.severityMax - ValidationRules.severityMin,
               label: '$severityInt - $severityLabel',
               onChanged: (value) {
                 setState(() {

@@ -4,6 +4,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/repositories/base_repository.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -114,7 +115,7 @@ class SupplementRepositoryImpl extends BaseRepository<Supplement>
   Future<Result<List<Supplement>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) => _dao.search(profileId, query, limit: limit);
 
   /// Determines if a supplement is due at the specified time.

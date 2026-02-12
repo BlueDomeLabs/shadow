@@ -71,7 +71,7 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
     'Other',
   ];
 
-  static const _snoozeDurations = [5, 10, 15, 30, 60];
+  static const _snoozeDurations = ValidationRules.validSnoozeDurationMinutes;
 
   @override
   void initState() {

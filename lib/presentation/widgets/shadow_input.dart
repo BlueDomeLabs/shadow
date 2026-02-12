@@ -10,6 +10,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/presentation/widgets/widget_enums.dart';
 
@@ -262,10 +263,10 @@ class _TemperatureInputState extends State<_TemperatureInput> {
   late TextEditingController _controller;
 
   // Temperature ranges
-  static const _minF = 95.0;
-  static const _maxF = 105.0;
-  static const _minC = 35.0;
-  static const _maxC = 40.5;
+  static const _minF = ValidationRules.bbtMinFahrenheit;
+  static const _maxF = ValidationRules.bbtMaxFahrenheit;
+  static const _minC = ValidationRules.bbtMinCelsius;
+  static const _maxC = ValidationRules.bbtMaxCelsius;
 
   @override
   void initState() {

@@ -91,7 +91,7 @@ class LogFlareUpUseCase implements UseCase<LogFlareUpInput, FlareUp> {
 
     // Start date validation (not more than 1 hour in future)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.startDate > oneHourFromNow) {
       errors['startDate'] = [
         'Start date cannot be more than 1 hour in the future',

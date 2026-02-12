@@ -2,6 +2,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/entity_repository.dart';
@@ -26,7 +27,7 @@ abstract class FoodItemRepository
   Future<Result<List<FoodItem>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
 
   /// Archive a food item.
@@ -37,6 +38,6 @@ abstract class FoodItemRepository
     String profileId,
     String query, {
     required List<String> excludeCategories,
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   });
 }

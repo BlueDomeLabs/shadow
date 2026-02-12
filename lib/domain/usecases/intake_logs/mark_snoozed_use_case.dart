@@ -3,6 +3,7 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/repositories/intake_log_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
@@ -23,7 +24,7 @@ class MarkSnoozedUseCase implements UseCase<MarkSnoozedInput, IntakeLog> {
   MarkSnoozedUseCase(this._repository, this._authService);
 
   /// Valid snooze durations in minutes per 38_UI_FIELD_SPECIFICATIONS.md.
-  static const validDurations = [5, 10, 15, 30, 60];
+  static const validDurations = ValidationRules.validSnoozeDurationMinutes;
 
   @override
   Future<Result<IntakeLog, AppError>> call(MarkSnoozedInput input) async {

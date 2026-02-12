@@ -319,10 +319,10 @@ class _JournalEntryEditScreenState
               ],
             ),
             Slider(
-              value: _selectedMood ?? 5,
-              min: 1,
-              max: 10,
-              divisions: 9,
+              value: _selectedMood ?? ValidationRules.moodMin.toDouble(),
+              min: ValidationRules.moodMin.toDouble(),
+              max: ValidationRules.moodMax.toDouble(),
+              divisions: ValidationRules.moodMax - ValidationRules.moodMin,
               label: _selectedMood?.round().toString() ?? '5',
               onChanged: (value) {
                 setState(() {

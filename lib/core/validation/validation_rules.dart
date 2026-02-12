@@ -135,6 +135,41 @@ class ValidationRules {
   static const int badgeMaxDisplayCount = 99;
   static const int photoGalleryColumns = 3;
 
+  // ===== Time validation constants =====
+  static const int maxFutureTimestampToleranceMs = 60 * 60 * 1000; // 1 hour
+
+  // ===== Search defaults =====
+  static const int defaultSearchLimit = 20;
+
+  // ===== Meal time detection =====
+  // Per 38_UI_FIELD_SPECIFICATIONS.md Section 5.1
+  static const int breakfastStartHour = 5;
+  static const int breakfastEndHour = 10;
+  static const int lunchStartHour = 11;
+  static const int lunchEndHour = 14;
+  static const int dinnerStartHour = 15;
+  static const int dinnerEndHour = 20;
+
+  // ===== Sleep UI constraints =====
+  static const int timesAwakenedMax = 20;
+
+  // ===== Intake snooze durations =====
+  // Per 38_UI_FIELD_SPECIFICATIONS.md Section 4.2
+  static const List<int> validSnoozeDurationMinutes = [5, 10, 15, 30, 60];
+
+  // ===== Import source validation =====
+  static const List<String> validSleepImportSources = [
+    'healthkit',
+    'googlefit',
+    'apple_watch',
+    'fitbit',
+    'garmin',
+    'manual',
+  ];
+
+  // ===== Tag display =====
+  static const int tagPreviewMaxCount = 3;
+
   // ===== Validation methods =====
 
   /// Validate entity name with custom field name and max length.

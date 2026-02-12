@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_items_table.dart';
 import 'package:shadow_app/domain/entities/food_item.dart' as domain;
@@ -175,7 +176,7 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
   Future<Result<List<domain.FoodItem>, AppError>> search(
     String profileId,
     String query, {
-    int limit = 20,
+    int limit = ValidationRules.defaultSearchLimit,
   }) async {
     try {
       final searchQuery = select(foodItems)

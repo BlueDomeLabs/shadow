@@ -285,14 +285,16 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
       controller: _timesAwakenedController,
       label: 'Times Awakened',
       hintText: '0',
-      helperText: '0-20',
+      helperText: '0-${ValidationRules.timesAwakenedMax}',
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        _RangeTextInputFormatter(min: 0, max: 20),
+        _RangeTextInputFormatter(min: 0, max: ValidationRules.timesAwakenedMax),
       ],
       onChanged: (value) {
         final parsed = int.tryParse(value);
-        if (parsed != null && parsed >= 0 && parsed <= 20) {
+        if (parsed != null &&
+            parsed >= 0 &&
+            parsed <= ValidationRules.timesAwakenedMax) {
           setState(() => _timesAwakened = parsed);
         }
       },

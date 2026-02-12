@@ -146,7 +146,7 @@ class JournalEntryListScreen extends ConsumerWidget {
                       spacing: 4,
                       runSpacing: 2,
                       children: entry.tags!
-                          .take(3)
+                          .take(ValidationRules.tagPreviewMaxCount)
                           .map(
                             (tag) => Chip(
                               label: Text(tag),

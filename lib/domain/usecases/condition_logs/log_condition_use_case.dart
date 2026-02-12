@@ -99,7 +99,7 @@ class LogConditionUseCase implements UseCase<LogConditionInput, ConditionLog> {
 
     // Future timestamp check (consistent with all other log use cases)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.timestamp > oneHourFromNow) {
       errors['timestamp'] = [
         'Timestamp cannot be more than 1 hour in the future',

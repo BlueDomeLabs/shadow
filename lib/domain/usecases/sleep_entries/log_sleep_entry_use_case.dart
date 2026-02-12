@@ -72,7 +72,7 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
 
     // Bed time must be in the past or near present (allow up to 1 hour in future for timezone issues)
     final now = DateTime.now().millisecondsSinceEpoch;
-    final oneHourFromNow = now + (60 * 60 * 1000);
+    final oneHourFromNow = now + ValidationRules.maxFutureTimestampToleranceMs;
     if (input.bedTime > oneHourFromNow) {
       errors['bedTime'] = ['Bed time cannot be more than 1 hour in the future'];
     }
@@ -84,7 +84,7 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
       }
 
       // Wake time should not be more than 24 hours after bed time
-      final maxWakeTime = input.bedTime + (24 * 60 * 60 * 1000);
+      final maxWakeTime = input.bedTime + Duration.millisecondsPerDay;
       if (input.wakeTime! > maxWakeTime) {
         errors['wakeTime'] = ['Sleep duration cannot exceed 24 hours'];
       }
@@ -127,17 +127,11 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
 
     // Import source validation (if provided)
     if (input.importSource != null && input.importSource!.isNotEmpty) {
-      final validSources = [
-        'healthkit',
-        'googlefit',
-        'apple_watch',
-        'fitbit',
-        'garmin',
-        'manual',
-      ];
-      if (!validSources.contains(input.importSource!.toLowerCase())) {
+      if (!ValidationRules.validSleepImportSources.contains(
+        input.importSource!.toLowerCase(),
+      )) {
         errors['importSource'] = [
-          'Invalid import source. Valid: ${validSources.join(", ")}',
+          'Invalid import source. Valid: ${ValidationRules.validSleepImportSources.join(", ")}',
         ];
       }
     }
