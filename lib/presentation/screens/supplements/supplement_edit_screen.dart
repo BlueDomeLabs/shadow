@@ -505,7 +505,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final dosageAmount = int.parse(_dosageAmountController.text.trim());
+      final dosageAmount =
+          int.tryParse(_dosageAmountController.text.trim()) ??
+          ValidationRules.quantityPerDoseMin;
 
       if (_isEditing) {
         await ref

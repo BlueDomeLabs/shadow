@@ -178,6 +178,7 @@ class SleepEntryListScreen extends ConsumerWidget {
               ),
             ),
             PopupMenuButton<String>(
+              tooltip: 'More options',
               onSelected: (value) =>
                   _handleSleepEntryAction(context, ref, entry, value),
               itemBuilder: (context) => [
@@ -253,7 +254,9 @@ class SleepEntryListScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              error is AppError
+                  ? error.userMessage
+                  : 'Something went wrong. Please try again.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

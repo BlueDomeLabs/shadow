@@ -167,7 +167,9 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
             Text('Failed to load photos', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              error is AppError
+                  ? error.userMessage
+                  : 'Something went wrong. Please try again.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

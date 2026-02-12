@@ -184,6 +184,7 @@ class ConditionListScreen extends ConsumerWidget {
             const SizedBox(width: 8),
             // More options
             PopupMenuButton<String>(
+              tooltip: 'More options',
               onSelected: (value) =>
                   _handleConditionAction(context, ref, condition, value),
               itemBuilder: (context) => [
@@ -261,7 +262,9 @@ class ConditionListScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              error.toString(),
+              error is AppError
+                  ? error.userMessage
+                  : 'Something went wrong. Please try again.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

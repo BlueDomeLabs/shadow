@@ -1152,7 +1152,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       int? waterIntakeMl;
       final waterText = _waterAmountController.text.trim();
       if (waterText.isNotEmpty) {
-        final waterValue = double.parse(waterText);
+        final waterValue = double.tryParse(waterText) ?? 0.0;
         if (_useMetricWater) {
           waterIntakeMl = waterValue.round();
         } else {
@@ -1165,7 +1165,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       int? bbtRecordedTime;
       final bbtText = _bbtController.text.trim();
       if (bbtText.isNotEmpty) {
-        final bbtValue = double.parse(bbtText);
+        final bbtValue = double.tryParse(bbtText) ?? 0.0;
         if (_useMetricBBT) {
           basalBodyTemperature = _celsiusToFahrenheit(bbtValue);
         } else {

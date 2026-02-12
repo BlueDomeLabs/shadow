@@ -346,7 +346,9 @@ class _ActivityEditScreenState extends ConsumerState<ActivityEditScreen> {
                 triggers: _triggersController.text.trim().isNotEmpty
                     ? _triggersController.text.trim()
                     : null,
-                durationMinutes: int.parse(_durationController.text.trim()),
+                durationMinutes:
+                    int.tryParse(_durationController.text.trim()) ??
+                    ValidationRules.activityDurationMinMinutes,
               ),
             );
       } else {
@@ -366,7 +368,9 @@ class _ActivityEditScreenState extends ConsumerState<ActivityEditScreen> {
                 triggers: _triggersController.text.trim().isNotEmpty
                     ? _triggersController.text.trim()
                     : null,
-                durationMinutes: int.parse(_durationController.text.trim()),
+                durationMinutes:
+                    int.tryParse(_durationController.text.trim()) ??
+                    ValidationRules.activityDurationMinMinutes,
               ),
             );
       }
