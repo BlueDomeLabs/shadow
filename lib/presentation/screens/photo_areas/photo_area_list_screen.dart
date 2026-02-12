@@ -39,6 +39,7 @@ class PhotoAreaListScreen extends ConsumerWidget {
       floatingActionButton: Semantics(
         label: 'Add new photo area',
         child: FloatingActionButton(
+          heroTag: 'photo_area_list_fab',
           onPressed: () => _navigateToAddArea(context),
           child: const Icon(Icons.add),
         ),

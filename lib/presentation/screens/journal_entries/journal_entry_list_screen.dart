@@ -40,6 +40,7 @@ class JournalEntryListScreen extends ConsumerWidget {
       floatingActionButton: Semantics(
         label: 'Add new journal entry',
         child: FloatingActionButton(
+          heroTag: 'journal_entry_list_fab',
           onPressed: () => _navigateToAddEntry(context),
           child: const Icon(Icons.add),
         ),
