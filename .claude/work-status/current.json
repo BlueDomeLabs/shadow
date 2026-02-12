@@ -1,14 +1,14 @@
 {
   "lastInstanceId": "hardcoded-values-audit-003",
-  "lastAction": "handoff",
+  "lastAction": "spec-update-complete",
   "taskId": "HARDCODED-VALUES-AUDIT",
   "status": "in_progress",
-  "timestamp": "2026-02-11T01:30:00Z",
+  "timestamp": "2026-02-11T01:45:00Z",
   "filesModified": [
-    ".claude/fix-plans/2026-02-10-spec-update-plan.md",
-    ".claude/fix-plans/2026-02-10-implementation-update-plan.md"
+    "22_API_CONTRACTS.md",
+    ".claude/fix-plans/2026-02-10-spec-update-plan.md"
   ],
   "testsStatus": "passing",
   "complianceStatus": "verified",
-  "notes": "HARDCODED VALUES AUDIT: Reviewed original fix plan against spec docs and Coding Standards. Found 8 CRITICAL issues (spec must be updated BEFORE code). Split into TWO ordered plans. NEXT STEPS (IN ORDER): 1) Execute SPEC UPDATE PLAN at .claude/fix-plans/2026-02-10-spec-update-plan.md — adds missing constants to ValidationRules in 22_API_CONTRACTS.md Section 6 and updates spec code examples to use them. This MUST be done FIRST because Coding Standards Rule 16.1 requires spec examples to follow standards, and Rule 7.2 prohibits hardcoded validation limits. 2) THEN execute IMPLEMENTATION UPDATE PLAN at .claude/fix-plans/2026-02-10-implementation-update-plan.md — fixes all implementation code to EXACTLY match the updated spec (BBT critical bug fix, hardcoded value replacements across ~25 files, code quality fixes across ~35 files, build_runner regeneration). Original converged fix plan at .claude/fix-plans/2026-02-10-hardcoded-values-fix-plan.md is superseded by these two documents. All 1919 tests passing, analyzer clean. Committed plans as separate commit."
+  "notes": "SPEC UPDATE PLAN COMPLETE (ef1a5b9). Added 8 groups of constants to ValidationRules in 22_API_CONTRACTS.md Section 6, updated 14 spec code examples to reference them. NEXT: Execute IMPLEMENTATION UPDATE PLAN at .claude/fix-plans/2026-02-10-implementation-update-plan.md — Phase 1 (BBT bug fix), Phase 2 (hardcoded value replacements ~25 files), Phase 3 (code quality ~35 files), Phase 4 (build_runner + verification). All 1919 tests passing, analyzer clean."
 }
