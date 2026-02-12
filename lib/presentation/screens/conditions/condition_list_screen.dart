@@ -117,6 +117,7 @@ class ConditionListScreen extends ConsumerWidget {
         : '';
 
     return Padding(
+      key: ValueKey(condition.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditCondition(context, condition),

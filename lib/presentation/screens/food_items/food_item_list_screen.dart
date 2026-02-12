@@ -118,6 +118,7 @@ class FoodItemListScreen extends ConsumerWidget {
         : 'Composed';
 
     return Padding(
+      key: ValueKey(foodItem.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditFoodItem(context, foodItem),
@@ -284,7 +285,8 @@ class FoodItemListScreen extends ConsumerWidget {
   };
 
   void _showSearch(BuildContext context) {
-    // TODO: Implement search
+    // TODO: Wire to SearchFoodItemsUseCase with search delegate
+    showAccessibleSnackBar(context: context, message: 'Coming soon');
   }
 
   void _navigateToAddFoodItem(BuildContext context) {

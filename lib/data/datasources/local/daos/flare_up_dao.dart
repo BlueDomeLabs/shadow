@@ -4,6 +4,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
@@ -384,7 +385,10 @@ class FlareUpDao extends DatabaseAccessor<AppDatabase> with _$FlareUpDaoMixin {
     try {
       final decoded = jsonDecode(value) as List<dynamic>;
       return decoded.map((e) => e.toString()).toList();
-    } on Exception {
+    } on Exception catch (e) {
+      debugPrint(
+        'WARNING: Failed to parse JSON in FlareUpDao._parseJsonList: $e',
+      );
       return [];
     }
   }

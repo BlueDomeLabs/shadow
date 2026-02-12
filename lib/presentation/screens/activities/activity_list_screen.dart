@@ -105,6 +105,7 @@ class ActivityListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Padding(
+      key: ValueKey(activity.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditActivity(context, activity),

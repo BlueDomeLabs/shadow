@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/domain/entities/sleep_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/sleep_entries/sleep_entries_usecases.dart';
@@ -118,6 +119,7 @@ class SleepEntryListScreen extends ConsumerWidget {
     final feelingStr = _getWakingFeelingLabel(entry.wakingFeeling);
 
     return Padding(
+      key: ValueKey(entry.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditSleepEntry(context, entry),
@@ -275,30 +277,9 @@ class SleepEntryListScreen extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
+  String _formatDate(DateTime date) => DateFormatters.shortDate(date);
 
-  String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = dateTime.hour < 12 ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
+  String _formatTime(DateTime dateTime) => DateFormatters.dateTime12h(dateTime);
 
   String _formatDuration(int? totalMinutes) {
     if (totalMinutes == null) return 'Duration unknown';

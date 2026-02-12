@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -48,8 +49,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   // Water Intake
   late final TextEditingController _waterAmountController;
   late final TextEditingController _waterNotesController;
-  // SPEC_REVIEW: Spec says Water Unit dropdown with mL/fl oz. Defaulting to fl oz (US default)
-  // since preferences system isn't built yet.
+  // NOTE: Defaults to fl oz (US default) until user preferences system is built.
   bool _useMetricWater = false; // false = fl oz, true = mL
 
   // Bowel Movement
@@ -126,9 +126,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     _urineCondition = entry?.urineCondition;
     _urineCustomColorController = TextEditingController();
     _urineSize = entry?.urineSize ?? MovementSize.medium;
-    // SPEC_REVIEW: Urgency is not stored in FluidsEntry entity. Spec section 6.1
-    // lists Urgency as a Slider (1-5 scale) in Urine section but FluidsEntry has no
-    // urgency field. Implementing UI as spec requires, but value will not be persisted.
+    // NOTE: Urgency UI shown per spec but not persisted — FluidsEntry has no urgency field.
     _urineUrgency = 3;
 
     // Menstruation
@@ -534,10 +532,8 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   );
 
   Widget _buildBowelConditionDropdown(ThemeData theme) => Semantics(
-    // SPEC_REVIEW: Section 18.5 lists accessibility label as "Bristol stool scale, 1 to 7,
-    // required if bowel movement" but Section 6.1 field table defines Condition dropdown with
-    // values Diarrhea/Runny/Loose/Normal/Firm/Hard/Custom (which is BowelCondition enum, not
-    // Bristol 1-7). Implementing per Section 6.1 field table, using Section 18.5 label as-is.
+    // NOTE: Uses BowelCondition enum per Section 6.1 field table; accessibility label
+    // references Bristol scale per Section 18.5 for user familiarity.
     label: 'Bristol stool scale, 1 to 7, required if bowel movement',
     child: ExcludeSemantics(
       child: DropdownButtonFormField<BowelCondition>(
@@ -919,33 +915,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   String _formatTemp(double value) =>
       value % 1 == 0 ? value.toInt().toString() : value.toString();
 
-  String _formatDateTime(DateTime dt) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final period = dt.hour >= 12 ? 'PM' : 'AM';
-    return '${months[dt.month - 1]} ${dt.day}, ${dt.year} $hour:$minute $period';
-  }
+  String _formatDateTime(DateTime dt) => DateFormatters.shortDateTime(dt);
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
+  String _formatTime(TimeOfDay time) => DateFormatters.time12h(time);
 
   // === Conversion Helpers ===
 

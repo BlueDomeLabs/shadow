@@ -117,6 +117,7 @@ class SupplementListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Padding(
+      key: ValueKey(supplement.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditSupplement(context, supplement),
@@ -304,7 +305,6 @@ class SupplementListScreen extends ConsumerWidget {
   };
 
   void _showFilterOptions(BuildContext context) {
-    // TODO: Implement filter dialog
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => const _FilterBottomSheet(),
@@ -312,7 +312,6 @@ class SupplementListScreen extends ConsumerWidget {
   }
 
   void _navigateToAddSupplement(BuildContext context) {
-    // TODO: Navigate to add supplement screen
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (context) => SupplementEditScreen(profileId: profileId),
@@ -347,7 +346,8 @@ class SupplementListScreen extends ConsumerWidget {
   }
 
   void _navigateToLogIntake(BuildContext context, Supplement supplement) {
-    // TODO: Navigate to log intake screen
+    // TODO: Wire to IntakeLogScreen when supplement pre-selection is supported
+    showAccessibleSnackBar(context: context, message: 'Coming soon');
   }
 
   Future<void> _toggleArchive(
@@ -417,7 +417,7 @@ class _FilterBottomSheet extends StatelessWidget {
         children: [
           Text('Filter Supplements', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
-          // TODO: Implement filter options
+          // TODO: Wire filter switches to provider state
           ListTile(
             leading: const Icon(Icons.check_circle),
             title: const Text('Active only'),

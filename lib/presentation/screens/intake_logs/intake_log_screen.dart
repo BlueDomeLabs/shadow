@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/intake_log.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -335,12 +336,7 @@ class _IntakeLogScreenState extends ConsumerState<IntakeLogScreen> {
     ),
   );
 
-  String _formatTimeOfDay(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
+  String _formatTimeOfDay(TimeOfDay time) => DateFormatters.time12h(time);
 
   Future<void> _pickTime() async {
     final picked = await showTimePicker(

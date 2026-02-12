@@ -496,7 +496,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () {
-              // SPEC_REVIEW: Photo infrastructure not built yet. Stub button per task spec.
+              // NOTE: Photo attachment not yet wired — requires image_picker integration.
             },
             icon: const Icon(Icons.photo_camera),
             label: const Text('Add photos'),
@@ -564,9 +564,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
           ? _selectedTriggers.join(',')
           : null;
 
-      // SPEC_REVIEW: Provider only has log() method (create). No update method
-      // exists for editing existing condition logs. Using log() for both modes.
-      // When editing, a new log entry is created with the same conditionId.
+      // NOTE: Provider only has log() (create). Editing creates a new entry with same conditionId.
       await ref
           .read(
             conditionLogListProvider(

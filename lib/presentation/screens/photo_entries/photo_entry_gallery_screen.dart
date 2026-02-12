@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
 import 'package:shadow_app/domain/entities/photo_entry.dart';
@@ -103,9 +104,10 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
   ) {
     final file = File(entry.filePath);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.timestamp);
-    final dateStr = '${date.month}/${date.day}/${date.year}';
+    final dateStr = DateFormatters.numericDate(date);
 
     return Semantics(
+      key: ValueKey(entry.id),
       label: 'Photo from $dateStr',
       child: GestureDetector(
         onTap: () => _viewFullScreen(context, entry),
@@ -497,7 +499,7 @@ class _FullScreenPhotoView extends StatelessWidget {
   Widget build(BuildContext context) {
     final file = File(entry.filePath);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.timestamp);
-    final dateStr = '${date.month}/${date.day}/${date.year}';
+    final dateStr = DateFormatters.numericDate(date);
 
     return Scaffold(
       appBar: AppBar(

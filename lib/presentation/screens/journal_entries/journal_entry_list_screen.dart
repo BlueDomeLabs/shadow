@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/usecases/journal_entries/journal_entries_usecases.dart';
@@ -79,13 +80,14 @@ class JournalEntryListScreen extends ConsumerWidget {
   ) {
     final theme = Theme.of(context);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.timestamp);
-    final dateStr = '${date.month}/${date.day}/${date.year}';
+    final dateStr = DateFormatters.numericDate(date);
     final snippet =
         entry.content.length > ValidationRules.journalSnippetMaxLength
         ? '${entry.content.substring(0, ValidationRules.journalSnippetMaxLength)}...'
         : entry.content;
 
     return Padding(
+      key: ValueKey(entry.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToEditEntry(context, entry),

@@ -10,8 +10,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
+import 'package:shadow_app/presentation/widgets/flow_display.dart';
 import 'package:shadow_app/presentation/widgets/widget_enums.dart';
 
 /// A consolidated picker widget for health data selection.
@@ -463,29 +465,11 @@ class _FlowPicker extends StatelessWidget {
         : Column(children: children);
   }
 
-  Color _getFlowColor(MenstruationFlow flow) => switch (flow) {
-    MenstruationFlow.none => Colors.grey,
-    MenstruationFlow.spotty => Colors.pink.shade200,
-    MenstruationFlow.light => Colors.pink.shade300,
-    MenstruationFlow.medium => Colors.pink.shade400,
-    MenstruationFlow.heavy => Colors.pink.shade600,
-  };
+  Color _getFlowColor(MenstruationFlow flow) => FlowDisplay.color(flow);
 
-  IconData _getFlowIcon(MenstruationFlow flow) => switch (flow) {
-    MenstruationFlow.none => Icons.remove_circle_outline,
-    MenstruationFlow.spotty => Icons.water_drop_outlined,
-    MenstruationFlow.light => Icons.water_drop,
-    MenstruationFlow.medium => Icons.opacity,
-    MenstruationFlow.heavy => Icons.water,
-  };
+  IconData _getFlowIcon(MenstruationFlow flow) => FlowDisplay.icon(flow);
 
-  String _getFlowLabel(MenstruationFlow flow) => switch (flow) {
-    MenstruationFlow.none => 'None',
-    MenstruationFlow.spotty => 'Spotty',
-    MenstruationFlow.light => 'Light',
-    MenstruationFlow.medium => 'Medium',
-    MenstruationFlow.heavy => 'Heavy',
-  };
+  String _getFlowLabel(MenstruationFlow flow) => FlowDisplay.label(flow);
 }
 
 /// Internal weekday picker implementation.
@@ -806,12 +790,7 @@ class _TimePicker extends StatelessWidget {
 
   int _timeToMinutes(TimeOfDay time) => time.hour * 60 + time.minute;
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
+  String _formatTime(TimeOfDay time) => DateFormatters.time12h(time);
 
   Future<void> _showTimePicker(
     BuildContext context, {
@@ -880,23 +859,7 @@ class _DatePicker extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
+  String _formatDate(DateTime date) => DateFormatters.shortDate(date);
 
   Future<void> _showDatePicker(BuildContext context) async {
     final now = DateTime.now();

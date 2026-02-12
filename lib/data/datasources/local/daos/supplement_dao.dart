@@ -4,6 +4,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
@@ -325,7 +326,10 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
             ),
           )
           .toList();
-    } on Exception {
+    } on Exception catch (e) {
+      debugPrint(
+        'WARNING: Failed to parse JSON in SupplementDao._parseIngredients: $e',
+      );
       return [];
     }
   }
@@ -340,7 +344,10 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
             ),
           )
           .toList();
-    } on Exception {
+    } on Exception catch (e) {
+      debugPrint(
+        'WARNING: Failed to parse JSON in SupplementDao._parseSchedules: $e',
+      );
       return [];
     }
   }

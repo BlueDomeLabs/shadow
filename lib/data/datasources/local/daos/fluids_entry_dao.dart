@@ -4,6 +4,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
@@ -353,7 +354,10 @@ class FluidsEntryDao extends DatabaseAccessor<AppDatabase>
     try {
       final list = jsonDecode(json) as List<dynamic>;
       return list.cast<String>();
-    } on Exception {
+    } on Exception catch (e) {
+      debugPrint(
+        'WARNING: Failed to parse JSON in FluidsEntryDao._parsePhotoIds: $e',
+      );
       return [];
     }
   }

@@ -98,6 +98,7 @@ class PhotoAreaListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Padding(
+      key: ValueKey(area.id),
       padding: const EdgeInsets.only(bottom: 8),
       child: ShadowCard.listItem(
         onTap: () => _navigateToGallery(context, area),
