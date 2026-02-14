@@ -1,0 +1,52 @@
+# Shadow - Decision Log
+
+**This document records significant decisions made during development, written in plain language so Reid can understand why things were done a certain way.**
+
+---
+
+## How to Read This
+
+Each entry has:
+- **Date** - when the decision was made
+- **What** - what was decided, in plain language
+- **Why** - the reasoning behind it
+- **Alternatives** - what else was considered
+- **Impact** - what this means for the app or future work
+
+---
+
+## Decisions
+
+### 2026-02-14: Streamlined the instance coordination system
+
+**What:** Reduced the instruction documents for Claude instances from ~3,500 lines across 10 skill files down to ~400 lines across 7 skill files. Deleted 3 skills that weren't working (manager, team, major-audit). Removed all instructions that told instances to spawn sub-agents.
+
+**Why:** Instances were ignoring protocols because there was too much to read. Two skill files explicitly told instances to spawn agents (which caused the inconsistency problems Reid experienced). Simpler instructions are more likely to be followed.
+
+**Alternatives:** Could have kept all skills and just patched the agent references, but the volume of documentation was itself a problem - instances would skip reading it after context compaction.
+
+**Impact:** Future instances get shorter, clearer instructions. The plan checklist is now embedded directly in CLAUDE.md so instances always know what to work on. Agent spawning is prohibited at every level.
+
+---
+
+### 2026-02-14: Used SharedPreferences for profile storage instead of the encrypted database
+
+**What:** The profile management feature (creating profiles, switching between them) stores profile data in a simple local storage system (SharedPreferences) rather than the encrypted database used for health data.
+
+**Why:** Profiles don't contain sensitive health information - they're just names and settings. Using the simpler storage system avoided needing to build the full database integration for profiles (which is complex and requires code generation). The health data itself is still fully encrypted.
+
+**Alternatives:** Could have built the full domain-layer Profile entity with encrypted database storage. This is still planned for later (item 7 on the plan) and would be needed for cloud sync of profiles.
+
+**Impact:** Profile management works now with minimal code. When cloud sync is built, profiles will need to be migrated to the encrypted database so they can sync across devices.
+
+---
+
+### 2026-02-14: Committed working code and deleted broken code from previous instance
+
+**What:** A previous Claude instance had done extensive work (54 files) but never committed any of it and left 6 files in a broken state. We committed the 54 working files and deleted the 6 broken ones.
+
+**Why:** The broken files referenced other files that didn't exist yet, causing errors throughout the project. They were incomplete work from agents that were terminated mid-task.
+
+**Alternatives:** Could have tried to fix the broken files, but they were scaffolding for features not yet needed (Google Drive provider, iCloud provider, domain Profile entity). Better to build them properly when the time comes.
+
+**Impact:** The project is clean and all 1986 tests pass. The features those files were scaffolding for are on the plan as future work items.

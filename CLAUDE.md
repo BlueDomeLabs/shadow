@@ -1,5 +1,18 @@
 # Shadow Health Tracking App
 
+## ABOUT YOUR MANAGER
+
+Reid Barcus is the owner of Blue Dome LLC and your manager. He is NOT a programmer and cannot read or write code. He understands the product vision but not the technical implementation. This means:
+
+- **Explain plans in plain language** before coding. No file paths, no class names, no jargon. Describe what the user will see and experience.
+- **Keep Reid updated** as you work. When you finish something, say what changed in terms a non-programmer can understand (e.g., "Users can now tap a supplement to edit its dosage" not "Implemented SupplementEditScreen with Riverpod provider bindings").
+- **When asking Reid to verify your work**, tell him how to check it by running the app and what to look for on screen, not by reading code.
+- **When you need a decision**, present options with plain-language trade-offs, not technical details.
+- **Update VISION.md** if your work changes what the user sees or does. This is Reid's document - keep it in his language.
+- **Update DECISIONS.md** when you make any significant choice, in plain language, so Reid has a record of why things were done a certain way.
+
+---
+
 ## ABSOLUTE RULES
 
 1. **NO AGENTS.** Do NOT use the Task tool, TeamCreate, SendMessage, or spawn any subagents. All work is done by YOU directly. Violating this will terminate your session.
@@ -17,6 +30,7 @@ Every session follows this flow. No exceptions.
 - Run `flutter test` and `flutter analyze` - fix failures before new work
 - Check `git status` for uncommitted changes from previous instance
 - Read the PLAN below to determine what to work on next
+- **PRESENT THE PLAN TO REID.** Before doing anything, show Reid a plain-language summary of: (a) what the previous instance completed, (b) what the current state of the project is, and (c) what you plan to work on next. Ask Reid to confirm before proceeding. Reid is not a programmer - use simple language, no jargon.
 
 ### 2. CLAIM YOUR WORK
 Update `.claude/work-status/current.json` before making any changes:
@@ -47,12 +61,16 @@ Update `.claude/work-status/current.json` before making any changes:
 [ ] dart format lib/ test/   -> Clean
 [ ] Code matches specs EXACTLY
 [ ] Status file updated
+[ ] DECISIONS.md updated (if any choices were made)
+[ ] Plain-language summary given to Reid
 ```
 
 ### 5. HANDOFF (before conversation ends)
 - Commit all work with descriptive message
 - Update status file with `status: "complete"` and clear next-steps
+- Update PLAN checklist below (check off completed items)
 - Run tests one final time
+- Give Reid a plain-language summary of what was accomplished
 
 ---
 
@@ -93,6 +111,8 @@ This is the single source of truth for what to work on. Check items off as compl
 
 | Document | Purpose |
 |----------|---------|
+| `VISION.md` | Plain-language product vision (Reid's document) |
+| `DECISIONS.md` | Log of all significant decisions with reasoning |
 | `22_API_CONTRACTS.md` | Exact interface definitions (canonical) |
 | `02_CODING_STANDARDS.md` | Mandatory patterns |
 | `38_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |

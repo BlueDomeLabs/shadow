@@ -23,6 +23,9 @@ Run this when your conversation is ending or being compacted.
    }
    ```
 5. **Update PLAN in CLAUDE.md** - check off completed items, note any new items discovered
+6. **Update DECISIONS.md** - if you made any significant choices during this session
+7. **Update VISION.md** - if your work changed what the user sees or experiences
+8. **Give Reid a plain-language summary** of what was accomplished this session
 
 ## Notes Best Practices
 
