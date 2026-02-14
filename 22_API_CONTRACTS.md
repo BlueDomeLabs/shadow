@@ -14564,6 +14564,235 @@ Used in: `NotificationSchedule.weekdays`, `SupplementSchedule.weekdays`, `DietRu
 
 ---
 
+## 16. Cloud Storage Provider Contract
+
+### 16.1 CloudProviderType Enum
+
+```dart
+// lib/data/datasources/remote/cloud_storage_provider.dart
+
+/// Type of cloud storage provider.
+/// Explicit integer values required per Rule 9.1.1.
+enum CloudProviderType {
+  googleDrive(0),
+  icloud(1),
+  offline(2);
+
+  final int value;
+  const CloudProviderType(this.value);
+
+  static CloudProviderType fromValue(int value) => CloudProviderType.values
+      .firstWhere((e) => e.value == value, orElse: () => offline);
+}
+```
+
+### 16.2 SyncChange DTO
+
+```dart
+// lib/data/datasources/remote/cloud_storage_provider.dart
+
+/// Represents a change from the cloud that needs to be applied locally.
+class SyncChange {
+  /// The entity type string (e.g. 'supplements', 'intake_logs').
+  final String entityType;
+
+  /// The entity's unique identifier.
+  final String entityId;
+
+  /// The profile this entity belongs to.
+  final String profileId;
+
+  /// The client/device that last modified this entity.
+  final String clientId;
+
+  /// The serialized entity data as JSON.
+  final Map<String, dynamic> data;
+
+  /// The sync version of this change.
+  final int version;
+
+  /// Epoch milliseconds when this change was made.
+  final int timestamp;
+
+  /// Whether this change represents a deletion.
+  final bool isDeleted;
+
+  const SyncChange({
+    required this.entityType,
+    required this.entityId,
+    required this.profileId,
+    required this.clientId,
+    required this.data,
+    required this.version,
+    required this.timestamp,
+    this.isDeleted = false,
+  });
+}
+```
+
+### 16.3 CloudStorageProvider Interface
+
+```dart
+// lib/data/datasources/remote/cloud_storage_provider.dart
+
+/// Abstract interface for cloud storage providers.
+///
+/// Implementations must handle authentication, file upload/download,
+/// and change tracking for cloud synchronization.
+///
+/// All methods return Result<T, AppError> - never throw exceptions.
+/// Authentication errors use AuthError factory methods.
+/// Sync errors use SyncError factory methods.
+abstract class CloudStorageProvider {
+  /// The type of this cloud provider.
+  CloudProviderType get providerType;
+
+  /// Authenticate with the cloud provider.
+  ///
+  /// Returns [AuthError.signInFailed] on failure.
+  Future<Result<void, AppError>> authenticate();
+
+  /// Sign out from the cloud provider.
+  ///
+  /// Returns [AuthError.signOutFailed] on failure.
+  Future<Result<void, AppError>> signOut();
+
+  /// Check if currently authenticated with the provider.
+  Future<bool> isAuthenticated();
+
+  /// Check if the provider is available on this platform.
+  Future<bool> isAvailable();
+
+  /// Upload an entity to cloud storage.
+  ///
+  /// The [json] data will be encrypted before upload.
+  /// [version] is used for conflict detection.
+  Future<Result<void, AppError>> uploadEntity(
+    String entityType,
+    String entityId,
+    String profileId,
+    String clientId,
+    Map<String, dynamic> json,
+    int version,
+  );
+
+  /// Download an entity from cloud storage.
+  ///
+  /// Returns null if the entity does not exist in the cloud.
+  Future<Result<Map<String, dynamic>?, AppError>> downloadEntity(
+    String entityType,
+    String entityId,
+  );
+
+  /// Get all changes since [sinceTimestamp] (epoch milliseconds).
+  ///
+  /// Returns a list of [SyncChange] objects representing remote modifications.
+  Future<Result<List<SyncChange>, AppError>> getChangesSince(
+    int sinceTimestamp,
+  );
+
+  /// Delete an entity from cloud storage.
+  Future<Result<void, AppError>> deleteEntity(
+    String entityType,
+    String entityId,
+  );
+
+  /// Upload a file (e.g. photo) to cloud storage.
+  Future<Result<void, AppError>> uploadFile(
+    String localPath,
+    String remotePath,
+  );
+
+  /// Download a file from cloud storage.
+  ///
+  /// Returns the local path where the file was saved.
+  Future<Result<String, AppError>> downloadFile(
+    String remotePath,
+    String localPath,
+  );
+}
+```
+
+### 16.4 Google Drive Folder Structure
+
+All data stored in Google Drive follows this structure:
+
+```
+shadow_app/
+  └── data/
+      ├── profiles/
+      │   ├── {uuid}.json          (encrypted)
+      │   └── ...
+      ├── supplements/
+      │   ├── {uuid}.json          (encrypted)
+      │   └── ...
+      ├── conditions/
+      │   └── ...
+      ├── intake_logs/
+      │   └── ...
+      └── ... (one folder per entity type)
+  └── files/
+      └── photos/
+          └── {entityType}/{entityId}/
+              └── {timestamp}_{filename}
+```
+
+Each entity JSON file is an envelope containing:
+
+```json
+{
+  "entityType": "supplements",
+  "entityId": "uuid-string",
+  "version": 3,
+  "deviceId": "device-abc-123",
+  "updatedAt": 1707926400000,
+  "encryptedData": "base64-encoded-AES-256-GCM-ciphertext"
+}
+```
+
+### 16.5 OAuth Error Mapping
+
+OAuth data source exceptions are caught by the provider and mapped to `AuthError`:
+
+| OAuth Exception | Maps To | Recovery |
+|-----------------|---------|----------|
+| User cancelled sign-in | `AuthError.signInFailed("User cancelled")` | none |
+| Invalid credentials | `AuthError.signInFailed("Invalid credentials")` | reAuthenticate |
+| Token expired | `AuthError.tokenExpired()` | refreshToken |
+| Refresh token revoked | `AuthError.tokenRefreshFailed()` | reAuthenticate |
+| Network timeout | `NetworkError.timeout()` | retry |
+| State mismatch (CSRF) | `AuthError.signInFailed("State mismatch")` | reAuthenticate |
+
+### 16.6 OAuth Configuration
+
+See `08_OAUTH_IMPLEMENTATION.md` for:
+- Google Cloud project credentials
+- Platform-specific client IDs and redirect URIs
+- PKCE flow implementation
+- OAuth proxy service for token exchange
+- Token storage key constants
+
+### 16.7 Cloud Sync Tier Order
+
+Entity sync follows dependency order per `02_CODING_STANDARDS.md` Section 9.8:
+
+| Tier | Entities | Must Sync Before |
+|------|----------|-----------------|
+| 1 | user_accounts | Everything |
+| 2 | profiles | All health data |
+| 3 | hipaa_authorizations, device_registrations | - |
+| 4 | supplements, conditions, activities, diets, photo_areas | Their child logs |
+| 5 | food_items | food_logs |
+| 6 | intake_logs, condition_logs, activity_logs, etc. | - |
+| 7 | food_logs | - |
+| 8 | sleep_entries, fluids_entries, journal_entries | - |
+
+### 16.8 Encryption Requirement
+
+All entity data MUST be encrypted with AES-256-GCM before upload per `02_CODING_STANDARDS.md` Section 11.4. The `encryptedData` field in the envelope contains the base64-encoded ciphertext. Encryption keys are stored in platform secure storage (Keychain on iOS/macOS).
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
@@ -14574,3 +14803,4 @@ Used in: `NotificationSchedule.weekdays`, `SupplementSchedule.weekdays`, `DietRu
 | 1.3 | 2026-02-01 | Added complete error factory methods for all error types; added comprehensive notification type documentation with snooze behavior; added Section 12 Behavioral Specifications resolving all ambiguities (Round 7 Audit) |
 | 1.4 | 2026-02-01 | Converted ALL use case inputs to @freezed format; Added Section 13 Entity-Database Alignment Reference; Added Section 14 Test Scenarios for Behavioral Specifications (Complete 100% Audit) |
 | 1.5 | 2026-02-01 | Added Section 15 Edge Cases and Exceptions; Fixed weekday convention (0=Monday); Fixed Diet/DietRule/DeviceRegistration entity-DB alignment; Fixed FluidsEntry entryDate mapping |
+| 1.6 | 2026-02-14 | Added Section 16 Cloud Storage Provider Contract (CloudProviderType, SyncChange, CloudStorageProvider interface, Google Drive folder structure, OAuth error mapping, sync tier order, encryption requirement) |

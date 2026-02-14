@@ -40,6 +40,8 @@ analyzer:
     - "**/*.mocks.dart"
     - "**/generated/**"
     - "lib/l10n/app_localizations*.dart"
+    # Archived reference code - not part of active codebase
+    - "docs/archive/**"
 
 linter:
   rules:

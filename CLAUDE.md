@@ -92,16 +92,42 @@ This is the single source of truth for what to work on. Check items off as compl
 - [x] Cloud sync UI shells (setup + settings screens)
 - [x] Cloud storage provider abstract interface
 - [x] Sample data generator
+- [x] Cloud sync research (reviewed archived code, reported findings to Reid)
 
-### Next Up (Priority Order)
-- [ ] 1. Cloud sync implementation (Google Drive provider, iCloud provider, sync engine)
-- [ ] 2. SupplementEditScreen (full implementation)
-- [ ] 3. ConditionListScreen
-- [ ] 4. FoodListScreen
-- [ ] 5. SleepListScreen
-- [ ] 6. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
-- [ ] 7. Domain-layer Profile entity (freezed, with codegen)
-- [ ] 8. Profile repository + DAO (wire into database)
+### Cloud Sync (4-Phase Plan)
+
+Each phase follows: (a) update & validate specs, (b) implement code, (c) test
+
+**Phase 1: Google Drive Provider (sign in + talk to Google Drive)**
+- [x] 1a. Update and validate spec documents against Coding Standards
+- [ ] 1b. Implement GoogleDriveProvider (authentication, file operations)
+- [ ] 1c. Wire up Cloud Sync Setup screen to real sign-in
+- [ ] 1d. Tests proving spec compliance
+
+**Phase 2: Upload data (push encrypted health data to Google Drive)**
+- [ ] 2a. Update and validate spec documents against Coding Standards
+- [ ] 2b. Implement SyncService upload path (encrypt + push dirty records)
+- [ ] 2c. Tests proving spec compliance
+
+**Phase 3: Download data (pull data from Google Drive)**
+- [ ] 3a. Update and validate spec documents against Coding Standards
+- [ ] 3b. Implement SyncService download path (pull + decrypt + merge)
+- [ ] 3c. Tests proving spec compliance
+
+**Phase 4: Full sync with conflict handling**
+- [ ] 4a. Update and validate spec documents against Coding Standards
+- [ ] 4b. Implement conflict detection, resolution, and bidirectional sync
+- [ ] 4c. Wire up Cloud Sync Settings screen to real status/controls
+- [ ] 4d. Tests proving spec compliance
+
+### After Cloud Sync (Priority Order)
+- [ ] 5. SupplementEditScreen (full implementation)
+- [ ] 6. ConditionListScreen
+- [ ] 7. FoodListScreen
+- [ ] 8. SleepListScreen
+- [ ] 9. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
+- [ ] 10. Domain-layer Profile entity (freezed, with codegen)
+- [ ] 11. Profile repository + DAO (wire into database)
 
 ### Test Count: 1986 passing | Analyzer: clean
 

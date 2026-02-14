@@ -894,8 +894,96 @@ Before deploying OAuth:
 
 ---
 
+## 10. Development Mode: Direct Token Exchange
+
+For local development and testing WITHOUT the OAuth proxy server, the app can exchange tokens directly with Google. This is acceptable because:
+
+1. Desktop apps are considered "public clients" under OAuth 2.0 / RFC 8252
+2. PKCE provides security without requiring a client secret
+3. Google allows direct token exchange for desktop OAuth client types
+
+### 10.1 Direct Exchange Implementation
+
+When the proxy is unavailable (development), exchange tokens directly:
+
+```dart
+/// Exchange authorization code for tokens directly with Google.
+///
+/// Used in development when OAuth proxy is not running.
+/// PKCE code_verifier provides the security guarantee.
+Future<Map<String, dynamic>> exchangeCodeDirectly({
+  required String code,
+  required String codeVerifier,
+  required String redirectUri,
+}) async {
+  final response = await http.post(
+    Uri.parse(GoogleOAuthConfig.tokenUri),
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: {
+      'code': code,
+      'code_verifier': codeVerifier,
+      'redirect_uri': redirectUri,
+      'client_id': GoogleOAuthConfig.clientId,
+      'grant_type': 'authorization_code',
+    },
+  ).timeout(const Duration(seconds: 30));
+
+  if (response.statusCode != 200) {
+    throw OAuthException(
+      message: 'Token exchange failed',
+      errorCode: 'exchange_failed',
+      details: response.body,
+    );
+  }
+
+  return jsonDecode(response.body) as Map<String, dynamic>;
+}
+```
+
+### 10.2 Refresh Token Directly
+
+```dart
+/// Refresh access token directly with Google.
+Future<Map<String, dynamic>> refreshTokenDirectly({
+  required String refreshToken,
+}) async {
+  final response = await http.post(
+    Uri.parse(GoogleOAuthConfig.tokenUri),
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: {
+      'refresh_token': refreshToken,
+      'client_id': GoogleOAuthConfig.clientId,
+      'grant_type': 'refresh_token',
+    },
+  ).timeout(const Duration(seconds: 30));
+
+  if (response.statusCode != 200) {
+    throw OAuthException(
+      message: 'Token refresh failed',
+      errorCode: 'refresh_failed',
+      details: response.body,
+    );
+  }
+
+  return jsonDecode(response.body) as Map<String, dynamic>;
+}
+```
+
+**Note:** For App Store release, the OAuth proxy should be deployed and used. For internal testing, direct exchange is sufficient.
+
+---
+
+## 11. Exception-to-Error Mapping
+
+OAuth data source operations throw `OAuthException` per Coding Standards Section 4 (data sources MAY throw exceptions). The calling code (GoogleDriveProvider) MUST catch these and wrap in `Result<T, AppError>` using the `AuthError` factory methods from `22_API_CONTRACTS.md` Section 2.2.
+
+See `22_API_CONTRACTS.md` Section 16.5 for the complete mapping table.
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-30 | Initial release |
+| 1.1 | 2026-02-14 | Added Section 10 (development mode direct token exchange without proxy), Section 11 (exception-to-error mapping reference) |
