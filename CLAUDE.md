@@ -30,7 +30,7 @@ Every session follows this flow. No exceptions.
 - Run `flutter test` and `flutter analyze` - fix failures before new work
 - Check `git status` for uncommitted changes from previous instance
 - Read the PLAN below to determine what to work on next
-- **PRESENT THE PLAN TO REID.** Before doing anything, show Reid a plain-language summary of: (a) what the previous instance completed, (b) what the current state of the project is, and (c) what you plan to work on next. Ask Reid to confirm before proceeding. Reid is not a programmer - use simple language, no jargon.
+- **PRESENT THE PLAN TO REID.** Before doing anything, show Reid a plain-language summary of: (a) what the previous instance completed, (b) what the current state of the project is, and (c) what you plan to work on next. Ask Reid to confirm before proceeding. Reid is not a programmer - use simple language, no jargon. **Do this at session start AND after context compaction** (compaction makes you lose details - re-read files and re-present the plan).
 
 ### 2. CLAIM YOUR WORK
 Update `.claude/work-status/current.json` before making any changes:

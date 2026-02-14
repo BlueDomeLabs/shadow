@@ -1,7 +1,7 @@
 {
   "status": "in_progress",
-  "task": "Creating communication tools for manager-instance workflow: VISION.md, DECISIONS.md, enhanced pre-commit hooks, plain-language session protocol",
-  "timestamp": "2026-02-14T13:00:00Z",
+  "task": "Setting up mechanical enforcement: agent-blocking hooks, compaction hook, removing agent teams env var",
+  "timestamp": "2026-02-14T14:00:00Z",
   "testsStatus": "passing",
-  "notes": "Created VISION.md (plain-language product description for Reid), DECISIONS.md (decision log), updated CLAUDE.md with manager context and session prompting, enhanced pre-commit hook to enforce status file updates. Session still active - Reid reviewing and providing feedback."
+  "notes": "Added PreToolUse hooks to physically block Task/TeamCreate/SendMessage tools. Added SessionStart compact hook to force re-read of CLAUDE.md and plan presentation after compaction. Removed CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 from global settings. Session still active."
 }

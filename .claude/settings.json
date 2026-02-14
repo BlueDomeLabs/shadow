@@ -1,0 +1,44 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'BLOCKED: Agent spawning is prohibited. You must do all work yourself directly. See CLAUDE.md ABSOLUTE RULES.' >&2 && exit 2"
+          }
+        ]
+      },
+      {
+        "matcher": "TeamCreate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'BLOCKED: Team creation is prohibited. You must do all work yourself directly. See CLAUDE.md ABSOLUTE RULES.' >&2 && exit 2"
+          }
+        ]
+      },
+      {
+        "matcher": "SendMessage",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'BLOCKED: Agent messaging is prohibited. You must do all work yourself directly. See CLAUDE.md ABSOLUTE RULES.' >&2 && exit 2"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '** CONTEXT WAS JUST COMPACTED ** You have lost details from your conversation. You MUST do the following NOW: 1) Re-read CLAUDE.md completely - it contains your instructions and the current plan. 2) Re-read .claude/work-status/current.json for current task state. 3) Present Reid with a plain-language project status update and ask what he wants you to work on. Reid is NOT a programmer. Use simple language - no file paths, no class names, no jargon. 4) Do NOT proceed with any work until Reid confirms. 5) NEVER use the Task tool, TeamCreate, or SendMessage - they are blocked.'"
+          }
+        ]
+      }
+    ]
+  }
+}
