@@ -6,7 +6,7 @@ part of 'fluids_entry_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fluidsEntryListHash() => r'2f109dea8e6c24b6de55701be5e6e94bce4b6a7b';
+String _$fluidsEntryListHash() => r'032cbd6c8dc513889b39e107f9bdfcdaa7d3963b';
 
 /// Copied from Dart SDK
 class _SystemHash {

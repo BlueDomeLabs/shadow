@@ -97,7 +97,8 @@ final class DatabaseError extends AppError {
     StackTrace? stack,
   ]) => DatabaseError._(
     code: codeQueryFailed,
-    message: 'Database query failed: $details',
+    message:
+        'Database query failed: $details${error != null ? ' [$error]' : ''}',
     userMessage: 'Unable to load data. Please try again.',
     originalError: error,
     stackTrace: stack,

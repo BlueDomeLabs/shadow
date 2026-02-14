@@ -54,6 +54,9 @@ dependencies:
   cached_network_image: ^3.3.0
   image_picker: ^1.0.4
 
+  # Local Storage
+  shared_preferences: ^2.2.2
+
   # Notifications
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0

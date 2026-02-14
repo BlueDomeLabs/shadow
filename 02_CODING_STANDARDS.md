@@ -883,7 +883,25 @@ final supplements = ref.watch(supplementListProvider(currentProfileId));
 
 **ProfileId MUST be a required build parameter (never optional). Use Dart's `required` keyword. At compile time, any provider factory call without profileId will fail.**
 
-### 6.6 Provider Rules Summary
+### 6.6 Date-Range Family Provider Keys (MANDATORY)
+
+> **Rule 6.6.1:** Family providers with date-range parameters (e.g., `startDate`, `endDate`) MUST normalize dates to stable day boundaries in the widget's `build()` method. Using `DateTime.now().millisecondsSinceEpoch` directly as a provider key creates a different key on every widget rebuild, causing infinite provider rebuild loops.
+
+```dart
+// CORRECT: Normalize to day boundaries for stable provider key
+final now = DateTime.now();
+final today = DateTime(now.year, now.month, now.day);
+final startDate = today.subtract(const Duration(days: 30)).millisecondsSinceEpoch;
+final endDate = today.add(const Duration(days: 1)).millisecondsSinceEpoch;
+final entriesAsync = ref.watch(entryListProvider(profileId, startDate, endDate));
+
+// INCORRECT: Unstable key causes infinite rebuild loop
+final startDate = DateTime.now().subtract(const Duration(days: 30)).millisecondsSinceEpoch;
+final endDate = DateTime.now().millisecondsSinceEpoch;  // WRONG - changes every rebuild
+final entriesAsync = ref.watch(entryListProvider(profileId, startDate, endDate));
+```
+
+### 6.7 Provider Rules Summary
 
 1. **Use Riverpod**: All providers use `@riverpod` annotation
 2. **Delegate to UseCases**: Never call repositories directly
@@ -892,6 +910,7 @@ final supplements = ref.watch(supplementListProvider(currentProfileId));
 5. **Profile Filtering**: ProfileId is required parameter, not optional
 6. **Invalidate on Mutation**: Call `ref.invalidateSelf()` after successful writes
 7. **Let AsyncValue Handle Loading**: Don't manually track loading state
+8. **Stable Provider Keys**: Date-range family keys MUST use day-normalized boundaries (Rule 6.6.1)
 
 ---
 
@@ -2324,9 +2343,52 @@ All code examples in specification documents MUST follow these coding standards.
 
 ---
 
+## 17. Platform Configuration Standards
+
+### 17.1 macOS Configuration
+
+#### 17.1.1 Code Signing
+
+All Runner build configurations (Debug, Profile, Release) in `macos/Runner.xcodeproj/project.pbxproj` MUST include proper code signing:
+
+```
+DEVELOPMENT_TEAM = <team-id>;
+CODE_SIGN_IDENTITY = "Apple Development";
+```
+
+This is required for `FlutterSecureStorage` Keychain access. Without it, Keychain operations fail with error -34018 (`errSecMissingEntitlement`).
+
+#### 17.1.2 Entitlements
+
+macOS entitlements files (`DebugProfile.entitlements`, `Release.entitlements`) MUST include:
+- `com.apple.security.app-sandbox` — required for App Store
+- `com.apple.security.network.client` — required for network access
+- `com.apple.security.files.user-selected.read-write` — required for file operations
+
+Debug/Profile additionally includes:
+- `com.apple.security.cs.allow-jit` — required for Dart VM debug mode
+- `com.apple.security.network.server` — required for DevTools
+
+#### 17.1.3 FlutterSecureStorage macOS Options
+
+> **Rule 17.1.3:** All `FlutterSecureStorage` instances MUST specify `MacOsOptions(useDataProtectionKeyChain: false)` unless the app has a provisioning profile with Data Protection capability. See `10_DATABASE_SCHEMA.md` Section 1.1.1 for details.
+
+### 17.2 iOS Configuration
+
+- Code signing is managed by Xcode and requires an active Apple Developer account
+- `IOSOptions(accessibility: KeychainAccessibility.first_unlock)` MUST be specified for all `FlutterSecureStorage` instances
+
+### 17.3 Android Configuration
+
+- `AndroidOptions(encryptedSharedPreferences: true)` MUST be specified for all `FlutterSecureStorage` instances
+- This uses Android Keystore-backed EncryptedSharedPreferences
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2 | 2026-02-12 | Added Rule 6.6.1 (date-range provider key normalization), Section 17 (platform configuration standards including macOS code signing, entitlements, FlutterSecureStorage options). |
 | 1.1 | 2026-02-07 | Added Rules 5.0.1 (private constructors on all entities), 5.2.1 (DateTime pre-computation), 9.1.1 (enum int values for all DB enums), 16.1-16.2 (specification document standards). Fixed NotFoundError → DatabaseError.notFound() in method table and code example. |
 | 1.0 | 2026-01-30 | Initial release |

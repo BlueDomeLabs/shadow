@@ -23,6 +23,42 @@ Shadow uses SQLCipher for AES-256 encrypted local storage. The database contains
 // Database file: shadow.db
 ```
 
+#### 1.1.1 Encryption Key Storage Configuration
+
+The database encryption key is stored using `FlutterSecureStorage` with platform-specific options. **All platforms MUST use the following configuration:**
+
+```dart
+const storage = FlutterSecureStorage(
+  aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  mOptions: MacOsOptions(
+    accessibility: KeychainAccessibility.first_unlock,
+    useDataProtectionKeyChain: false,
+  ),
+);
+```
+
+**Key storage name:** `shadow_db_encryption_key`
+
+**Critical: `useDataProtectionKeyChain: false` on macOS**
+
+The `flutter_secure_storage` package defaults `useDataProtectionKeyChain` to `true`, which uses Apple's Data Protection Keychain (`kSecUseDataProtectionKeychain`). This requires a provisioning profile with the Data Protection capability entitlement. Without it, all Keychain operations fail with error -34018 (`errSecMissingEntitlement`), which causes all database operations to fail silently.
+
+Setting `useDataProtectionKeyChain: false` uses the legacy macOS Keychain API, which works without special entitlements and is appropriate for development and non-App Store builds.
+
+> **Note:** For App Store distribution, evaluate whether to enable Data Protection Keychain with proper provisioning profile configuration.
+
+#### 1.1.2 macOS Code Signing Requirements
+
+FlutterSecureStorage requires the app to be properly code-signed. All Runner build configurations (Debug, Profile, Release) in `macos/Runner.xcodeproj/project.pbxproj` MUST include:
+
+```
+DEVELOPMENT_TEAM = <your-team-id>;
+CODE_SIGN_IDENTITY = "Apple Development";
+```
+
+Without code signing, Keychain access may fail even with `useDataProtectionKeyChain: false`.
+
 ### 1.2 Initialization
 
 ```dart

@@ -15,12 +15,28 @@ part 'fluids_entry_list_provider.g.dart';
 class FluidsEntryList extends _$FluidsEntryList {
   static final _log = logger.scope('FluidsEntryList');
 
+  /// Tracks whether the last query failed to prevent infinite retry loops.
+  /// Reset by calling [retry] for an explicit refresh.
+  bool _queryFailed = false;
+  AppError? _lastError;
+
   @override
   Future<List<FluidsEntry>> build(
     String profileId,
     int startDate,
     int endDate,
   ) async {
+    // Prevent auto-dispose from recreating the provider instance on error,
+    // which would reset _queryFailed and cause infinite retry loops.
+    final link = ref.keepAlive();
+
+    // Block automatic retries after a failure to prevent infinite loops.
+    // The provider will stay in error state until retry() is called.
+    if (_queryFailed && _lastError != null) {
+      _log.debug('Blocking automatic retry - call retry() to refresh');
+      throw _lastError!;
+    }
+
     _log.debug('Loading fluids entries for profile: $profileId');
 
     final useCase = ref.read(getFluidsEntriesUseCaseProvider);
@@ -34,14 +50,28 @@ class FluidsEntryList extends _$FluidsEntryList {
 
     return result.when(
       success: (entries) {
+        // Allow normal auto-dispose on success
+        link.close();
+        _queryFailed = false;
+        _lastError = null;
         _log.debug('Loaded ${entries.length} fluids entries');
         return entries;
       },
       failure: (error) {
+        _queryFailed = true;
+        _lastError = error;
         _log.error('Load failed: ${error.message}');
         throw error;
       },
     );
+  }
+
+  /// Explicitly retry after a failure. Resets the error guard and
+  /// invalidates the provider to trigger a fresh database query.
+  void retry() {
+    _queryFailed = false;
+    _lastError = null;
+    ref.invalidateSelf();
   }
 
   /// Logs a new fluids entry.

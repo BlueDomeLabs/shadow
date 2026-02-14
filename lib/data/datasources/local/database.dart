@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -117,7 +118,14 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       // Create all tables for fresh install
-      await m.createAll();
+      try {
+        await m.createAll();
+        debugPrint('[Shadow DB] onCreate: All tables created successfully');
+      } on Exception catch (e, stack) {
+        debugPrint('[Shadow DB] onCreate FAILED: $e');
+        debugPrint('[Shadow DB] Stack trace: $stack');
+        rethrow;
+      }
     },
     onUpgrade: (m, from, to) async {
       // Migrations will be added as schema evolves
@@ -129,8 +137,21 @@ class AppDatabase extends _$AppDatabase {
       // }
     },
     beforeOpen: (details) async {
+      debugPrint(
+        '[Shadow DB] beforeOpen: version=${details.versionNow}, '
+        'wasCreated=${details.wasCreated}, '
+        'hadUpgrade=${details.hadUpgrade}',
+      );
       // Enable foreign key constraints per 10_DATABASE_SCHEMA.md Section 1.2
-      await customStatement('PRAGMA foreign_keys = ON');
+      try {
+        await customStatement('PRAGMA foreign_keys = ON');
+        debugPrint('[Shadow DB] Foreign keys enabled');
+      } on Exception catch (e, stack) {
+        debugPrint('[Shadow DB] PRAGMA foreign_keys FAILED: $e');
+        debugPrint('[Shadow DB] This may indicate SQLCipher key mismatch');
+        debugPrint('[Shadow DB] Stack trace: $stack');
+        rethrow;
+      }
     },
   );
 
@@ -159,6 +180,10 @@ class DatabaseConnection {
   static LazyDatabase openConnection() => LazyDatabase(() async {
     final dbFolder = await _getDatabaseDirectory();
     final file = File(p.join(dbFolder, _databaseName));
+
+    debugPrint('[Shadow DB] Database path: ${file.path}');
+    debugPrint('[Shadow DB] Database file exists: ${file.existsSync()}');
+
     final encryptionKey = await getOrCreateEncryptionKey();
 
     return NativeDatabase.createInBackground(
@@ -236,6 +261,10 @@ class DatabaseConnection {
     const storage = FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true),
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+      mOptions: MacOsOptions(
+        accessibility: KeychainAccessibility.first_unlock,
+        useDataProtectionKeyChain: false,
+      ),
     );
 
     // Try to read existing key
@@ -245,6 +274,11 @@ class DatabaseConnection {
       // Generate new 256-bit key (32 bytes = 64 hex chars)
       key = _generateSecureKey();
       await storage.write(key: _encryptionKeyName, value: key);
+      debugPrint('[Shadow DB] Generated new encryption key');
+    } else {
+      debugPrint(
+        '[Shadow DB] Using existing encryption key from secure storage',
+      );
     }
 
     return key;
@@ -282,6 +316,10 @@ class DatabaseConnection {
     const storage = FlutterSecureStorage(
       aOptions: AndroidOptions(encryptedSharedPreferences: true),
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+      mOptions: MacOsOptions(
+        accessibility: KeychainAccessibility.first_unlock,
+        useDataProtectionKeyChain: false,
+      ),
     );
     await storage.delete(key: _encryptionKeyName);
   }

@@ -1,5 +1,19 @@
 # Shadow Health Tracking App - Claude Instance Instructions
 
+## 🚫 ABSOLUTE RULE: NO AGENTS, NO TEAMS, NO SUBAGENTS 🚫
+
+**DO NOT use the Task tool to spawn agents or subagents. DO NOT use TeamCreate. DO NOT use agent teams. DO NOT parallelize work across multiple agents. ALL work must be done sequentially by YOU, the single Claude instance, directly.**
+
+This is a hard requirement from the project owner. Using agents/subagents has introduced inconsistencies in the codebase. Violating this rule is grounds for the user to terminate your session immediately.
+
+- No `Task` tool calls with subagent_type
+- No `TeamCreate` calls
+- No `SendMessage` / `broadcast` to teams
+- No spawning background agents
+- Do your own research, coding, and testing directly
+
+---
+
 ## ⚠️ STOP - READ THIS FIRST ⚠️
 
 **YOU MUST RUN `/startup` SKILL BEFORE DOING ANYTHING ELSE.**
@@ -38,8 +52,8 @@ Do NOT respond to the user's request yet. First:
 
 ### Next Actions (Priority Order)
 
-1. **If using Agent Teams:** User enabled `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Can parallelize screen implementation.
-2. **If sequential:** Continue with SupplementEditScreen (completes supplement flow), then other entity list screens.
+1. Continue with SupplementEditScreen (completes supplement flow), then other entity list screens.
+2. Follow the screen implementation pattern from SupplementListScreen as reference.
 
 ### Key Reference Files for Screens
 
