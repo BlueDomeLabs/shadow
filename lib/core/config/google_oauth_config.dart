@@ -1,0 +1,131 @@
+// lib/core/config/google_oauth_config.dart
+// Google OAuth 2.0 configuration for Shadow app.
+// Implements 08_OAUTH_IMPLEMENTATION.md Section 4.
+
+import 'package:shadow_app/core/services/logger_service.dart';
+
+/// Google OAuth 2.0 configuration for Shadow app.
+///
+/// Loads credentials from environment variables (--dart-define or .env).
+/// Validates configuration on app startup.
+class GoogleOAuthConfig {
+  GoogleOAuthConfig._();
+
+  static final _log = logger.scope('GoogleOAuthConfig');
+
+  // ============ OAuth Endpoints ============
+
+  /// Google OAuth 2.0 authorization endpoint.
+  static const String authUri = 'https://accounts.google.com/o/oauth2/auth';
+
+  /// Google OAuth 2.0 token endpoint.
+  static const String tokenUri = 'https://oauth2.googleapis.com/token';
+
+  /// Google user info endpoint.
+  static const String userInfoUri =
+      'https://www.googleapis.com/oauth2/v2/userinfo';
+
+  // ============ Client Configuration ============
+
+  /// OAuth client ID from environment.
+  ///
+  /// Set via: --dart-define=GOOGLE_OAUTH_CLIENT_ID=...
+  /// Or: GOOGLE_OAUTH_CLIENT_ID in .env file
+  static String get clientId {
+    const fromEnvironment = String.fromEnvironment('GOOGLE_OAUTH_CLIENT_ID');
+
+    if (fromEnvironment.isNotEmpty) {
+      return fromEnvironment;
+    }
+
+    // In production, this is a fatal error
+    const isProduction = bool.fromEnvironment('dart.vm.product');
+    if (isProduction) {
+      throw StateError(
+        'GOOGLE_OAUTH_CLIENT_ID environment variable not set. '
+        'Pass via --dart-define=GOOGLE_OAUTH_CLIENT_ID=your-client-id',
+      );
+    }
+
+    // Development fallback - use default client ID
+    _log.warning('Using default development OAuth client ID');
+    return '656246118580-nvu5ckn9l7vst8hmj8no3t7cb10egui3'
+        '.apps.googleusercontent.com';
+  }
+
+  /// OAuth redirect URI from environment.
+  static String get redirectUri {
+    const fromEnvironment = String.fromEnvironment('OAUTH_REDIRECT_URI');
+
+    if (fromEnvironment.isNotEmpty) {
+      // SECURITY: Validate HTTPS in production
+      const isProduction = bool.fromEnvironment('dart.vm.product');
+      if (isProduction &&
+          !fromEnvironment.startsWith('https://') &&
+          !fromEnvironment.startsWith('com.')) {
+        throw StateError(
+          'OAUTH_REDIRECT_URI must use HTTPS or custom scheme in production.',
+        );
+      }
+      return fromEnvironment;
+    }
+
+    // Development default: localhost loopback
+    return 'http://localhost:8080';
+  }
+
+  // ============ Scopes ============
+
+  /// OAuth scopes requested.
+  ///
+  /// - drive.file: Access only app-created files (HIPAA compliant)
+  /// - email: User identification
+  /// - profile: Display name and photo
+  static const List<String> scopes = [
+    'https://www.googleapis.com/auth/drive.file',
+    'email',
+    'profile',
+  ];
+
+  // ============ Validation ============
+
+  /// Validates OAuth configuration on startup.
+  ///
+  /// Call this in main() before using OAuth:
+  /// ```dart
+  /// void main() {
+  ///   GoogleOAuthConfig.validate();
+  ///   runApp(MyApp());
+  /// }
+  /// ```
+  static void validate() {
+    _log.info('Validating OAuth configuration...');
+
+    // Validate client ID format
+    final id = clientId;
+    assert(
+      id.isNotEmpty && id.contains('.apps.googleusercontent.com'),
+      'Invalid OAuth clientId: must end in .apps.googleusercontent.com',
+    );
+
+    // Validate endpoints are HTTPS
+    assert(authUri.startsWith('https://'), 'authUri must be HTTPS');
+    assert(tokenUri.startsWith('https://'), 'tokenUri must be HTTPS');
+
+    // Validate redirect URI format
+    final redirect = redirectUri;
+    assert(redirect.isNotEmpty, 'redirectUri cannot be empty');
+
+    // Validate scopes include Drive
+    assert(
+      scopes.any((s) => s.contains('drive')),
+      'scopes must include a Google Drive scope',
+    );
+
+    _log
+      ..info('OAuth configuration valid')
+      ..debug('  Client ID: ${id.substring(0, 20)}...')
+      ..debug('  Redirect URI: $redirect')
+      ..debug('  Scopes: ${scopes.join(", ")}');
+  }
+}

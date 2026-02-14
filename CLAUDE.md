@@ -100,7 +100,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 
 **Phase 1: Google Drive Provider (sign in + talk to Google Drive)**
 - [x] 1a. Update and validate spec documents against Coding Standards
-- [ ] 1b. Implement GoogleDriveProvider (authentication, file operations)
+- [x] 1b. Implement GoogleDriveProvider (authentication, file operations)
 - [ ] 1c. Wire up Cloud Sync Setup screen to real sign-in
 - [ ] 1d. Tests proving spec compliance
 
