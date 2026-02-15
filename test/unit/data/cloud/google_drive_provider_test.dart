@@ -48,6 +48,35 @@ void main() {
       });
     });
 
+    group('userEmail', () {
+      test('returns null when not authenticated', () {
+        expect(provider.userEmail, isNull);
+      });
+
+      test('returns email after session restore', () async {
+        when(
+          mockStorage.read(key: SecureStorageKeys.googleDriveAccessToken),
+        ).thenAnswer((_) async => 'access_token_value');
+        when(
+          mockStorage.read(key: SecureStorageKeys.googleDriveRefreshToken),
+        ).thenAnswer((_) async => 'refresh_token_value');
+        when(
+          mockStorage.read(key: SecureStorageKeys.googleDriveTokenExpiry),
+        ).thenAnswer(
+          (_) async =>
+              DateTime.now().add(const Duration(hours: 1)).toIso8601String(),
+        );
+        when(
+          mockStorage.read(key: SecureStorageKeys.googleDriveUserEmail),
+        ).thenAnswer((_) async => 'test@example.com');
+
+        // Trigger session restore
+        await provider.isAuthenticated();
+
+        expect(provider.userEmail, 'test@example.com');
+      });
+    });
+
     group('isAuthenticated', () {
       test('returns false when no stored tokens', () async {
         when(

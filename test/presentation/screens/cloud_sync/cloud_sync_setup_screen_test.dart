@@ -1,12 +1,24 @@
 // test/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
 
 void main() {
   group('CloudSyncSetupScreen', () {
-    Widget buildScreen() => const MaterialApp(home: CloudSyncSetupScreen());
+    Widget buildScreen({
+      CloudSyncAuthState authState = const CloudSyncAuthState(),
+    }) => ProviderScope(
+      overrides: [
+        cloudSyncAuthProvider.overrideWith(
+          (ref) => _FakeCloudSyncAuthNotifier(authState),
+        ),
+      ],
+      child: const MaterialApp(home: CloudSyncSetupScreen()),
+    );
 
     testWidgets('renders app bar title', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -52,7 +64,7 @@ void main() {
       expect(find.text('Maybe Later'), findsOneWidget);
     });
 
-    testWidgets('Google Drive button shows Coming Soon dialog', (tester) async {
+    testWidgets('Google Drive button triggers sign-in', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -63,10 +75,9 @@ void main() {
         scrollable: find.byType(Scrollable).first,
       );
 
-      await tester.tap(find.text('Google Drive'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Coming Soon'), findsOneWidget);
+      // Google Drive button now triggers sign-in (not "Coming Soon")
+      expect(find.text('Google Drive'), findsOneWidget);
+      expect(find.text('Use your Google account for sync'), findsOneWidget);
     });
 
     testWidgets('Local Only button exists', (tester) async {
@@ -83,4 +94,20 @@ void main() {
       expect(find.text('Local Only'), findsOneWidget);
     });
   });
+}
+
+/// Fake notifier that holds a static state (does not call GoogleDriveProvider).
+class _FakeCloudSyncAuthNotifier extends CloudSyncAuthNotifier {
+  _FakeCloudSyncAuthNotifier(CloudSyncAuthState initialState)
+    : super(_FakeGoogleDriveProvider()) {
+    state = initialState;
+  }
+}
+
+/// Minimal fake GoogleDriveProvider for testing.
+class _FakeGoogleDriveProvider extends GoogleDriveProvider {
+  _FakeGoogleDriveProvider() : super();
+
+  @override
+  Future<bool> isAuthenticated() async => false;
 }

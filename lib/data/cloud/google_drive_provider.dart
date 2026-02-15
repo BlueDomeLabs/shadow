@@ -83,6 +83,12 @@ class GoogleDriveProvider implements CloudStorageProvider {
   @override
   CloudProviderType get providerType => CloudProviderType.googleDrive;
 
+  /// The signed-in user's email address, or null if not authenticated.
+  ///
+  /// For macOS: retrieved from the user info endpoint during OAuth flow.
+  /// For iOS: retrieved from the GoogleSignInAccount.
+  String? get userEmail => _userEmail ?? _currentUser?.email;
+
   // ==========================================================================
   // Authentication
   // ==========================================================================
