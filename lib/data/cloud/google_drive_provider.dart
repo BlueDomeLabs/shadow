@@ -203,6 +203,10 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       _log.info('Uploaded entity: $entityType/$entityId (v$version)');
       return const Success(null);
+    } on OAuthException catch (e, stack) {
+      // Section 16.5: Token refresh failure → AuthError
+      _log.error('Auth error during upload: $entityType/$entityId', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on Exception catch (e, stack) {
       _log.error('Failed to upload entity: $entityType/$entityId', e, stack);
       return Failure(SyncError.uploadFailed(entityType, entityId, e, stack));
@@ -238,6 +242,10 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       final data = jsonDecode(encryptedData) as Map<String, dynamic>;
       return Success(data);
+    } on OAuthException catch (e, stack) {
+      // Section 16.5: Token refresh failure → AuthError
+      _log.error('Auth error during download: $entityType/$entityId', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on FormatException catch (e, stack) {
       _log.error('Corrupted entity data: $entityType/$entityId', e, stack);
       return Failure(
@@ -316,6 +324,9 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       _log.info('Found ${changes.length} changes since $sinceTimestamp');
       return Success(changes);
+    } on OAuthException catch (e, stack) {
+      _log.error('Auth error during getChangesSince', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on Exception catch (e, stack) {
       _log.error('Failed to get changes', e, stack);
       return Failure(SyncError.downloadFailed('changes', e, stack));
@@ -335,6 +346,9 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       _log.info('Deleted entity: $entityType/$entityId');
       return const Success(null);
+    } on OAuthException catch (e, stack) {
+      _log.error('Auth error during delete: $entityType/$entityId', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on Exception catch (e, stack) {
       _log.error('Failed to delete entity: $entityType/$entityId', e, stack);
       return Failure(SyncError.uploadFailed(entityType, entityId, e, stack));
@@ -369,6 +383,9 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       _log.info('Uploaded file: $remotePath');
       return const Success(null);
+    } on OAuthException catch (e, stack) {
+      _log.error('Auth error during file upload: $remotePath', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on Exception catch (e, stack) {
       _log.error('Failed to upload file: $remotePath', e, stack);
       return Failure(SyncError.uploadFailed('file', remotePath, e, stack));
@@ -388,6 +405,9 @@ class GoogleDriveProvider implements CloudStorageProvider {
 
       _log.info('Downloaded file: $remotePath');
       return Success(localPath);
+    } on OAuthException catch (e, stack) {
+      _log.error('Auth error during file download: $remotePath', e, stack);
+      return Failure(AuthError.tokenRefreshFailed(e, stack));
     } on Exception catch (e, stack) {
       _log.error('Failed to download file: $remotePath', e, stack);
       return Failure(SyncError.downloadFailed('file', e, stack));
@@ -605,6 +625,12 @@ class GoogleDriveProvider implements CloudStorageProvider {
       _secureStorage.delete(key: SecureStorageKeys.googleDriveTokenExpiry),
       _secureStorage.delete(key: SecureStorageKeys.googleDriveUserEmail),
     ]);
+
+    // VERIFY clearance per Coding Standards Section 11.3
+    final accessToken = await _secureStorage.read(
+      key: SecureStorageKeys.googleDriveAccessToken,
+    );
+    assert(accessToken == null, 'Token clearance failed');
 
     _log.debug('All tokens and resources cleared');
   }

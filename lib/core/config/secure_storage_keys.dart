@@ -28,4 +28,7 @@ class SecureStorageKeys {
 
   /// Authenticated user's email address.
   static const String googleDriveUserEmail = 'google_drive_user_email';
+
+  /// Legacy key (for migration from older versions).
+  static const String googleDriveLegacyTokens = 'google_drive_macos_tokens';
 }

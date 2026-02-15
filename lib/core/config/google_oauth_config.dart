@@ -74,6 +74,22 @@ class GoogleOAuthConfig {
     return 'http://localhost:8080';
   }
 
+  /// OAuth proxy base URL (for token exchange).
+  ///
+  /// Per 08_OAUTH_IMPLEMENTATION.md Section 6: the proxy holds the
+  /// client_secret server-side. In development, direct exchange is used
+  /// instead (Section 10), but the config still provides this value.
+  static String get proxyBaseUrl {
+    const fromEnvironment = String.fromEnvironment('OAUTH_PROXY_BASE_URL');
+
+    if (fromEnvironment.isNotEmpty) {
+      return fromEnvironment;
+    }
+
+    // Development default
+    return 'http://localhost:5000';
+  }
+
   // ============ Scopes ============
 
   /// OAuth scopes requested.

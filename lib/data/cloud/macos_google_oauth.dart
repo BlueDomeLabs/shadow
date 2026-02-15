@@ -81,7 +81,9 @@ class MacOSGoogleOAuth {
       },
     );
 
-    _log.info('Starting OAuth flow...');
+    _log
+      ..info('Starting OAuth flow...')
+      ..debug('Auth URL: ${authUrl.toString().substring(0, 100)}...');
 
     // Step 4: Start local server to receive callback
     final server = await HttpServer.bind('localhost', _callbackPort);
