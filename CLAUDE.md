@@ -100,9 +100,9 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 
 **Phase 1: Google Drive Provider (sign in + talk to Google Drive)**
 - [x] 1a. Update and validate spec documents against Coding Standards
-- [x] 1b. Implement GoogleDriveProvider (authentication, file operations)
+- [x] 1b. Implement GoogleDriveProvider (authentication, file operations) + 86 unit tests
 - [ ] 1c. Wire up Cloud Sync Setup screen to real sign-in
-- [ ] 1d. Tests proving spec compliance
+- [ ] 1d. Guided integration test with Reid (factory-reset, step-by-step sign-in, log verification)
 
 **Phase 2: Upload data (push encrypted health data to Google Drive)**
 - [ ] 2a. Update and validate spec documents against Coding Standards
