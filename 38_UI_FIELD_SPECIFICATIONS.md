@@ -428,7 +428,74 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 | Volume | Segment | Yes | mL, L / fl oz, gal | Based on system | - | - |
 | Weight | Segment | Yes | g, kg / oz, lb | Based on system | - | - |
 
-### 13.2 Cloud Sync Settings Screen
+### 13.2 Cloud Sync Setup Screen
+
+First-time cloud sync onboarding wizard. This screen has three visual states based on `CloudSyncAuthState` (see `22_API_CONTRACTS.md` Section 16.10).
+
+**Screen route**: `CloudSyncSetupScreen` (`lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart`)
+
+**App bar title**: "Set Up Cloud Sync"
+
+**Semantics**: Screen wrapped in `Semantics(label: 'Cloud sync setup screen')`. Skip button has `Semantics(label: 'Skip cloud sync setup')`.
+
+#### 13.2.1 Initial State (Not Authenticated, Not Loading)
+
+| Element | Type | Content | Behavior |
+|---------|------|---------|----------|
+| Header Icon | Icon | `Icons.cloud_sync` (80px, primary color) | Circular container with `primaryContainer` background |
+| Title | Heading | "Back Up and Sync Your Data" | `headlineMedium`, bold |
+| Subtitle | Body Text | "Keep your health data safe and accessible across devices." | `bodyLarge`, grey |
+| Benefit: Backup | Row | `Icons.backup` + "Automatic Backup" + "Never lose your data — automatic cloud backup" | Icon in rounded container |
+| Benefit: Sync | Row | `Icons.sync` + "Multi-Device Sync" + "Access your data from any device" | Icon in rounded container |
+| Benefit: Security | Row | `Icons.security` + "Secure & Private" + "End-to-end encrypted for your privacy" | Icon in rounded container |
+| Google Drive Button | Card/InkWell | `Icons.cloud_circle` + "Google Drive" + "Use your Google account for sync" + chevron | Tapping calls `signInWithGoogle()` |
+| iCloud Button | Card/InkWell | `Icons.cloud` + "iCloud" + "Use your Apple account for sync" + chevron | Only shown on iOS/macOS. Shows "Coming Soon" dialog |
+| Local Only Button | Card/InkWell | `Icons.smartphone` + "Local Only" + "Store all data on this device only" + chevron | Tapping calls `Navigator.pop(context)` |
+| Maybe Later | TextButton | "Maybe Later" | Tapping calls `Navigator.pop(context)` |
+
+#### 13.2.2 Loading State (isLoading = true)
+
+When the user taps Google Drive and sign-in is in progress:
+
+| Element | Change from Initial State |
+|---------|--------------------------|
+| Google Drive Icon | Replaced with `CircularProgressIndicator` (32x32, strokeWidth 3) |
+| Google Drive Title | Changes to "Signing in..." |
+| Google Drive Subtitle | Changes to "Complete sign-in in your browser" |
+| Chevron Icon | Hidden (not shown while loading) |
+| Google Drive InkWell | `onTap` set to `null` (disabled) |
+
+All other elements (benefits, Local Only, Maybe Later) remain visible.
+
+#### 13.2.3 Authenticated State (isAuthenticated = true)
+
+When sign-in completes successfully, the entire screen changes:
+
+| Element | Type | Content | Behavior |
+|---------|------|---------|----------|
+| Header Icon | Icon | `Icons.cloud_done` (80px, green) | Circular container with green background |
+| Title | Heading | "Cloud Sync Connected" | Replaces initial title |
+| Subtitle | Body Text | "Signed in as {userEmail}" (or "Signed in as unknown" if email is null) | Shows user identity |
+| Info Card | Card | `Icons.check_circle` (green) + "Google Drive" + user email (or "Connected") | Confirmation of provider and account |
+| Done Button | ElevatedButton | "Done" | Full-width, primary color, calls `Navigator.pop(context)` |
+| Sign Out Button | TextButton | "Sign Out" | Grey text, calls `signOut()`. Disabled while isLoading |
+
+**Hidden in authenticated state**: Benefits list, Google Drive sign-in button, iCloud button, Local Only button, Maybe Later button.
+
+#### 13.2.4 Error State (errorMessage != null)
+
+An error banner appears above the provider buttons (or above the signed-in section if also authenticated):
+
+| Element | Type | Content | Behavior |
+|---------|------|---------|----------|
+| Error Banner | Container | Red background with red border | `Semantics(liveRegion: true, label: 'Error: {message}')` |
+| Error Icon | Icon | `Icons.error_outline` (red, 20px) | Left side of banner |
+| Error Text | Text | The error message string | Red, 14px, expands to fill |
+| Dismiss Button | IconButton | `Icons.close` (18px) | Calls `clearError()`, tooltip "Dismiss error" |
+
+If the user is not authenticated, the provider buttons (Google Drive, Local Only, etc.) remain visible below the error banner so they can try again.
+
+### 13.3 Cloud Sync Settings Screen
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
@@ -438,7 +505,7 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 | Last Sync | Display | - | - | - | - | - |
 | Sync Now | Button | - | - | - | - | - |
 
-### 13.3 Security Settings Screen
+### 13.4 Security Settings Screen
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
@@ -983,3 +1050,4 @@ Focus traversal must follow logical reading order. Use `FocusTraversalGroup` wit
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-31 | Initial release - complete UI field specifications |
+| 1.1 | 2026-02-14 | Added Section 13.2 Cloud Sync Setup Screen (initial, loading, authenticated, error states); renumbered 13.3→13.4 |

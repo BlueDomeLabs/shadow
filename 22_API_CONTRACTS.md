@@ -14791,6 +14791,235 @@ Entity sync follows dependency order per `02_CODING_STANDARDS.md` Section 9.8:
 
 All entity data MUST be encrypted with AES-256-GCM before upload per `02_CODING_STANDARDS.md` Section 11.4. The `encryptedData` field in the envelope contains the base64-encoded ciphertext. Encryption keys are stored in platform secure storage (Keychain on iOS/macOS).
 
+### 16.9 GoogleDriveProvider userEmail Getter
+
+The `GoogleDriveProvider` exposes the signed-in user's email for display in the UI:
+
+```dart
+// lib/data/cloud/google_drive_provider.dart (addition to class)
+
+/// The signed-in user's email address, or null if not authenticated.
+///
+/// For macOS: retrieved from the user info endpoint during OAuth flow.
+/// For iOS: retrieved from the GoogleSignInAccount.
+String? get userEmail => _userEmail ?? _currentUser?.email;
+```
+
+This getter is read by `CloudSyncAuthNotifier` after successful authentication to populate the UI with the user's identity.
+
+### 16.10 CloudSyncAuthState
+
+Authentication state for the Cloud Sync Setup screen. This is a lightweight state class used during Phase 1 before the full `AuthState` (Section 7.2.7) is implemented with domain-layer use cases.
+
+```dart
+// lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart
+
+/// Authentication state for cloud sync.
+class CloudSyncAuthState {
+  /// Whether a sign-in or sign-out operation is in progress.
+  final bool isLoading;
+
+  /// Whether the user is currently authenticated.
+  final bool isAuthenticated;
+
+  /// The authenticated user's email address.
+  final String? userEmail;
+
+  /// The active cloud provider type.
+  final CloudProviderType? activeProvider;
+
+  /// User-facing error message from the last operation.
+  final String? errorMessage;
+
+  const CloudSyncAuthState({
+    this.isLoading = false,
+    this.isAuthenticated = false,
+    this.userEmail,
+    this.activeProvider,
+    this.errorMessage,
+  });
+
+  /// Creates a copy with the given fields replaced.
+  ///
+  /// Use clear* flags to explicitly set nullable fields to null:
+  /// - clearUserEmail: sets userEmail to null
+  /// - clearActiveProvider: sets activeProvider to null
+  /// - clearErrorMessage: sets errorMessage to null
+  ///
+  /// If both a new value and a clear flag are provided for the same field,
+  /// the new value wins.
+  CloudSyncAuthState copyWith({
+    bool? isLoading,
+    bool? isAuthenticated,
+    String? userEmail,
+    CloudProviderType? activeProvider,
+    String? errorMessage,
+    bool clearUserEmail = false,
+    bool clearActiveProvider = false,
+    bool clearErrorMessage = false,
+  }) => CloudSyncAuthState(
+    isLoading: isLoading ?? this.isLoading,
+    isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+    userEmail: clearUserEmail ? null : (userEmail ?? this.userEmail),
+    activeProvider: clearActiveProvider
+        ? null
+        : (activeProvider ?? this.activeProvider),
+    errorMessage: clearErrorMessage
+        ? null
+        : (errorMessage ?? this.errorMessage),
+  );
+}
+```
+
+**Migration note**: This class will be replaced by the `@freezed AuthState` from Section 7.2.7 when the auth domain layer (use cases, UserAccount entity) is implemented. The `CloudSyncAuthNotifier` will then delegate to use cases per Section 6.2 of the Coding Standards. Until then, the `StateNotifier` pattern (matching the existing `ProfileProvider` precedent) is used as a pragmatic interim approach.
+
+### 16.11 CloudSyncAuthNotifier
+
+Notifier managing cloud sync authentication state. Wraps `GoogleDriveProvider` to provide sign-in/sign-out operations and expose authentication state to the UI.
+
+```dart
+// lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart
+
+class CloudSyncAuthNotifier extends StateNotifier<CloudSyncAuthState> {
+  final GoogleDriveProvider _provider;
+  final ScopedLogger _log;
+
+  CloudSyncAuthNotifier(this._provider)
+    : _log = logger.scope('CloudSyncAuth'),
+      super(const CloudSyncAuthState()) {
+    _checkExistingSession();
+  }
+
+  /// Check if there's an existing authenticated session on startup.
+  ///
+  /// If the user previously signed in and tokens are still valid,
+  /// restores the authenticated state without requiring re-sign-in.
+  /// Non-fatal on failure (user can still sign in manually).
+  Future<void> _checkExistingSession() async {
+    try {
+      final authenticated = await _provider.isAuthenticated();
+      if (authenticated) {
+        state = state.copyWith(
+          isAuthenticated: true,
+          userEmail: _provider.userEmail,
+          activeProvider: CloudProviderType.googleDrive,
+        );
+      }
+    } on Exception catch (e, stack) {
+      _log.error('Failed to check existing session', e, stack);
+    }
+  }
+
+  /// Sign in with Google Drive.
+  ///
+  /// Opens the browser for OAuth sign-in (macOS) or shows the
+  /// Google Sign-In sheet (iOS). Updates state with result.
+  ///
+  /// Behavior:
+  /// - Ignores concurrent calls while isLoading is true
+  /// - Clears previous error before starting
+  /// - Sets isLoading=true during the operation
+  /// - On success: isAuthenticated=true, userEmail populated, activeProvider=googleDrive
+  /// - On failure: isAuthenticated=false, errorMessage set, userEmail/activeProvider cleared
+  Future<void> signInWithGoogle() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+
+    final result = await _provider.authenticate();
+
+    result.when(
+      success: (_) {
+        state = state.copyWith(
+          isLoading: false,
+          isAuthenticated: true,
+          userEmail: _provider.userEmail,
+          activeProvider: CloudProviderType.googleDrive,
+        );
+      },
+      failure: (error) {
+        state = state.copyWith(
+          isLoading: false,
+          isAuthenticated: false,
+          errorMessage: error.userMessage,
+          clearUserEmail: true,
+          clearActiveProvider: true,
+        );
+      },
+    );
+  }
+
+  /// Sign out from the current cloud provider.
+  ///
+  /// Behavior:
+  /// - Ignores concurrent calls while isLoading is true
+  /// - Clears previous error before starting
+  /// - On success: resets state to default (const CloudSyncAuthState())
+  /// - On failure: keeps current auth state, sets errorMessage
+  Future<void> signOut() async {
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+
+    final result = await _provider.signOut();
+
+    result.when(
+      success: (_) {
+        state = const CloudSyncAuthState();
+      },
+      failure: (error) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: error.userMessage,
+        );
+      },
+    );
+  }
+
+  /// Clear any error message displayed to the user.
+  ///
+  /// Preserves all other state fields (isAuthenticated, userEmail, etc.).
+  void clearError() {
+    state = state.copyWith(clearErrorMessage: true);
+  }
+}
+```
+
+**Concurrency guard**: Both `signInWithGoogle()` and `signOut()` check `state.isLoading` at entry and return immediately if another operation is already in progress. This prevents duplicate OAuth windows or conflicting sign-out requests.
+
+### 16.12 Cloud Sync Provider Declarations
+
+```dart
+// lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart
+
+/// Provider for the GoogleDriveProvider instance.
+///
+/// Override in ProviderScope for testing.
+final googleDriveProviderProvider = Provider<GoogleDriveProvider>(
+  (ref) => GoogleDriveProvider(),
+);
+
+/// Provider for cloud sync authentication state.
+final cloudSyncAuthProvider =
+    StateNotifierProvider<CloudSyncAuthNotifier, CloudSyncAuthState>(
+      (ref) => CloudSyncAuthNotifier(ref.read(googleDriveProviderProvider)),
+    );
+```
+
+**Pattern justification**: These use `StateNotifierProvider` (legacy Riverpod) rather than the `@riverpod` annotation required by Coding Standards Section 6.1. This follows the `ProfileProvider` precedent — the auth domain layer (use cases, `UserAccount` entity, `AuthTokenService`) does not yet exist. When the domain layer is built in a future phase, these providers will be refactored to `@riverpod` annotation syntax with `UseCase` delegation per Section 6.2.
+
+**Testing**: Both providers can be overridden in `ProviderScope` for widget tests:
+```dart
+ProviderScope(
+  overrides: [
+    cloudSyncAuthProvider.overrideWith(
+      (ref) => FakeCloudSyncAuthNotifier(testState),
+    ),
+  ],
+  child: const MaterialApp(home: CloudSyncSetupScreen()),
+)
+```
+
 ---
 
 ## Document Control
@@ -14804,3 +15033,4 @@ All entity data MUST be encrypted with AES-256-GCM before upload per `02_CODING_
 | 1.4 | 2026-02-01 | Converted ALL use case inputs to @freezed format; Added Section 13 Entity-Database Alignment Reference; Added Section 14 Test Scenarios for Behavioral Specifications (Complete 100% Audit) |
 | 1.5 | 2026-02-01 | Added Section 15 Edge Cases and Exceptions; Fixed weekday convention (0=Monday); Fixed Diet/DietRule/DeviceRegistration entity-DB alignment; Fixed FluidsEntry entryDate mapping |
 | 1.6 | 2026-02-14 | Added Section 16 Cloud Storage Provider Contract (CloudProviderType, SyncChange, CloudStorageProvider interface, Google Drive folder structure, OAuth error mapping, sync tier order, encryption requirement) |
+| 1.7 | 2026-02-14 | Added Sections 16.9–16.12: GoogleDriveProvider.userEmail getter, CloudSyncAuthState, CloudSyncAuthNotifier, provider declarations (Phase 1c spec coverage) |

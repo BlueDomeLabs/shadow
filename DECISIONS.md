@@ -17,6 +17,18 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-14: Added spec coverage for Phase 1c cloud sync sign-in
+
+**What:** Updated two spec documents to cover the new code from Phase 1c (wiring the Cloud Sync Setup screen to real Google sign-in). Added Sections 16.9–16.12 to the API Contracts spec (covering the auth state, the auth notifier, the email getter, and the provider declarations). Added Section 13.2 to the UI Field Specifications (covering all four visual states of the setup screen: initial, loading, signed-in, and error).
+
+**Why:** Reid requires specs and code to match 100%. The Phase 1c code introduced new components (auth state management, screen state changes) that weren't covered by existing specs. This was caught and Reid directed the spec update.
+
+**Alternatives:** None — spec/code parity is a non-negotiable requirement.
+
+**Impact:** The spec now fully documents the current Cloud Sync Setup screen behavior. The spec also notes that the current auth provider pattern (StateNotifier) is an interim approach that will be replaced with the standard @riverpod annotation pattern when the auth domain layer is built in a future phase.
+
+---
+
 ### 2026-02-14: Streamlined the instance coordination system
 
 **What:** Reduced the instruction documents for Claude instances from ~3,500 lines across 10 skill files down to ~400 lines across 7 skill files. Deleted 3 skills that weren't working (manager, team, major-audit). Removed all instructions that told instances to spawn sub-agents.
