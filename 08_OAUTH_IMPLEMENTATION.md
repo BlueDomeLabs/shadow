@@ -83,6 +83,7 @@ Create `.env` in project root:
 ```env
 # Google OAuth Configuration
 GOOGLE_OAUTH_CLIENT_ID=656246118580-nvu5ckn9l7vst8hmj8no3t7cb10egui3.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_SECRET=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
 OAUTH_REDIRECT_URI=http://localhost:8080
 OAUTH_PROXY_BASE_URL=http://localhost:5000
 
@@ -97,6 +98,7 @@ For production builds, pass credentials via `--dart-define`:
 ```bash
 flutter run \
   --dart-define=GOOGLE_OAUTH_CLIENT_ID=656246118580-nvu5ckn9l7vst8hmj8no3t7cb10egui3.apps.googleusercontent.com \
+  --dart-define=GOOGLE_OAUTH_CLIENT_SECRET=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 \
   --dart-define=OAUTH_REDIRECT_URI=http://localhost:8080 \
   --dart-define=OAUTH_PROXY_BASE_URL=http://localhost:5000
 ```
@@ -116,6 +118,7 @@ flutter run \
       "program": "lib/main.dart",
       "args": [
         "--dart-define=GOOGLE_OAUTH_CLIENT_ID=656246118580-nvu5ckn9l7vst8hmj8no3t7cb10egui3.apps.googleusercontent.com",
+        "--dart-define=GOOGLE_OAUTH_CLIENT_SECRET=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",
         "--dart-define=OAUTH_REDIRECT_URI=http://localhost:8080",
         "--dart-define=OAUTH_PROXY_BASE_URL=http://localhost:5000"
       ]
@@ -284,6 +287,31 @@ class GoogleOAuthConfig {
     // Development fallback - use default client ID
     _log.warning('Using default development OAuth client ID');
     return '656246118580-nvu5ckn9l7vst8hmj8no3t7cb10egui3.apps.googleusercontent.com';
+  }
+
+  /// OAuth client secret from environment
+  ///
+  /// Set via: --dart-define=GOOGLE_OAUTH_CLIENT_SECRET=...
+  /// Required for Google Desktop OAuth clients (they are not truly
+  /// confidential but Google still requires them in token requests).
+  static String get clientSecret {
+    const fromEnvironment =
+        String.fromEnvironment('GOOGLE_OAUTH_CLIENT_SECRET');
+
+    if (fromEnvironment.isNotEmpty) {
+      return fromEnvironment;
+    }
+
+    const isProduction = bool.fromEnvironment('dart.vm.product');
+    if (isProduction) {
+      throw StateError(
+        'GOOGLE_OAUTH_CLIENT_SECRET environment variable not set. '
+        'Pass via --dart-define=GOOGLE_OAUTH_CLIENT_SECRET=your-secret',
+      );
+    }
+
+    _log.warning('Using default development OAuth client secret');
+    return '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';
   }
 
   /// OAuth redirect URI from environment
@@ -569,16 +597,40 @@ class MacOSGoogleOAuth {
 
 ---
 
-## 6. OAuth Proxy Service
+## 6. OAuth Proxy Service (NOT USED — see Section 6.0)
 
-### 6.1 Why Use a Proxy?
+### 6.0 IMPORTANT: Client Secret Strategy (Read This First)
 
-The client secret should NEVER be stored in the mobile/desktop app binary. Instead:
+**Status:** The proxy approach described in Sections 6.1–6.2 and Section 8 is NOT implemented and NOT needed. Shadow uses direct token exchange with `client_secret` embedded in the app (Section 10). This section is retained as reference only.
+
+**Why no proxy:**
+
+1. **Google Desktop OAuth clients include a `client_secret`, but Google says it is "obviously not treated as a secret"** for installed/desktop apps. The app binary can be decompiled by anyone, so the secret cannot truly be hidden. This is standard for all desktop apps — Google even provides the secret in a downloadable JSON file expecting you to embed it.
+
+2. **A proxy server would need to run permanently on the internet.** You'd pay hosting costs, and if the server goes down, all users lose the ability to sign in. This adds a point of failure for no real security benefit on desktop.
+
+3. **iOS does not need a `client_secret` at all.** iOS OAuth clients are verified by Apple through the App Store and bundle ID. No secret, no proxy.
+
+4. **Google's documentation vs. reality:** Google's docs list `client_secret` as "optional" for desktop apps, but in practice their token exchange endpoint rejects requests without it. This was confirmed through testing (error: `"client_secret is missing"`). Multiple developer reports confirm the same behavior. The fix is simply to include the secret in the request.
+
+**Current approach (Section 10):**
+- `GoogleOAuthConfig.clientSecret` provides the secret (from `--dart-define` or development fallback)
+- `MacOSGoogleOAuth._exchangeCodeForTokens()` includes `client_secret` in the request body
+- `MacOSGoogleOAuth.refreshToken()` includes `client_secret` in the request body
+- No proxy server is needed for development, testing, or production
+
+**Do NOT re-introduce a proxy server** unless a specific, documented security requirement demands it. The direct approach is simpler, has fewer failure modes, and is the standard practice for desktop OAuth apps.
+
+### 6.1 Why Use a Proxy? (HISTORICAL — not implemented)
+
+The original design called for a proxy to keep the client secret server-side:
 
 1. App sends authorization code to proxy server
 2. Proxy adds client_secret and calls Google
 3. Proxy returns tokens to app
 4. Client secret remains server-side only
+
+**This approach was abandoned** because desktop client secrets are not truly confidential (see Section 6.0 above).
 
 ### 6.2 Proxy Service Implementation
 
@@ -881,8 +933,8 @@ if __name__ == '__main__':
 
 Before deploying OAuth:
 
-- [ ] Client ID loaded from environment, not hardcoded
-- [ ] Client secret NEVER in app code (proxy only)
+- [ ] Client ID loaded from environment (with development fallback)
+- [ ] Client secret loaded from environment (with development fallback; acceptable for desktop apps per Google's documentation — see Section 6.0)
 - [ ] PKCE implemented with SHA256
 - [ ] State parameter validates on callback
 - [ ] Tokens stored in platform secure storage
@@ -896,11 +948,11 @@ Before deploying OAuth:
 
 ## 10. Development Mode: Direct Token Exchange
 
-For local development and testing WITHOUT the OAuth proxy server, the app can exchange tokens directly with Google. This is acceptable because:
+For local development and testing WITHOUT the OAuth proxy server, the app can exchange tokens directly with Google. This requires `client_secret` because:
 
-1. Desktop apps are considered "public clients" under OAuth 2.0 / RFC 8252
-2. PKCE provides security without requiring a client secret
-3. Google allows direct token exchange for desktop OAuth client types
+1. Google Desktop OAuth clients require `client_secret` in all token exchange requests
+2. Per Google's documentation, desktop client secrets are not considered truly confidential (the app binary can be decompiled), so including them in the app is standard practice
+3. PKCE provides additional security on top of `client_secret`
 
 ### 10.1 Direct Exchange Implementation
 
@@ -910,7 +962,7 @@ When the proxy is unavailable (development), exchange tokens directly:
 /// Exchange authorization code for tokens directly with Google.
 ///
 /// Used in development when OAuth proxy is not running.
-/// PKCE code_verifier provides the security guarantee.
+/// Includes client_secret as required by Google Desktop OAuth clients.
 Future<Map<String, dynamic>> exchangeCodeDirectly({
   required String code,
   required String codeVerifier,
@@ -924,6 +976,7 @@ Future<Map<String, dynamic>> exchangeCodeDirectly({
       'code_verifier': codeVerifier,
       'redirect_uri': redirectUri,
       'client_id': GoogleOAuthConfig.clientId,
+      'client_secret': GoogleOAuthConfig.clientSecret,
       'grant_type': 'authorization_code',
     },
   ).timeout(const Duration(seconds: 30));
@@ -944,6 +997,7 @@ Future<Map<String, dynamic>> exchangeCodeDirectly({
 
 ```dart
 /// Refresh access token directly with Google.
+/// Includes client_secret as required by Google Desktop OAuth clients.
 Future<Map<String, dynamic>> refreshTokenDirectly({
   required String refreshToken,
 }) async {
@@ -953,6 +1007,7 @@ Future<Map<String, dynamic>> refreshTokenDirectly({
     body: {
       'refresh_token': refreshToken,
       'client_id': GoogleOAuthConfig.clientId,
+      'client_secret': GoogleOAuthConfig.clientSecret,
       'grant_type': 'refresh_token',
     },
   ).timeout(const Duration(seconds: 30));
@@ -987,3 +1042,4 @@ See `22_API_CONTRACTS.md` Section 16.5 for the complete mapping table.
 |---------|------|---------|
 | 1.0 | 2026-01-30 | Initial release |
 | 1.1 | 2026-02-14 | Added Section 10 (development mode direct token exchange without proxy), Section 11 (exception-to-error mapping reference) |
+| 1.2 | 2026-02-17 | Fixed Section 10: Google Desktop OAuth clients require client_secret in token exchange. Added clientSecret to GoogleOAuthConfig. |

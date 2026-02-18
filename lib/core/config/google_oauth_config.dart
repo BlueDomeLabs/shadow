@@ -53,6 +53,38 @@ class GoogleOAuthConfig {
         '.apps.googleusercontent.com';
   }
 
+  /// OAuth client secret from environment.
+  ///
+  /// Set via: --dart-define=GOOGLE_OAUTH_CLIENT_SECRET=...
+  /// Or: GOOGLE_OAUTH_CLIENT_SECRET in .env file
+  ///
+  /// Required for Google Desktop OAuth clients. Per Google's documentation,
+  /// desktop client secrets are not considered truly confidential (the app
+  /// binary can be decompiled), but Google still requires them in token
+  /// exchange requests.
+  static String get clientSecret {
+    const fromEnvironment = String.fromEnvironment(
+      'GOOGLE_OAUTH_CLIENT_SECRET',
+    );
+
+    if (fromEnvironment.isNotEmpty) {
+      return fromEnvironment;
+    }
+
+    // In production, this is a fatal error
+    const isProduction = bool.fromEnvironment('dart.vm.product');
+    if (isProduction) {
+      throw StateError(
+        'GOOGLE_OAUTH_CLIENT_SECRET environment variable not set. '
+        'Pass via --dart-define=GOOGLE_OAUTH_CLIENT_SECRET=your-secret',
+      );
+    }
+
+    // Development fallback - use default client secret
+    _log.warning('Using default development OAuth client secret');
+    return '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';
+  }
+
   /// OAuth redirect URI from environment.
   static String get redirectUri {
     const fromEnvironment = String.fromEnvironment('OAUTH_REDIRECT_URI');
@@ -124,6 +156,10 @@ class GoogleOAuthConfig {
       'Invalid OAuth clientId: must end in .apps.googleusercontent.com',
     );
 
+    // Validate client secret is present
+    final secret = clientSecret;
+    assert(secret.isNotEmpty, 'OAuth clientSecret cannot be empty');
+
     // Validate endpoints are HTTPS
     assert(authUri.startsWith('https://'), 'authUri must be HTTPS');
     assert(tokenUri.startsWith('https://'), 'tokenUri must be HTTPS');
@@ -141,6 +177,7 @@ class GoogleOAuthConfig {
     _log
       ..info('OAuth configuration valid')
       ..debug('  Client ID: ${id.substring(0, 20)}...')
+      ..debug('  Client Secret: ${secret.substring(0, 8)}...')
       ..debug('  Redirect URI: $redirect')
       ..debug('  Scopes: ${scopes.join(", ")}');
   }

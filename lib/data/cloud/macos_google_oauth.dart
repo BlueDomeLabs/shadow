@@ -7,7 +7,7 @@
 // 2. Start local HTTP server on port 8080
 // 3. Open browser for Google sign-in
 // 4. Receive OAuth callback with authorization code
-// 5. Exchange code for tokens (direct, per Section 10)
+// 5. Exchange code for tokens (direct with client_secret, per Section 10)
 // 6. Fetch user info
 
 import 'dart:async';
@@ -26,7 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 ///
 /// Opens the user's browser for Google sign-in, receives the callback
 /// via a local HTTP server, and exchanges the authorization code for
-/// tokens using direct PKCE exchange (no proxy needed).
+/// tokens using direct exchange with client_secret (per Section 10).
 ///
 /// Throws [OAuthException] or [OAuthStateException] on failure.
 /// The calling code (GoogleDriveProvider) catches these and wraps
@@ -174,6 +174,7 @@ class MacOSGoogleOAuth {
             body: {
               'refresh_token': refreshToken,
               'client_id': GoogleOAuthConfig.clientId,
+              'client_secret': GoogleOAuthConfig.clientSecret,
               'grant_type': 'refresh_token',
             },
           )
@@ -227,8 +228,8 @@ class MacOSGoogleOAuth {
 
   /// Exchange authorization code for tokens directly with Google.
   ///
-  /// Uses direct PKCE exchange per 08_OAUTH_IMPLEMENTATION.md Section 10.
-  /// No proxy server needed - PKCE provides security for public clients.
+  /// Uses direct exchange per 08_OAUTH_IMPLEMENTATION.md Section 10.
+  /// Includes client_secret as required by Google Desktop OAuth clients.
   static Future<Map<String, dynamic>> _exchangeCodeForTokens(
     String code,
     String codeVerifier,
@@ -245,6 +246,7 @@ class MacOSGoogleOAuth {
               'code_verifier': codeVerifier,
               'redirect_uri': GoogleOAuthConfig.redirectUri,
               'client_id': GoogleOAuthConfig.clientId,
+              'client_secret': GoogleOAuthConfig.clientSecret,
               'grant_type': 'authorization_code',
             },
           )

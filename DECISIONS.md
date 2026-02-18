@@ -17,6 +17,18 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-17: Include client_secret in Google sign-in (no proxy server needed)
+
+**What:** Added the Google client_secret to the token exchange requests in the app. The app was failing to sign in because Google was rejecting requests without it. Also updated the OAuth spec (Section 10) which incorrectly claimed the secret wasn't needed.
+
+**Why:** Google's token exchange was returning "client_secret is missing" when the app tried to complete sign-in. Research confirmed that while Google's documentation says the secret is "optional" for Desktop apps, in practice their servers require it. The old app handled this through a separate proxy server, but that approach adds unnecessary complexity — Google themselves say desktop client secrets are "obviously not treated as a secret" since anyone could pull them from the app. No proxy server will be needed for the App Store either, since iOS apps don't use a client_secret at all (Apple verifies the app through the App Store).
+
+**Alternatives:** Could have set up a proxy server like the old app. This would mean running and paying for a separate server permanently — if it goes down, nobody can sign in. For a desktop app where the secret isn't really secret, this adds cost and a point of failure for no real security benefit.
+
+**Impact:** Sign-in should now work. The client_secret is embedded in the app for development with a fallback value. For production builds, it must be provided via a launch flag. The OAuth spec is updated to reflect how Google actually works.
+
+---
+
 ### 2026-02-14: Added spec coverage for Phase 1c cloud sync sign-in
 
 **What:** Updated two spec documents to cover the new code from Phase 1c (wiring the Cloud Sync Setup screen to real Google sign-in). Added Sections 16.9–16.12 to the API Contracts spec (covering the auth state, the auth notifier, the email getter, and the provider declarations). Added Section 13.2 to the UI Field Specifications (covering all four visual states of the setup screen: initial, loading, signed-in, and error).
