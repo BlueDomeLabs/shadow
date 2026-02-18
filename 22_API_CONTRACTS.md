@@ -7396,8 +7396,14 @@ class PullChangesUseCase implements UseCase<PullChangesInput, PullChangesResult>
     }
 
     // 3. Get last sync version if not provided
-    final sinceVersion = input.sinceVersion ??
-        await _syncService.getLastSyncVersion(input.profileId);
+    int? sinceVersion = input.sinceVersion;
+    if (sinceVersion == null) {
+      final lastVersionResult = await _syncService.getLastSyncVersion(input.profileId);
+      if (lastVersionResult.isFailure) {
+        return Failure(lastVersionResult.errorOrNull!);
+      }
+      sinceVersion = lastVersionResult.valueOrNull;
+    }
 
     // 4. Pull from cloud
     final pullResult = await _syncService.pullChanges(
@@ -7416,7 +7422,7 @@ class PullChangesUseCase implements UseCase<PullChangesInput, PullChangesResult>
         appliedCount: 0,
         conflictCount: 0,
         conflicts: [],
-        latestVersion: sinceVersion,
+        latestVersion: sinceVersion ?? 0,
       ));
     }
 
@@ -9437,12 +9443,12 @@ class SyncNotifier extends _$SyncNotifier {
     final syncService = ref.read(syncServiceProvider);
     final pendingResult = await syncService.getPendingChangesCount(profileId);
     final conflictResult = await syncService.getConflictCount(profileId);
-    final lastSync = await syncService.getLastSyncTime(profileId);
+    final lastSyncResult = await syncService.getLastSyncTime(profileId);
 
     return SyncState(
       pendingChanges: pendingResult.valueOrNull ?? 0,
       conflictCount: conflictResult.valueOrNull ?? 0,
-      lastSyncAt: lastSync,
+      lastSyncAt: lastSyncResult.valueOrNull,
     );
   }
 
@@ -10880,7 +10886,7 @@ class SignInWithAppleUseCase implements UseCaseWithInput<UserAccount, SignInWith
 #### SyncService Convenience Methods
 
 The following methods must be added to the SyncService interface
-(defined in Section 11 Service Interface Contracts):
+(defined in Section 17 Sync Service Contract):
 
 ```dart
 /// Additional SyncService methods referenced by providers
@@ -15022,6 +15028,159 @@ ProviderScope(
 
 ---
 
+## 17. Sync Service Contract
+
+The `SyncService` is the domain-layer orchestration interface for cloud synchronization.
+It coordinates between local repositories (dirty record queries) and the `CloudStorageProvider`
+(remote operations). All methods referenced by use cases (Section 4.5.9) and providers
+(Section 7.2.8) are consolidated here.
+
+### 17.1 SyncConflict Type
+
+```dart
+// lib/domain/entities/sync_conflict.dart
+
+@freezed
+class SyncConflict with _$SyncConflict {
+  const factory SyncConflict({
+    required String id,              // Unique conflict identifier (UUID v4)
+    required String entityType,      // Table name (e.g. 'supplements')
+    required String entityId,        // The conflicting entity's ID
+    required String profileId,
+    required int localVersion,       // Local syncVersion at time of conflict
+    required int remoteVersion,      // Remote syncVersion at time of conflict
+    required Map<String, dynamic> localData,   // Full local entity JSON
+    required Map<String, dynamic> remoteData,  // Full remote entity JSON
+    required int detectedAt,         // Epoch ms when conflict was detected
+    @Default(false) bool isResolved,
+    ConflictResolution? resolution,  // How it was resolved (null if unresolved)
+    int? resolvedAt,                 // Epoch ms when resolved
+  }) = _SyncConflict;
+
+  factory SyncConflict.fromJson(Map<String, dynamic> json) =>
+      _$SyncConflictFromJson(json);
+}
+```
+
+### 17.2 SyncService Interface
+
+```dart
+// lib/domain/services/sync_service.dart
+
+/// Domain-layer sync orchestration service.
+///
+/// Coordinates local dirty-record queries with CloudStorageProvider
+/// remote operations. Injected into sync use cases and providers.
+///
+/// All methods return Result<T, AppError> per Section 1.
+abstract class SyncService {
+
+  // === Push Operations ===
+
+  /// Get locally-modified records awaiting sync upload.
+  ///
+  /// Queries all entity tables for records where sync_is_dirty = true
+  /// AND sync_deleted_at IS NULL (live records) OR sync_deleted_at IS NOT NULL
+  /// (tombstones that need to propagate per Section 15.1).
+  ///
+  /// Returns at most [limit] changes, ordered by sync_updated_at ASC.
+  Future<Result<List<SyncChange>, AppError>> getPendingChanges(
+    String profileId, {
+    int limit = 500,
+  });
+
+  /// Push local changes to the cloud provider.
+  ///
+  /// For each SyncChange: encrypts entity data with AES-256-GCM (per Section 16.8),
+  /// then calls CloudStorageProvider.uploadEntity. Returns aggregate result
+  /// with count of pushed/failed and any conflicts detected.
+  Future<Result<PushChangesResult, AppError>> pushChanges(
+    List<SyncChange> changes,
+  );
+
+  /// Convenience: push ALL pending changes for sign-out cleanup.
+  ///
+  /// Best-effort — errors are logged but do not fail sign-out.
+  /// Referenced by SignOutUseCase (Section 4.5.8).
+  Future<void> pushPendingChanges();
+
+  // === Pull Operations ===
+
+  /// Pull remote changes from the cloud provider since [sinceVersion].
+  ///
+  /// Calls CloudStorageProvider.getChangesSince, decrypts payloads,
+  /// and returns the raw SyncChange list for local application.
+  ///
+  /// [sinceVersion] is null on first sync (pulls everything).
+  Future<Result<List<SyncChange>, AppError>> pullChanges(
+    String profileId, {
+    int? sinceVersion,
+    int limit = 500,
+  });
+
+  /// Apply pulled remote changes to local database.
+  ///
+  /// For each SyncChange:
+  /// 1. Check if local entity exists
+  /// 2. If no local entity → insert
+  /// 3. If local entity is NOT dirty → overwrite with remote
+  /// 4. If local entity IS dirty → create SyncConflict
+  ///
+  /// Returns aggregate result with counts and any detected conflicts.
+  Future<Result<PullChangesResult, AppError>> applyChanges(
+    String profileId,
+    List<SyncChange> changes,
+  );
+
+  // === Conflict Resolution ===
+
+  /// Resolve a sync conflict by applying the chosen resolution strategy.
+  ///
+  /// - keepLocal: Mark local version as dirty, discard remote
+  /// - keepRemote: Overwrite local with remote, clear dirty flag
+  /// - merge: Apply non-conflicting fields from both versions
+  Future<Result<void, AppError>> resolveConflict(
+    String conflictId,
+    ConflictResolution resolution,
+  );
+
+  // === Status Queries ===
+
+  /// Get count of locally-modified records awaiting sync.
+  ///
+  /// SELECT COUNT(*) FROM each entity table WHERE profile_id = ? AND sync_is_dirty = true
+  Future<Result<int, AppError>> getPendingChangesCount(String profileId);
+
+  /// Get count of unresolved sync conflicts for a profile.
+  Future<Result<int, AppError>> getConflictCount(String profileId);
+
+  /// Get last successful sync time (epoch milliseconds) for a profile.
+  ///
+  /// Used by SyncNotifier (Section 7.2.8) for display and by
+  /// SyncReminderService (Section 12.5) for reminder threshold.
+  Future<Result<int?, AppError>> getLastSyncTime(String profileId);
+
+  /// Get last successfully synced version number for a profile.
+  ///
+  /// Used by PullChangesUseCase (Section 4.5.9) to determine
+  /// which remote changes to pull. Returns null if never synced.
+  Future<Result<int?, AppError>> getLastSyncVersion(String profileId);
+}
+```
+
+### 17.3 Implementation Notes
+
+| Concern | Approach |
+|---------|----------|
+| **Encryption** | All entity data encrypted with AES-256-GCM before upload per `02_CODING_STANDARDS.md` Section 11.4 and Section 16.8 |
+| **Soft-delete propagation** | `getPendingChanges` includes tombstones per Section 15.1 |
+| **Version tracking** | `getLastSyncVersion` reads MAX(sync_version) from successfully synced records; `getLastSyncTime` reads the stored last-sync epoch ms |
+| **Concurrency** | `pushPendingChanges` is best-effort for sign-out; full push/pull operations use rate limiting via `RateLimitService` |
+| **Conflict detection** | During `applyChanges`, if local `syncIsDirty == true` AND remote `syncVersion > local.syncVersion`, a `SyncConflict` is created |
+| **Provider dependency** | `SyncService` is injected via `syncServiceProvider` (Riverpod) into use cases and the `SyncNotifier` |
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
@@ -15034,3 +15193,4 @@ ProviderScope(
 | 1.5 | 2026-02-01 | Added Section 15 Edge Cases and Exceptions; Fixed weekday convention (0=Monday); Fixed Diet/DietRule/DeviceRegistration entity-DB alignment; Fixed FluidsEntry entryDate mapping |
 | 1.6 | 2026-02-14 | Added Section 16 Cloud Storage Provider Contract (CloudProviderType, SyncChange, CloudStorageProvider interface, Google Drive folder structure, OAuth error mapping, sync tier order, encryption requirement) |
 | 1.7 | 2026-02-14 | Added Sections 16.9–16.12: GoogleDriveProvider.userEmail getter, CloudSyncAuthState, CloudSyncAuthNotifier, provider declarations (Phase 1c spec coverage) |
+| 1.8 | 2026-02-17 | Added Section 17 Sync Service Contract (complete SyncService interface, SyncConflict entity); Fixed dangling Section 11 reference → Section 17; Fixed SyncNotifier getLastSyncTime Result unwrap bug; Fixed PullChangesUseCase getLastSyncVersion Result unwrap and null safety (Phase 2a spec prep) |

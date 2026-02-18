@@ -4,10 +4,14 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+// Services
+import 'package:shadow_app/core/services/encryption_service.dart';
+// Cloud
+import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Repositories
 import 'package:shadow_app/domain/repositories/repositories.dart';
-// Services
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
+import 'package:shadow_app/domain/services/sync_service.dart';
 // Use Cases - Activities
 import 'package:shadow_app/domain/usecases/activities/activities_usecases.dart';
 // Use Cases - Activity Logs
@@ -165,6 +169,28 @@ ProfileAuthorizationService profileAuthorizationService(Ref ref) {
   throw UnimplementedError(
     'Override profileAuthorizationServiceProvider in ProviderScope',
   );
+}
+
+/// Encryption service provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+EncryptionService encryptionService(Ref ref) {
+  throw UnimplementedError(
+    'Override encryptionServiceProvider in ProviderScope',
+  );
+}
+
+/// Google Drive provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+GoogleDriveProvider googleDriveProvider(Ref ref) {
+  throw UnimplementedError(
+    'Override googleDriveProviderProvider in ProviderScope',
+  );
+}
+
+/// Sync service provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+SyncService syncService(Ref ref) {
+  throw UnimplementedError('Override syncServiceProvider in ProviderScope');
 }
 
 // =============================================================================

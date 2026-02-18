@@ -102,8 +102,16 @@ class SyncMetadata with _$SyncMetadata {
 
 /// Interface for entities that support cloud synchronization.
 /// ALL syncable entities MUST implement this interface.
+///
+/// Per 02_CODING_STANDARDS.md, all syncable entities have id, clientId,
+/// profileId, syncMetadata, and toJson(). These are formalized here
+/// so SyncService can operate generically across all entity types.
 abstract interface class Syncable {
+  String get id;
+  String get clientId;
+  String get profileId;
   SyncMetadata get syncMetadata;
+  Map<String, dynamic> toJson();
 }
 
 enum SyncStatus {

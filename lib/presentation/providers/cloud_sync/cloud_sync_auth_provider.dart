@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 
 /// Authentication state for cloud sync.
 class CloudSyncAuthState {
@@ -155,13 +156,6 @@ class CloudSyncAuthNotifier extends StateNotifier<CloudSyncAuthState> {
     state = state.copyWith(clearErrorMessage: true);
   }
 }
-
-/// Provider for the GoogleDriveProvider instance.
-///
-/// Override in ProviderScope for testing.
-final googleDriveProviderProvider = Provider<GoogleDriveProvider>(
-  (ref) => GoogleDriveProvider(),
-);
 
 /// Provider for cloud sync authentication state.
 final cloudSyncAuthProvider =

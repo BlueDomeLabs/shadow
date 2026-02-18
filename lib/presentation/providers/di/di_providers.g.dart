@@ -308,6 +308,64 @@ final profileAuthorizationServiceProvider =
 // ignore: unused_element
 typedef ProfileAuthorizationServiceRef =
     ProviderRef<ProfileAuthorizationService>;
+String _$encryptionServiceHash() => r'84b6d91b402e3f96bd0fa0c8df53dfe0cefed119';
+
+/// Encryption service provider - override in ProviderScope with implementation.
+///
+/// Copied from [encryptionService].
+@ProviderFor(encryptionService)
+final encryptionServiceProvider = Provider<EncryptionService>.internal(
+  encryptionService,
+  name: r'encryptionServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$encryptionServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EncryptionServiceRef = ProviderRef<EncryptionService>;
+String _$googleDriveProviderHash() =>
+    r'5c3787abdc241a7cfd55f7d1db73cfb4a41230db';
+
+/// Google Drive provider - override in ProviderScope with implementation.
+///
+/// Copied from [googleDriveProvider].
+@ProviderFor(googleDriveProvider)
+final googleDriveProviderProvider = Provider<GoogleDriveProvider>.internal(
+  googleDriveProvider,
+  name: r'googleDriveProviderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$googleDriveProviderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GoogleDriveProviderRef = ProviderRef<GoogleDriveProvider>;
+String _$syncServiceHash() => r'aa309c4de1092b99562390893c4e749ea92d5b22';
+
+/// Sync service provider - override in ProviderScope with implementation.
+///
+/// Copied from [syncService].
+@ProviderFor(syncService)
+final syncServiceProvider = Provider<SyncService>.internal(
+  syncService,
+  name: r'syncServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$syncServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SyncServiceRef = ProviderRef<SyncService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
