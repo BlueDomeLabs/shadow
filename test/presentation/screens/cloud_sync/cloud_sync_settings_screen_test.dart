@@ -107,6 +107,12 @@ void main() {
       );
       await tester.pump();
 
+      // Scroll down to reveal Device Info section
+      await tester.scrollUntilVisible(
+        find.text('Google Drive'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Google Drive'), findsOneWidget);
     });
 
@@ -117,6 +123,46 @@ void main() {
       await tester.pump();
 
       expect(find.text('None'), findsOneWidget);
+    });
+
+    testWidgets('shows Sync Now button when authenticated', (tester) async {
+      await tester.pumpWidget(
+        buildScreen(
+          authState: const CloudSyncAuthState(
+            isAuthenticated: true,
+            userEmail: 'test@example.com',
+            activeProvider: CloudProviderType.googleDrive,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Sync Now'), findsOneWidget);
+    });
+
+    testWidgets('hides Sync Now button when not authenticated', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      expect(find.text('Sync Now'), findsNothing);
+    });
+
+    testWidgets('Sync Now shows Coming Soon dialog', (tester) async {
+      await tester.pumpWidget(
+        buildScreen(
+          authState: const CloudSyncAuthState(
+            isAuthenticated: true,
+            userEmail: 'test@example.com',
+            activeProvider: CloudProviderType.googleDrive,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Sync Now'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Coming Soon'), findsOneWidget);
     });
   });
 }

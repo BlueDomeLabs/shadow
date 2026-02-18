@@ -522,11 +522,12 @@ If the user is not authenticated, the provider buttons (Google Drive, Local Only
 | Status Icon | Icon | `Icons.cloud_done` | Green color |
 | Status Value | Text | "Connected to Google Drive" | Green color |
 | User Email | Text | User's email address | Grey, shown below status value |
+| Sync Now Button | OutlinedButton | "Sync Now" | Sync icon; shows "Coming Soon" until Phase 2-4 wires it up |
 | Setup Button | ElevatedButton | "Manage Cloud Sync" | Settings icon; navigates to `CloudSyncSetupScreen` |
 | Sync Provider | Display | "Google Drive" | - |
 | Last Sync | Display | "Never" | Updated when sync is implemented (Phase 4) |
 
-All other elements (App Bar, toggles, frequency) remain the same as the not-authenticated state.
+All other elements (App Bar, toggles, frequency) remain the same as the not-authenticated state. The "Sync Now" button is **only visible when authenticated** — it is hidden in the not-authenticated state.
 
 ### 13.4 Security Settings Screen
 

@@ -28,6 +28,21 @@ class CloudSyncSettingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           // Sync settings section
           _buildSettingsSection(context, theme),
+          // Sync Now button (only shown when authenticated)
+          if (authState.isAuthenticated) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _showComingSoon(context),
+                icon: const Icon(Icons.sync),
+                label: const Text('Sync Now'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           // Set up / manage button
           SizedBox(
