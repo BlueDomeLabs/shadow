@@ -497,13 +497,36 @@ If the user is not authenticated, the provider buttons (Google Drive, Local Only
 
 ### 13.3 Cloud Sync Settings Screen
 
-| Field | Type | Required | Validation | Default | Placeholder | Max Length |
-|-------|------|----------|------------|---------|-------------|------------|
-| Cloud Provider | Segment | No | iCloud/Google Drive/Offline | Current | - | - |
-| Auto-Sync | Toggle | No | - | Yes | - | - |
-| Sync on WiFi Only | Toggle | No | - | No | - | - |
-| Last Sync | Display | - | - | - | - | - |
-| Sync Now | Button | - | - | - | - | - |
+**Source:** `CloudSyncSettingsScreen` (`ConsumerWidget`) watches `cloudSyncAuthProvider` for real-time auth state.
+
+#### 13.3.1 Not Authenticated State (isAuthenticated = false)
+
+| Element | Type | Content | Notes |
+|---------|------|---------|-------|
+| App Bar Title | Text | "Cloud Sync" | - |
+| Status Icon | Icon | `Icons.cloud_off` | Grey color |
+| Status Label | Text | "Sync Status" | Bold |
+| Status Value | Text | "Not configured" | Grey color |
+| Auto Sync Toggle | Switch | Off | Tapping shows "Coming Soon" dialog |
+| WiFi Only Toggle | Switch | On | Tapping shows "Coming Soon" dialog |
+| Sync Frequency | ListTile | "Every 30 minutes" | Tapping shows "Coming Soon" dialog |
+| Setup Button | ElevatedButton | "Set Up Cloud Sync" | Cloud sync icon; navigates to `CloudSyncSetupScreen` |
+| Platform | Display | Current platform name | e.g., "macos" |
+| Sync Provider | Display | "None" | - |
+| Last Sync | Display | "Never" | - |
+
+#### 13.3.2 Authenticated State (isAuthenticated = true)
+
+| Element | Type | Content | Notes |
+|---------|------|---------|-------|
+| Status Icon | Icon | `Icons.cloud_done` | Green color |
+| Status Value | Text | "Connected to Google Drive" | Green color |
+| User Email | Text | User's email address | Grey, shown below status value |
+| Setup Button | ElevatedButton | "Manage Cloud Sync" | Settings icon; navigates to `CloudSyncSetupScreen` |
+| Sync Provider | Display | "Google Drive" | - |
+| Last Sync | Display | "Never" | Updated when sync is implemented (Phase 4) |
+
+All other elements (App Bar, toggles, frequency) remain the same as the not-authenticated state.
 
 ### 13.4 Security Settings Screen
 
@@ -1051,3 +1074,4 @@ Focus traversal must follow logical reading order. Use `FocusTraversalGroup` wit
 |---------|------|---------|
 | 1.0 | 2026-01-31 | Initial release - complete UI field specifications |
 | 1.1 | 2026-02-14 | Added Section 13.2 Cloud Sync Setup Screen (initial, loading, authenticated, error states); renumbered 13.3→13.4 |
+| 1.2 | 2026-02-17 | Updated Section 13.3 Cloud Sync Settings Screen: now watches auth state, shows connected/not-configured states with user email |

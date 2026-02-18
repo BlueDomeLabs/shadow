@@ -2,17 +2,20 @@
 // Cloud sync settings and management screen.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
 
 /// Cloud sync settings screen for managing sync configuration.
 ///
 /// Displays current sync status, settings toggles, and device info.
-/// All settings are currently disabled with "Coming Soon" — backend not yet implemented.
-class CloudSyncSettingsScreen extends StatelessWidget {
+/// Watches [cloudSyncAuthProvider] to reflect sign-in state.
+class CloudSyncSettingsScreen extends ConsumerWidget {
   const CloudSyncSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(cloudSyncAuthProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -21,12 +24,12 @@ class CloudSyncSettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Sync status card
-          _buildStatusCard(context, theme),
+          _buildStatusCard(context, theme, authState),
           const SizedBox(height: 16),
           // Sync settings section
           _buildSettingsSection(context, theme),
           const SizedBox(height: 16),
-          // Set up button
+          // Set up / manage button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -37,8 +40,14 @@ class CloudSyncSettingsScreen extends StatelessWidget {
                   ),
                 );
               },
-              icon: const Icon(Icons.cloud_sync),
-              label: const Text('Set Up Cloud Sync'),
+              icon: Icon(
+                authState.isAuthenticated ? Icons.settings : Icons.cloud_sync,
+              ),
+              label: Text(
+                authState.isAuthenticated
+                    ? 'Manage Cloud Sync'
+                    : 'Set Up Cloud Sync',
+              ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: theme.colorScheme.primary,
@@ -48,13 +57,17 @@ class CloudSyncSettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Device info section
-          _buildDeviceInfoSection(context, theme),
+          _buildDeviceInfoSection(context, theme, authState),
         ],
       ),
     );
   }
 
-  Widget _buildStatusCard(BuildContext context, ThemeData theme) => Card(
+  Widget _buildStatusCard(
+    BuildContext context,
+    ThemeData theme,
+    CloudSyncAuthState authState,
+  ) => Card(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -62,7 +75,13 @@ class CloudSyncSettingsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.cloud_off, color: Colors.grey[600], size: 28),
+              Icon(
+                authState.isAuthenticated ? Icons.cloud_done : Icons.cloud_off,
+                color: authState.isAuthenticated
+                    ? Colors.green
+                    : Colors.grey[600],
+                size: 28,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -76,11 +95,25 @@ class CloudSyncSettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Not configured',
+                      authState.isAuthenticated
+                          ? 'Connected to Google Drive'
+                          : 'Not configured',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: authState.isAuthenticated
+                            ? Colors.green
+                            : Colors.grey[600],
                       ),
                     ),
+                    if (authState.isAuthenticated &&
+                        authState.userEmail != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        authState.userEmail!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -146,7 +179,11 @@ class CloudSyncSettingsScreen extends StatelessWidget {
     onChanged: onChanged,
   );
 
-  Widget _buildDeviceInfoSection(BuildContext context, ThemeData theme) => Card(
+  Widget _buildDeviceInfoSection(
+    BuildContext context,
+    ThemeData theme,
+    CloudSyncAuthState authState,
+  ) => Card(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -161,7 +198,10 @@ class CloudSyncSettingsScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow('Platform', Theme.of(context).platform.name),
           const SizedBox(height: 8),
-          _buildInfoRow('Sync Provider', 'None'),
+          _buildInfoRow(
+            'Sync Provider',
+            authState.isAuthenticated ? 'Google Drive' : 'None',
+          ),
           const SizedBox(height: 8),
           _buildInfoRow('Last Sync', 'Never'),
         ],
