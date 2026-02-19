@@ -7452,7 +7452,7 @@ class ResolveConflictInput with _$ResolveConflictInput {
   const factory ResolveConflictInput({
     required String profileId,
     required String conflictId,
-    required ConflictResolution resolution,
+    required ConflictResolutionType resolution,
   }) = _ResolveConflictInput;
 }
 
@@ -9524,7 +9524,7 @@ class SyncNotifier extends _$SyncNotifier {
 
   Future<Result<void, AppError>> resolveConflict(
     String conflictId,
-    ConflictResolution resolution,
+    ConflictResolutionType resolution,
   ) async {
     final useCase = ref.read(resolveConflictUseCaseProvider);
     final result = await useCase(ResolveConflictInput(
@@ -15053,7 +15053,7 @@ class SyncConflict with _$SyncConflict {
     required Map<String, dynamic> remoteData,  // Full remote entity JSON
     required int detectedAt,         // Epoch ms when conflict was detected
     @Default(false) bool isResolved,
-    ConflictResolution? resolution,  // How it was resolved (null if unresolved)
+    ConflictResolutionType? resolution,  // How it was resolved (null if unresolved)
     int? resolvedAt,                 // Epoch ms when resolved
   }) = _SyncConflict;
 
@@ -15141,7 +15141,7 @@ abstract class SyncService {
   /// - merge: Apply non-conflicting fields from both versions
   Future<Result<void, AppError>> resolveConflict(
     String conflictId,
-    ConflictResolution resolution,
+    ConflictResolutionType resolution,
   );
 
   // === Status Queries ===
@@ -15168,16 +15168,119 @@ abstract class SyncService {
 }
 ```
 
-### 17.3 Implementation Notes
+### 17.3 Cloud Envelope Format
+
+All entities uploaded to Google Drive are wrapped in an envelope JSON object.
+The envelope contains metadata for routing/conflict detection and the encrypted entity data.
+
+**Canonical field names (used by both push and pull):**
+
+```json
+{
+  "entityType": "supplements",
+  "entityId": "uuid-v4",
+  "profileId": "uuid-v4",
+  "clientId": "device-uuid",
+  "version": 1,
+  "timestamp": 1708300000000,
+  "isDeleted": false,
+  "encryptedData": "base64nonce:base64ciphertext:base64tag"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `entityType` | `String` | Table name (e.g. `'supplements'`, `'intake_logs'`) |
+| `entityId` | `String` | The entity's UUID v4 identifier |
+| `profileId` | `String` | The profile this entity belongs to |
+| `clientId` | `String` | The client/device that last modified this entity |
+| `version` | `int` | The entity's `syncVersion` at time of upload |
+| `timestamp` | `int` | Epoch milliseconds (`syncUpdatedAt`) at time of upload |
+| `isDeleted` | `bool` | Whether this is a tombstone (soft-deleted record) |
+| `encryptedData` | `String` | AES-256-GCM encrypted entity JSON in `nonce:ciphertext:tag` format (all base64) |
+
+**IMPORTANT:** The `encryptedData` field is NOT raw JSON. It is an AES-256-GCM encrypted string
+that must be decrypted by `EncryptionService.decrypt()` before JSON parsing. The decrypted
+string is a JSON-encoded `Map<String, dynamic>` matching the entity's `toJson()` output.
+
+### 17.4 SyncEntityAdapter (Pull Support)
+
+For the pull path, `SyncEntityAdapter` needs to reconstruct entities from downloaded JSON.
+Each adapter registers a `fromJson` callback alongside the existing push-path callbacks.
+
+```dart
+class SyncEntityAdapter<T extends Syncable> {
+  final String entityType;
+  final EntityRepository<T, String> repository;
+
+  /// Returns a copy of the entity with the given sync metadata.
+  final T Function(T entity, SyncMetadata metadata) withSyncMetadata;
+
+  /// Reconstruct an entity from its JSON representation (for pull path).
+  /// This bridges the generic Syncable interface to concrete Freezed fromJson.
+  final T Function(Map<String, dynamic> json) fromJson;
+
+  const SyncEntityAdapter({
+    required this.entityType,
+    required this.repository,
+    required this.withSyncMetadata,
+    required this.fromJson,
+  });
+}
+```
+
+### 17.5 Pull Path Flow
+
+The pull path is the reverse of the push path. It downloads remote changes,
+decrypts them, and applies them to the local database.
+
+**Step-by-step flow for `pullChanges`:**
+
+1. Read `getLastSyncTime(profileId)` to get the last successful sync timestamp (epoch ms).
+   If null (first sync), use `0` to pull all remote data.
+2. Call `CloudStorageProvider.getChangesSince(lastSyncTime)`.
+   - The provider returns `List<SyncChange>` where each `SyncChange.data` contains
+     the **raw envelope** (with `encryptedData` still as an encrypted string).
+3. For each `SyncChange`, extract the `encryptedData` field from the envelope,
+   call `EncryptionService.decrypt()`, then `jsonDecode()` the result to get
+   the entity's `Map<String, dynamic>` data.
+4. Replace the `SyncChange.data` with the decrypted entity data.
+5. Return the list of decrypted `SyncChange` objects.
+
+**Step-by-step flow for `applyChanges`:**
+
+1. For each `SyncChange`:
+   a. Find the `SyncEntityAdapter` for the entity type.
+   b. Call `adapter.fromJson(change.data)` to reconstruct the entity.
+   c. Try `adapter.repository.getById(change.entityId)`:
+      - **Not found** → Call `adapter.repository.create(entity)` with `markDirty: false`
+        (this is a remote record, not a local change).
+        Set sync metadata: `syncIsDirty = false`, `syncStatus = synced`,
+        `syncLastSyncedAt = now`.
+      - **Found, NOT dirty** → Call `adapter.repository.update(entity, markDirty: false)`.
+        Overwrite local with remote version.
+      - **Found, IS dirty** → Conflict detected. Create a `SyncConflict` with both
+        local and remote data. Log the conflict. Skip this entity for now (Phase 4).
+2. Update `lastSyncTime` and `lastSyncVersion` in SharedPreferences.
+3. Return `PullChangesResult` with counts.
+
+**Per `02_CODING_STANDARDS.md` Section 9.2:**
+- `markDirty: false` for all remote sync applies
+- `sync_is_dirty = 0, sync_status = synced` after receiving remote update
+- Conflict: `sync_is_dirty = 1, sync_status = conflict`
+
+### 17.6 Implementation Notes
 
 | Concern | Approach |
 |---------|----------|
 | **Encryption** | All entity data encrypted with AES-256-GCM before upload per `02_CODING_STANDARDS.md` Section 11.4 and Section 16.8 |
-| **Soft-delete propagation** | `getPendingChanges` includes tombstones per Section 15.1 |
+| **Decryption** | Pull path decrypts `encryptedData` via `EncryptionService.decrypt()` before JSON parsing |
+| **Soft-delete propagation** | `getPendingChanges` includes tombstones per Section 15.1; pull path applies remote tombstones by setting local `syncDeletedAt` |
 | **Version tracking** | `getLastSyncVersion` reads MAX(sync_version) from successfully synced records; `getLastSyncTime` reads the stored last-sync epoch ms |
 | **Concurrency** | `pushPendingChanges` is best-effort for sign-out; full push/pull operations use rate limiting via `RateLimitService` |
 | **Conflict detection** | During `applyChanges`, if local `syncIsDirty == true` AND remote `syncVersion > local.syncVersion`, a `SyncConflict` is created |
 | **Provider dependency** | `SyncService` is injected via `syncServiceProvider` (Riverpod) into use cases and the `SyncNotifier` |
+| **Envelope consistency** | Push and pull use identical field names (Section 17.3). `getChangesSince` must read the same fields that `pushChanges` writes |
 
 ---
 
@@ -15194,3 +15297,5 @@ abstract class SyncService {
 | 1.6 | 2026-02-14 | Added Section 16 Cloud Storage Provider Contract (CloudProviderType, SyncChange, CloudStorageProvider interface, Google Drive folder structure, OAuth error mapping, sync tier order, encryption requirement) |
 | 1.7 | 2026-02-14 | Added Sections 16.9–16.12: GoogleDriveProvider.userEmail getter, CloudSyncAuthState, CloudSyncAuthNotifier, provider declarations (Phase 1c spec coverage) |
 | 1.8 | 2026-02-17 | Added Section 17 Sync Service Contract (complete SyncService interface, SyncConflict entity); Fixed dangling Section 11 reference → Section 17; Fixed SyncNotifier getLastSyncTime Result unwrap bug; Fixed PullChangesUseCase getLastSyncVersion Result unwrap and null safety (Phase 2a spec prep) |
+| 1.9 | 2026-02-18 | Added Sections 17.3–17.6: Cloud envelope format spec, SyncEntityAdapter fromJson requirement, pull path flow, updated implementation notes. Fixed envelope field name discrepancy (clientId/timestamp vs deviceId/updatedAt). Documented encryptedData format (AES-256-GCM, not raw JSON). (Phase 3a spec prep) |
+| 1.10 | 2026-02-19 | Fixed ConflictResolution → ConflictResolutionType to match actual enum name in code. (Phase 3b audit) |

@@ -1,6 +1,6 @@
 // lib/data/services/sync_service_impl.dart
-// Implements 22_API_CONTRACTS.md Section 17 - SyncService upload path (Phase 2).
-// Pull/apply/resolve operations stubbed for Phase 3/4.
+// Implements 22_API_CONTRACTS.md Section 17 - SyncService.
+// Phase 2: Push (upload) path. Phase 3: Pull (download) path.
 
 import 'dart:convert';
 
@@ -15,17 +15,14 @@ import 'package:shadow_app/domain/repositories/entity_repository.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 /// Adapter that knows how to query and update a specific entity type for sync.
 ///
 /// Each entity type registers one of these with [SyncServiceImpl].
-/// The adapter wraps an [EntityRepository] and provides entity-to-SyncChange
-/// conversion using the [Syncable] interface.
-/// Adapter that knows how to query and update a specific entity type for sync.
-///
-/// Each entity type registers one of these with [SyncServiceImpl].
 /// The [withSyncMetadata] callback provides type-safe copyWith for marking
-/// entities as synced after upload.
+/// entities as synced after upload. The [fromJson] callback reconstructs
+/// entities from downloaded JSON for the pull path (Section 17.4).
 class SyncEntityAdapter<T extends Syncable> {
   final String entityType;
   final EntityRepository<T, String> repository;
@@ -34,10 +31,15 @@ class SyncEntityAdapter<T extends Syncable> {
   /// Bridges generic Syncable to concrete Freezed copyWith.
   final T Function(T entity, SyncMetadata metadata) withSyncMetadata;
 
+  /// Reconstruct an entity from its JSON representation (for pull path).
+  /// Bridges the generic Syncable interface to concrete Freezed fromJson.
+  final T Function(Map<String, dynamic> json) fromJson;
+
   const SyncEntityAdapter({
     required this.entityType,
     required this.repository,
     required this.withSyncMetadata,
+    required this.fromJson,
   });
 
   /// Get dirty entities as SyncChanges, filtered by profileId.
@@ -76,6 +78,16 @@ class SyncEntityAdapter<T extends Syncable> {
         .length;
 
     return Success(count);
+  }
+
+  /// Reconstruct a remote entity from JSON and mark it as synced.
+  ///
+  /// Used by [SyncServiceImpl.applyChanges] for the pull path.
+  /// Keeps the generic type T contained within the adapter method
+  /// to avoid Dart generic type erasure issues.
+  T reconstructSynced(Map<String, dynamic> json) {
+    final entity = fromJson(json);
+    return withSyncMetadata(entity, entity.syncMetadata.markSynced());
   }
 
   /// Mark an entity as synced after successful upload.
@@ -300,24 +312,94 @@ class SyncServiceImpl implements SyncService {
     }
   }
 
-  // === Pull Operations (Phase 3 stubs) ===
+  // === Pull Operations (Phase 3) ===
 
   @override
   Future<Result<List<SyncChange>, AppError>> pullChanges(
     String profileId, {
     int? sinceVersion,
     int limit = 500,
-  }) async =>
-      // Phase 3: Will call _cloudProvider.getChangesSince()
-      const Success([]);
+  }) async {
+    try {
+      // 1. Get last sync time (epoch ms). 0 = first sync, pull everything.
+      final lastSyncTime = _prefs.getInt('$_lastSyncTimeKey$profileId') ?? 0;
+
+      _log.info('Pulling changes since $lastSyncTime for profile $profileId');
+
+      // 2. Fetch raw envelopes from cloud provider
+      final remoteResult = await _cloudProvider.getChangesSince(lastSyncTime);
+      if (remoteResult.isFailure) {
+        return Failure(remoteResult.errorOrNull!);
+      }
+
+      final rawChanges = remoteResult.valueOrNull!;
+      if (rawChanges.isEmpty) {
+        _log.info('No remote changes found');
+        return const Success([]);
+      }
+
+      // 3. Decrypt each envelope's encryptedData field
+      final decryptedChanges = <SyncChange>[];
+
+      for (final change in rawChanges) {
+        // Filter by profileId — only apply changes for this profile
+        if (change.profileId != profileId) continue;
+
+        try {
+          final encryptedData = change.data['encryptedData'] as String?;
+          if (encryptedData == null) {
+            _log.warning(
+              'Skipping ${change.entityType}/${change.entityId}: '
+              'missing encryptedData',
+            );
+            continue;
+          }
+
+          // Decrypt and parse entity JSON
+          final decryptedJson = await _encryptionService.decrypt(encryptedData);
+          final entityData = jsonDecode(decryptedJson) as Map<String, dynamic>;
+
+          decryptedChanges.add(
+            SyncChange(
+              entityType: change.entityType,
+              entityId: change.entityId,
+              profileId: change.profileId,
+              clientId: change.clientId,
+              data: entityData,
+              version: change.version,
+              timestamp: change.timestamp,
+              isDeleted: change.isDeleted,
+            ),
+          );
+        } on Exception catch (e) {
+          _log.warning(
+            'Failed to decrypt ${change.entityType}/${change.entityId}: $e',
+          );
+          // Skip corrupted/undecryptable entries, continue with others
+        }
+      }
+
+      // 4. Apply limit and sort by timestamp
+      decryptedChanges.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      if (decryptedChanges.length > limit) {
+        return Success(decryptedChanges.sublist(0, limit));
+      }
+
+      _log.info('Pulled ${decryptedChanges.length} changes');
+      return Success(decryptedChanges);
+    } on Exception catch (e, stack) {
+      _log.error('pullChanges failed', e, stack);
+      return Failure(SyncError.downloadFailed('pull', e, stack));
+    }
+  }
 
   @override
   Future<Result<PullChangesResult, AppError>> applyChanges(
     String profileId,
     List<SyncChange> changes,
-  ) async =>
-      // Phase 3: Will detect conflicts and apply remote changes
-      const Success(
+  ) async {
+    if (changes.isEmpty) {
+      return const Success(
         PullChangesResult(
           pulledCount: 0,
           appliedCount: 0,
@@ -326,6 +408,129 @@ class SyncServiceImpl implements SyncService {
           latestVersion: 0,
         ),
       );
+    }
+
+    _log.info(
+      'Applying ${changes.length} remote changes for profile $profileId',
+    );
+
+    var appliedCount = 0;
+    var conflictCount = 0;
+    final conflicts = <SyncConflict>[];
+    var maxVersion = 0;
+
+    for (final change in changes) {
+      try {
+        final adapter = _adapterFor(change.entityType);
+        if (adapter == null) {
+          _log.warning('Skipping unknown entity type: ${change.entityType}');
+          continue;
+        }
+
+        if (change.version > maxVersion) {
+          maxVersion = change.version;
+        }
+
+        // Reconstruct entity from JSON and mark as synced.
+        // Uses reconstructSynced to keep the generic type T contained
+        // within the adapter (avoids Dart type erasure issues).
+        final syncedEntity = adapter.reconstructSynced(change.data);
+
+        // Check if entity exists locally
+        final localResult = await adapter.repository.getById(change.entityId);
+
+        if (localResult.isFailure) {
+          // Entity doesn't exist locally → insert
+          final createResult = await adapter.repository.create(syncedEntity);
+          if (createResult.isFailure) {
+            _log.warning(
+              'Failed to create ${change.entityType}/${change.entityId}: '
+              '${createResult.errorOrNull!.message}',
+            );
+            continue;
+          }
+
+          appliedCount++;
+        } else {
+          // Entity exists locally
+          final localEntity = localResult.valueOrNull!;
+
+          if (!localEntity.syncMetadata.syncIsDirty) {
+            // Local is clean → overwrite with remote version
+            // Per Section 9.2: markDirty: false for remote sync applies
+            final updateResult = await adapter.repository.update(
+              syncedEntity,
+              markDirty: false,
+            );
+            if (updateResult.isFailure) {
+              _log.warning(
+                'Failed to update ${change.entityType}/${change.entityId}: '
+                '${updateResult.errorOrNull!.message}',
+              );
+              continue;
+            }
+
+            appliedCount++;
+          } else {
+            // Local is dirty → conflict detected (Phase 4 handles resolution)
+            // Per Section 9.2: sync_is_dirty = 1, sync_status = conflict
+            _log.warning(
+              'Conflict: ${change.entityType}/${change.entityId} '
+              '(local v${localEntity.syncMetadata.syncVersion} '
+              'vs remote v${change.version})',
+            );
+
+            conflicts.add(
+              SyncConflict(
+                id: const Uuid().v4(),
+                entityType: change.entityType,
+                entityId: change.entityId,
+                profileId: profileId,
+                localVersion: localEntity.syncMetadata.syncVersion,
+                remoteVersion: change.version,
+                localData: localEntity.toJson(),
+                remoteData: change.data,
+                detectedAt: DateTime.now().millisecondsSinceEpoch,
+              ),
+            );
+
+            conflictCount++;
+          }
+        }
+      } on Exception catch (e, stack) {
+        _log.error(
+          'Error applying ${change.entityType}/${change.entityId}',
+          e,
+          stack,
+        );
+      }
+    }
+
+    // Update last sync time and version
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (appliedCount > 0) {
+      await _prefs.setInt('$_lastSyncTimeKey$profileId', now);
+      final currentVersion =
+          _prefs.getInt('$_lastSyncVersionKey$profileId') ?? 0;
+      if (maxVersion > currentVersion) {
+        await _prefs.setInt('$_lastSyncVersionKey$profileId', maxVersion);
+      }
+    }
+
+    _log.info(
+      'Apply complete: $appliedCount applied, $conflictCount conflicts',
+    );
+
+    return Success(
+      PullChangesResult(
+        pulledCount: changes.length,
+        appliedCount: appliedCount,
+        conflictCount: conflictCount,
+        conflicts: conflicts,
+        latestVersion: maxVersion,
+      ),
+    );
+  }
 
   // === Conflict Resolution (Phase 4 stub) ===
 

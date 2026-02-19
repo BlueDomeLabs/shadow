@@ -1,23 +1,24 @@
 {
-  "status": "in_progress",
-  "task": "Phase 2b - SyncService upload path implementation complete, ready for handoff",
-  "timestamp": "2026-02-17T22:00:00Z",
+  "status": "complete",
+  "task": "Phase 3 - Download path (pull + decrypt + apply)",
+  "timestamp": "2026-02-19T08:30:00Z",
   "testsStatus": "passing",
-  "testCount": 2157,
+  "testCount": 2172,
   "analyzerStatus": "clean",
   "completedThisSession": [
-    "Extended Syncable interface (id, clientId, profileId, toJson)",
-    "Created SyncConflict freezed entity",
-    "Created SyncService abstract interface",
-    "Created SyncServiceImpl with upload path (encrypt + push + mark synced)",
-    "Wired up DI providers (EncryptionService, GoogleDriveProvider, SyncService)",
-    "Updated bootstrap.dart with 14 SyncEntityAdapters",
-    "Moved GoogleDriveProvider to shared DI provider",
-    "29 unit tests for SyncServiceImpl"
+    "Fixed 1 failing test from previous session (pullChanges stub needed mock for getChangesSince)",
+    "Found and fixed critical double-envelope bug in uploadEntity (was wrapping data twice with wrong field names)",
+    "Fixed ConflictResolution → ConflictResolutionType naming mismatch in spec",
+    "Added reconstructSynced method to SyncEntityAdapter to fix Dart generic type erasure in applyChanges",
+    "Wrote 15 new pull path tests (pullChanges: 8 tests, applyChanges: 7 tests)",
+    "Updated spec version to 1.10",
+    "Phase 3 complete: 2172 tests passing, analyzer clean"
   ],
   "nextSteps": [
-    "Phase 2c - Run /compliance check",
-    "Phase 2c - Commit all changes",
-    "Phase 3 - Download path (pull + decrypt + merge)"
+    "Phase 4a: Update and validate spec documents for conflict handling",
+    "Phase 4b: Implement conflict detection, resolution, and bidirectional sync",
+    "Phase 4c: Wire up Cloud Sync Settings screen to real status/controls",
+    "Phase 4d: Tests proving spec compliance",
+    "Live test: factory-reset → upload fresh data → verify pull downloads it back"
   ]
 }

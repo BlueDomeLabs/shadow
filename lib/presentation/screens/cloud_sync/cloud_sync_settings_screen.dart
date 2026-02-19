@@ -4,17 +4,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
 
 /// Cloud sync settings screen for managing sync configuration.
 ///
 /// Displays current sync status, settings toggles, and device info.
 /// Watches [cloudSyncAuthProvider] to reflect sign-in state.
-class CloudSyncSettingsScreen extends ConsumerWidget {
+class CloudSyncSettingsScreen extends ConsumerStatefulWidget {
   const CloudSyncSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CloudSyncSettingsScreen> createState() =>
+      _CloudSyncSettingsScreenState();
+}
+
+class _CloudSyncSettingsScreenState
+    extends ConsumerState<CloudSyncSettingsScreen> {
+  bool _isSyncing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(cloudSyncAuthProvider);
     final theme = Theme.of(context);
 
@@ -34,9 +45,15 @@ class CloudSyncSettingsScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _showComingSoon(context),
-                icon: const Icon(Icons.sync),
-                label: const Text('Sync Now'),
+                onPressed: _isSyncing ? null : () => _syncNow(context),
+                icon: _isSyncing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync),
+                label: Text(_isSyncing ? 'Syncing...' : 'Sync Now'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -231,6 +248,76 @@ class CloudSyncSettingsScreen extends ConsumerWidget {
       Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
     ],
   );
+
+  Future<void> _syncNow(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final profileId = ref.read(profileProvider).currentProfileId;
+
+    if (profileId == null) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('No profile selected')),
+      );
+      return;
+    }
+
+    setState(() => _isSyncing = true);
+
+    try {
+      final syncSvc = ref.read(syncServiceProvider);
+      var uploaded = 0;
+      var downloaded = 0;
+      var conflicts = 0;
+
+      // 1. Pull remote changes first (get latest from cloud)
+      final pullResult = await syncSvc.pullChanges(profileId);
+      if (pullResult.isSuccess) {
+        final pulled = pullResult.valueOrNull!;
+        if (pulled.isNotEmpty) {
+          final applyResult = await syncSvc.applyChanges(profileId, pulled);
+          if (applyResult.isSuccess) {
+            final r = applyResult.valueOrNull!;
+            downloaded = r.appliedCount;
+            conflicts = r.conflictCount;
+          }
+        }
+      }
+
+      // 2. Push local changes
+      final pendingResult = await syncSvc.getPendingChanges(profileId);
+      if (pendingResult.isSuccess) {
+        final changes = pendingResult.valueOrNull!;
+        if (changes.isNotEmpty) {
+          final pushResult = await syncSvc.pushChanges(changes);
+          if (pushResult.isSuccess) {
+            uploaded = pushResult.valueOrNull!.pushedCount;
+          }
+        }
+      }
+
+      // 3. Show summary
+      final parts = <String>[];
+      if (uploaded > 0) parts.add('$uploaded uploaded');
+      if (downloaded > 0) parts.add('$downloaded downloaded');
+      if (conflicts > 0) parts.add('$conflicts conflicts');
+
+      final message = parts.isEmpty
+          ? 'Sync complete - all up to date'
+          : 'Sync complete: ${parts.join(', ')}';
+
+      debugPrint('[SyncNow] $message');
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 6),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } on Exception catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Sync error: $e')));
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
+  }
 
   void _showComingSoon(BuildContext context) {
     showDialog<void>(

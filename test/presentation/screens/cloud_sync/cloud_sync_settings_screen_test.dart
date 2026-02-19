@@ -7,6 +7,7 @@ import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('CloudSyncSettingsScreen', () {
@@ -147,7 +148,10 @@ void main() {
       expect(find.text('Sync Now'), findsNothing);
     });
 
-    testWidgets('Sync Now shows Coming Soon dialog', (tester) async {
+    testWidgets('Sync Now shows no profile snackbar when no profile selected', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
       await tester.pumpWidget(
         buildScreen(
           authState: const CloudSyncAuthState(
@@ -162,7 +166,7 @@ void main() {
       await tester.tap(find.text('Sync Now'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Coming Soon'), findsOneWidget);
+      expect(find.text('No profile selected'), findsOneWidget);
     });
   });
 }

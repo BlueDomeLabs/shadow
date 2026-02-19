@@ -1,5 +1,7 @@
 // test/unit/data/services/sync_service_impl_test.dart
-// Tests for SyncServiceImpl - Phase 2 upload path.
+// Tests for SyncServiceImpl - Phase 2 upload path + Phase 3 pull path.
+
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -76,6 +78,7 @@ void main() {
           entityType: 'supplements',
           repository: mockRepo,
           withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+          fromJson: Supplement.fromJson,
         ),
       ],
       encryptionService: mockEncryption,
@@ -100,6 +103,7 @@ void main() {
         entityType: 'supplements',
         repository: mockRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       );
 
       final result = await adapter.getPendingSyncChanges('profile-1');
@@ -119,6 +123,7 @@ void main() {
         entityType: 'supplements',
         repository: mockRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       );
 
       final result = await adapter.getPendingSyncChanges('profile-1');
@@ -143,6 +148,7 @@ void main() {
         entityType: 'supplements',
         repository: mockRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       );
 
       final result = await adapter.getPendingSyncChanges('profile-1');
@@ -161,6 +167,7 @@ void main() {
         entityType: 'supplements',
         repository: mockRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       );
 
       final result = await adapter.getPendingSyncCount('profile-1');
@@ -182,6 +189,7 @@ void main() {
           entityType: 'supplements',
           repository: mockRepo,
           withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+          fromJson: Supplement.fromJson,
         );
 
         final result = await adapter.markEntitySynced('sup-1');
@@ -207,6 +215,7 @@ void main() {
         entityType: 'supplements',
         repository: mockRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       );
 
       final result = await adapter.markEntitySynced('missing');
@@ -597,17 +606,360 @@ void main() {
   });
 
   // ===========================================================================
-  // Phase 3/4 stubs
+  // SyncServiceImpl.pullChanges (Phase 3)
   // ===========================================================================
 
-  group('Phase 3/4 stubs', () {
-    test('pullChanges returns empty list', () async {
+  group('pullChanges', () {
+    test('returns empty list when cloud has no changes', () async {
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => const Success(<SyncChange>[]));
+
       final result = await syncService.pullChanges('profile-1');
       expect(result.isSuccess, true);
       expect(result.valueOrNull, isEmpty);
     });
 
-    test('applyChanges returns zero counts', () async {
+    test('uses lastSyncTime from SharedPreferences', () async {
+      // Pre-set a sync time
+      await prefs.setInt('sync_last_sync_time_profile-1', 50000);
+
+      when(
+        mockCloud.getChangesSince(50000),
+      ).thenAnswer((_) async => const Success(<SyncChange>[]));
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isSuccess, true);
+
+      // Verify it called getChangesSince with the stored time, not 0
+      verify(mockCloud.getChangesSince(50000)).called(1);
+      verifyNever(mockCloud.getChangesSince(0));
+    });
+
+    test('decrypts encryptedData from each envelope', () async {
+      final sup = _testSupplement();
+      final supJson = jsonEncode(sup.toJson());
+
+      // Simulate a raw envelope from the cloud (encryptedData is AES string)
+      final envelope = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-1',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 1000,
+        'isDeleted': false,
+        'encryptedData': 'nonce:ciphertext:tag',
+      };
+
+      final rawChange = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: envelope,
+        version: 1,
+        timestamp: 1000,
+      );
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success([rawChange]));
+      when(
+        mockEncryption.decrypt('nonce:ciphertext:tag'),
+      ).thenAnswer((_) async => supJson);
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isSuccess, true);
+
+      final changes = result.valueOrNull!;
+      expect(changes.length, 1);
+
+      // Verify decryption was called
+      verify(mockEncryption.decrypt('nonce:ciphertext:tag')).called(1);
+
+      // Verify the data was replaced with decrypted entity JSON
+      expect(changes.first.data['id'], 'sup-1');
+      expect(changes.first.data['name'], 'Vitamin D');
+      expect(changes.first.entityType, 'supplements');
+      expect(changes.first.entityId, 'sup-1');
+      expect(changes.first.profileId, 'profile-1');
+    });
+
+    test('filters changes by profileId', () async {
+      // Two envelopes: one for profile-1, one for profile-2
+      final sup = _testSupplement();
+      final supJson = jsonEncode(sup.toJson());
+
+      final envelope1 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-1',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 1000,
+        'isDeleted': false,
+        'encryptedData': 'encrypted-1',
+      };
+
+      final envelope2 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-2',
+        'profileId': 'profile-2',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 2000,
+        'isDeleted': false,
+        'encryptedData': 'encrypted-2',
+      };
+
+      final changes = [
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope1,
+          version: 1,
+          timestamp: 1000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-2',
+          profileId: 'profile-2',
+          clientId: 'device-1',
+          data: envelope2,
+          version: 1,
+          timestamp: 2000,
+        ),
+      ];
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success(changes));
+      when(
+        mockEncryption.decrypt('encrypted-1'),
+      ).thenAnswer((_) async => supJson);
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isSuccess, true);
+      expect(result.valueOrNull!.length, 1);
+      expect(result.valueOrNull!.first.entityId, 'sup-1');
+
+      // encrypted-2 should NOT have been decrypted (filtered out)
+      verifyNever(mockEncryption.decrypt('encrypted-2'));
+    });
+
+    test('skips entries with missing encryptedData', () async {
+      final envelope = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-1',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 1000,
+        'isDeleted': false,
+        // no encryptedData field
+      };
+
+      final rawChange = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: envelope,
+        version: 1,
+        timestamp: 1000,
+      );
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success([rawChange]));
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isSuccess, true);
+      expect(result.valueOrNull, isEmpty);
+
+      // Decrypt should NOT have been called
+      verifyNever(mockEncryption.decrypt(any));
+    });
+
+    test('continues on decryption failure', () async {
+      final sup = _testSupplement(id: 'sup-2');
+      final supJson = jsonEncode(sup.toJson());
+
+      final envelope1 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-1',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 1000,
+        'isDeleted': false,
+        'encryptedData': 'corrupted-data',
+      };
+      final envelope2 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-2',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 2,
+        'timestamp': 2000,
+        'isDeleted': false,
+        'encryptedData': 'valid-data',
+      };
+
+      final changes = [
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope1,
+          version: 1,
+          timestamp: 1000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-2',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope2,
+          version: 2,
+          timestamp: 2000,
+        ),
+      ];
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success(changes));
+      when(
+        mockEncryption.decrypt('corrupted-data'),
+      ).thenThrow(Exception('Decryption failed'));
+      when(
+        mockEncryption.decrypt('valid-data'),
+      ).thenAnswer((_) async => supJson);
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isSuccess, true);
+
+      // Only the second one should be in results
+      final pulled = result.valueOrNull!;
+      expect(pulled.length, 1);
+      expect(pulled.first.entityId, 'sup-2');
+    });
+
+    test('returns failure when cloud provider fails', () async {
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Failure(NetworkError.noConnection()));
+
+      final result = await syncService.pullChanges('profile-1');
+      expect(result.isFailure, true);
+    });
+
+    test('sorts results by timestamp ascending', () async {
+      final sup = _testSupplement();
+      final supJson = jsonEncode(sup.toJson());
+
+      final envelope1 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-1',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 1,
+        'timestamp': 5000,
+        'isDeleted': false,
+        'encryptedData': 'enc-1',
+      };
+      final envelope2 = <String, dynamic>{
+        'entityType': 'supplements',
+        'entityId': 'sup-2',
+        'profileId': 'profile-1',
+        'clientId': 'device-1',
+        'version': 2,
+        'timestamp': 1000,
+        'isDeleted': false,
+        'encryptedData': 'enc-2',
+      };
+
+      final changes = [
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope1,
+          version: 1,
+          timestamp: 5000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-2',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope2,
+          version: 2,
+          timestamp: 1000,
+        ),
+      ];
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success(changes));
+      when(mockEncryption.decrypt(any)).thenAnswer((_) async => supJson);
+
+      final result = await syncService.pullChanges('profile-1');
+      final pulled = result.valueOrNull!;
+      expect(pulled.length, 2);
+      // Oldest first (1000 before 5000)
+      expect(pulled[0].entityId, 'sup-2');
+      expect(pulled[1].entityId, 'sup-1');
+    });
+
+    test('applies limit to results', () async {
+      final sup = _testSupplement();
+      final supJson = jsonEncode(sup.toJson());
+
+      // Create 5 changes
+      final changes = List.generate(5, (i) {
+        final envelope = <String, dynamic>{
+          'entityType': 'supplements',
+          'entityId': 'sup-$i',
+          'profileId': 'profile-1',
+          'clientId': 'device-1',
+          'version': i + 1,
+          'timestamp': (i + 1) * 1000,
+          'isDeleted': false,
+          'encryptedData': 'enc-$i',
+        };
+        return SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-$i',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: envelope,
+          version: i + 1,
+          timestamp: (i + 1) * 1000,
+        );
+      });
+
+      when(
+        mockCloud.getChangesSince(0),
+      ).thenAnswer((_) async => Success(changes));
+      when(mockEncryption.decrypt(any)).thenAnswer((_) async => supJson);
+
+      final result = await syncService.pullChanges('profile-1', limit: 3);
+      expect(result.valueOrNull!.length, 3);
+    });
+  });
+
+  // ===========================================================================
+  // SyncServiceImpl.applyChanges (Phase 3)
+  // ===========================================================================
+
+  group('applyChanges', () {
+    test('returns zero counts for empty list', () async {
       final result = await syncService.applyChanges('profile-1', []);
       expect(result.isSuccess, true);
 
@@ -619,6 +971,285 @@ void main() {
       expect(pullResult.latestVersion, 0);
     });
 
+    test('inserts new entity when not found locally', () async {
+      // Entity not found → create it
+      final sup = _testSupplement(isDirty: false);
+
+      when(mockRepo.getById('sup-1')).thenAnswer(
+        (_) async => Failure(DatabaseError.notFound('supplement', 'sup-1')),
+      );
+      when(mockRepo.create(any)).thenAnswer((_) async => Success(sup));
+
+      final change = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: sup.toJson(),
+        version: 1,
+        timestamp: 1000,
+      );
+
+      final result = await syncService.applyChanges('profile-1', [change]);
+      expect(result.isSuccess, true);
+
+      final pullResult = result.valueOrNull!;
+      expect(pullResult.pulledCount, 1);
+      expect(pullResult.appliedCount, 1);
+      expect(pullResult.conflictCount, 0);
+
+      // Verify create was called with a synced entity (not dirty)
+      final captured = verify(mockRepo.create(captureAny)).captured;
+      final createdEntity = captured.first as Supplement;
+      expect(createdEntity.syncMetadata.syncIsDirty, false);
+      expect(createdEntity.syncMetadata.syncStatus, SyncStatus.synced);
+    });
+
+    test('overwrites local entity when not dirty', () async {
+      // Existing entity, NOT dirty → overwrite
+      final localSup = _testSupplement(isDirty: false);
+      final remoteSup = _testSupplement(
+        isDirty: false,
+        syncVersion: 2,
+        name: 'Updated Vitamin D',
+      );
+
+      when(
+        mockRepo.getById('sup-1'),
+      ).thenAnswer((_) async => Success(localSup));
+      when(
+        mockRepo.update(any, markDirty: false),
+      ).thenAnswer((_) async => Success(remoteSup));
+
+      final change = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: remoteSup.toJson(),
+        version: 2,
+        timestamp: 2000,
+      );
+
+      final result = await syncService.applyChanges('profile-1', [change]);
+      expect(result.isSuccess, true);
+
+      final pullResult = result.valueOrNull!;
+      expect(pullResult.appliedCount, 1);
+      expect(pullResult.conflictCount, 0);
+
+      // Verify update was called with markDirty: false
+      final captured = verify(
+        mockRepo.update(captureAny, markDirty: false),
+      ).captured;
+      final updatedEntity = captured.first as Supplement;
+      expect(updatedEntity.syncMetadata.syncIsDirty, false);
+      expect(updatedEntity.syncMetadata.syncStatus, SyncStatus.synced);
+    });
+
+    test('creates SyncConflict when local entity is dirty', () async {
+      // Existing entity, IS dirty → conflict
+      final localSup = _testSupplement();
+      final remoteSup = _testSupplement(isDirty: false, syncVersion: 2);
+
+      when(
+        mockRepo.getById('sup-1'),
+      ).thenAnswer((_) async => Success(localSup));
+
+      final change = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: remoteSup.toJson(),
+        version: 2,
+        timestamp: 2000,
+      );
+
+      final result = await syncService.applyChanges('profile-1', [change]);
+      expect(result.isSuccess, true);
+
+      final pullResult = result.valueOrNull!;
+      expect(pullResult.appliedCount, 0);
+      expect(pullResult.conflictCount, 1);
+      expect(pullResult.conflicts.length, 1);
+
+      final conflict = pullResult.conflicts.first;
+      expect(conflict.entityType, 'supplements');
+      expect(conflict.entityId, 'sup-1');
+      expect(conflict.profileId, 'profile-1');
+      expect(conflict.localVersion, 1);
+      expect(conflict.remoteVersion, 2);
+      expect(conflict.localData, isNotEmpty);
+      expect(conflict.remoteData, isNotEmpty);
+      expect(conflict.isResolved, false);
+
+      // Should NOT have called create or update
+      verifyNever(mockRepo.create(any));
+      verifyNever(mockRepo.update(any, markDirty: anyNamed('markDirty')));
+    });
+
+    test('skips unknown entity types', () async {
+      const change = SyncChange(
+        entityType: 'unknown_table',
+        entityId: 'unk-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: {'id': 'unk-1'},
+        version: 1,
+        timestamp: 1000,
+      );
+
+      final result = await syncService.applyChanges('profile-1', [change]);
+      expect(result.isSuccess, true);
+      expect(result.valueOrNull!.appliedCount, 0);
+      expect(result.valueOrNull!.conflictCount, 0);
+
+      // Should not have touched the repository
+      verifyNever(mockRepo.getById(any));
+    });
+
+    test('updates SharedPreferences after successful apply', () async {
+      final sup = _testSupplement(isDirty: false);
+
+      when(mockRepo.getById('sup-1')).thenAnswer(
+        (_) async => Failure(DatabaseError.notFound('supplement', 'sup-1')),
+      );
+      when(mockRepo.create(any)).thenAnswer((_) async => Success(sup));
+
+      final change = SyncChange(
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        clientId: 'device-1',
+        data: sup.toJson(),
+        version: 7,
+        timestamp: 1000,
+      );
+
+      await syncService.applyChanges('profile-1', [change]);
+
+      final syncTime = prefs.getInt('sync_last_sync_time_profile-1');
+      expect(syncTime, isNotNull);
+
+      final syncVersion = prefs.getInt('sync_last_sync_version_profile-1');
+      expect(syncVersion, 7);
+    });
+
+    test('tracks latestVersion across multiple changes', () async {
+      final sup = _testSupplement(isDirty: false);
+
+      when(mockRepo.getById(any)).thenAnswer(
+        (_) async => Failure(DatabaseError.notFound('supplement', 'x')),
+      );
+      when(mockRepo.create(any)).thenAnswer((_) async => Success(sup));
+
+      final changes = [
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: sup.toJson(),
+          version: 3,
+          timestamp: 1000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-2',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: _testSupplement(id: 'sup-2', isDirty: false).toJson(),
+          version: 9,
+          timestamp: 2000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-3',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: _testSupplement(id: 'sup-3', isDirty: false).toJson(),
+          version: 5,
+          timestamp: 3000,
+        ),
+      ];
+
+      final result = await syncService.applyChanges('profile-1', changes);
+      expect(result.valueOrNull!.latestVersion, 9);
+      expect(result.valueOrNull!.appliedCount, 3);
+      expect(result.valueOrNull!.pulledCount, 3);
+    });
+
+    test('handles mixed insert, update, and conflict', () async {
+      // sup-1: not found → insert
+      // sup-2: found, clean → update
+      // sup-3: found, dirty → conflict
+      final cleanLocal = _testSupplement(id: 'sup-2', isDirty: false);
+      final dirtyLocal = _testSupplement(id: 'sup-3');
+      final remoteSup = _testSupplement(isDirty: false);
+
+      when(mockRepo.getById('sup-1')).thenAnswer(
+        (_) async => Failure(DatabaseError.notFound('supplement', 'sup-1')),
+      );
+      when(
+        mockRepo.getById('sup-2'),
+      ).thenAnswer((_) async => Success(cleanLocal));
+      when(
+        mockRepo.getById('sup-3'),
+      ).thenAnswer((_) async => Success(dirtyLocal));
+
+      when(mockRepo.create(any)).thenAnswer((_) async => Success(remoteSup));
+      when(
+        mockRepo.update(any, markDirty: false),
+      ).thenAnswer((_) async => Success(remoteSup));
+
+      final changes = [
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: remoteSup.toJson(),
+          version: 1,
+          timestamp: 1000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-2',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: remoteSup.toJson(),
+          version: 2,
+          timestamp: 2000,
+        ),
+        SyncChange(
+          entityType: 'supplements',
+          entityId: 'sup-3',
+          profileId: 'profile-1',
+          clientId: 'device-1',
+          data: remoteSup.toJson(),
+          version: 3,
+          timestamp: 3000,
+        ),
+      ];
+
+      final result = await syncService.applyChanges('profile-1', changes);
+      expect(result.isSuccess, true);
+
+      final pullResult = result.valueOrNull!;
+      expect(pullResult.pulledCount, 3);
+      expect(pullResult.appliedCount, 2); // insert + update
+      expect(pullResult.conflictCount, 1); // dirty local
+      expect(pullResult.conflicts.length, 1);
+      expect(pullResult.latestVersion, 3);
+    });
+  });
+
+  // ===========================================================================
+  // Phase 4 stubs (conflict resolution)
+  // ===========================================================================
+
+  group('Phase 4 stubs', () {
     test('resolveConflict returns success', () async {
       final result = await syncService.resolveConflict(
         'conflict-1',

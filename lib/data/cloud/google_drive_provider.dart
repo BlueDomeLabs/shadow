@@ -77,7 +77,11 @@ class GoogleDriveProvider implements CloudStorageProvider {
   ///
   /// [secureStorage] can be injected for testing.
   GoogleDriveProvider({FlutterSecureStorage? secureStorage})
-    : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
+    : _secureStorage =
+          secureStorage ??
+          const FlutterSecureStorage(
+            mOptions: MacOsOptions(useDataProtectionKeyChain: false),
+          ),
       _log = logger.scope('GoogleDriveProvider');
 
   @override
@@ -193,19 +197,11 @@ class GoogleDriveProvider implements CloudStorageProvider {
     try {
       await _ensureValidToken();
 
-      // Create cloud envelope per Section 16.4
-      final envelope = <String, dynamic>{
-        'entityType': entityType,
-        'entityId': entityId,
-        'version': version,
-        'deviceId': clientId,
-        'updatedAt': DateTime.now().millisecondsSinceEpoch,
-        'encryptedData': jsonEncode(json),
-      };
-
-      // Upload to shadow_app/data/{entityType}/{entityId}.json
+      // Upload the envelope as-is. The caller (SyncService.pushChanges) builds
+      // the complete envelope per Section 17.3 with all canonical field names
+      // and the AES-256-GCM encrypted data in 'encryptedData'.
       final remotePath = '$_dataFolder/$entityType/$entityId.json';
-      await _uploadJsonToPath(remotePath, envelope);
+      await _uploadJsonToPath(remotePath, json);
 
       _log.info('Uploaded entity: $entityType/$entityId (v$version)');
       return const Success(null);
@@ -234,20 +230,9 @@ class GoogleDriveProvider implements CloudStorageProvider {
         return const Success(null);
       }
 
-      // Unwrap envelope - extract entity data from encryptedData field
-      final encryptedData = envelope['encryptedData'] as String?;
-      if (encryptedData == null) {
-        return Failure(
-          SyncError.corruptedData(
-            entityType,
-            entityId,
-            'Missing encryptedData in envelope',
-          ),
-        );
-      }
-
-      final data = jsonDecode(encryptedData) as Map<String, dynamic>;
-      return Success(data);
+      // Return the raw envelope. The caller (SyncService) handles decryption
+      // of the encryptedData field per Section 17.3.
+      return Success(envelope);
     } on OAuthException catch (e, stack) {
       // Section 16.5: Token refresh failure → AuthError
       _log.error('Auth error during download: $entityType/$entityId', e, stack);
@@ -308,21 +293,22 @@ class GoogleDriveProvider implements CloudStorageProvider {
           final content = await _downloadTextById(fileId);
           if (content == null) continue;
 
+          // Parse the envelope. The encryptedData field stays as-is (encrypted
+          // string). SyncService.pullChanges handles decryption per Section 17.5.
           final envelope = jsonDecode(content) as Map<String, dynamic>;
-          final encryptedData = envelope['encryptedData'] as String?;
-          if (encryptedData == null) continue;
+          if (envelope['encryptedData'] == null) continue;
 
-          final data = jsonDecode(encryptedData) as Map<String, dynamic>;
-
+          // Read fields using canonical envelope names (Section 17.3)
           changes.add(
             SyncChange(
               entityType: entityType,
               entityId: envelope['entityId'] as String? ?? '',
-              profileId: data['profileId'] as String? ?? '',
-              clientId: envelope['deviceId'] as String? ?? '',
-              data: data,
+              profileId: envelope['profileId'] as String? ?? '',
+              clientId: envelope['clientId'] as String? ?? '',
+              data: envelope,
               version: envelope['version'] as int? ?? 0,
-              timestamp: envelope['updatedAt'] as int? ?? 0,
+              timestamp: envelope['timestamp'] as int? ?? 0,
+              isDeleted: envelope['isDeleted'] as bool? ?? false,
             ),
           );
         }

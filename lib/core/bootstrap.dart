@@ -117,7 +117,11 @@ Future<List<Override>> bootstrap() async {
   );
 
   // 5. Create encryption service and initialize key
-  final encryptionService = EncryptionService(const FlutterSecureStorage());
+  final encryptionService = EncryptionService(
+    const FlutterSecureStorage(
+      mOptions: MacOsOptions(useDataProtectionKeyChain: false),
+    ),
+  );
   await encryptionService.initialize();
 
   // 6. Create cloud storage provider (shared instance for auth + sync)
@@ -133,71 +137,85 @@ Future<List<Override>> bootstrap() async {
         entityType: 'supplements',
         repository: supplementRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Supplement.fromJson,
       ),
       SyncEntityAdapter<IntakeLog>(
         entityType: 'intake_logs',
         repository: intakeLogRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: IntakeLog.fromJson,
       ),
       SyncEntityAdapter<Condition>(
         entityType: 'conditions',
         repository: conditionRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Condition.fromJson,
       ),
       SyncEntityAdapter<ConditionLog>(
         entityType: 'condition_logs',
         repository: conditionLogRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: ConditionLog.fromJson,
       ),
       SyncEntityAdapter<FlareUp>(
         entityType: 'flare_ups',
         repository: flareUpRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: FlareUp.fromJson,
       ),
       SyncEntityAdapter<FluidsEntry>(
         entityType: 'fluids_entries',
         repository: fluidsEntryRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: FluidsEntry.fromJson,
       ),
       SyncEntityAdapter<SleepEntry>(
         entityType: 'sleep_entries',
         repository: sleepEntryRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: SleepEntry.fromJson,
       ),
       SyncEntityAdapter<Activity>(
         entityType: 'activities',
         repository: activityRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Activity.fromJson,
       ),
       SyncEntityAdapter<ActivityLog>(
         entityType: 'activity_logs',
         repository: activityLogRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: ActivityLog.fromJson,
       ),
       SyncEntityAdapter<FoodItem>(
         entityType: 'food_items',
         repository: foodItemRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: FoodItem.fromJson,
       ),
       SyncEntityAdapter<FoodLog>(
         entityType: 'food_logs',
         repository: foodLogRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: FoodLog.fromJson,
       ),
       SyncEntityAdapter<JournalEntry>(
         entityType: 'journal_entries',
         repository: journalEntryRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: JournalEntry.fromJson,
       ),
       SyncEntityAdapter<PhotoArea>(
         entityType: 'photo_areas',
         repository: photoAreaRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: PhotoArea.fromJson,
       ),
       SyncEntityAdapter<PhotoEntry>(
         entityType: 'photo_entries',
         repository: photoEntryRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: PhotoEntry.fromJson,
       ),
     ],
     encryptionService: encryptionService,

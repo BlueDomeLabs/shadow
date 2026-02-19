@@ -105,14 +105,14 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 1d. Guided integration test with Reid (factory-reset, step-by-step sign-in, log verification)
 
 **Phase 2: Upload data (push encrypted health data to Google Drive)**
-- [ ] 2a. Update and validate spec documents against Coding Standards
-- [ ] 2b. Implement SyncService upload path (encrypt + push dirty records)
-- [ ] 2c. Tests proving spec compliance
+- [x] 2a. Update and validate spec documents against Coding Standards
+- [x] 2b. Implement SyncService upload path (encrypt + push dirty records)
+- [x] 2c. Tests proving spec compliance (29 tests)
 
 **Phase 3: Download data (pull data from Google Drive)**
-- [ ] 3a. Update and validate spec documents against Coding Standards
-- [ ] 3b. Implement SyncService download path (pull + decrypt + merge)
-- [ ] 3c. Tests proving spec compliance
+- [x] 3a. Update and validate spec documents against Coding Standards
+- [x] 3b. Implement SyncService download path (pull + decrypt + merge)
+- [x] 3c. Tests proving spec compliance (15 pull path tests)
 
 **Phase 4: Full sync with conflict handling**
 - [ ] 4a. Update and validate spec documents against Coding Standards
@@ -129,7 +129,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
 
-### Test Count: 2128 passing | Analyzer: clean
+### Test Count: 2172 passing | Analyzer: clean
 
 ---
 
