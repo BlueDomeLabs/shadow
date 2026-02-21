@@ -1,7 +1,21 @@
 # MCP Configuration Plan — Shadow / Blue Dome Labs
 **Created:** 2026-02-21
 **Author:** Reid Barcus (via Claude on claude.ai)
-**Status:** IN PROGRESS — Node.js version check pending
+**Status:** COMPLETE — All Phase 1 and Phase 2 MCPs configured
+
+---
+
+## Session 2 Completed — 2026-02-21
+
+All planned MCPs are now configured and working:
+
+- ✅ **GitHub MCP (Global)** — User level (`/Users/reidbarcus`), scoped to BlueDomeLabs GitHub account. Verified live by listing repositories successfully.
+- ✅ **Filesystem MCP** — User level (`/Users/reidbarcus`), scoped to `/Users/reidbarcus`. Gives Claude Code structured navigation across all Blue Dome Labs projects.
+- ✅ **Flutter/Dart Docs MCP** — Project level (`/Users/reidbarcus/Development/Shadow`), configured in `.mcp.json` and committed to GitHub.
+
+**Known display bug:** `claude mcp list` may return no output in the terminal. This is a display quirk, not an error. The source of truth for configured MCPs is `~/.claude.json` (user-level) and `.mcp.json` (project-level).
+
+Node.js v24.13.1 and npm 11.8.0 installed on 2026-02-21.
 
 ---
 
@@ -40,7 +54,7 @@ For tools that apply to every project Reid builds under Blue Dome Labs.
 ### 1.2 Flutter/Dart Documentation MCP
 - **Purpose:** Gives Claude Code live access to current Flutter and Dart documentation so he's not relying on potentially outdated training data when building features.
 - **Requires:** Node.js
-- **Status:** ⬜ NOT CONFIGURED
+- **Status:** ✅ CONFIGURED — project level, committed to GitHub in `.mcp.json`
 
 ---
 
@@ -56,7 +70,7 @@ For tools that apply to every project Reid builds under Blue Dome Labs.
 ### 2.2 Filesystem MCP
 - **Purpose:** Gives Claude Code smarter, structured navigation of the entire Development folder — useful when cross-referencing spec docs, managing multiple projects, etc.
 - **Requires:** Node.js
-- **Status:** ⬜ NOT CONFIGURED
+- **Status:** ✅ CONFIGURED — user level, scoped to `/Users/reidbarcus`
 
 ---
 
@@ -79,8 +93,8 @@ For tools that apply to every project Reid builds under Blue Dome Labs.
 
 Before any MCP can be installed, verify:
 
-- [ ] Node.js is installed — run `node --version` (need v18 or higher)
-- [ ] npm is available — run `npm --version`
+- [x] Node.js is installed — v24.13.1 (installed 2026-02-21)
+- [x] npm is available — v11.8.0
 - [x] GitHub PAT with `repo` + `workflow` + `read:org` scopes exists — rotated on 2026-02-21, no expiration, stored in Mac Keychain under 'GitHub PAT' / 'BlueDomeLabs'
 
 ---
