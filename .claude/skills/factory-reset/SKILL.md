@@ -1,210 +1,232 @@
 ---
 name: factory-reset
-description: Complete factory reset of the Shadow app. Clears database, encryption key, caches, and build artifacts to restore the app to its original first-launch state.
+description: Clear all Shadow app data before testing major features. Prevents false positives from cached data.
+user_invocable: true
 ---
 
-# Shadow Factory Reset Skill
+# Factory Reset
 
-## Purpose
+Complete cleanup of database, cache, secure storage, and preferences for fresh testing.
+Only use for development/testing purposes.
 
-Perform a complete factory reset of the Shadow app, clearing all user data and restoring it to the original first-launch state (Welcome Screen). Use this when:
+**Project location:** `/Users/reidbarcus/Development/Shadow`
+**Bundle ID:** `com.bluedomecolorado.shadowApp`
 
-- Database is corrupted or stale from a previous run
-- All queries are failing with "Database query failed"
-- You want to test the fresh first-launch experience
-- You need a clean slate after development/testing
+## Storage Locations to Clear
 
----
+1. SQLCipher database (in app container)
+2. SharedPreferences / NSUserDefaults (MULTIPLE locations!)
+3. FlutterSecureStorage (Keychain) — OAuth tokens, encryption keys
+4. App caches and Application Support
+5. Flutter/Dart build and tool caches
 
-## EXECUTION PROTOCOL
+**CRITICAL:** SharedPreferences on macOS can be stored in:
+- `~/Library/Containers/BUNDLE_ID/Data/Library/Preferences/`
+- `~/Library/Preferences/` (main location for SharedPreferences)
+- macOS CFPreferences daemon cache (in-memory)
 
-**Execute these steps in order. Do NOT skip steps.**
+**CRITICAL:** Flutter prefixes ALL SharedPreferences keys with `flutter.` on macOS.
 
----
+## Full Reset Procedure (10 Steps)
 
-### Step 1: Stop the Running App
+Execute from the project directory `/Users/reidbarcus/Development/Shadow`.
 
-If the app is currently running, stop it first:
+### Step 1: Kill running app instances
 
 ```bash
-# Kill any running Flutter processes for this app
-pkill -f "flutter.*shadow" || true
-pkill -f "shadow_app" || true
+pkill -9 -f "shadow_app" 2>/dev/null || true
+pkill -9 -f "com.bluedomecolorado.shadowApp" 2>/dev/null || true
+pkill -f flutter 2>/dev/null || true
+sleep 1
 ```
 
-Verify no instances are running before proceeding.
-
----
-
-### Step 2: Delete the Database File
-
-The encrypted SQLite database is stored at platform-specific locations:
-
-**macOS (development):**
-```bash
-rm -f "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db"
-```
-
-**If the Containers path doesn't exist, check Application Support:**
-```bash
-rm -f ~/Library/Application\ Support/com.bluedomecolorado.shadowApp/shadow.db
-```
-
-**Verify deletion:**
-```bash
-ls -la "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db" 2>/dev/null && echo "WARNING: Database still exists!" || echo "OK: No database file"
-```
-
-#### Database Location Reference
-
-From `lib/data/datasources/local/database.dart`:
-- Database filename: `shadow.db`
-- iOS/Android: `getApplicationDocumentsDirectory()`
-- macOS: `getApplicationSupportDirectory()`
-- Encryption: AES-256 via SQLCipher
-- Key storage: `shadow_db_encryption_key` in platform Keychain/KeyStore
-
----
-
-### Step 3: Clear the Encryption Key
-
-The encryption key is stored in the macOS Keychain via `FlutterSecureStorage`. Deleting only the database without the key can cause issues if the new database gets a different key.
-
-**Option A: Use the app's built-in method (preferred)**
-
-The codebase provides `DatabaseConnection.deleteDatabaseAndKey()` in `lib/data/datasources/local/database.dart` (line 279). This handles both the database file and the encryption key atomically.
-
-**Option B: Manual key deletion (if Option A is not feasible)**
+### Step 2: Delete SQLCipher database files
 
 ```bash
-security delete-generic-password -a "shadow_db_encryption_key" -s "shadow_db_encryption_key" 2>/dev/null || echo "Keychain entry not found or already deleted"
+DB_DIR=~/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents
+rm -f "$DB_DIR/shadow.db" "$DB_DIR/shadow.db-shm" "$DB_DIR/shadow.db-wal"
+rm -rf "$DB_DIR"/* 2>/dev/null
 ```
 
-Note: The exact Keychain service name may vary based on `FlutterSecureStorage` defaults. The app handles missing keys gracefully by generating a new one on next launch.
+### Step 3: Delete SharedPreferences (.plist files) — ALL locations
 
----
+```bash
+BUNDLE_ID="com.bluedomecolorado.shadowApp"
+CONTAINER=~/Library/Containers/$BUNDLE_ID
 
-### Step 4: Clear Flutter Build Cache
+# Location 1: App container preferences
+rm -f "$CONTAINER/Data/Library/Preferences/$BUNDLE_ID.plist"
+
+# Location 2: Main user preferences (WHERE SHAREDPREFERENCES ACTUALLY STORES DATA)
+rm -f ~/Library/Preferences/$BUNDLE_ID.plist
+
+# Location 3: Lowercase bundle ID variant
+rm -f ~/Library/Preferences/com.bluedomecolorado.shadowapp.plist
+
+# Location 4: Flutter debug mode and wildcard variants
+rm -f ~/Library/Preferences/com.bluedomecolorado*.plist
+rm -f ~/Library/Preferences/shadowApp*.plist
+rm -f ~/Library/Preferences/shadow_app*.plist
+
+# Location 5: Flutter/Dart plists in container
+rm -f "$CONTAINER/Data/Library/Preferences"/flutter*.plist
+rm -f "$CONTAINER/Data/Library/Preferences"/dart*.plist
+
+# Flush macOS defaults cache for both bundle ID variants
+defaults delete "$BUNDLE_ID" 2>/dev/null || true
+defaults delete "com.bluedomecolorado.shadowapp" 2>/dev/null || true
+```
+
+### Step 4: Delete Keychain items (FlutterSecureStorage)
+
+Delete ALL entries under flutter_secure_storage_service (brute force - keeps deleting until none remain):
+
+```bash
+# flutter_secure_storage stores all keys under service name "flutter_secure_storage_service"
+# Delete ALL entries (not just known keys) to ensure complete cleanup
+SERVICES=("flutter_secure_storage_service" "com.bluedomecolorado.shadowApp" "shadowApp")
+
+for service in "${SERVICES[@]}"; do
+    # Keep deleting until no more entries exist for this service
+    while security delete-generic-password -s "$service" 2>/dev/null; do
+        true
+    done
+done
+```
+
+### Step 5: Clear app caches
+
+```bash
+CONTAINER=~/Library/Containers/com.bluedomecolorado.shadowApp
+
+# Container caches
+rm -rf "$CONTAINER/Data/Library/Caches"/* 2>/dev/null
+
+# Container Application Support
+rm -rf "$CONTAINER/Data/Library/Application Support"/* 2>/dev/null
+
+# Non-sandboxed Application Support (macOS debug builds store DB here)
+rm -rf ~/Library/Application\ Support/com.bluedomecolorado.shadowApp 2>/dev/null
+
+# User-level caches
+rm -rf ~/Library/Caches/com.bluedomecolorado.shadowApp 2>/dev/null
+```
+
+### Step 6: Flutter clean
 
 ```bash
 cd /Users/reidbarcus/Development/Shadow
 flutter clean
+```
+
+### Step 7: Clear Dart/Flutter tool caches
+
+```bash
+rm -rf ~/.flutter-devtools 2>/dev/null
+rm -rf ~/Library/Caches/io.flutter.* 2>/dev/null
+rm -rf /Users/reidbarcus/Development/Shadow/.dart_tool 2>/dev/null
+rm -f /Users/reidbarcus/Development/Shadow/.packages 2>/dev/null
+```
+
+### Step 8: Kill cfprefsd to flush preferences cache
+
+macOS `cfprefsd` caches preferences in memory. Killing it forces a re-read from disk. macOS automatically restarts it.
+
+```bash
+killall cfprefsd 2>/dev/null || true
+sleep 1
+```
+
+### Step 9: Reinstall dependencies
+
+```bash
+cd /Users/reidbarcus/Development/Shadow
+rm -rf ios/Pods/ macos/Pods/
+rm -f pubspec.lock
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+cd macos && pod install && cd ..
 ```
 
----
-
-### Step 5: Clear macOS App Data (Optional)
-
-For a truly complete reset that also clears preferences and cached state:
+### Step 10: Verify clean state
 
 ```bash
-defaults delete com.bluedomecolorado.shadowApp 2>/dev/null || true
-rm -rf "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Library/Caches/" 2>/dev/null || true
-rm -rf "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Library/Preferences/" 2>/dev/null || true
+BUNDLE_ID="com.bluedomecolorado.shadowApp"
+
+# Verify database deleted
+ls ~/Library/Containers/$BUNDLE_ID/Data/Documents/shadow.db 2>/dev/null && echo "FAIL: Database still exists" || echo "OK: Database deleted"
+
+# Verify preferences deleted
+ls ~/Library/Preferences/$BUNDLE_ID.plist 2>/dev/null && echo "FAIL: User prefs still exist" || echo "OK: User prefs deleted"
+
+# Verify no Flutter-prefixed keys remain in macOS defaults
+if defaults read "$BUNDLE_ID" 2>/dev/null | grep -q "flutter\."; then
+    echo "FAIL: Flutter keys still in defaults"
+    defaults read "$BUNDLE_ID" 2>/dev/null | grep "flutter\."
+else
+    echo "OK: No Flutter keys in defaults"
+fi
+
+# Check critical sync keys specifically
+defaults read "$BUNDLE_ID" "flutter.last_sync_timestamp" 2>/dev/null && echo "FAIL: last_sync_timestamp exists" || echo "OK: last_sync_timestamp cleared"
+defaults read "$BUNDLE_ID" "flutter.sync_cloud_provider" 2>/dev/null && echo "FAIL: sync_cloud_provider exists" || echo "OK: sync_cloud_provider cleared"
+defaults read "$BUNDLE_ID" "flutter.cloud_user_identifier" 2>/dev/null && echo "FAIL: cloud_user_identifier exists" || echo "OK: cloud_user_identifier cleared"
+
+# Verify NO keychain entries remain for flutter_secure_storage
+if security find-generic-password -s "flutter_secure_storage_service" 2>/dev/null; then
+    echo "FAIL: Keychain entries still exist for flutter_secure_storage_service"
+else
+    echo "OK: All Keychain entries cleared"
+fi
 ```
 
----
+## Expected Behavior After Reset
 
-### Step 6: Verify Clean State
+1. Launch app with: `flutter run -d macos --dart-define=GOOGLE_OAUTH_CLIENT_ID=...`
+2. App should show:
+   - Welcome screen (no existing auth)
+   - No profiles
+   - Cloud Sync settings: "Cloud Sync Not Set Up"
+   - NO "Last synced: X ago" message
+   - CloudProvider.none
+3. If you still see "Synced" or "Last synced: X ago" after reset:
+   - Try rebooting your Mac (clears all memory caches)
+   - Manually delete: `rm ~/Library/Preferences/com.bluedomecolorado.shadowApp.plist`
+   - Run: `defaults delete com.bluedomecolorado.shadowApp`
 
-```bash
-ls -la "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db" 2>/dev/null && echo "WARNING: Database still exists!" || echo "OK: No database file"
+**iOS:** App data must be deleted manually from the device:
+Settings > General > iPhone Storage > Shadow App > Delete App
 
-cd /Users/reidbarcus/Development/Shadow
-flutter analyze
+## Known Issues After Reset
+
+### Google Drive still connected after reset
+**Fixed (2026-02-18):** FlutterSecureStorage on macOS defaults to the Data Protection Keychain
+(`kSecUseDataProtectionKeychain: true`) which the `security` CLI cannot access. The app was
+changed to use `useDataProtectionKeyChain: false` (legacy keychain) in:
+- `lib/core/bootstrap.dart` (EncryptionService storage)
+- `lib/data/cloud/google_drive_provider.dart` (OAuth token storage)
+
+This matches the database code (`lib/data/datasources/local/database.dart`) which already
+used the legacy keychain. After this fix, Step 4's `security delete-generic-password` loop
+properly clears all tokens.
+
+### Black screen / Keychain error -34018
+If the app shows a black screen and the console shows `PlatformException(Unexpected security result code, Code: -34018)`, the Keychain entitlement was lost. Verify both entitlements files contain:
+
+```xml
+<key>keychain-access-groups</key>
+<array>
+    <string>$(AppIdentifierPrefix)com.bluedomecolorado.shadowApp</string>
+</array>
 ```
 
----
+Check: `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements`
 
-### Step 7: Relaunch the App
+## Why This Matters
 
-```bash
-cd /Users/reidbarcus/Development/Shadow
-flutter run -d macos
-```
+Old data causes false positives. If you see:
+- "Synced X days ago" → old sync data in SharedPreferences
+- Auto sign-in → cached OAuth tokens in Keychain
+- Old profile data → SQLCipher database not cleared
+- Settings persisting → cfprefsd caching preferences in memory
 
-**Expected result:** The app launches to the **Welcome Screen** showing:
-- Shadow app logo and "Welcome to Shadow" heading
-- Feature list (Track Supplements, Log Food & Reactions, Monitor Conditions, Photo Tracking, Cloud Sync)
-- "Create New Account" and "Join Existing Account" buttons
-- Privacy notice
-
----
-
-## Quick Factory Reset (Minimal)
-
-For a quick reset when you just need to clear data:
-
-```bash
-pkill -f "shadow_app" || true
-rm -f "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db"
-rm -f ~/Library/Application\ Support/com.bluedomecolorado.shadowApp/shadow.db
-cd /Users/reidbarcus/Development/Shadow && flutter run -d macos
-```
-
----
-
-## Full Factory Reset (Everything)
-
-```bash
-# 1. Stop app
-pkill -f "shadow_app" || true
-
-# 2. Delete database
-rm -f "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db"
-rm -f ~/Library/Application\ Support/com.bluedomecolorado.shadowApp/shadow.db
-
-# 3. Clear encryption key
-security delete-generic-password -a "shadow_db_encryption_key" -s "shadow_db_encryption_key" 2>/dev/null || true
-
-# 4. Clear app preferences and caches
-defaults delete com.bluedomecolorado.shadowApp 2>/dev/null || true
-rm -rf "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Library/Caches/" 2>/dev/null || true
-rm -rf "/Users/reidbarcus/Library/Containers/com.bluedomecolorado.shadowApp/Data/Library/Preferences/" 2>/dev/null || true
-
-# 5. Clean Flutter build
-cd /Users/reidbarcus/Development/Shadow
-flutter clean
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-
-# 6. Relaunch
-flutter run -d macos
-```
-
----
-
-## Troubleshooting
-
-### Database still exists after deletion
-The app may be holding a lock on the file. Kill all app processes first (Step 1).
-
-### App crashes on launch after reset
-Run `flutter clean && flutter pub get && dart run build_runner build --delete-conflicting-outputs`.
-
-### "Database query failed" errors persist
-Search for the database at an unexpected path:
-```bash
-find ~/Library -name "shadow.db" 2>/dev/null
-```
-
-### Encryption key mismatch
-Delete both the key (Step 3) and the database (Step 2), then relaunch.
-
----
-
-## Technical Reference
-
-| Item | Value |
-|------|-------|
-| Database file | `shadow.db` |
-| Encryption | AES-256 via SQLCipher |
-| Key name | `shadow_db_encryption_key` |
-| Key storage | macOS Keychain (via FlutterSecureStorage) |
-| Key size | 256-bit (64 hex chars) |
-| Schema version | 7 |
-| Source | `lib/data/datasources/local/database.dart` |
-| Delete method | `DatabaseConnection.deleteDatabaseAndKey()` |
-| macOS DB path | `~/Library/Containers/com.bluedomecolorado.shadowApp/Data/Documents/shadow.db` |
+Do a factory reset before claiming a feature works.
