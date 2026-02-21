@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "flutter-docs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-flutter"
+      ],
+      "env": {}
+    }
+  }
+}
