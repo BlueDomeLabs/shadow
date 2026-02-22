@@ -25,6 +25,7 @@ import 'package:shadow_app/data/datasources/local/daos/photo_area_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
@@ -39,6 +40,7 @@ import 'package:shadow_app/data/datasources/local/tables/photo_areas_table.dart'
 import 'package:shadow_app/data/datasources/local/tables/photo_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/sync_conflicts_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
@@ -73,6 +75,7 @@ part 'database.g.dart';
     JournalEntries,
     PhotoAreas,
     PhotoEntries,
+    SyncConflicts,
   ],
   daos: [
     SupplementDao,
@@ -89,6 +92,7 @@ part 'database.g.dart';
     JournalEntryDao,
     PhotoAreaDao,
     PhotoEntryDao,
+    SyncConflictDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -107,8 +111,9 @@ class AppDatabase extends _$AppDatabase {
 
   /// Schema version - MUST match 10_DATABASE_SCHEMA.md
   /// Increment when schema changes require migration
+  /// v8: Added sync_conflicts table (Phase 4b — conflict handling)
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   /// Migration strategy for schema changes.
   ///
@@ -128,13 +133,12 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     onUpgrade: (m, from, to) async {
-      // Migrations will be added as schema evolves
-      // Each migration should be idempotent per 02_CODING_STANDARDS.md
+      // Each migration is idempotent per 02_CODING_STANDARDS.md Section 8.5
 
-      // Example migration pattern (add when needed):
-      // if (from < 2) {
-      //   await m.addColumn(supplements, supplements.newColumn);
-      // }
+      // v8: Add sync_conflicts table for Phase 4 conflict handling
+      if (from < 8) {
+        await m.createTable(syncConflicts);
+      }
     },
     beforeOpen: (details) async {
       debugPrint(

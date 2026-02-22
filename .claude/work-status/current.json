@@ -1,24 +1,16 @@
 {
-  "status": "complete",
-  "task": "Phase 3 - Download path (pull + decrypt + apply)",
-  "timestamp": "2026-02-19T08:30:00Z",
+  "status": "in_progress",
+  "task": "Phase 4b: Implement conflict detection, resolution, and bidirectional sync - Steps 1-5 complete; Step 6 (wire Cloud Sync Settings screen) next",
+  "timestamp": "2026-02-21T03:00:00Z",
   "testsStatus": "passing",
-  "testCount": 2172,
+  "testCount": 2187,
   "analyzerStatus": "clean",
-  "completedThisSession": [
-    "Fixed 1 failing test from previous session (pullChanges stub needed mock for getChangesSince)",
-    "Found and fixed critical double-envelope bug in uploadEntity (was wrapping data twice with wrong field names)",
-    "Fixed ConflictResolution → ConflictResolutionType naming mismatch in spec",
-    "Added reconstructSynced method to SyncEntityAdapter to fix Dart generic type erasure in applyChanges",
-    "Wrote 15 new pull path tests (pullChanges: 8 tests, applyChanges: 7 tests)",
-    "Updated spec version to 1.10",
-    "Phase 3 complete: 2172 tests passing, analyzer clean"
+  "completedSteps": [
+    "Step 1: sync_conflicts DB table (schema v8) + SyncConflictDao",
+    "Step 2: markConflict() and clearConflict() on SyncMetadata",
+    "Step 3: applyChanges() upgraded with dual-write conflict persistence",
+    "Step 4: getConflictCount() implemented via SyncConflictDao",
+    "Step 5: resolveConflict() implemented (keepLocal, keepRemote, merge)"
   ],
-  "nextSteps": [
-    "Phase 4a: Update and validate spec documents for conflict handling",
-    "Phase 4b: Implement conflict detection, resolution, and bidirectional sync",
-    "Phase 4c: Wire up Cloud Sync Settings screen to real status/controls",
-    "Phase 4d: Tests proving spec compliance",
-    "Live test: factory-reset → upload fresh data → verify pull downloads it back"
-  ]
+  "nextStep": "Step 6: Wire Cloud Sync Settings screen to real sync status/controls (SyncNotifier)"
 }

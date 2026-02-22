@@ -224,6 +224,95 @@ void main() {
       });
     });
 
+    group('markConflict()', () {
+      test('sets status to conflict', () {
+        final metadata = SyncMetadata.create(deviceId: testDeviceId);
+        final result = metadata.markConflict('{"remote":"data"}');
+
+        expect(result.syncStatus, equals(SyncStatus.conflict));
+      });
+
+      test('sets dirty flag to true', () {
+        final metadata = SyncMetadata.create(deviceId: testDeviceId);
+        final result = metadata.markConflict('{"remote":"data"}');
+
+        expect(result.syncIsDirty, isTrue);
+      });
+
+      test('stores remoteJson in conflictData', () {
+        final metadata = SyncMetadata.create(deviceId: testDeviceId);
+        const remoteJson = '{"remote":"data","version":5}';
+        final result = metadata.markConflict(remoteJson);
+
+        expect(result.conflictData, equals(remoteJson));
+      });
+
+      test('does NOT increment version (no local data change)', () {
+        final metadata = SyncMetadata.create(deviceId: testDeviceId);
+        final versionBefore = metadata.syncVersion;
+        final result = metadata.markConflict('{"remote":"data"}');
+
+        expect(result.syncVersion, equals(versionBefore));
+      });
+
+      test('preserves other fields', () {
+        final metadata = SyncMetadata.create(deviceId: testDeviceId);
+        final result = metadata.markConflict('{"remote":"data"}');
+
+        expect(result.syncCreatedAt, equals(metadata.syncCreatedAt));
+        expect(result.syncDeviceId, equals(metadata.syncDeviceId));
+      });
+    });
+
+    group('clearConflict()', () {
+      test('sets status to pending', () {
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markConflict('{}');
+        final result = metadata.clearConflict();
+
+        expect(result.syncStatus, equals(SyncStatus.pending));
+      });
+
+      test('sets dirty flag to true', () {
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markConflict('{}');
+        final result = metadata.clearConflict();
+
+        expect(result.syncIsDirty, isTrue);
+      });
+
+      test('increments version by 1 (resolution is a local change)', () {
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markConflict('{}');
+        final versionBefore = metadata.syncVersion;
+        final result = metadata.clearConflict();
+
+        expect(result.syncVersion, equals(versionBefore + 1));
+      });
+
+      test('clears conflictData to null', () {
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markConflict('{}');
+        final result = metadata.clearConflict();
+
+        expect(result.conflictData, isNull);
+      });
+
+      test('preserves other fields', () {
+        final metadata = SyncMetadata.create(
+          deviceId: testDeviceId,
+        ).markConflict('{}');
+        final result = metadata.clearConflict();
+
+        expect(result.syncCreatedAt, equals(metadata.syncCreatedAt));
+        expect(result.syncDeviceId, equals(metadata.syncDeviceId));
+      });
+    });
+
     group('isDeleted getter', () {
       test('returns false when syncDeletedAt is null', () {
         final metadata = SyncMetadata.create(deviceId: testDeviceId);

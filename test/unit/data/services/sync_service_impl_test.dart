@@ -9,6 +9,7 @@ import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
@@ -18,7 +19,12 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/supplement_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-@GenerateMocks([SupplementRepository, EncryptionService, CloudStorageProvider])
+@GenerateMocks([
+  SupplementRepository,
+  EncryptionService,
+  CloudStorageProvider,
+  SyncConflictDao,
+])
 import 'sync_service_impl_test.mocks.dart';
 
 /// Helper to create a test Supplement entity with given sync state.
@@ -51,6 +57,7 @@ void main() {
   late MockSupplementRepository mockRepo;
   late MockEncryptionService mockEncryption;
   late MockCloudStorageProvider mockCloud;
+  late MockSyncConflictDao mockConflictDao;
   late SharedPreferences prefs;
   late SyncServiceImpl syncService;
 
@@ -62,12 +69,29 @@ void main() {
     provideDummy<Result<Map<String, dynamic>?, AppError>>(const Success(null));
     provideDummy<Result<List<SyncChange>, AppError>>(const Success([]));
     provideDummy<Result<String, AppError>>(const Success(''));
+    provideDummy<Result<int, AppError>>(const Success(0));
+    provideDummy<Result<SyncConflict, AppError>>(
+      const Success(
+        SyncConflict(
+          id: 'conflict-1',
+          entityType: 'supplements',
+          entityId: 'sup-1',
+          profileId: 'profile-1',
+          localVersion: 1,
+          remoteVersion: 2,
+          localData: {},
+          remoteData: {},
+          detectedAt: 1000,
+        ),
+      ),
+    );
   });
 
   setUp(() async {
     mockRepo = MockSupplementRepository();
     mockEncryption = MockEncryptionService();
     mockCloud = MockCloudStorageProvider();
+    mockConflictDao = MockSyncConflictDao();
 
     SharedPreferences.setMockInitialValues({});
     prefs = await SharedPreferences.getInstance();
@@ -84,6 +108,7 @@ void main() {
       encryptionService: mockEncryption,
       cloudProvider: mockCloud,
       prefs: prefs,
+      conflictDao: mockConflictDao,
     );
   });
 
@@ -1055,6 +1080,13 @@ void main() {
       when(
         mockRepo.getById('sup-1'),
       ).thenAnswer((_) async => Success(localSup));
+      // markEntityConflicted calls update to persist the conflict state
+      when(
+        mockRepo.update(any, markDirty: anyNamed('markDirty')),
+      ).thenAnswer((_) async => Success(localSup));
+      when(
+        mockConflictDao.insert(any),
+      ).thenAnswer((_) async => const Success(null));
 
       final change = SyncChange(
         entityType: 'supplements',
@@ -1084,9 +1116,11 @@ void main() {
       expect(conflict.remoteData, isNotEmpty);
       expect(conflict.isResolved, false);
 
-      // Should NOT have called create or update
+      // Should NOT have called create; SHOULD have called update for markEntityConflicted
       verifyNever(mockRepo.create(any));
-      verifyNever(mockRepo.update(any, markDirty: anyNamed('markDirty')));
+      verify(mockRepo.update(any, markDirty: anyNamed('markDirty'))).called(1);
+      // Conflict row should have been inserted
+      verify(mockConflictDao.insert(any)).called(1);
     });
 
     test('skips unknown entity types', () async {
@@ -1200,8 +1234,11 @@ void main() {
 
       when(mockRepo.create(any)).thenAnswer((_) async => Success(remoteSup));
       when(
-        mockRepo.update(any, markDirty: false),
+        mockRepo.update(any, markDirty: anyNamed('markDirty')),
       ).thenAnswer((_) async => Success(remoteSup));
+      when(
+        mockConflictDao.insert(any),
+      ).thenAnswer((_) async => const Success(null));
 
       final changes = [
         SyncChange(
@@ -1246,22 +1283,166 @@ void main() {
   });
 
   // ===========================================================================
-  // Phase 4 stubs (conflict resolution)
+  // getConflictCount
   // ===========================================================================
 
-  group('Phase 4 stubs', () {
-    test('resolveConflict returns success', () async {
-      final result = await syncService.resolveConflict(
-        'conflict-1',
-        ConflictResolutionType.keepLocal,
-      );
+  group('getConflictCount', () {
+    test('delegates to conflictDao.countUnresolved', () async {
+      when(
+        mockConflictDao.countUnresolved('profile-1'),
+      ).thenAnswer((_) async => const Success(3));
+
+      final result = await syncService.getConflictCount('profile-1');
       expect(result.isSuccess, true);
+      expect(result.valueOrNull, 3);
+      verify(mockConflictDao.countUnresolved('profile-1')).called(1);
     });
 
-    test('getConflictCount returns zero', () async {
+    test('returns zero when no conflicts', () async {
+      when(
+        mockConflictDao.countUnresolved('profile-1'),
+      ).thenAnswer((_) async => const Success(0));
+
       final result = await syncService.getConflictCount('profile-1');
       expect(result.isSuccess, true);
       expect(result.valueOrNull, 0);
+    });
+
+    test('returns failure when DAO fails', () async {
+      when(mockConflictDao.countUnresolved('profile-1')).thenAnswer(
+        (_) async => Failure(
+          DatabaseError.queryFailed(
+            'sync_conflicts',
+            'db error',
+            StackTrace.current,
+          ),
+        ),
+      );
+
+      final result = await syncService.getConflictCount('profile-1');
+      expect(result.isFailure, true);
+    });
+  });
+
+  // ===========================================================================
+  // resolveConflict
+  // ===========================================================================
+
+  group('resolveConflict', () {
+    late SyncConflict testConflict;
+
+    setUp(() {
+      final localSup = _testSupplement();
+      final remoteSup = _testSupplement(isDirty: false, syncVersion: 2);
+      testConflict = SyncConflict(
+        id: 'conflict-1',
+        entityType: 'supplements',
+        entityId: 'sup-1',
+        profileId: 'profile-1',
+        localVersion: 1,
+        remoteVersion: 2,
+        localData: localSup.toJson(),
+        remoteData: remoteSup.toJson(),
+        detectedAt: 1000,
+      );
+
+      when(
+        mockConflictDao.getById('conflict-1'),
+      ).thenAnswer((_) async => Success(testConflict));
+      when(
+        mockConflictDao.markResolved(any, any, any),
+      ).thenAnswer((_) async => const Success(null));
+      when(
+        mockRepo.getById('sup-1'),
+      ).thenAnswer((_) async => Success(_testSupplement()));
+      when(
+        mockRepo.update(any, markDirty: anyNamed('markDirty')),
+      ).thenAnswer((_) async => Success(_testSupplement()));
+    });
+
+    test(
+      'keepLocal clears conflict on entity and marks conflict resolved',
+      () async {
+        final result = await syncService.resolveConflict(
+          'conflict-1',
+          ConflictResolutionType.keepLocal,
+        );
+
+        expect(result.isSuccess, true);
+        // clearEntityConflict calls update with cleared metadata
+        verify(
+          mockRepo.update(any, markDirty: anyNamed('markDirty')),
+        ).called(1);
+        // Conflict row marked resolved with keepLocal
+        verify(
+          mockConflictDao.markResolved(
+            'conflict-1',
+            ConflictResolutionType.keepLocal,
+            any,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'keepRemote overwrites local entity and marks conflict resolved',
+      () async {
+        final result = await syncService.resolveConflict(
+          'conflict-1',
+          ConflictResolutionType.keepRemote,
+        );
+
+        expect(result.isSuccess, true);
+        // Remote entity written with markDirty:false
+        verify(
+          mockRepo.update(any, markDirty: anyNamed('markDirty')),
+        ).called(1);
+        verify(
+          mockConflictDao.markResolved(
+            'conflict-1',
+            ConflictResolutionType.keepRemote,
+            any,
+          ),
+        ).called(1);
+      },
+    );
+
+    test('returns failure when conflict not found', () async {
+      when(mockConflictDao.getById('missing-id')).thenAnswer(
+        (_) async =>
+            Failure(DatabaseError.notFound('SyncConflict', 'missing-id')),
+      );
+
+      final result = await syncService.resolveConflict(
+        'missing-id',
+        ConflictResolutionType.keepLocal,
+      );
+
+      expect(result.isFailure, true);
+    });
+
+    test('returns failure when adapter not found for entity type', () async {
+      const unknownConflict = SyncConflict(
+        id: 'conflict-2',
+        entityType: 'unknown_table',
+        entityId: 'ent-1',
+        profileId: 'profile-1',
+        localVersion: 1,
+        remoteVersion: 2,
+        localData: {},
+        remoteData: {},
+        detectedAt: 1000,
+      );
+      when(
+        mockConflictDao.getById('conflict-2'),
+      ).thenAnswer((_) async => const Success(unknownConflict));
+
+      final result = await syncService.resolveConflict(
+        'conflict-2',
+        ConflictResolutionType.keepLocal,
+      );
+
+      expect(result.isFailure, true);
     });
   });
 }

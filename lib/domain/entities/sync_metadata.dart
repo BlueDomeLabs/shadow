@@ -94,6 +94,30 @@ class SyncMetadata with _$SyncMetadata {
     syncVersion: syncVersion + 1, // REQUIRED: Delete is a local change
   );
 
+  /// Mark as conflicted when a remote version cannot be auto-merged.
+  ///
+  /// Sets syncStatus=conflict, syncIsDirty=true, conflictData=[remoteJson].
+  /// Per 22_API_CONTRACTS.md: syncVersion is NOT incremented — the local
+  /// data has not changed, only its conflict state has been flagged.
+  SyncMetadata markConflict(String remoteJson) => copyWith(
+    syncStatus: SyncStatus.conflict,
+    syncIsDirty: true,
+    conflictData: remoteJson,
+    // NOTE: syncVersion NOT incremented — no local data change occurred
+  );
+
+  /// Clear a conflict after resolution and queue the record for re-upload.
+  ///
+  /// Sets syncStatus=pending, syncIsDirty=true, syncVersion+1, conflictData=null.
+  /// Per 22_API_CONTRACTS.md: version IS incremented because resolution
+  /// constitutes a local change that must win the next sync.
+  SyncMetadata clearConflict() => copyWith(
+    syncStatus: SyncStatus.pending,
+    syncIsDirty: true,
+    syncVersion: syncVersion + 1, // REQUIRED: resolution is a local change
+    conflictData: null,
+  );
+
   bool get isDeleted => syncDeletedAt != null;
 
   /// Check if this metadata was created with empty() and needs initialization

@@ -17815,6 +17815,735 @@ class PhotoEntriesCompanion extends UpdateCompanion<PhotoEntryRow> {
   }
 }
 
+class $SyncConflictsTable extends SyncConflicts
+    with TableInfo<$SyncConflictsTable, SyncConflictRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncConflictsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localVersionMeta = const VerificationMeta(
+    'localVersion',
+  );
+  @override
+  late final GeneratedColumn<int> localVersion = GeneratedColumn<int>(
+    'local_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteVersionMeta = const VerificationMeta(
+    'remoteVersion',
+  );
+  @override
+  late final GeneratedColumn<int> remoteVersion = GeneratedColumn<int>(
+    'remote_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localDataMeta = const VerificationMeta(
+    'localData',
+  );
+  @override
+  late final GeneratedColumn<String> localData = GeneratedColumn<String>(
+    'local_data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteDataMeta = const VerificationMeta(
+    'remoteData',
+  );
+  @override
+  late final GeneratedColumn<String> remoteData = GeneratedColumn<String>(
+    'remote_data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detectedAtMeta = const VerificationMeta(
+    'detectedAt',
+  );
+  @override
+  late final GeneratedColumn<int> detectedAt = GeneratedColumn<int>(
+    'detected_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isResolvedMeta = const VerificationMeta(
+    'isResolved',
+  );
+  @override
+  late final GeneratedColumn<bool> isResolved = GeneratedColumn<bool>(
+    'is_resolved',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_resolved" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _resolutionMeta = const VerificationMeta(
+    'resolution',
+  );
+  @override
+  late final GeneratedColumn<int> resolution = GeneratedColumn<int>(
+    'resolution',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resolvedAtMeta = const VerificationMeta(
+    'resolvedAt',
+  );
+  @override
+  late final GeneratedColumn<int> resolvedAt = GeneratedColumn<int>(
+    'resolved_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    entityType,
+    entityId,
+    profileId,
+    localVersion,
+    remoteVersion,
+    localData,
+    remoteData,
+    detectedAt,
+    isResolved,
+    resolution,
+    resolvedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_conflicts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncConflictRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('local_version')) {
+      context.handle(
+        _localVersionMeta,
+        localVersion.isAcceptableOrUnknown(
+          data['local_version']!,
+          _localVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_localVersionMeta);
+    }
+    if (data.containsKey('remote_version')) {
+      context.handle(
+        _remoteVersionMeta,
+        remoteVersion.isAcceptableOrUnknown(
+          data['remote_version']!,
+          _remoteVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteVersionMeta);
+    }
+    if (data.containsKey('local_data')) {
+      context.handle(
+        _localDataMeta,
+        localData.isAcceptableOrUnknown(data['local_data']!, _localDataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localDataMeta);
+    }
+    if (data.containsKey('remote_data')) {
+      context.handle(
+        _remoteDataMeta,
+        remoteData.isAcceptableOrUnknown(data['remote_data']!, _remoteDataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_remoteDataMeta);
+    }
+    if (data.containsKey('detected_at')) {
+      context.handle(
+        _detectedAtMeta,
+        detectedAt.isAcceptableOrUnknown(data['detected_at']!, _detectedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_detectedAtMeta);
+    }
+    if (data.containsKey('is_resolved')) {
+      context.handle(
+        _isResolvedMeta,
+        isResolved.isAcceptableOrUnknown(data['is_resolved']!, _isResolvedMeta),
+      );
+    }
+    if (data.containsKey('resolution')) {
+      context.handle(
+        _resolutionMeta,
+        resolution.isAcceptableOrUnknown(data['resolution']!, _resolutionMeta),
+      );
+    }
+    if (data.containsKey('resolved_at')) {
+      context.handle(
+        _resolvedAtMeta,
+        resolvedAt.isAcceptableOrUnknown(data['resolved_at']!, _resolvedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncConflictRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncConflictRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      localVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}local_version'],
+      )!,
+      remoteVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}remote_version'],
+      )!,
+      localData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_data'],
+      )!,
+      remoteData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_data'],
+      )!,
+      detectedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}detected_at'],
+      )!,
+      isResolved: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_resolved'],
+      )!,
+      resolution: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}resolution'],
+      ),
+      resolvedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}resolved_at'],
+      ),
+    );
+  }
+
+  @override
+  $SyncConflictsTable createAlias(String alias) {
+    return $SyncConflictsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncConflictRow extends DataClass implements Insertable<SyncConflictRow> {
+  final String id;
+  final String entityType;
+  final String entityId;
+  final String profileId;
+  final int localVersion;
+  final int remoteVersion;
+  final String localData;
+  final String remoteData;
+  final int detectedAt;
+  final bool isResolved;
+  final int? resolution;
+  final int? resolvedAt;
+  const SyncConflictRow({
+    required this.id,
+    required this.entityType,
+    required this.entityId,
+    required this.profileId,
+    required this.localVersion,
+    required this.remoteVersion,
+    required this.localData,
+    required this.remoteData,
+    required this.detectedAt,
+    required this.isResolved,
+    this.resolution,
+    this.resolvedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['local_version'] = Variable<int>(localVersion);
+    map['remote_version'] = Variable<int>(remoteVersion);
+    map['local_data'] = Variable<String>(localData);
+    map['remote_data'] = Variable<String>(remoteData);
+    map['detected_at'] = Variable<int>(detectedAt);
+    map['is_resolved'] = Variable<bool>(isResolved);
+    if (!nullToAbsent || resolution != null) {
+      map['resolution'] = Variable<int>(resolution);
+    }
+    if (!nullToAbsent || resolvedAt != null) {
+      map['resolved_at'] = Variable<int>(resolvedAt);
+    }
+    return map;
+  }
+
+  SyncConflictsCompanion toCompanion(bool nullToAbsent) {
+    return SyncConflictsCompanion(
+      id: Value(id),
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      profileId: Value(profileId),
+      localVersion: Value(localVersion),
+      remoteVersion: Value(remoteVersion),
+      localData: Value(localData),
+      remoteData: Value(remoteData),
+      detectedAt: Value(detectedAt),
+      isResolved: Value(isResolved),
+      resolution: resolution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolution),
+      resolvedAt: resolvedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolvedAt),
+    );
+  }
+
+  factory SyncConflictRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncConflictRow(
+      id: serializer.fromJson<String>(json['id']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      localVersion: serializer.fromJson<int>(json['localVersion']),
+      remoteVersion: serializer.fromJson<int>(json['remoteVersion']),
+      localData: serializer.fromJson<String>(json['localData']),
+      remoteData: serializer.fromJson<String>(json['remoteData']),
+      detectedAt: serializer.fromJson<int>(json['detectedAt']),
+      isResolved: serializer.fromJson<bool>(json['isResolved']),
+      resolution: serializer.fromJson<int?>(json['resolution']),
+      resolvedAt: serializer.fromJson<int?>(json['resolvedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'profileId': serializer.toJson<String>(profileId),
+      'localVersion': serializer.toJson<int>(localVersion),
+      'remoteVersion': serializer.toJson<int>(remoteVersion),
+      'localData': serializer.toJson<String>(localData),
+      'remoteData': serializer.toJson<String>(remoteData),
+      'detectedAt': serializer.toJson<int>(detectedAt),
+      'isResolved': serializer.toJson<bool>(isResolved),
+      'resolution': serializer.toJson<int?>(resolution),
+      'resolvedAt': serializer.toJson<int?>(resolvedAt),
+    };
+  }
+
+  SyncConflictRow copyWith({
+    String? id,
+    String? entityType,
+    String? entityId,
+    String? profileId,
+    int? localVersion,
+    int? remoteVersion,
+    String? localData,
+    String? remoteData,
+    int? detectedAt,
+    bool? isResolved,
+    Value<int?> resolution = const Value.absent(),
+    Value<int?> resolvedAt = const Value.absent(),
+  }) => SyncConflictRow(
+    id: id ?? this.id,
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
+    profileId: profileId ?? this.profileId,
+    localVersion: localVersion ?? this.localVersion,
+    remoteVersion: remoteVersion ?? this.remoteVersion,
+    localData: localData ?? this.localData,
+    remoteData: remoteData ?? this.remoteData,
+    detectedAt: detectedAt ?? this.detectedAt,
+    isResolved: isResolved ?? this.isResolved,
+    resolution: resolution.present ? resolution.value : this.resolution,
+    resolvedAt: resolvedAt.present ? resolvedAt.value : this.resolvedAt,
+  );
+  SyncConflictRow copyWithCompanion(SyncConflictsCompanion data) {
+    return SyncConflictRow(
+      id: data.id.present ? data.id.value : this.id,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      localVersion: data.localVersion.present
+          ? data.localVersion.value
+          : this.localVersion,
+      remoteVersion: data.remoteVersion.present
+          ? data.remoteVersion.value
+          : this.remoteVersion,
+      localData: data.localData.present ? data.localData.value : this.localData,
+      remoteData: data.remoteData.present
+          ? data.remoteData.value
+          : this.remoteData,
+      detectedAt: data.detectedAt.present
+          ? data.detectedAt.value
+          : this.detectedAt,
+      isResolved: data.isResolved.present
+          ? data.isResolved.value
+          : this.isResolved,
+      resolution: data.resolution.present
+          ? data.resolution.value
+          : this.resolution,
+      resolvedAt: data.resolvedAt.present
+          ? data.resolvedAt.value
+          : this.resolvedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncConflictRow(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('profileId: $profileId, ')
+          ..write('localVersion: $localVersion, ')
+          ..write('remoteVersion: $remoteVersion, ')
+          ..write('localData: $localData, ')
+          ..write('remoteData: $remoteData, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('isResolved: $isResolved, ')
+          ..write('resolution: $resolution, ')
+          ..write('resolvedAt: $resolvedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    entityType,
+    entityId,
+    profileId,
+    localVersion,
+    remoteVersion,
+    localData,
+    remoteData,
+    detectedAt,
+    isResolved,
+    resolution,
+    resolvedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncConflictRow &&
+          other.id == this.id &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.profileId == this.profileId &&
+          other.localVersion == this.localVersion &&
+          other.remoteVersion == this.remoteVersion &&
+          other.localData == this.localData &&
+          other.remoteData == this.remoteData &&
+          other.detectedAt == this.detectedAt &&
+          other.isResolved == this.isResolved &&
+          other.resolution == this.resolution &&
+          other.resolvedAt == this.resolvedAt);
+}
+
+class SyncConflictsCompanion extends UpdateCompanion<SyncConflictRow> {
+  final Value<String> id;
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<String> profileId;
+  final Value<int> localVersion;
+  final Value<int> remoteVersion;
+  final Value<String> localData;
+  final Value<String> remoteData;
+  final Value<int> detectedAt;
+  final Value<bool> isResolved;
+  final Value<int?> resolution;
+  final Value<int?> resolvedAt;
+  final Value<int> rowid;
+  const SyncConflictsCompanion({
+    this.id = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.localVersion = const Value.absent(),
+    this.remoteVersion = const Value.absent(),
+    this.localData = const Value.absent(),
+    this.remoteData = const Value.absent(),
+    this.detectedAt = const Value.absent(),
+    this.isResolved = const Value.absent(),
+    this.resolution = const Value.absent(),
+    this.resolvedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncConflictsCompanion.insert({
+    required String id,
+    required String entityType,
+    required String entityId,
+    required String profileId,
+    required int localVersion,
+    required int remoteVersion,
+    required String localData,
+    required String remoteData,
+    required int detectedAt,
+    this.isResolved = const Value.absent(),
+    this.resolution = const Value.absent(),
+    this.resolvedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       entityType = Value(entityType),
+       entityId = Value(entityId),
+       profileId = Value(profileId),
+       localVersion = Value(localVersion),
+       remoteVersion = Value(remoteVersion),
+       localData = Value(localData),
+       remoteData = Value(remoteData),
+       detectedAt = Value(detectedAt);
+  static Insertable<SyncConflictRow> custom({
+    Expression<String>? id,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? profileId,
+    Expression<int>? localVersion,
+    Expression<int>? remoteVersion,
+    Expression<String>? localData,
+    Expression<String>? remoteData,
+    Expression<int>? detectedAt,
+    Expression<bool>? isResolved,
+    Expression<int>? resolution,
+    Expression<int>? resolvedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (profileId != null) 'profile_id': profileId,
+      if (localVersion != null) 'local_version': localVersion,
+      if (remoteVersion != null) 'remote_version': remoteVersion,
+      if (localData != null) 'local_data': localData,
+      if (remoteData != null) 'remote_data': remoteData,
+      if (detectedAt != null) 'detected_at': detectedAt,
+      if (isResolved != null) 'is_resolved': isResolved,
+      if (resolution != null) 'resolution': resolution,
+      if (resolvedAt != null) 'resolved_at': resolvedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncConflictsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? entityType,
+    Value<String>? entityId,
+    Value<String>? profileId,
+    Value<int>? localVersion,
+    Value<int>? remoteVersion,
+    Value<String>? localData,
+    Value<String>? remoteData,
+    Value<int>? detectedAt,
+    Value<bool>? isResolved,
+    Value<int?>? resolution,
+    Value<int?>? resolvedAt,
+    Value<int>? rowid,
+  }) {
+    return SyncConflictsCompanion(
+      id: id ?? this.id,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      profileId: profileId ?? this.profileId,
+      localVersion: localVersion ?? this.localVersion,
+      remoteVersion: remoteVersion ?? this.remoteVersion,
+      localData: localData ?? this.localData,
+      remoteData: remoteData ?? this.remoteData,
+      detectedAt: detectedAt ?? this.detectedAt,
+      isResolved: isResolved ?? this.isResolved,
+      resolution: resolution ?? this.resolution,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (localVersion.present) {
+      map['local_version'] = Variable<int>(localVersion.value);
+    }
+    if (remoteVersion.present) {
+      map['remote_version'] = Variable<int>(remoteVersion.value);
+    }
+    if (localData.present) {
+      map['local_data'] = Variable<String>(localData.value);
+    }
+    if (remoteData.present) {
+      map['remote_data'] = Variable<String>(remoteData.value);
+    }
+    if (detectedAt.present) {
+      map['detected_at'] = Variable<int>(detectedAt.value);
+    }
+    if (isResolved.present) {
+      map['is_resolved'] = Variable<bool>(isResolved.value);
+    }
+    if (resolution.present) {
+      map['resolution'] = Variable<int>(resolution.value);
+    }
+    if (resolvedAt.present) {
+      map['resolved_at'] = Variable<int>(resolvedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncConflictsCompanion(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('profileId: $profileId, ')
+          ..write('localVersion: $localVersion, ')
+          ..write('remoteVersion: $remoteVersion, ')
+          ..write('localData: $localData, ')
+          ..write('remoteData: $remoteData, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('isResolved: $isResolved, ')
+          ..write('resolution: $resolution, ')
+          ..write('resolvedAt: $resolvedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -17832,6 +18561,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $JournalEntriesTable journalEntries = $JournalEntriesTable(this);
   late final $PhotoAreasTable photoAreas = $PhotoAreasTable(this);
   late final $PhotoEntriesTable photoEntries = $PhotoEntriesTable(this);
+  late final $SyncConflictsTable syncConflicts = $SyncConflictsTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -17854,6 +18584,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final PhotoAreaDao photoAreaDao = PhotoAreaDao(this as AppDatabase);
   late final PhotoEntryDao photoEntryDao = PhotoEntryDao(this as AppDatabase);
+  late final SyncConflictDao syncConflictDao = SyncConflictDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -17873,6 +18606,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     journalEntries,
     photoAreas,
     photoEntries,
+    syncConflicts,
   ];
 }
 
@@ -25644,6 +26378,355 @@ typedef $$PhotoEntriesTableProcessedTableManager =
       PhotoEntryRow,
       PrefetchHooks Function()
     >;
+typedef $$SyncConflictsTableCreateCompanionBuilder =
+    SyncConflictsCompanion Function({
+      required String id,
+      required String entityType,
+      required String entityId,
+      required String profileId,
+      required int localVersion,
+      required int remoteVersion,
+      required String localData,
+      required String remoteData,
+      required int detectedAt,
+      Value<bool> isResolved,
+      Value<int?> resolution,
+      Value<int?> resolvedAt,
+      Value<int> rowid,
+    });
+typedef $$SyncConflictsTableUpdateCompanionBuilder =
+    SyncConflictsCompanion Function({
+      Value<String> id,
+      Value<String> entityType,
+      Value<String> entityId,
+      Value<String> profileId,
+      Value<int> localVersion,
+      Value<int> remoteVersion,
+      Value<String> localData,
+      Value<String> remoteData,
+      Value<int> detectedAt,
+      Value<bool> isResolved,
+      Value<int?> resolution,
+      Value<int?> resolvedAt,
+      Value<int> rowid,
+    });
+
+class $$SyncConflictsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncConflictsTable> {
+  $$SyncConflictsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get remoteVersion => $composableBuilder(
+    column: $table.remoteVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localData => $composableBuilder(
+    column: $table.localData,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteData => $composableBuilder(
+    column: $table.remoteData,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isResolved => $composableBuilder(
+    column: $table.isResolved,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get resolution => $composableBuilder(
+    column: $table.resolution,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncConflictsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncConflictsTable> {
+  $$SyncConflictsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get remoteVersion => $composableBuilder(
+    column: $table.remoteVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localData => $composableBuilder(
+    column: $table.localData,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteData => $composableBuilder(
+    column: $table.remoteData,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isResolved => $composableBuilder(
+    column: $table.isResolved,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get resolution => $composableBuilder(
+    column: $table.resolution,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncConflictsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncConflictsTable> {
+  $$SyncConflictsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get localVersion => $composableBuilder(
+    column: $table.localVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get remoteVersion => $composableBuilder(
+    column: $table.remoteVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get localData =>
+      $composableBuilder(column: $table.localData, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteData => $composableBuilder(
+    column: $table.remoteData,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isResolved => $composableBuilder(
+    column: $table.isResolved,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get resolution => $composableBuilder(
+    column: $table.resolution,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$SyncConflictsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncConflictsTable,
+          SyncConflictRow,
+          $$SyncConflictsTableFilterComposer,
+          $$SyncConflictsTableOrderingComposer,
+          $$SyncConflictsTableAnnotationComposer,
+          $$SyncConflictsTableCreateCompanionBuilder,
+          $$SyncConflictsTableUpdateCompanionBuilder,
+          (
+            SyncConflictRow,
+            BaseReferences<_$AppDatabase, $SyncConflictsTable, SyncConflictRow>,
+          ),
+          SyncConflictRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncConflictsTableTableManager(_$AppDatabase db, $SyncConflictsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncConflictsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncConflictsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncConflictsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<String> entityId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> localVersion = const Value.absent(),
+                Value<int> remoteVersion = const Value.absent(),
+                Value<String> localData = const Value.absent(),
+                Value<String> remoteData = const Value.absent(),
+                Value<int> detectedAt = const Value.absent(),
+                Value<bool> isResolved = const Value.absent(),
+                Value<int?> resolution = const Value.absent(),
+                Value<int?> resolvedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncConflictsCompanion(
+                id: id,
+                entityType: entityType,
+                entityId: entityId,
+                profileId: profileId,
+                localVersion: localVersion,
+                remoteVersion: remoteVersion,
+                localData: localData,
+                remoteData: remoteData,
+                detectedAt: detectedAt,
+                isResolved: isResolved,
+                resolution: resolution,
+                resolvedAt: resolvedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String entityType,
+                required String entityId,
+                required String profileId,
+                required int localVersion,
+                required int remoteVersion,
+                required String localData,
+                required String remoteData,
+                required int detectedAt,
+                Value<bool> isResolved = const Value.absent(),
+                Value<int?> resolution = const Value.absent(),
+                Value<int?> resolvedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncConflictsCompanion.insert(
+                id: id,
+                entityType: entityType,
+                entityId: entityId,
+                profileId: profileId,
+                localVersion: localVersion,
+                remoteVersion: remoteVersion,
+                localData: localData,
+                remoteData: remoteData,
+                detectedAt: detectedAt,
+                isResolved: isResolved,
+                resolution: resolution,
+                resolvedAt: resolvedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncConflictsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncConflictsTable,
+      SyncConflictRow,
+      $$SyncConflictsTableFilterComposer,
+      $$SyncConflictsTableOrderingComposer,
+      $$SyncConflictsTableAnnotationComposer,
+      $$SyncConflictsTableCreateCompanionBuilder,
+      $$SyncConflictsTableUpdateCompanionBuilder,
+      (
+        SyncConflictRow,
+        BaseReferences<_$AppDatabase, $SyncConflictsTable, SyncConflictRow>,
+      ),
+      SyncConflictRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -25676,4 +26759,6 @@ class $AppDatabaseManager {
       $$PhotoAreasTableTableManager(_db, _db.photoAreas);
   $$PhotoEntriesTableTableManager get photoEntries =>
       $$PhotoEntriesTableTableManager(_db, _db.photoEntries);
+  $$SyncConflictsTableTableManager get syncConflicts =>
+      $$SyncConflictsTableTableManager(_db, _db.syncConflicts);
 }

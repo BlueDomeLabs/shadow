@@ -221,6 +221,7 @@ Future<List<Override>> bootstrap() async {
     encryptionService: encryptionService,
     cloudProvider: googleDriveProvider,
     prefs: prefs,
+    conflictDao: database.syncConflictDao,
   );
 
   // 9. Return provider overrides for all repos + services

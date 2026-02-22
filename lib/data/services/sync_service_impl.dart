@@ -8,6 +8,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/domain/entities/sync_conflict.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
@@ -112,6 +113,80 @@ class SyncEntityAdapter<T extends Syncable> {
 
     return const Success(null);
   }
+
+  /// Mark an entity as conflicted with a remote version.
+  ///
+  /// Applies markConflict(remoteJson) to its sync metadata, storing the
+  /// remote JSON in conflictData on the entity row.
+  /// Per 22_API_CONTRACTS.md Section 17.7.1: pass markDirty:false because
+  /// markConflict() already sets syncIsDirty=true in the returned metadata.
+  Future<Result<void, AppError>> markEntityConflicted(
+    String entityId,
+    String remoteJson,
+  ) async {
+    final getResult = await repository.getById(entityId);
+    if (getResult.isFailure) return Failure(getResult.errorOrNull!);
+
+    final entity = getResult.valueOrNull!;
+    final conflictedEntity = withSyncMetadata(
+      entity,
+      entity.syncMetadata.markConflict(remoteJson),
+    );
+
+    final updateResult = await repository.update(
+      conflictedEntity,
+      markDirty: false,
+    );
+    if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
+
+    return const Success(null);
+  }
+
+  /// Clear a conflict on an entity after keepLocal or photo_entries merge.
+  ///
+  /// Applies clearConflict() to the entity's sync metadata, which sets
+  /// syncStatus=pending, syncIsDirty=true, increments syncVersion, and
+  /// clears conflictData. The entity will re-upload on the next push.
+  Future<Result<void, AppError>> clearEntityConflict(String entityId) async {
+    final getResult = await repository.getById(entityId);
+    if (getResult.isFailure) return Failure(getResult.errorOrNull!);
+
+    final entity = getResult.valueOrNull!;
+    final clearedEntity = withSyncMetadata(
+      entity,
+      entity.syncMetadata.clearConflict(),
+    );
+
+    final updateResult = await repository.update(
+      clearedEntity,
+      markDirty: false,
+    );
+    if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
+
+    return const Success(null);
+  }
+
+  /// Apply a pre-built merged entity (for journal_entries merge resolution).
+  ///
+  /// Reconstructs the entity from [mergedJson], applies clearConflict() from
+  /// the current local entity's sync metadata, and saves with markDirty:false.
+  /// The clearConflict() call already sets syncIsDirty=true.
+  Future<Result<void, AppError>> applyMergedEntity(
+    String entityId,
+    Map<String, dynamic> mergedJson,
+  ) async {
+    final localResult = await repository.getById(entityId);
+    if (localResult.isFailure) return Failure(localResult.errorOrNull!);
+
+    final localEntity = localResult.valueOrNull!;
+    final mergedEntityRaw = fromJson(mergedJson);
+    final mergedEntity = withSyncMetadata(
+      mergedEntityRaw,
+      localEntity.syncMetadata.clearConflict(),
+    );
+
+    return repository.update(mergedEntity, markDirty: false);
+  }
 }
 
 /// Implementation of [SyncService] for Phase 2 (upload path).
@@ -133,16 +208,19 @@ class SyncServiceImpl implements SyncService {
   final EncryptionService _encryptionService;
   final CloudStorageProvider _cloudProvider;
   final SharedPreferences _prefs;
+  final SyncConflictDao _conflictDao;
 
   SyncServiceImpl({
     required List<SyncEntityAdapter> adapters,
     required EncryptionService encryptionService,
     required CloudStorageProvider cloudProvider,
     required SharedPreferences prefs,
+    required SyncConflictDao conflictDao,
   }) : _adapters = adapters,
        _encryptionService = encryptionService,
        _cloudProvider = cloudProvider,
-       _prefs = prefs;
+       _prefs = prefs,
+       _conflictDao = conflictDao;
 
   // === Push Operations ===
 
@@ -472,28 +550,50 @@ class SyncServiceImpl implements SyncService {
 
             appliedCount++;
           } else {
-            // Local is dirty → conflict detected (Phase 4 handles resolution)
-            // Per Section 9.2: sync_is_dirty = 1, sync_status = conflict
+            // Local is dirty → conflict detected
+            // Per 22_API_CONTRACTS.md Section 17.7.1: two writes atomically
             _log.warning(
               'Conflict: ${change.entityType}/${change.entityId} '
               '(local v${localEntity.syncMetadata.syncVersion} '
               'vs remote v${change.version})',
             );
 
-            conflicts.add(
-              SyncConflict(
-                id: const Uuid().v4(),
-                entityType: change.entityType,
-                entityId: change.entityId,
-                profileId: profileId,
-                localVersion: localEntity.syncMetadata.syncVersion,
-                remoteVersion: change.version,
-                localData: localEntity.toJson(),
-                remoteData: change.data,
-                detectedAt: DateTime.now().millisecondsSinceEpoch,
-              ),
+            final conflict = SyncConflict(
+              id: const Uuid().v4(),
+              entityType: change.entityType,
+              entityId: change.entityId,
+              profileId: profileId,
+              localVersion: localEntity.syncMetadata.syncVersion,
+              remoteVersion: change.version,
+              localData: localEntity.toJson(),
+              remoteData: change.data,
+              detectedAt: DateTime.now().millisecondsSinceEpoch,
             );
 
+            // Write 1: Insert SyncConflict row into sync_conflicts table
+            final insertResult = await _conflictDao.insert(conflict);
+            if (insertResult.isFailure) {
+              _log.warning(
+                'Failed to persist conflict for '
+                '${change.entityType}/${change.entityId}: '
+                '${insertResult.errorOrNull!.message}',
+              );
+            }
+
+            // Write 2: Mark entity row as conflicted (stores remoteJson)
+            final markResult = await adapter.markEntityConflicted(
+              change.entityId,
+              jsonEncode(change.data),
+            );
+            if (markResult.isFailure) {
+              _log.warning(
+                'Failed to mark entity conflicted for '
+                '${change.entityType}/${change.entityId}: '
+                '${markResult.errorOrNull!.message}',
+              );
+            }
+
+            conflicts.add(conflict);
             conflictCount++;
           }
         }
@@ -532,15 +632,83 @@ class SyncServiceImpl implements SyncService {
     );
   }
 
-  // === Conflict Resolution (Phase 4 stub) ===
+  // === Conflict Resolution ===
 
   @override
   Future<Result<void, AppError>> resolveConflict(
     String conflictId,
     ConflictResolutionType resolution,
-  ) async =>
-      // Phase 4: Will look up conflict and apply resolution
-      const Success(null);
+  ) async {
+    // Look up the conflict record
+    final conflictResult = await _conflictDao.getById(conflictId);
+    if (conflictResult.isFailure) return Failure(conflictResult.errorOrNull!);
+
+    final conflict = conflictResult.valueOrNull!;
+
+    final adapter = _adapterFor(conflict.entityType);
+    if (adapter == null) {
+      return Failure(
+        DatabaseError.notFound('SyncEntityAdapter', conflict.entityType),
+      );
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // Apply the chosen resolution per 22_API_CONTRACTS.md Section 17.7.2
+    switch (resolution) {
+      case ConflictResolutionType.keepLocal:
+        // Local data stays; call clearConflict() to queue for re-upload
+        final result = await adapter.clearEntityConflict(conflict.entityId);
+        if (result.isFailure) return Failure(result.errorOrNull!);
+
+      case ConflictResolutionType.keepRemote:
+        // Overwrite local with remote entity (already marked synced)
+        final remoteEntity = adapter.reconstructSynced(conflict.remoteData);
+        final result = await adapter.repository.update(
+          remoteEntity,
+          markDirty: false,
+        );
+        if (result.isFailure) return Failure(result.errorOrNull!);
+
+      case ConflictResolutionType.merge:
+        final result = await _applyMerge(adapter, conflict);
+        if (result.isFailure) return Failure(result.errorOrNull!);
+    }
+
+    // Mark conflict row as resolved in sync_conflicts table
+    return _conflictDao.markResolved(conflictId, resolution, now);
+  }
+
+  /// Apply merge resolution per 22_API_CONTRACTS.md Section 17.7.2.
+  ///
+  /// Special cases:
+  /// - journal_entries: append local + remote content with separator
+  /// - photo_entries: treat as keepLocal (cannot merge images)
+  /// - All others: fall back to keepRemote (cannot diff without base version)
+  Future<Result<void, AppError>> _applyMerge(
+    SyncEntityAdapter adapter,
+    SyncConflict conflict,
+  ) async {
+    switch (conflict.entityType) {
+      case 'journal_entries':
+        final localContent = (conflict.localData['content'] as String?) ?? '';
+        final remoteContent = (conflict.remoteData['content'] as String?) ?? '';
+        final mergedJson = {
+          ...conflict.remoteData,
+          'content': '$localContent\n\n---\n\n$remoteContent',
+        };
+        return adapter.applyMergedEntity(conflict.entityId, mergedJson);
+
+      case 'photo_entries':
+        // Cannot merge images — treat as keepLocal per spec
+        return adapter.clearEntityConflict(conflict.entityId);
+
+      default:
+        // Fall back to keepRemote for all other entity types
+        final remoteEntity = adapter.reconstructSynced(conflict.remoteData);
+        return adapter.repository.update(remoteEntity, markDirty: false);
+    }
+  }
 
   // === Status Queries ===
 
@@ -560,8 +728,8 @@ class SyncServiceImpl implements SyncService {
 
   @override
   Future<Result<int, AppError>> getConflictCount(String profileId) async =>
-      // Phase 4: Will query conflict storage
-      const Success(0);
+      // Queries sync_conflicts table per 22_API_CONTRACTS.md Section 17.7.3
+      _conflictDao.countUnresolved(profileId);
 
   @override
   Future<Result<int?, AppError>> getLastSyncTime(String profileId) async {
