@@ -122,11 +122,9 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 4d. Tests proving spec compliance (2192 total; 5 new screen tests + 15 sync service conflict tests + 10 SyncMetadata tests)
 
 ### After Cloud Sync (Priority Order)
-- [ ] 5. SupplementEditScreen (full implementation)
+- [x] 5. SupplementEditScreen (full implementation)
   - Pre-work DONE: customDosageUnit field added to entity + database (schema v9)
-  - Existing partial screen has: Name, Brand, Form, Dosage Amount, Dosage Unit, Notes
-  - Still needed: Custom Unit field, Ingredients tag input, full Schedule section
-  - Spec: 38_UI_FIELD_SPECIFICATIONS.md Section 4.1
+  - DONE: Custom Unit field, Ingredients tag input, full Schedule section (79 tests)
 - [ ] 6. ConditionListScreen
 - [ ] 7. FoodListScreen
 - [ ] 8. SleepListScreen
@@ -134,7 +132,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
 
-### Test Count: 2192 passing | Analyzer: clean | Schema: v9
+### Test Count: 2218 passing | Analyzer: clean | Schema: v9
 
 ---
 

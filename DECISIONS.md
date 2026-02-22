@@ -17,6 +17,18 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-21: Anchor Event dropdown uses code definitions, not UI spec wording
+
+**What:** The Supplement Edit Screen's "Anchor Event" dropdown shows: Morning, Breakfast, Lunch, Dinner, Bedtime, and Specific Time. The UI spec (Section 4.1) listed slightly different labels (including "Evening"), but the actual code enum only has 5 values: wake, breakfast, lunch, dinner, bed. We mapped wake→"Morning" and bed→"Bedtime", and handled "Specific Time" as a special option that switches the timing mode.
+
+**Why:** The API Contracts document (22_API_CONTRACTS.md) is the canonical source of truth. The enum has no "Evening" value, so we can't show it. "Specific Time" in the spec is actually a timing type, not an anchor event — it means "take at a specific clock time" rather than "take relative to a meal or activity."
+
+**Alternatives:** Could have added an "Evening" enum value, but that would change the data model without Reid's approval. Followed the rule: no decisions, follow the code specs exactly.
+
+**Impact:** Users see 6 anchor event options. If "Evening" is wanted later, it requires adding a new enum value and database migration.
+
+---
+
 ### 2026-02-17: Include client_secret in Google sign-in (no proxy server needed)
 
 **What:** Added the Google client_secret to the token exchange requests in the app. The app was failing to sign in because Google was rejecting requests without it. Also updated the OAuth spec (Section 10) which incorrectly claimed the secret wasn't needed.

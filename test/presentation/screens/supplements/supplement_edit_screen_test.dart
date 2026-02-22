@@ -16,15 +16,22 @@ void main() {
   group('SupplementEditScreen', () {
     const testProfileId = 'profile-001';
 
-    /// Scrolls the form ListView down to make bottom widgets visible.
+    /// Scrolls the form ListView down by a given amount.
+    Future<void> scrollDown(WidgetTester tester, {double by = 600}) async {
+      await tester.drag(find.byType(ListView), Offset(0, -by));
+      await tester.pumpAndSettle();
+    }
+
+    /// Scrolls the form ListView to the very bottom (multiple drags).
     Future<void> scrollToBottom(WidgetTester tester) async {
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
+      // Form is very long now; scroll in steps
+      await tester.drag(find.byType(ListView), const Offset(0, -2000));
       await tester.pumpAndSettle();
     }
 
     /// Scrolls the form ListView back to the top.
     Future<void> scrollToTop(WidgetTester tester) async {
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, 500));
+      await tester.drag(find.byType(ListView), const Offset(0, 2000));
       await tester.pumpAndSettle();
     }
 
@@ -37,6 +44,11 @@ void main() {
       String brand = 'NOW Foods',
       String notes = '',
       String? customForm,
+      String? customDosageUnit,
+      List<SupplementIngredient> ingredients = const [],
+      List<SupplementSchedule> schedules = const [],
+      int? startDate,
+      int? endDate,
     }) => Supplement(
       id: id,
       clientId: 'client-001',
@@ -46,8 +58,13 @@ void main() {
       customForm: customForm,
       dosageQuantity: dosageQuantity,
       dosageUnit: dosageUnit,
+      customDosageUnit: customDosageUnit,
       brand: brand,
       notes: notes,
+      ingredients: ingredients,
+      schedules: schedules,
+      startDate: startDate,
+      endDate: endDate,
       syncMetadata: SyncMetadata.empty(),
     );
 
@@ -90,6 +107,9 @@ void main() {
 
         expect(find.text('Basic Information'), findsOneWidget);
         expect(find.text('Dosage'), findsOneWidget);
+        await scrollDown(tester);
+        expect(find.text('Ingredients'), findsOneWidget);
+        expect(find.text('Schedule'), findsOneWidget);
         await scrollToBottom(tester);
         expect(find.text('Notes'), findsWidgets);
       });
@@ -104,8 +124,6 @@ void main() {
         expect(find.text('Dosage Amount'), findsOneWidget);
         expect(find.text('Dosage Unit'), findsOneWidget);
         expect(find.text('Quantity Per Dose'), findsOneWidget);
-        await scrollToBottom(tester);
-        expect(find.text('Notes'), findsWidgets);
       });
 
       testWidgets('renders Save and Cancel buttons', (tester) async {
@@ -365,6 +383,7 @@ void main() {
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
+        await scrollToTop(tester);
         expect(find.text('Dosage must be greater than 0'), findsOneWidget);
       });
 
@@ -394,6 +413,7 @@ void main() {
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
+        await scrollToTop(tester);
         expect(find.text('Quantity per dose is required'), findsOneWidget);
       });
 
@@ -511,14 +531,432 @@ void main() {
         await tester.tap(find.text('Other').last);
         await tester.pumpAndSettle();
 
-        // Tap Save without entering custom form
-        await scrollToBottom(tester);
+        // Scroll to Save button in smaller steps (long form with lazy loading)
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         await scrollToTop(tester);
         expect(
           find.text('Custom form is required when Form is Other'),
+          findsOneWidget,
+        );
+      });
+    });
+
+    group('custom dosage unit', () {
+      testWidgets('Custom Unit field is hidden when unit is not custom', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        expect(find.text('Custom Unit'), findsNothing);
+      });
+
+      testWidgets('Custom Unit field appears when custom is selected', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Open dosage unit dropdown
+        await tester.tap(find.text('mg').first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('custom').last);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Custom Unit'), findsOneWidget);
+        expect(find.text('e.g., billion CFU'), findsOneWidget);
+      });
+
+      testWidgets('validates Custom Unit required when custom selected', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Fill name and dosage
+        await tester.enterText(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (widget) =>
+                  widget is Semantics &&
+                  widget.properties.label == 'Supplement name, required',
+            ),
+            matching: find.byType(TextField),
+          ),
+          'Probiotic',
+        );
+        await tester.enterText(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (widget) =>
+                  widget is Semantics &&
+                  widget.properties.label ==
+                      'Dosage amount, required, enter number',
+            ),
+            matching: find.byType(TextField),
+          ),
+          '50',
+        );
+        await tester.pumpAndSettle();
+
+        // Select custom unit
+        await tester.tap(find.text('mg').first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('custom').last);
+        await tester.pumpAndSettle();
+
+        // Scroll to Save button in smaller steps (long form with lazy loading)
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
+        await scrollDown(tester, by: 500);
+        await tester.tap(find.text('Save'));
+        await tester.pumpAndSettle();
+
+        await scrollToTop(tester);
+        expect(
+          find.text('Custom unit is required when Dosage Unit is custom'),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('populates custom dosage unit from supplement', (
+        tester,
+      ) async {
+        final supplement = createTestSupplement(
+          dosageUnit: DosageUnit.custom,
+          customDosageUnit: 'billion CFU',
+        );
+        await tester.pumpWidget(buildEditScreen(supplement));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Custom Unit'), findsOneWidget);
+        expect(find.text('billion CFU'), findsOneWidget);
+      });
+
+      testWidgets('has correct semantic label', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Select custom unit to show the field
+        await tester.tap(find.text('mg').first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('custom').last);
+        await tester.pumpAndSettle();
+
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is ShadowTextField &&
+              widget.semanticLabel == 'Custom dosage unit, required',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      });
+    });
+
+    group('ingredients', () {
+      testWidgets('shows Ingredients section header', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Ingredients'), findsOneWidget);
+      });
+
+      testWidgets('shows ingredient input field', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Add ingredient...'), findsWidgets);
+      });
+
+      testWidgets('adds ingredient on submit', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        // Type ingredient in the TextField (not ShadowTextField)
+        final ingredientField = find.widgetWithText(
+          TextField,
+          'Add ingredient...',
+        );
+        await tester.enterText(ingredientField, 'Vitamin D3');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Vitamin D3'), findsWidgets);
+      });
+
+      testWidgets('removes ingredient on delete', (tester) async {
+        final supplement = createTestSupplement(
+          ingredients: [
+            const SupplementIngredient(name: 'Zinc'),
+            const SupplementIngredient(name: 'Magnesium'),
+          ],
+        );
+        await tester.pumpWidget(buildEditScreen(supplement));
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Both ingredients should be visible as chips
+        expect(find.text('Zinc'), findsOneWidget);
+        expect(find.text('Magnesium'), findsOneWidget);
+
+        // Invoke delete on Zinc chip
+        final chip = tester.widget<InputChip>(
+          find.widgetWithText(InputChip, 'Zinc'),
+        );
+        chip.onDeleted!();
+        await tester.pumpAndSettle();
+
+        expect(find.widgetWithText(InputChip, 'Zinc'), findsNothing);
+        expect(find.text('Magnesium'), findsOneWidget);
+      });
+
+      testWidgets('populates ingredients from supplement', (tester) async {
+        final supplement = createTestSupplement(
+          ingredients: [
+            const SupplementIngredient(name: 'Calcium'),
+            const SupplementIngredient(name: 'Vitamin K2'),
+          ],
+        );
+        await tester.pumpWidget(buildEditScreen(supplement));
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Calcium'), findsOneWidget);
+        expect(find.text('Vitamin K2'), findsOneWidget);
+      });
+
+      testWidgets('has correct semantic label', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label ==
+                  'Ingredient list, optional, type and press enter to add',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      });
+    });
+
+    group('schedule section', () {
+      testWidgets('shows Schedule section header', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Schedule'), findsOneWidget);
+      });
+
+      testWidgets('shows Frequency dropdown defaulting to Daily', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Daily'), findsOneWidget);
+      });
+
+      testWidgets('shows Anchor Event dropdown defaulting to Breakfast', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Breakfast'), findsOneWidget);
+      });
+
+      testWidgets('shows Timing dropdown defaulting to With', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('With'), findsOneWidget);
+      });
+
+      testWidgets('Every X Days field hidden when frequency is Daily', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Every X Days'), findsNothing);
+      });
+
+      testWidgets('Every X Days field shown when frequency is Every X Days', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Open frequency dropdown and select Every X Days
+        await tester.tap(find.text('Daily'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Every X Days').last);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Every X Days'), findsWidgets);
+      });
+
+      testWidgets('weekday picker shown when frequency is Specific Days', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Select Specific Days frequency
+        await tester.tap(find.text('Daily'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Specific Days').last);
+        await tester.pumpAndSettle();
+
+        // The weekday picker should appear (ShadowPicker.weekday)
+        expect(find.byType(ShadowPicker), findsWidgets);
+        expect(find.text('Every day'), findsOneWidget);
+      });
+
+      testWidgets('Timing dropdown hidden when Specific Time selected', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Initially Timing should be visible
+        expect(find.text('With'), findsOneWidget);
+
+        // Open Anchor Event and select Specific Time
+        await tester.tap(find.text('Breakfast'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Specific Time').last);
+        await tester.pumpAndSettle();
+
+        // Timing dropdown should be hidden, Specific Time picker visible
+        expect(find.text('Timing'), findsNothing);
+      });
+
+      testWidgets('shows all anchor event options', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Open anchor event dropdown
+        await tester.tap(find.text('Breakfast'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Morning'), findsOneWidget);
+        expect(find.text('Breakfast'), findsWidgets);
+        expect(find.text('Lunch'), findsOneWidget);
+        expect(find.text('Dinner'), findsOneWidget);
+        expect(find.text('Bedtime'), findsOneWidget);
+        expect(find.text('Specific Time'), findsOneWidget);
+      });
+
+      testWidgets('shows all timing options', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Open timing dropdown
+        await tester.tap(find.text('With'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('With'), findsWidgets);
+        expect(find.text('Before'), findsOneWidget);
+        expect(find.text('After'), findsOneWidget);
+      });
+
+      testWidgets('Offset Minutes shown when Before selected', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+
+        // Select Before timing
+        await tester.tap(find.text('With'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Before').last);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Offset Minutes'), findsOneWidget);
+      });
+
+      testWidgets('Offset Minutes hidden when With selected', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Offset Minutes'), findsNothing);
+      });
+
+      testWidgets('shows Start Date and End Date pickers', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester, by: 900);
+        expect(find.text('Start Date'), findsWidgets);
+        expect(find.text('End Date'), findsWidgets);
+      });
+
+      testWidgets('populates schedule from supplement', (tester) async {
+        final supplement = createTestSupplement(
+          schedules: [
+            const SupplementSchedule(
+              anchorEvent: SupplementAnchorEvent.dinner,
+              timingType: SupplementTimingType.beforeEvent,
+              offsetMinutes: 30,
+              frequencyType: SupplementFrequencyType.daily,
+            ),
+          ],
+        );
+        await tester.pumpWidget(buildEditScreen(supplement));
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(find.text('Dinner'), findsOneWidget);
+        expect(find.text('Before'), findsOneWidget);
+      });
+
+      testWidgets('has correct semantic labels', (tester) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        await scrollDown(tester);
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.label == 'How often to take, required',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.label == 'When to take supplement, required',
+          ),
           findsOneWidget,
         );
       });

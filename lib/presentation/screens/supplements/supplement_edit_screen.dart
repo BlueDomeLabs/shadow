@@ -49,12 +49,34 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
   late final TextEditingController _dosageAmountController;
   late final TextEditingController _quantityPerDoseController;
 
+  // Controllers - Dosage (continued)
+  late final TextEditingController _customDosageUnitController;
+
+  // Controllers - Ingredients
+  late final TextEditingController _ingredientController;
+
+  // Controllers - Schedule
+  late final TextEditingController _everyXDaysController;
+
   // Controllers - Notes
   late final TextEditingController _notesController;
 
   // State - Dropdown values
   late SupplementForm _selectedForm;
   late DosageUnit _selectedDosageUnit;
+
+  // State - Ingredients
+  late List<String> _ingredients;
+
+  // State - Schedule
+  late SupplementFrequencyType _selectedFrequency;
+  late List<int> _selectedWeekdays;
+  late SupplementAnchorEvent _selectedAnchorEvent;
+  late SupplementTimingType _selectedTimingType;
+  late int _offsetMinutes;
+  int? _specificTimeMinutes;
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   // State - Form dirty tracking
   bool _isDirty = false;
@@ -65,7 +87,13 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
   String? _brandError;
   String? _customFormError;
   String? _dosageAmountError;
+  String? _customDosageUnitError;
   String? _quantityPerDoseError;
+  String? _everyXDaysError;
+  String? _specificDaysError;
+  String? _offsetMinutesError;
+  String? _specificTimeError;
+  String? _endDateError;
   String? _notesError;
 
   bool get _isEditing => widget.supplement != null;
@@ -74,6 +102,10 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
   void initState() {
     super.initState();
     final supplement = widget.supplement;
+    final primarySchedule =
+        (supplement != null && supplement.schedules.isNotEmpty)
+        ? supplement.schedules.first
+        : null;
 
     _nameController = TextEditingController(text: supplement?.name ?? '');
     _brandController = TextEditingController(text: supplement?.brand ?? '');
@@ -83,17 +115,50 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     _dosageAmountController = TextEditingController(
       text: supplement != null ? supplement.dosageQuantity.toString() : '',
     );
+    _customDosageUnitController = TextEditingController(
+      text: supplement?.customDosageUnit ?? '',
+    );
     _quantityPerDoseController = TextEditingController(text: '1');
+    _ingredientController = TextEditingController();
+    _everyXDaysController = TextEditingController(
+      text: primarySchedule != null
+          ? primarySchedule.everyXDays.toString()
+          : '2',
+    );
     _notesController = TextEditingController(text: supplement?.notes ?? '');
 
     _selectedForm = supplement?.form ?? SupplementForm.capsule;
     _selectedDosageUnit = supplement?.dosageUnit ?? DosageUnit.mg;
 
+    // Ingredients state
+    _ingredients = supplement?.ingredients.map((i) => i.name).toList() ?? [];
+
+    // Schedule state from primary schedule
+    _selectedFrequency =
+        primarySchedule?.frequencyType ?? SupplementFrequencyType.daily;
+    _selectedWeekdays =
+        primarySchedule?.weekdays.toList() ?? [0, 1, 2, 3, 4, 5, 6];
+    _selectedAnchorEvent =
+        primarySchedule?.anchorEvent ?? SupplementAnchorEvent.breakfast;
+    _selectedTimingType =
+        primarySchedule?.timingType ?? SupplementTimingType.withEvent;
+    _offsetMinutes = primarySchedule?.offsetMinutes ?? 30;
+    _specificTimeMinutes = primarySchedule?.specificTimeMinutes;
+    _startDate = supplement?.startDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(supplement!.startDate!)
+        : null;
+    _endDate = supplement?.endDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(supplement!.endDate!)
+        : null;
+
     _nameController.addListener(_markDirty);
     _brandController.addListener(_markDirty);
     _customFormController.addListener(_markDirty);
     _dosageAmountController.addListener(_markDirty);
+    _customDosageUnitController.addListener(_markDirty);
     _quantityPerDoseController.addListener(_markDirty);
+    _ingredientController.addListener(_markDirty);
+    _everyXDaysController.addListener(_markDirty);
     _notesController.addListener(_markDirty);
   }
 
@@ -103,7 +168,10 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     _brandController.dispose();
     _customFormController.dispose();
     _dosageAmountController.dispose();
+    _customDosageUnitController.dispose();
     _quantityPerDoseController.dispose();
+    _ingredientController.dispose();
+    _everyXDaysController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -276,6 +344,19 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (_selectedDosageUnit == DosageUnit.custom) ...[
+                  ShadowTextField(
+                    controller: _customDosageUnitController,
+                    label: 'Custom Unit',
+                    semanticLabel: 'Custom dosage unit, required',
+                    hintText: 'e.g., billion CFU',
+                    errorText: _customDosageUnitError,
+                    maxLength: 50,
+                    textInputAction: TextInputAction.next,
+                    onChanged: (_) => _validateCustomDosageUnit(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Semantics(
                   label: 'Quantity per dose, required, default is 1',
                   textField: true,
@@ -291,6 +372,16 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                _buildSectionHeader(theme, 'Ingredients'),
+                const SizedBox(height: 16),
+                _buildIngredientsSection(theme),
+                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                _buildSectionHeader(theme, 'Schedule'),
+                const SizedBox(height: 16),
+                _buildScheduleSection(theme),
                 const SizedBox(height: 16),
                 const SizedBox(height: 8),
                 _buildSectionHeader(theme, 'Notes'),
@@ -343,6 +434,414 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     );
   }
 
+  Widget _buildIngredientsSection(ThemeData theme) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Semantics(
+        label: 'Ingredient list, optional, type and press enter to add',
+        child: ExcludeSemantics(
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _ingredientController,
+                  decoration: const InputDecoration(
+                    labelText: 'Add ingredient...',
+                    hintText: 'Add ingredient...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLength: 100,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: _addIngredient,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => _addIngredient(_ingredientController.text),
+                icon: const Icon(Icons.add),
+                tooltip: 'Add ingredient',
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              ),
+            ],
+          ),
+        ),
+      ),
+      if (_ingredients.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: _ingredients
+              .map(
+                (name) => Semantics(
+                  label: '$name ingredient, tap to remove',
+                  child: InputChip(
+                    label: Text(name),
+                    onDeleted: () {
+                      setState(() {
+                        _ingredients.remove(name);
+                        _isDirty = true;
+                      });
+                    },
+                    deleteButtonTooltipMessage: 'Remove $name',
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    ],
+  );
+
+  void _addIngredient(String value) {
+    final name = value.trim();
+    if (name.isEmpty) return;
+    if (name.length < 2) return;
+    if (_ingredients.length >= ValidationRules.maxIngredientsPerSupplement) {
+      showAccessibleSnackBar(
+        context: context,
+        message:
+            'Maximum ${ValidationRules.maxIngredientsPerSupplement} ingredients allowed',
+      );
+      return;
+    }
+    if (_ingredients.contains(name)) {
+      showAccessibleSnackBar(
+        context: context,
+        message: 'Ingredient already added',
+      );
+      return;
+    }
+    setState(() {
+      _ingredients.add(name);
+      _ingredientController.clear();
+      _isDirty = true;
+    });
+  }
+
+  Widget _buildScheduleSection(ThemeData theme) {
+    final isSpecificTime =
+        _selectedTimingType == SupplementTimingType.specificTime;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Frequency
+        Semantics(
+          label: 'How often to take, required',
+          child: ExcludeSemantics(
+            child: DropdownButtonFormField<SupplementFrequencyType>(
+              initialValue: _selectedFrequency,
+              decoration: const InputDecoration(labelText: 'Frequency'),
+              items: SupplementFrequencyType.values
+                  .map(
+                    (freq) => DropdownMenuItem<SupplementFrequencyType>(
+                      value: freq,
+                      child: Text(_frequencyLabel(freq)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedFrequency = value;
+                    _isDirty = true;
+                    _everyXDaysError = null;
+                    _specificDaysError = null;
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Every X Days (conditional)
+        if (_selectedFrequency == SupplementFrequencyType.everyXDays) ...[
+          Semantics(
+            label: 'Every how many days, required, 2 to 365',
+            textField: true,
+            child: ExcludeSemantics(
+              child: ShadowTextField.numeric(
+                controller: _everyXDaysController,
+                label: 'Every X Days',
+                hintText: '2',
+                errorText: _everyXDaysError,
+                maxLength: 3,
+                textInputAction: TextInputAction.next,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (_) => _validateEveryXDays(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Specific Days (conditional)
+        if (_selectedFrequency == SupplementFrequencyType.specificWeekdays) ...[
+          ShadowPicker.weekday(
+            label: 'Which days to take',
+            selectedDays: _selectedWeekdays,
+            onDaysChanged: (days) {
+              setState(() {
+                _selectedWeekdays = days;
+                _isDirty = true;
+                _specificDaysError = null;
+              });
+            },
+          ),
+          if (_specificDaysError != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _specificDaysError!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+        ],
+
+        // Anchor Event
+        Semantics(
+          label: 'When to take supplement, required',
+          child: ExcludeSemantics(
+            child: DropdownButtonFormField<String>(
+              initialValue: isSpecificTime
+                  ? 'specificTime'
+                  : _selectedAnchorEvent.name,
+              decoration: const InputDecoration(labelText: 'Anchor Event'),
+              items: [
+                ...SupplementAnchorEvent.values.map(
+                  (event) => DropdownMenuItem<String>(
+                    value: event.name,
+                    child: Text(_anchorEventLabel(event)),
+                  ),
+                ),
+                const DropdownMenuItem<String>(
+                  value: 'specificTime',
+                  child: Text('Specific Time'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  _isDirty = true;
+                  if (value == 'specificTime') {
+                    _selectedTimingType = SupplementTimingType.specificTime;
+                  } else {
+                    final event = SupplementAnchorEvent.values.firstWhere(
+                      (e) => e.name == value,
+                    );
+                    _selectedAnchorEvent = event;
+                    if (_selectedTimingType ==
+                        SupplementTimingType.specificTime) {
+                      _selectedTimingType = SupplementTimingType.withEvent;
+                    }
+                  }
+                  _specificTimeError = null;
+                });
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Timing (With/Before/After) - hidden when Specific Time
+        if (!isSpecificTime) ...[
+          Semantics(
+            label: 'Timing relative to anchor event, required',
+            child: ExcludeSemantics(
+              child: DropdownButtonFormField<SupplementTimingType>(
+                initialValue: _selectedTimingType,
+                decoration: const InputDecoration(labelText: 'Timing'),
+                items:
+                    [
+                          SupplementTimingType.withEvent,
+                          SupplementTimingType.beforeEvent,
+                          SupplementTimingType.afterEvent,
+                        ]
+                        .map(
+                          (type) => DropdownMenuItem<SupplementTimingType>(
+                            value: type,
+                            child: Text(_timingTypeLabel(type)),
+                          ),
+                        )
+                        .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedTimingType = value;
+                      _isDirty = true;
+                      _offsetMinutesError = null;
+                      // Clear offset when switching to "With"
+                      if (value == SupplementTimingType.withEvent) {
+                        _offsetMinutes = 0;
+                      } else if (_offsetMinutes == 0) {
+                        _offsetMinutes = 30;
+                      }
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Offset Minutes (conditional: Before or After)
+        if (_selectedTimingType == SupplementTimingType.beforeEvent ||
+            _selectedTimingType == SupplementTimingType.afterEvent) ...[
+          Semantics(
+            label: 'Minutes before or after, required, 5 to 120',
+            child: ExcludeSemantics(
+              child: DropdownButtonFormField<int>(
+                initialValue: _offsetMinutes,
+                decoration: const InputDecoration(labelText: 'Offset Minutes'),
+                items: List.generate(24, (i) => (i + 1) * 5)
+                    .map(
+                      (minutes) => DropdownMenuItem<int>(
+                        value: minutes,
+                        child: Text('$minutes min'),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _offsetMinutes = value;
+                      _isDirty = true;
+                      _offsetMinutesError = null;
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+          if (_offsetMinutesError != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _offsetMinutesError!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+        ],
+
+        // Specific Time picker (conditional: specificTime timing)
+        if (isSpecificTime) ...[
+          Semantics(
+            label:
+                'Specific time to take supplement, required, ${_specificTimeMinutes != null ? _formatMinutesAsTime(_specificTimeMinutes!) : "not set"}',
+            child: ExcludeSemantics(
+              child: InkWell(
+                onTap: _pickSpecificTime,
+                borderRadius: BorderRadius.circular(8),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Specific Time',
+                    errorText: _specificTimeError,
+                    suffixIcon: const Icon(Icons.access_time),
+                    border: const OutlineInputBorder(),
+                  ),
+                  child: Text(
+                    _specificTimeMinutes != null
+                        ? _formatMinutesAsTime(_specificTimeMinutes!)
+                        : 'Select time',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: _specificTimeMinutes != null
+                          ? null
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Start Date
+        ShadowPicker.date(
+          label: 'Start Date',
+          hint: 'When to start taking this supplement',
+          dateValue: _startDate,
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+          onDateChanged: (date) {
+            setState(() {
+              _startDate = date;
+              _isDirty = true;
+              _endDateError = null;
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // End Date
+        ShadowPicker.date(
+          label: 'End Date',
+          hint: 'When to stop taking this supplement (optional)',
+          dateValue: _endDate,
+          firstDate: _startDate ?? DateTime(2020),
+          lastDate: DateTime(2100),
+          onDateChanged: (date) {
+            setState(() {
+              _endDate = date;
+              _isDirty = true;
+              _endDateError = null;
+            });
+          },
+        ),
+        if (_endDateError != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            _endDateError!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _pickSpecificTime() async {
+    final initialTime = _specificTimeMinutes != null
+        ? TimeOfDay(
+            hour: _specificTimeMinutes! ~/ 60,
+            minute: _specificTimeMinutes! % 60,
+          )
+        : const TimeOfDay(hour: 8, minute: 0);
+
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _specificTimeMinutes = picked.hour * 60 + picked.minute;
+        _isDirty = true;
+        _specificTimeError = null;
+      });
+    }
+  }
+
+  String _formatMinutesAsTime(int minutes) {
+    final hour = minutes ~/ 60;
+    final minute = minutes % 60;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour == 0
+        ? 12
+        : hour > 12
+        ? hour - 12
+        : hour;
+    return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
+  }
+
   Widget _buildSectionHeader(ThemeData theme, String title) => Semantics(
     header: true,
     child: Text(
@@ -371,6 +870,27 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     DosageUnit.drops => 'drops',
     DosageUnit.tsp => 'tsp',
     DosageUnit.custom => 'custom',
+  };
+
+  String _frequencyLabel(SupplementFrequencyType freq) => switch (freq) {
+    SupplementFrequencyType.daily => 'Daily',
+    SupplementFrequencyType.everyXDays => 'Every X Days',
+    SupplementFrequencyType.specificWeekdays => 'Specific Days',
+  };
+
+  String _anchorEventLabel(SupplementAnchorEvent event) => switch (event) {
+    SupplementAnchorEvent.wake => 'Morning',
+    SupplementAnchorEvent.breakfast => 'Breakfast',
+    SupplementAnchorEvent.lunch => 'Lunch',
+    SupplementAnchorEvent.dinner => 'Dinner',
+    SupplementAnchorEvent.bed => 'Bedtime',
+  };
+
+  String _timingTypeLabel(SupplementTimingType type) => switch (type) {
+    SupplementTimingType.withEvent => 'With',
+    SupplementTimingType.beforeEvent => 'Before',
+    SupplementTimingType.afterEvent => 'After',
+    SupplementTimingType.specificTime => 'At Specific Time',
   };
 
   bool _validateName() {
@@ -414,6 +934,22 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
           'Custom form must not exceed ${ValidationRules.nameMaxLength} characters';
     }
     setState(() => _customFormError = error);
+    return error == null;
+  }
+
+  bool _validateCustomDosageUnit() {
+    if (_selectedDosageUnit != DosageUnit.custom) {
+      setState(() => _customDosageUnitError = null);
+      return true;
+    }
+    final customUnit = _customDosageUnitController.text.trim();
+    String? error;
+    if (customUnit.isEmpty) {
+      error = 'Custom unit is required when Dosage Unit is custom';
+    } else if (customUnit.length > 50) {
+      error = 'Custom unit must not exceed 50 characters';
+    }
+    setState(() => _customDosageUnitError = error);
     return error == null;
   }
 
@@ -462,18 +998,106 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     return error == null;
   }
 
+  bool _validateEveryXDays() {
+    if (_selectedFrequency != SupplementFrequencyType.everyXDays) {
+      setState(() => _everyXDaysError = null);
+      return true;
+    }
+    final text = _everyXDaysController.text.trim();
+    String? error;
+    if (text.isEmpty) {
+      error = 'Number of days is required';
+    } else {
+      final value = int.tryParse(text);
+      if (value == null) {
+        error = 'Please enter a valid number';
+      } else if (value < 2 || value > 365) {
+        error = 'Must be between 2 and 365';
+      }
+    }
+    setState(() => _everyXDaysError = error);
+    return error == null;
+  }
+
+  bool _validateSpecificDays() {
+    if (_selectedFrequency != SupplementFrequencyType.specificWeekdays) {
+      setState(() => _specificDaysError = null);
+      return true;
+    }
+    String? error;
+    if (_selectedWeekdays.isEmpty) {
+      error = 'At least 1 day must be selected';
+    }
+    setState(() => _specificDaysError = error);
+    return error == null;
+  }
+
+  bool _validateOffsetMinutes() {
+    if (_selectedTimingType != SupplementTimingType.beforeEvent &&
+        _selectedTimingType != SupplementTimingType.afterEvent) {
+      setState(() => _offsetMinutesError = null);
+      return true;
+    }
+    String? error;
+    if (_offsetMinutes < 5 || _offsetMinutes > 120) {
+      error = 'Must be between 5 and 120 minutes';
+    }
+    setState(() => _offsetMinutesError = error);
+    return error == null;
+  }
+
+  bool _validateSpecificTime() {
+    if (_selectedTimingType != SupplementTimingType.specificTime) {
+      setState(() => _specificTimeError = null);
+      return true;
+    }
+    String? error;
+    if (_specificTimeMinutes == null) {
+      error = 'Please select a time';
+    } else if (_specificTimeMinutes! < 0 || _specificTimeMinutes! >= 1440) {
+      error = 'Invalid time';
+    }
+    setState(() => _specificTimeError = error);
+    return error == null;
+  }
+
+  bool _validateEndDate() {
+    if (_startDate == null || _endDate == null) {
+      setState(() => _endDateError = null);
+      return true;
+    }
+    String? error;
+    if (_endDate!.isBefore(_startDate!)) {
+      error = 'End date must be after start date';
+    }
+    setState(() => _endDateError = error);
+    return error == null;
+  }
+
   bool _validateAll() {
     final nameValid = _validateName();
     final brandValid = _validateBrand();
     final customFormValid = _validateCustomForm();
     final dosageAmountValid = _validateDosageAmount();
+    final customDosageUnitValid = _validateCustomDosageUnit();
     final quantityPerDoseValid = _validateQuantityPerDose();
+    final everyXDaysValid = _validateEveryXDays();
+    final specificDaysValid = _validateSpecificDays();
+    final offsetMinutesValid = _validateOffsetMinutes();
+    final specificTimeValid = _validateSpecificTime();
+    final endDateValid = _validateEndDate();
     final notesValid = _validateNotes();
     return nameValid &&
         brandValid &&
         customFormValid &&
         dosageAmountValid &&
+        customDosageUnitValid &&
         quantityPerDoseValid &&
+        everyXDaysValid &&
+        specificDaysValid &&
+        offsetMinutesValid &&
+        specificTimeValid &&
+        endDateValid &&
         notesValid;
   }
 
@@ -509,6 +1133,27 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
           int.tryParse(_dosageAmountController.text.trim()) ??
           ValidationRules.quantityPerDoseMin;
 
+      final ingredients = _ingredients
+          .map((name) => SupplementIngredient(name: name))
+          .toList();
+
+      final schedule = SupplementSchedule(
+        anchorEvent: _selectedAnchorEvent,
+        timingType: _selectedTimingType,
+        offsetMinutes: _offsetMinutes,
+        specificTimeMinutes: _specificTimeMinutes,
+        frequencyType: _selectedFrequency,
+        everyXDays: _selectedFrequency == SupplementFrequencyType.everyXDays
+            ? (int.tryParse(_everyXDaysController.text.trim()) ?? 2)
+            : 1,
+        weekdays: _selectedFrequency == SupplementFrequencyType.specificWeekdays
+            ? _selectedWeekdays
+            : [0, 1, 2, 3, 4, 5, 6],
+      );
+
+      final startDateMs = _startDate?.millisecondsSinceEpoch;
+      final endDateMs = _endDate?.millisecondsSinceEpoch;
+
       if (_isEditing) {
         await ref
             .read(supplementListProvider(widget.profileId).notifier)
@@ -523,8 +1168,15 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                     : null,
                 dosageQuantity: dosageAmount,
                 dosageUnit: _selectedDosageUnit,
+                customDosageUnit: _selectedDosageUnit == DosageUnit.custom
+                    ? _customDosageUnitController.text.trim()
+                    : null,
                 brand: _brandController.text.trim(),
                 notes: _notesController.text.trim(),
+                ingredients: ingredients,
+                schedules: [schedule],
+                startDate: startDateMs,
+                endDate: endDateMs,
               ),
             );
       } else {
@@ -541,8 +1193,15 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                     : null,
                 dosageQuantity: dosageAmount,
                 dosageUnit: _selectedDosageUnit,
+                customDosageUnit: _selectedDosageUnit == DosageUnit.custom
+                    ? _customDosageUnitController.text.trim()
+                    : null,
                 brand: _brandController.text.trim(),
                 notes: _notesController.text.trim(),
+                ingredients: ingredients,
+                schedules: [schedule],
+                startDate: startDateMs,
+                endDate: endDateMs,
               ),
             );
       }
