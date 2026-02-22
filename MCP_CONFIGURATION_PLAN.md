@@ -12,6 +12,7 @@ All planned MCPs are now configured and working:
 - ✅ **GitHub MCP (Global)** — User level (`/Users/reidbarcus`), scoped to BlueDomeLabs GitHub account. Verified live by listing repositories successfully.
 - ✅ **Filesystem MCP** — User level (`/Users/reidbarcus`), scoped to `/Users/reidbarcus`. Gives Claude Code structured navigation across all Blue Dome Labs projects.
 - ✅ **Flutter/Dart Docs MCP** — Project level (`/Users/reidbarcus/Development/Shadow`), configured in `.mcp.json` and committed to GitHub.
+- ✅ **Context7 MCP** — User level (`/Users/reidbarcus`). Provides up-to-date, version-specific documentation for Flutter, Dart, and other libraries directly to Claude Code while building. Installed 2026-02-21.
 - ✅ **Tavily Search MCP** — User level (`/Users/reidbarcus`). Replaced Brave Search, which dropped their free tier in February 2026. Tavily offers 1,000 free searches/month with no credit card required. API key stored in Mac Keychain under 'Tavily API Key'. Verified live by successfully retrieving Flutter 3.41 release notes.
 
 **Known display bug:** `claude mcp list` may return no output in the terminal. This is a display quirk, not an error. The source of truth for configured MCPs is `~/.claude.json` (user-level) and `.mcp.json` (project-level).
@@ -73,7 +74,13 @@ For tools that apply to every project Reid builds under Blue Dome Labs.
 - **Requires:** Node.js
 - **Status:** ✅ CONFIGURED — user level, scoped to `/Users/reidbarcus`
 
-### 2.3 Tavily Search MCP
+### 2.3 Context7 MCP
+- **Purpose:** Provides up-to-date, version-specific documentation for Flutter, Dart, and other libraries directly to Claude Code while building.
+- **Requires:** Node.js
+- **Status:** ✅ CONFIGURED — installed 2026-02-21, user level
+- **Note:** Requires session restart to activate in existing sessions
+
+### 2.4 Tavily Search MCP
 - **Purpose:** Gives Claude Code the ability to search the web for up-to-date information — release notes, library changes, bug fixes, API documentation — while actively building features.
 - **Why Tavily over Brave:** Brave Search dropped their free tier in February 2026. Tavily offers 1,000 free searches/month with no credit card required.
 - **Requires:** Node.js, Tavily API key
