@@ -17,6 +17,18 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-22: Guest invites have a hard one-device limit
+
+**What:** Each guest invite QR code can only be active on one device at a time. If a second device tries to scan an already-active QR code, the scan is rejected entirely — no access granted. The host receives a notification when this happens ("Someone attempted to access [Profile Name]'s profile from a second device. The attempt was blocked."). The only way to move access to a new device is for the host to revoke the current device first, then generate a new code.
+
+**Why:** This is a deliberate security decision to reduce the risk of accidental profile sharing. If a QR code is accidentally shared with the wrong person (e.g., screenshotted and forwarded), only one device can use it. The host notification provides immediate visibility that something unexpected happened.
+
+**Alternatives:** Could have allowed multiple devices per invite, but this increases the risk of unauthorized access and makes it harder for the host to track who has access. Could have shown a warning instead of blocking, but a hard block is simpler and more secure.
+
+**Impact:** Patients who change phones will need their host to revoke the old device and generate a new QR code. This is a deliberate trade-off — slightly less convenience for significantly better security and control.
+
+---
+
 ### 2026-02-22: Only Supplements, Conditions, and Food support archive/unarchive
 
 **What:** Reid confirmed that only three types of health data support archiving (temporarily hiding) and unarchiving (bringing back): Supplements, Conditions, and Food Items. Everything else (Sleep, Activities, Photos, Journal entries) only needs add, edit, and delete.

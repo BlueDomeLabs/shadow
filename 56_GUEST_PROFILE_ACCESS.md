@@ -37,6 +37,7 @@ Shadow supports a "Guest Profile Access" system that allows the account owner (t
 - Host can revoke any invite at any time — guest device immediately loses access on next sync attempt
 - Invites can have an optional expiry date set by the host
 - Host can regenerate a new QR code (invalidating the old one) per profile
+- Each active invite shows a **"Remove Device"** option. Tapping it requires a deliberate confirmation step (not a single tap). On confirmation, the token is immediately revoked. The host can then generate a new QR code for the same profile, allowing a replacement device to be added. This is the only supported path for a patient changing phones.
 
 ### Invite Settings (per profile)
 - Invite name / label (e.g. "John's iPhone")
@@ -78,10 +79,18 @@ Shadow supports a "Guest Profile Access" system that allows the account owner (t
 - QR code encodes: `shadow://invite?token=<TOKEN>&profile=<PROFILE_ID>`
 - Token maps to: profile ID, host's Drive credentials scope, expiry date, revocation status
 
+### One-Device Limit (Hard Enforcement)
+- **A guest invite token may only be active on one device at a time.** This is a hard system limit, not a warning.
+- If a second device attempts to scan an already-active QR code, the scan is **rejected entirely** and the second device is denied access. No exceptions.
+- When a second device attempt is blocked, the host's app receives a notification: **"Someone attempted to access [Profile Name]'s profile from a second device. The attempt was blocked."** This gives the host immediate visibility if a QR code was accidentally shared with the wrong person.
+- The only way to move access to a new device is for the host to explicitly revoke the current device first (via "Remove Device" in the invite management screen), then generate a new QR code.
+
 ### Guest Mode Activation
 - App detects `shadow://invite` deep link on launch
 - Validates token against host's Drive (token must exist and not be revoked/expired)
+- **Checks that no other device has already activated this token.** If another device is already active, the scan is rejected with a message: "This invite is already in use on another device. Please contact your host for a new invite."
 - Stores token locally on guest device (secure storage, same as OAuth credentials)
+- Registers the device ID against the token in the host's Drive (marking the token as actively bound to this device)
 - Sets app into Guest Mode — single profile, restricted navigation
 - All subsequent syncs use the stored token to access only the invited profile's data in the host's Drive
 
@@ -102,7 +111,7 @@ Shadow supports a "Guest Profile Access" system that allows the account owner (t
 
 ### Database Changes
 - New table: `guest_invites` — stores active invites on the host device
-  - id, profile_id, token, label, created_at, expires_at (nullable), is_revoked, last_seen_at
+  - id, profile_id, token, label, created_at, expires_at (nullable), is_revoked, last_seen_at, active_device_id (nullable — set when a guest device activates the token, cleared on revocation)
 
 ### API Contracts Changes
 - New use cases: CreateGuestInvite, RevokeGuestInvite, ListGuestInvites, ValidateGuestToken
@@ -145,7 +154,6 @@ The following disclaimer must be displayed to guest users on first launch and ac
 ## Future Enhancements (Not in Scope for Initial Implementation)
 
 - Read-only guest access (view but not edit)
-- Multiple guest devices per profile
 - Guest activity log visible to host
 - Push notifications to host when guest enters data
 - Time-limited access windows (e.g. "active only between 8am-8pm")
