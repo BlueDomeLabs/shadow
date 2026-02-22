@@ -131,6 +131,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [ ] 9. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
+- **Phase 12: Guest Profile Access (QR Code Invite System)** — See 56_GUEST_PROFILE_ACCESS.md for full spec. Allows host to invite a guest device to access a single profile via QR code. No separate patient login required. Implement AFTER Phase 11.
 
 ### Test Count: 2231 passing | Analyzer: clean | Schema: v9
 
