@@ -115,10 +115,10 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 3c. Tests proving spec compliance (15 pull path tests)
 
 **Phase 4: Full sync with conflict handling**
-- [ ] 4a. Update and validate spec documents against Coding Standards
-- [ ] 4b. Implement conflict detection, resolution, and bidirectional sync
-- [ ] 4c. Wire up Cloud Sync Settings screen to real status/controls
-- [ ] 4d. Tests proving spec compliance
+- [x] 4a. Update and validate spec documents against Coding Standards
+- [x] 4b. Implement conflict detection, resolution, and bidirectional sync
+- [x] 4c. Wire up Cloud Sync Settings screen to real status/controls (sync status, conflict banner, last sync time)
+- [x] 4d. Tests proving spec compliance (2192 total; 5 new screen tests + 15 sync service conflict tests + 10 SyncMetadata tests)
 
 ### After Cloud Sync (Priority Order)
 - [ ] 5. SupplementEditScreen (full implementation)
@@ -129,7 +129,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
 
-### Test Count: 2172 passing | Analyzer: clean
+### Test Count: 2192 passing | Analyzer: clean
 
 ---
 
