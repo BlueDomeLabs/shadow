@@ -262,6 +262,7 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
       customForm: row.customForm,
       dosageQuantity: row.dosageQuantity,
       dosageUnit: DosageUnit.fromValue(row.dosageUnit),
+      customDosageUnit: row.customDosageUnit,
       brand: row.brand,
       notes: row.notes,
       ingredients: ingredientsList,
@@ -294,6 +295,7 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
         customForm: Value(entity.customForm),
         dosageQuantity: Value(entity.dosageQuantity),
         dosageUnit: Value(entity.dosageUnit.value),
+        customDosageUnit: Value(entity.customDosageUnit),
         brand: Value(entity.brand),
         notes: Value(entity.notes),
         ingredients: Value(

@@ -53,6 +53,7 @@ class UpdateSupplementUseCase
       customForm: input.customForm ?? existing.customForm,
       dosageQuantity: input.dosageQuantity ?? existing.dosageQuantity,
       dosageUnit: input.dosageUnit ?? existing.dosageUnit,
+      customDosageUnit: input.customDosageUnit ?? existing.customDosageUnit,
       brand: input.brand ?? existing.brand,
       notes: input.notes ?? existing.notes,
       ingredients: input.ingredients ?? existing.ingredients,
@@ -90,6 +91,15 @@ class UpdateSupplementUseCase
         (supplement.customForm == null || supplement.customForm!.isEmpty)) {
       errors['customForm'] = [
         'Custom form name is required when form is "Other"',
+      ];
+    }
+
+    // Custom dosage unit required when unit is 'custom'
+    if (supplement.dosageUnit == DosageUnit.custom &&
+        (supplement.customDosageUnit == null ||
+            supplement.customDosageUnit!.isEmpty)) {
+      errors['customDosageUnit'] = [
+        'Custom unit name is required when unit is "custom"',
       ];
     }
 

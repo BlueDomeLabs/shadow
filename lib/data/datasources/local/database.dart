@@ -112,8 +112,9 @@ class AppDatabase extends _$AppDatabase {
   /// Schema version - MUST match 10_DATABASE_SCHEMA.md
   /// Increment when schema changes require migration
   /// v8: Added sync_conflicts table (Phase 4b — conflict handling)
+  /// v9: Added custom_dosage_unit column to supplements table
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   /// Migration strategy for schema changes.
   ///
@@ -138,6 +139,11 @@ class AppDatabase extends _$AppDatabase {
       // v8: Add sync_conflicts table for Phase 4 conflict handling
       if (from < 8) {
         await m.createTable(syncConflicts);
+      }
+
+      // v9: Add custom_dosage_unit column to supplements
+      if (from < 9) {
+        await m.addColumn(supplements, supplements.customDosageUnit);
       }
     },
     beforeOpen: (details) async {

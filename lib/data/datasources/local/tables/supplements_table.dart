@@ -25,6 +25,8 @@ class Supplements extends Table {
 
   // Optional fields with defaults
   TextColumn get customForm => text().named('custom_form').nullable()();
+  TextColumn get customDosageUnit =>
+      text().named('custom_dosage_unit').nullable()();
   TextColumn get brand => text().withDefault(const Constant(''))();
   TextColumn get notes => text().withDefault(const Constant(''))();
   TextColumn get ingredients =>

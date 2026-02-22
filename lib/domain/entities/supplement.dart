@@ -25,6 +25,7 @@ class Supplement with _$Supplement implements Syncable {
     String? customForm,
     required int dosageQuantity,
     required DosageUnit dosageUnit,
+    String? customDosageUnit,
     @Default('') String brand,
     @Default('') String notes,
     @Default([]) List<SupplementIngredient> ingredients,

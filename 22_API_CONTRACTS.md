@@ -4579,6 +4579,7 @@ class CreateSupplementUseCase implements UseCase<CreateSupplementInput, Suppleme
       customForm: input.customForm,
       dosageQuantity: input.dosageQuantity,
       dosageUnit: input.dosageUnit,
+      customDosageUnit: input.customDosageUnit,
       brand: input.brand,
       notes: input.notes,
       ingredients: input.ingredients,
@@ -7543,6 +7544,7 @@ class Supplement with _$Supplement {
     String? customForm,          // User-defined form when form == 'other'
     required int dosageQuantity, // Number of units per dose (e.g., 2 capsules)
     required DosageUnit dosageUnit,
+    String? customDosageUnit,    // User-defined unit label when dosageUnit == custom (max 50 chars)
     @Default('') String brand,
     @Default('') String notes,
     @Default([]) List<SupplementIngredient> ingredients,

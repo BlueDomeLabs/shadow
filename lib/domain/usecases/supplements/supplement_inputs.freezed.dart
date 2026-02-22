@@ -224,6 +224,7 @@ mixin _$CreateSupplementInput {
   String? get customForm => throw _privateConstructorUsedError;
   int get dosageQuantity => throw _privateConstructorUsedError;
   DosageUnit get dosageUnit => throw _privateConstructorUsedError;
+  String? get customDosageUnit => throw _privateConstructorUsedError;
   String get brand => throw _privateConstructorUsedError;
   String get notes => throw _privateConstructorUsedError;
   List<SupplementIngredient> get ingredients =>
@@ -254,6 +255,7 @@ abstract class $CreateSupplementInputCopyWith<$Res> {
     String? customForm,
     int dosageQuantity,
     DosageUnit dosageUnit,
+    String? customDosageUnit,
     String brand,
     String notes,
     List<SupplementIngredient> ingredients,
@@ -288,6 +290,7 @@ class _$CreateSupplementInputCopyWithImpl<
     Object? customForm = freezed,
     Object? dosageQuantity = null,
     Object? dosageUnit = null,
+    Object? customDosageUnit = freezed,
     Object? brand = null,
     Object? notes = null,
     Object? ingredients = null,
@@ -325,6 +328,10 @@ class _$CreateSupplementInputCopyWithImpl<
                 ? _value.dosageUnit
                 : dosageUnit // ignore: cast_nullable_to_non_nullable
                       as DosageUnit,
+            customDosageUnit: freezed == customDosageUnit
+                ? _value.customDosageUnit
+                : customDosageUnit // ignore: cast_nullable_to_non_nullable
+                      as String?,
             brand: null == brand
                 ? _value.brand
                 : brand // ignore: cast_nullable_to_non_nullable
@@ -372,6 +379,7 @@ abstract class _$$CreateSupplementInputImplCopyWith<$Res>
     String? customForm,
     int dosageQuantity,
     DosageUnit dosageUnit,
+    String? customDosageUnit,
     String brand,
     String notes,
     List<SupplementIngredient> ingredients,
@@ -403,6 +411,7 @@ class __$$CreateSupplementInputImplCopyWithImpl<$Res>
     Object? customForm = freezed,
     Object? dosageQuantity = null,
     Object? dosageUnit = null,
+    Object? customDosageUnit = freezed,
     Object? brand = null,
     Object? notes = null,
     Object? ingredients = null,
@@ -440,6 +449,10 @@ class __$$CreateSupplementInputImplCopyWithImpl<$Res>
             ? _value.dosageUnit
             : dosageUnit // ignore: cast_nullable_to_non_nullable
                   as DosageUnit,
+        customDosageUnit: freezed == customDosageUnit
+            ? _value.customDosageUnit
+            : customDosageUnit // ignore: cast_nullable_to_non_nullable
+                  as String?,
         brand: null == brand
             ? _value.brand
             : brand // ignore: cast_nullable_to_non_nullable
@@ -480,6 +493,7 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
     this.customForm,
     required this.dosageQuantity,
     required this.dosageUnit,
+    this.customDosageUnit,
     this.brand = '',
     this.notes = '',
     final List<SupplementIngredient> ingredients = const [],
@@ -503,6 +517,8 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
   final int dosageQuantity;
   @override
   final DosageUnit dosageUnit;
+  @override
+  final String? customDosageUnit;
   @override
   @JsonKey()
   final String brand;
@@ -534,7 +550,7 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
 
   @override
   String toString() {
-    return 'CreateSupplementInput(profileId: $profileId, clientId: $clientId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate)';
+    return 'CreateSupplementInput(profileId: $profileId, clientId: $clientId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate)';
   }
 
   @override
@@ -554,6 +570,8 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
                 other.dosageQuantity == dosageQuantity) &&
             (identical(other.dosageUnit, dosageUnit) ||
                 other.dosageUnit == dosageUnit) &&
+            (identical(other.customDosageUnit, customDosageUnit) ||
+                other.customDosageUnit == customDosageUnit) &&
             (identical(other.brand, brand) || other.brand == brand) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             const DeepCollectionEquality().equals(
@@ -579,6 +597,7 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
     customForm,
     dosageQuantity,
     dosageUnit,
+    customDosageUnit,
     brand,
     notes,
     const DeepCollectionEquality().hash(_ingredients),
@@ -609,6 +628,7 @@ abstract class _CreateSupplementInput implements CreateSupplementInput {
     final String? customForm,
     required final int dosageQuantity,
     required final DosageUnit dosageUnit,
+    final String? customDosageUnit,
     final String brand,
     final String notes,
     final List<SupplementIngredient> ingredients,
@@ -631,6 +651,8 @@ abstract class _CreateSupplementInput implements CreateSupplementInput {
   int get dosageQuantity;
   @override
   DosageUnit get dosageUnit;
+  @override
+  String? get customDosageUnit;
   @override
   String get brand;
   @override
@@ -661,6 +683,7 @@ mixin _$UpdateSupplementInput {
   String? get customForm => throw _privateConstructorUsedError;
   int? get dosageQuantity => throw _privateConstructorUsedError;
   DosageUnit? get dosageUnit => throw _privateConstructorUsedError;
+  String? get customDosageUnit => throw _privateConstructorUsedError;
   String? get brand => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
   List<SupplementIngredient>? get ingredients =>
@@ -692,6 +715,7 @@ abstract class $UpdateSupplementInputCopyWith<$Res> {
     String? customForm,
     int? dosageQuantity,
     DosageUnit? dosageUnit,
+    String? customDosageUnit,
     String? brand,
     String? notes,
     List<SupplementIngredient>? ingredients,
@@ -727,6 +751,7 @@ class _$UpdateSupplementInputCopyWithImpl<
     Object? customForm = freezed,
     Object? dosageQuantity = freezed,
     Object? dosageUnit = freezed,
+    Object? customDosageUnit = freezed,
     Object? brand = freezed,
     Object? notes = freezed,
     Object? ingredients = freezed,
@@ -765,6 +790,10 @@ class _$UpdateSupplementInputCopyWithImpl<
                 ? _value.dosageUnit
                 : dosageUnit // ignore: cast_nullable_to_non_nullable
                       as DosageUnit?,
+            customDosageUnit: freezed == customDosageUnit
+                ? _value.customDosageUnit
+                : customDosageUnit // ignore: cast_nullable_to_non_nullable
+                      as String?,
             brand: freezed == brand
                 ? _value.brand
                 : brand // ignore: cast_nullable_to_non_nullable
@@ -816,6 +845,7 @@ abstract class _$$UpdateSupplementInputImplCopyWith<$Res>
     String? customForm,
     int? dosageQuantity,
     DosageUnit? dosageUnit,
+    String? customDosageUnit,
     String? brand,
     String? notes,
     List<SupplementIngredient>? ingredients,
@@ -848,6 +878,7 @@ class __$$UpdateSupplementInputImplCopyWithImpl<$Res>
     Object? customForm = freezed,
     Object? dosageQuantity = freezed,
     Object? dosageUnit = freezed,
+    Object? customDosageUnit = freezed,
     Object? brand = freezed,
     Object? notes = freezed,
     Object? ingredients = freezed,
@@ -886,6 +917,10 @@ class __$$UpdateSupplementInputImplCopyWithImpl<$Res>
             ? _value.dosageUnit
             : dosageUnit // ignore: cast_nullable_to_non_nullable
                   as DosageUnit?,
+        customDosageUnit: freezed == customDosageUnit
+            ? _value.customDosageUnit
+            : customDosageUnit // ignore: cast_nullable_to_non_nullable
+                  as String?,
         brand: freezed == brand
             ? _value.brand
             : brand // ignore: cast_nullable_to_non_nullable
@@ -930,6 +965,7 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
     this.customForm,
     this.dosageQuantity,
     this.dosageUnit,
+    this.customDosageUnit,
     this.brand,
     this.notes,
     final List<SupplementIngredient>? ingredients,
@@ -954,6 +990,8 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
   final int? dosageQuantity;
   @override
   final DosageUnit? dosageUnit;
+  @override
+  final String? customDosageUnit;
   @override
   final String? brand;
   @override
@@ -987,7 +1025,7 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
 
   @override
   String toString() {
-    return 'UpdateSupplementInput(id: $id, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived)';
+    return 'UpdateSupplementInput(id: $id, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived)';
   }
 
   @override
@@ -1006,6 +1044,8 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
                 other.dosageQuantity == dosageQuantity) &&
             (identical(other.dosageUnit, dosageUnit) ||
                 other.dosageUnit == dosageUnit) &&
+            (identical(other.customDosageUnit, customDosageUnit) ||
+                other.customDosageUnit == customDosageUnit) &&
             (identical(other.brand, brand) || other.brand == brand) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             const DeepCollectionEquality().equals(
@@ -1033,6 +1073,7 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
     customForm,
     dosageQuantity,
     dosageUnit,
+    customDosageUnit,
     brand,
     notes,
     const DeepCollectionEquality().hash(_ingredients),
@@ -1064,6 +1105,7 @@ abstract class _UpdateSupplementInput implements UpdateSupplementInput {
     final String? customForm,
     final int? dosageQuantity,
     final DosageUnit? dosageUnit,
+    final String? customDosageUnit,
     final String? brand,
     final String? notes,
     final List<SupplementIngredient>? ingredients,
@@ -1087,6 +1129,8 @@ abstract class _UpdateSupplementInput implements UpdateSupplementInput {
   int? get dosageQuantity;
   @override
   DosageUnit? get dosageUnit;
+  @override
+  String? get customDosageUnit;
   @override
   String? get brand;
   @override

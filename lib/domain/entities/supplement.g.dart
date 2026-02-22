@@ -17,6 +17,7 @@ _$SupplementImpl _$$SupplementImplFromJson(
   customForm: json['customForm'] as String?,
   dosageQuantity: (json['dosageQuantity'] as num).toInt(),
   dosageUnit: $enumDecode(_$DosageUnitEnumMap, json['dosageUnit']),
+  customDosageUnit: json['customDosageUnit'] as String?,
   brand: json['brand'] as String? ?? '',
   notes: json['notes'] as String? ?? '',
   ingredients:
@@ -47,6 +48,7 @@ Map<String, dynamic> _$$SupplementImplToJson(_$SupplementImpl instance) =>
       'customForm': instance.customForm,
       'dosageQuantity': instance.dosageQuantity,
       'dosageUnit': _$DosageUnitEnumMap[instance.dosageUnit]!,
+      'customDosageUnit': instance.customDosageUnit,
       'brand': instance.brand,
       'notes': instance.notes,
       'ingredients': instance.ingredients.map((e) => e.toJson()).toList(),

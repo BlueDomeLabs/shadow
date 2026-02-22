@@ -1,18 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 4b: Conflict detection, resolution, and bidirectional sync - ALL STEPS COMPLETE",
-  "timestamp": "2026-02-21T05:00:00Z",
+  "task": "Add customDosageUnit field to Supplement entity (schema v9)",
+  "timestamp": "2026-02-21T06:30:00Z",
   "testsStatus": "passing",
   "testCount": 2192,
   "analyzerStatus": "clean",
-  "completedSteps": [
-    "Step 1: sync_conflicts DB table (schema v8) + SyncConflictDao",
-    "Step 2: markConflict() and clearConflict() on SyncMetadata",
-    "Step 3: applyChanges() upgraded with dual-write conflict persistence",
-    "Step 4: getConflictCount() implemented via SyncConflictDao",
-    "Step 5: resolveConflict() implemented (keepLocal, keepRemote, merge)",
-    "Step 6: Cloud Sync Settings screen wired to real sync status + conflict display",
-    "Step 7: 17 screen tests passing (last sync time, conflict banner, singular/plural)"
-  ],
-  "nextStep": "Phase 4c: Wire up Cloud Sync Settings screen to real status/controls (SyncNotifier) - OR start Phase 5 (SupplementEditScreen)"
+  "notes": "customDosageUnit field added end-to-end: spec, entity, inputs, use cases, DB table, migration v8->v9, DAO mapper. Next: Phase 5 SupplementEditScreen full implementation (add customDosageUnit, ingredients tag input, full schedule section)."
 }

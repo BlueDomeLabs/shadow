@@ -91,6 +91,17 @@ class $SupplementsTable extends Supplements
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _customDosageUnitMeta = const VerificationMeta(
+    'customDosageUnit',
+  );
+  @override
+  late final GeneratedColumn<String> customDosageUnit = GeneratedColumn<String>(
+    'custom_dosage_unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _brandMeta = const VerificationMeta('brand');
   @override
   late final GeneratedColumn<String> brand = GeneratedColumn<String>(
@@ -287,6 +298,7 @@ class $SupplementsTable extends Supplements
     dosageQuantity,
     dosageUnit,
     customForm,
+    customDosageUnit,
     brand,
     notes,
     ingredients,
@@ -376,6 +388,15 @@ class $SupplementsTable extends Supplements
       context.handle(
         _customFormMeta,
         customForm.isAcceptableOrUnknown(data['custom_form']!, _customFormMeta),
+      );
+    }
+    if (data.containsKey('custom_dosage_unit')) {
+      context.handle(
+        _customDosageUnitMeta,
+        customDosageUnit.isAcceptableOrUnknown(
+          data['custom_dosage_unit']!,
+          _customDosageUnitMeta,
+        ),
       );
     }
     if (data.containsKey('brand')) {
@@ -544,6 +565,10 @@ class $SupplementsTable extends Supplements
         DriftSqlType.string,
         data['${effectivePrefix}custom_form'],
       ),
+      customDosageUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_dosage_unit'],
+      ),
       brand: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}brand'],
@@ -626,6 +651,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
   final int dosageQuantity;
   final int dosageUnit;
   final String? customForm;
+  final String? customDosageUnit;
   final String brand;
   final String notes;
   final String ingredients;
@@ -651,6 +677,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     required this.dosageQuantity,
     required this.dosageUnit,
     this.customForm,
+    this.customDosageUnit,
     required this.brand,
     required this.notes,
     required this.ingredients,
@@ -680,6 +707,9 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     map['dosage_unit'] = Variable<int>(dosageUnit);
     if (!nullToAbsent || customForm != null) {
       map['custom_form'] = Variable<String>(customForm);
+    }
+    if (!nullToAbsent || customDosageUnit != null) {
+      map['custom_dosage_unit'] = Variable<String>(customDosageUnit);
     }
     map['brand'] = Variable<String>(brand);
     map['notes'] = Variable<String>(notes);
@@ -726,6 +756,9 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       customForm: customForm == null && nullToAbsent
           ? const Value.absent()
           : Value(customForm),
+      customDosageUnit: customDosageUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customDosageUnit),
       brand: Value(brand),
       notes: Value(notes),
       ingredients: Value(ingredients),
@@ -773,6 +806,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       dosageQuantity: serializer.fromJson<int>(json['dosageQuantity']),
       dosageUnit: serializer.fromJson<int>(json['dosageUnit']),
       customForm: serializer.fromJson<String?>(json['customForm']),
+      customDosageUnit: serializer.fromJson<String?>(json['customDosageUnit']),
       brand: serializer.fromJson<String>(json['brand']),
       notes: serializer.fromJson<String>(json['notes']),
       ingredients: serializer.fromJson<String>(json['ingredients']),
@@ -803,6 +837,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       'dosageQuantity': serializer.toJson<int>(dosageQuantity),
       'dosageUnit': serializer.toJson<int>(dosageUnit),
       'customForm': serializer.toJson<String?>(customForm),
+      'customDosageUnit': serializer.toJson<String?>(customDosageUnit),
       'brand': serializer.toJson<String>(brand),
       'notes': serializer.toJson<String>(notes),
       'ingredients': serializer.toJson<String>(ingredients),
@@ -831,6 +866,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     int? dosageQuantity,
     int? dosageUnit,
     Value<String?> customForm = const Value.absent(),
+    Value<String?> customDosageUnit = const Value.absent(),
     String? brand,
     String? notes,
     String? ingredients,
@@ -856,6 +892,9 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     dosageQuantity: dosageQuantity ?? this.dosageQuantity,
     dosageUnit: dosageUnit ?? this.dosageUnit,
     customForm: customForm.present ? customForm.value : this.customForm,
+    customDosageUnit: customDosageUnit.present
+        ? customDosageUnit.value
+        : this.customDosageUnit,
     brand: brand ?? this.brand,
     notes: notes ?? this.notes,
     ingredients: ingredients ?? this.ingredients,
@@ -895,6 +934,9 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       customForm: data.customForm.present
           ? data.customForm.value
           : this.customForm,
+      customDosageUnit: data.customDosageUnit.present
+          ? data.customDosageUnit.value
+          : this.customDosageUnit,
       brand: data.brand.present ? data.brand.value : this.brand,
       notes: data.notes.present ? data.notes.value : this.notes,
       ingredients: data.ingredients.present
@@ -947,6 +989,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
           ..write('dosageQuantity: $dosageQuantity, ')
           ..write('dosageUnit: $dosageUnit, ')
           ..write('customForm: $customForm, ')
+          ..write('customDosageUnit: $customDosageUnit, ')
           ..write('brand: $brand, ')
           ..write('notes: $notes, ')
           ..write('ingredients: $ingredients, ')
@@ -977,6 +1020,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     dosageQuantity,
     dosageUnit,
     customForm,
+    customDosageUnit,
     brand,
     notes,
     ingredients,
@@ -1006,6 +1050,7 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
           other.dosageQuantity == this.dosageQuantity &&
           other.dosageUnit == this.dosageUnit &&
           other.customForm == this.customForm &&
+          other.customDosageUnit == this.customDosageUnit &&
           other.brand == this.brand &&
           other.notes == this.notes &&
           other.ingredients == this.ingredients &&
@@ -1033,6 +1078,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
   final Value<int> dosageQuantity;
   final Value<int> dosageUnit;
   final Value<String?> customForm;
+  final Value<String?> customDosageUnit;
   final Value<String> brand;
   final Value<String> notes;
   final Value<String> ingredients;
@@ -1059,6 +1105,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     this.dosageQuantity = const Value.absent(),
     this.dosageUnit = const Value.absent(),
     this.customForm = const Value.absent(),
+    this.customDosageUnit = const Value.absent(),
     this.brand = const Value.absent(),
     this.notes = const Value.absent(),
     this.ingredients = const Value.absent(),
@@ -1086,6 +1133,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     required int dosageQuantity,
     required int dosageUnit,
     this.customForm = const Value.absent(),
+    this.customDosageUnit = const Value.absent(),
     this.brand = const Value.absent(),
     this.notes = const Value.absent(),
     this.ingredients = const Value.absent(),
@@ -1120,6 +1168,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     Expression<int>? dosageQuantity,
     Expression<int>? dosageUnit,
     Expression<String>? customForm,
+    Expression<String>? customDosageUnit,
     Expression<String>? brand,
     Expression<String>? notes,
     Expression<String>? ingredients,
@@ -1147,6 +1196,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
       if (dosageQuantity != null) 'dosage_quantity': dosageQuantity,
       if (dosageUnit != null) 'dosage_unit': dosageUnit,
       if (customForm != null) 'custom_form': customForm,
+      if (customDosageUnit != null) 'custom_dosage_unit': customDosageUnit,
       if (brand != null) 'brand': brand,
       if (notes != null) 'notes': notes,
       if (ingredients != null) 'ingredients': ingredients,
@@ -1176,6 +1226,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     Value<int>? dosageQuantity,
     Value<int>? dosageUnit,
     Value<String?>? customForm,
+    Value<String?>? customDosageUnit,
     Value<String>? brand,
     Value<String>? notes,
     Value<String>? ingredients,
@@ -1203,6 +1254,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
       dosageQuantity: dosageQuantity ?? this.dosageQuantity,
       dosageUnit: dosageUnit ?? this.dosageUnit,
       customForm: customForm ?? this.customForm,
+      customDosageUnit: customDosageUnit ?? this.customDosageUnit,
       brand: brand ?? this.brand,
       notes: notes ?? this.notes,
       ingredients: ingredients ?? this.ingredients,
@@ -1249,6 +1301,9 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     }
     if (customForm.present) {
       map['custom_form'] = Variable<String>(customForm.value);
+    }
+    if (customDosageUnit.present) {
+      map['custom_dosage_unit'] = Variable<String>(customDosageUnit.value);
     }
     if (brand.present) {
       map['brand'] = Variable<String>(brand.value);
@@ -1315,6 +1370,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
           ..write('dosageQuantity: $dosageQuantity, ')
           ..write('dosageUnit: $dosageUnit, ')
           ..write('customForm: $customForm, ')
+          ..write('customDosageUnit: $customDosageUnit, ')
           ..write('brand: $brand, ')
           ..write('notes: $notes, ')
           ..write('ingredients: $ingredients, ')
@@ -18620,6 +18676,7 @@ typedef $$SupplementsTableCreateCompanionBuilder =
       required int dosageQuantity,
       required int dosageUnit,
       Value<String?> customForm,
+      Value<String?> customDosageUnit,
       Value<String> brand,
       Value<String> notes,
       Value<String> ingredients,
@@ -18648,6 +18705,7 @@ typedef $$SupplementsTableUpdateCompanionBuilder =
       Value<int> dosageQuantity,
       Value<int> dosageUnit,
       Value<String?> customForm,
+      Value<String?> customDosageUnit,
       Value<String> brand,
       Value<String> notes,
       Value<String> ingredients,
@@ -18713,6 +18771,11 @@ class $$SupplementsTableFilterComposer
 
   ColumnFilters<String> get customForm => $composableBuilder(
     column: $table.customForm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customDosageUnit => $composableBuilder(
+    column: $table.customDosageUnit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18846,6 +18909,11 @@ class $$SupplementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get customDosageUnit => $composableBuilder(
+    column: $table.customDosageUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get brand => $composableBuilder(
     column: $table.brand,
     builder: (column) => ColumnOrderings(column),
@@ -18966,6 +19034,11 @@ class $$SupplementsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get customDosageUnit => $composableBuilder(
+    column: $table.customDosageUnit,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
 
@@ -19076,6 +19149,7 @@ class $$SupplementsTableTableManager
                 Value<int> dosageQuantity = const Value.absent(),
                 Value<int> dosageUnit = const Value.absent(),
                 Value<String?> customForm = const Value.absent(),
+                Value<String?> customDosageUnit = const Value.absent(),
                 Value<String> brand = const Value.absent(),
                 Value<String> notes = const Value.absent(),
                 Value<String> ingredients = const Value.absent(),
@@ -19102,6 +19176,7 @@ class $$SupplementsTableTableManager
                 dosageQuantity: dosageQuantity,
                 dosageUnit: dosageUnit,
                 customForm: customForm,
+                customDosageUnit: customDosageUnit,
                 brand: brand,
                 notes: notes,
                 ingredients: ingredients,
@@ -19130,6 +19205,7 @@ class $$SupplementsTableTableManager
                 required int dosageQuantity,
                 required int dosageUnit,
                 Value<String?> customForm = const Value.absent(),
+                Value<String?> customDosageUnit = const Value.absent(),
                 Value<String> brand = const Value.absent(),
                 Value<String> notes = const Value.absent(),
                 Value<String> ingredients = const Value.absent(),
@@ -19156,6 +19232,7 @@ class $$SupplementsTableTableManager
                 dosageQuantity: dosageQuantity,
                 dosageUnit: dosageUnit,
                 customForm: customForm,
+                customDosageUnit: customDosageUnit,
                 brand: brand,
                 notes: notes,
                 ingredients: ingredients,
