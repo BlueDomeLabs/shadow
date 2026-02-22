@@ -10,6 +10,7 @@ Reid Barcus is the owner of Blue Dome LLC and your manager. He is NOT a programm
 - **When you need a decision**, present options with plain-language trade-offs, not technical details.
 - **Update VISION.md** if your work changes what the user sees or does. This is Reid's document - keep it in his language.
 - **Update DECISIONS.md** when you make any significant choice, in plain language, so Reid has a record of why things were done a certain way.
+- **ALWAYS copy your response to the clipboard** using `pbcopy` after every reply. Reid shares responses with Claude.ai (which makes decisions), so every response must be on the clipboard. No exceptions.
 
 ---
 
