@@ -286,6 +286,25 @@ final photoEntryRepositoryProvider = Provider<PhotoEntryRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef PhotoEntryRepositoryRef = ProviderRef<PhotoEntryRepository>;
+String _$profileRepositoryHash() => r'e1bcacf73d50ce4cb798aae681941de6f7f25b5f';
+
+/// Profile repository provider - override in ProviderScope with implementation.
+///
+/// Copied from [profileRepository].
+@ProviderFor(profileRepository)
+final profileRepositoryProvider = Provider<ProfileRepository>.internal(
+  profileRepository,
+  name: r'profileRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$profileRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ProfileRepositoryRef = ProviderRef<ProfileRepository>;
 String _$profileAuthorizationServiceHash() =>
     r'43ec282813a778ca3774baf9e1c4ee1b180301e0';
 

@@ -21,8 +21,8 @@ void main() {
         expect(database, isNotNull);
       });
 
-      test('schemaVersion is 9 per 10_DATABASE_SCHEMA.md', () {
-        expect(database.schemaVersion, equals(9));
+      test('schemaVersion is 10 per 10_DATABASE_SCHEMA.md', () {
+        expect(database.schemaVersion, equals(10));
       });
 
       test('database is open after creation', () async {

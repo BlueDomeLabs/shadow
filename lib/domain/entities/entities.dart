@@ -12,6 +12,7 @@ export 'intake_log.dart';
 export 'journal_entry.dart';
 export 'photo_area.dart';
 export 'photo_entry.dart';
+export 'profile.dart';
 export 'sleep_entry.dart';
 export 'supplement.dart';
 export 'sync_metadata.dart';

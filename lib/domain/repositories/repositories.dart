@@ -13,5 +13,6 @@ export 'intake_log_repository.dart';
 export 'journal_entry_repository.dart';
 export 'photo_area_repository.dart';
 export 'photo_entry_repository.dart';
+export 'profile_repository.dart';
 export 'sleep_entry_repository.dart';
 export 'supplement_repository.dart';

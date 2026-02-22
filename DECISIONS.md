@@ -17,6 +17,16 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-22: Database migration versioning — profiles table gets v10, food/supplement extensions get v11
+
+**What:** The profiles table migration uses schema v9→v10 (Phase 11). The food database extension (59a) and supplement extension (60) migrations, originally planned as v9→v10, are now v10→v11 (Phase 15a). Both extension specs were updated to reflect this.
+
+**Why:** Phase 11 (profiles table) is being implemented now, before Phase 15a (food/supplement extensions). Since both originally targeted v9→v10, implementing profiles first would cause a version conflict. By giving profiles v10 and bumping the extensions to v11, each migration has its own clean version number.
+
+**Impact:** When Phase 15a is implemented, the migration code should use `if (from < 11)` instead of `if (from < 10)`. The specs (59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md) have been updated accordingly.
+
+---
+
 ### 2026-02-22: Guest invites have a hard one-device limit
 
 **What:** Each guest invite QR code can only be active on one device at a time. If a second device tries to scan an already-active QR code, the scan is rejected entirely — no access granted. The host receives a notification when this happens ("Someone attempted to access [Profile Name]'s profile from a second device. The attempt was blocked."). The only way to move access to a new device is for the host to revoke the current device first, then generate a new code.

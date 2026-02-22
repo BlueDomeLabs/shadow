@@ -159,6 +159,14 @@ PhotoEntryRepository photoEntryRepository(Ref ref) {
   );
 }
 
+/// Profile repository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ProfileRepository profileRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override profileRepositoryProvider in ProviderScope',
+  );
+}
+
 // =============================================================================
 // SERVICES
 // =============================================================================

@@ -23,6 +23,7 @@ import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/journal_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_area_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_entry_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/profile_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
@@ -38,6 +39,7 @@ import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart'
 import 'package:shadow_app/data/datasources/local/tables/journal_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/photo_areas_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/photo_entries_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/profiles_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sync_conflicts_table.dart';
@@ -75,6 +77,7 @@ part 'database.g.dart';
     JournalEntries,
     PhotoAreas,
     PhotoEntries,
+    Profiles,
     SyncConflicts,
   ],
   daos: [
@@ -92,6 +95,7 @@ part 'database.g.dart';
     JournalEntryDao,
     PhotoAreaDao,
     PhotoEntryDao,
+    ProfileDao,
     SyncConflictDao,
   ],
 )
@@ -113,8 +117,9 @@ class AppDatabase extends _$AppDatabase {
   /// Increment when schema changes require migration
   /// v8: Added sync_conflicts table (Phase 4b — conflict handling)
   /// v9: Added custom_dosage_unit column to supplements table
+  /// v10: Added profiles table (Phase 11)
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   /// Migration strategy for schema changes.
   ///
@@ -144,6 +149,11 @@ class AppDatabase extends _$AppDatabase {
       // v9: Add custom_dosage_unit column to supplements
       if (from < 9) {
         await m.addColumn(supplements, supplements.customDosageUnit);
+      }
+
+      // v10: Add profiles table (Phase 11)
+      if (from < 10) {
+        await m.createTable(profiles);
       }
     },
     beforeOpen: (details) async {

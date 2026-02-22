@@ -133,7 +133,7 @@ CREATE INDEX idx_food_item_components_composed ON food_item_components(composed_
 
 **Migration note:** Existing Composed items using the JSON simpleItemIds array should be migrated to this table with quantity = 1.0 for each existing component.
 
-### Migration: Schema v9 → v10
+### Migration: Schema v10 → v11
 
 Add the following nullable columns to the `food_items` table:
 
@@ -318,7 +318,7 @@ When diet compliance checking runs against a Packaged food item (see 59_DIET_TRA
 ## Implementation Order
 
 1. Add new entity fields (FoodItem, FoodItemType enum)
-2. Write database migration v9 → v10
+2. Write database migration v10 → v11
 3. Create food_barcode_cache table and DAO
 4. Update CreateFoodItemInput and UpdateFoodItemInput
 5. Implement LookupBarcodeUseCase (Open Food Facts integration)

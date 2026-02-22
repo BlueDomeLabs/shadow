@@ -128,7 +128,7 @@ These appear as subtle icon buttons near the top of the edit screen, consistent 
 
 ## Database Changes
 
-### Schema Migration (incorporated into v9 → v10 alongside 59a changes)
+### Schema Migration (incorporated into v10 → v11 alongside 59a changes)
 Add the following nullable columns to the `supplements` table:
 
 ```sql
@@ -173,7 +173,7 @@ CREATE TABLE supplement_barcode_cache (
 CREATE INDEX idx_supplement_barcode_cache_barcode ON supplement_barcode_cache(barcode);
 ```
 
-**Note:** These migrations are incorporated into the same v9→v10 migration defined in 59a_FOOD_DATABASE_EXTENSION.md. Both specs are implemented together in Phase 15a.
+**Note:** These migrations are incorporated into the same v10→v11 migration defined in 59a_FOOD_DATABASE_EXTENSION.md. Both specs are implemented together in Phase 15a. (v10 is consumed by Phase 11 for the profiles table.)
 
 ---
 
@@ -251,7 +251,7 @@ else:
 ## Implementation Order
 
 1. Add new entity fields to Supplement entity
-2. Incorporate supplement columns into v9→v10 migration (coordinate with 59a)
+2. Incorporate supplement columns into v10→v11 migration (coordinate with 59a)
 3. Create supplement_label_photos table and DAO
 4. Create supplement_barcode_cache table and DAO
 5. Update CreateSupplementInput and UpdateSupplementInput

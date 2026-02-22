@@ -20,6 +20,7 @@ import 'package:shadow_app/data/repositories/intake_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/journal_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_area_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_entry_repository_impl.dart';
+import 'package:shadow_app/data/repositories/profile_repository_impl.dart';
 import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
@@ -112,6 +113,11 @@ Future<List<Override>> bootstrap() async {
   );
   final photoEntryRepo = PhotoEntryRepositoryImpl(
     database.photoEntryDao,
+    uuid,
+    deviceInfoService,
+  );
+  final profileRepo = ProfileRepositoryImpl(
+    database.profileDao,
     uuid,
     deviceInfoService,
   );
@@ -217,6 +223,12 @@ Future<List<Override>> bootstrap() async {
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
         fromJson: PhotoEntry.fromJson,
       ),
+      SyncEntityAdapter<Profile>(
+        entityType: 'profiles',
+        repository: profileRepo,
+        withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Profile.fromJson,
+      ),
     ],
     encryptionService: encryptionService,
     cloudProvider: googleDriveProvider,
@@ -241,6 +253,7 @@ Future<List<Override>> bootstrap() async {
     journalEntryRepositoryProvider.overrideWithValue(journalEntryRepo),
     photoAreaRepositoryProvider.overrideWithValue(photoAreaRepo),
     photoEntryRepositoryProvider.overrideWithValue(photoEntryRepo),
+    profileRepositoryProvider.overrideWithValue(profileRepo),
     // Services
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),
