@@ -23,6 +23,35 @@ class CloudSyncSettingsScreen extends ConsumerStatefulWidget {
 class _CloudSyncSettingsScreenState
     extends ConsumerState<CloudSyncSettingsScreen> {
   bool _isSyncing = false;
+  int? _lastSyncTime;
+  int _conflictCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load sync status after first frame so providers are ready
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadSyncStatus());
+  }
+
+  Future<void> _loadSyncStatus() async {
+    final profileId = ref.read(profileProvider).currentProfileId;
+    if (profileId == null) return;
+
+    try {
+      final syncSvc = ref.read(syncServiceProvider);
+      final timeResult = await syncSvc.getLastSyncTime(profileId);
+      final countResult = await syncSvc.getConflictCount(profileId);
+
+      if (mounted) {
+        setState(() {
+          _lastSyncTime = timeResult.valueOrNull;
+          _conflictCount = countResult.valueOrNull ?? 0;
+        });
+      }
+    } on Exception {
+      // Service not available in this context (e.g. tests) — keep defaults
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +180,36 @@ class _CloudSyncSettingsScreenState
               ),
             ],
           ),
+          if (_conflictCount > 0) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.orange[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange[300]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.warning_amber,
+                    color: Colors.orange[700],
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '$_conflictCount conflict${_conflictCount == 1 ? '' : 's'} need${_conflictCount == 1 ? 's' : ''} review',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.orange[800],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     ),
@@ -235,7 +294,7 @@ class _CloudSyncSettingsScreenState
             authState.isAuthenticated ? 'Google Drive' : 'None',
           ),
           const SizedBox(height: 8),
-          _buildInfoRow('Last Sync', 'Never'),
+          _buildInfoRow('Last Sync', _formatLastSyncTime(_lastSyncTime)),
         ],
       ),
     ),
@@ -312,11 +371,27 @@ class _CloudSyncSettingsScreenState
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      // Reload sync status to show updated last-sync time and conflict count
+      await _loadSyncStatus();
     } on Exception catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('Sync error: $e')));
     } finally {
       if (mounted) setState(() => _isSyncing = false);
     }
+  }
+
+  /// Format epoch ms into a human-readable last-sync string.
+  String _formatLastSyncTime(int? epochMs) {
+    if (epochMs == null) return 'Never';
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochMs);
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 
   void _showComingSoon(BuildContext context) {
