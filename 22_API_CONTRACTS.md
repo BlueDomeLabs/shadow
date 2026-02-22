@@ -1103,6 +1103,32 @@ class SyncMetadata with _$SyncMetadata {
 
   bool get isDeleted => syncDeletedAt != null;
 
+  /// Mark as conflicted (conflict detected during applyChanges).
+  ///
+  /// Called when a remote entity arrives for a locally-dirty record.
+  /// Sets sync_status = conflict(3) and stores the remote version's JSON
+  /// in conflict_data for quick access without joining sync_conflicts table.
+  ///
+  /// IMPORTANT: Does NOT increment syncVersion — the entity has not changed
+  /// locally. The version conflict is what triggered this state.
+  SyncMetadata markConflict(String remoteJson) => copyWith(
+    syncStatus: SyncStatus.conflict,
+    syncIsDirty: true,     // Remains dirty until resolved
+    conflictData: remoteJson,
+    // syncVersion NOT incremented — no local change
+  );
+
+  /// Clear conflict state after resolution.
+  ///
+  /// Called by resolveConflict() after applying the chosen version.
+  /// Increments syncVersion (resolution is a local change that must re-sync).
+  SyncMetadata clearConflict() => copyWith(
+    syncStatus: SyncStatus.pending,
+    syncIsDirty: true,                                   // Must re-upload resolved version
+    syncVersion: syncVersion + 1,                        // REQUIRED: resolution is a local change
+    conflictData: null,
+  );
+
   /// Create empty sync metadata (for entity construction before persisting)
   /// IMPORTANT: Must call create() with deviceId before saving to database
   factory SyncMetadata.empty() {
@@ -15279,8 +15305,72 @@ decrypts them, and applies them to the local database.
 | **Version tracking** | `getLastSyncVersion` reads MAX(sync_version) from successfully synced records; `getLastSyncTime` reads the stored last-sync epoch ms |
 | **Concurrency** | `pushPendingChanges` is best-effort for sign-out; full push/pull operations use rate limiting via `RateLimitService` |
 | **Conflict detection** | During `applyChanges`, if local `syncIsDirty == true` AND remote `syncVersion > local.syncVersion`, a `SyncConflict` is created |
+| **Conflict storage** | Two simultaneous writes: (1) insert into `sync_conflicts` table; (2) call `entity.syncMetadata.markConflict(remoteJson)` to set `sync_status = 3` and store remote JSON in `conflict_data` column on the entity row. See `10_DATABASE_SCHEMA.md` Section 17. |
+| **Conflict resolution** | `resolveConflict()` applies the chosen version, calls `syncMetadata.clearConflict()` on the entity, and marks the `sync_conflicts` row as resolved. |
 | **Provider dependency** | `SyncService` is injected via `syncServiceProvider` (Riverpod) into use cases and the `SyncNotifier` |
 | **Envelope consistency** | Push and pull use identical field names (Section 17.3). `getChangesSince` must read the same fields that `pushChanges` writes |
+
+### 17.7 Conflict Resolution — Detailed Behavior
+
+#### 17.7.1 Detection (during `applyChanges`)
+
+A conflict is created when ALL of the following are true:
+- A remote `SyncChange` arrives for an entity that already exists locally
+- The local entity has `syncIsDirty == true` (it was locally modified since last sync)
+
+When detected, two writes happen atomically:
+1. Insert a `SyncConflict` row into `sync_conflicts` (Section 17.1 entity definition, `10_DATABASE_SCHEMA.md` Section 17 for table schema)
+2. Update the entity row: call `markConflict(remoteJson)` on its `SyncMetadata` and persist via repository (with `markDirty: false` — the dirty state is already set by `markConflict`)
+
+#### 17.7.2 Resolution Options
+
+**`keepLocal` (0):**
+- The local entity is already the correct version on disk
+- Update the entity's sync metadata: call `clearConflict()` → sets `syncStatus = pending`, `syncIsDirty = true`, increments `syncVersion`, clears `conflictData`
+- The entity will be re-uploaded in the next push, overwriting the remote version
+- Mark `sync_conflicts` row: `isResolved = true`, `resolution = 0`, `resolvedAt = now`
+
+**`keepRemote` (1):**
+- Reconstruct the remote entity from `SyncConflict.remoteData` JSON via `adapter.fromJson(conflict.remoteData)`
+- Call `adapter.repository.update(remoteEntity, markDirty: false)`
+- This single call is sufficient — the remote entity's sync metadata already has `syncIsDirty = false`, `syncStatus = synced`, and `conflictData = null`. Applying it overwrites the local conflicted row completely, including clearing the conflict state.
+- **Do NOT call `clearConflict()`** for keepRemote — `clearConflict()` sets `syncIsDirty = true` which would cause an unnecessary re-upload.
+- Mark `sync_conflicts` row: `isResolved = true`, `resolution = 1`, `resolvedAt = now`
+
+**`merge` (2):**
+- Compare `SyncConflict.localData` and `SyncConflict.remoteData` field by field
+- **If changed fields are disjoint** (local changed field A only, remote changed field B only): build a merged entity taking each changed field from the version that modified it; apply with `markDirty: true`
+- **If any field was changed by both versions** (true conflict on a field): fall back to `keepRemote` for that field; the overall resolution is still recorded as `merge(2)`
+- **Special cases by entity type:**
+  - `journal_entries`: append local and remote `content` fields with `\n\n---\n\n` separator
+  - `photo_entries`: cannot merge images — treat as `keepLocal`; remote version remains accessible via re-pull if needed
+- Mark `sync_conflicts` row: `isResolved = true`, `resolution = 2`, `resolvedAt = now`
+
+#### 17.7.3 `getConflictCount` Implementation
+
+```dart
+// Queries sync_conflicts table — NOT entity tables
+Future<Result<int, AppError>> getConflictCount(String profileId) async {
+  // SELECT COUNT(*) FROM sync_conflicts
+  // WHERE profile_id = ? AND is_resolved = 0
+}
+```
+
+#### 17.7.4 State Machine After Resolution
+
+```
+keepLocal  → clearConflict() on entity
+               → syncStatus=pending, dirty=true, version++, conflictData=null
+               → will re-upload on next push (local version overwrites remote)
+
+keepRemote → apply remoteEntity with markDirty:false (no clearConflict() call)
+               → syncStatus=synced, dirty=false, conflictData=null
+               → no upload needed (remote is already authoritative)
+
+merge      → apply merged entity with markDirty:true, clearConflict()
+               → syncStatus=pending, dirty=true, version++, conflictData=null
+               → merged entity will upload on next push
+```
 
 ---
 
@@ -15299,3 +15389,4 @@ decrypts them, and applies them to the local database.
 | 1.8 | 2026-02-17 | Added Section 17 Sync Service Contract (complete SyncService interface, SyncConflict entity); Fixed dangling Section 11 reference → Section 17; Fixed SyncNotifier getLastSyncTime Result unwrap bug; Fixed PullChangesUseCase getLastSyncVersion Result unwrap and null safety (Phase 2a spec prep) |
 | 1.9 | 2026-02-18 | Added Sections 17.3–17.6: Cloud envelope format spec, SyncEntityAdapter fromJson requirement, pull path flow, updated implementation notes. Fixed envelope field name discrepancy (clientId/timestamp vs deviceId/updatedAt). Documented encryptedData format (AES-256-GCM, not raw JSON). (Phase 3a spec prep) |
 | 1.10 | 2026-02-19 | Fixed ConflictResolution → ConflictResolutionType to match actual enum name in code. (Phase 3b audit) |
+| 1.11 | 2026-02-21 | Phase 4a spec: Added markConflict() and clearConflict() to SyncMetadata; Added Section 17.7 Conflict Resolution Detailed Behavior (detection, keepLocal/keepRemote/merge resolution logic, getConflictCount implementation, post-resolution state machine); Updated Section 17.6 implementation notes with conflict storage and resolution rows. |

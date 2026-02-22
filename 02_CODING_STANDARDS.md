@@ -1440,39 +1440,67 @@ Future<Result<void, AppError>> deleteSupplementWithCascade(String id) async {
 
 ### 9.4 Conflict Resolution
 
-**Detection:** Conflict occurs when:
-- Local has `sync_is_dirty = 1`
-- Remote has different `sync_version`
-- Both modified since last sync
+**Detection:** Conflict occurs when ALL of the following are true during `applyChanges`:
+- Local entity exists
+- Local has `sync_is_dirty = true`
+- A remote version of the same entity was downloaded
 
-**Resolution Strategies:**
+**Dual-storage pattern (REQUIRED):** When a conflict is detected, two writes MUST happen:
 
-| Data Type | Strategy | Rationale |
-|-----------|----------|-----------|
-| Settings, preferences | Last-write-wins | Low risk |
-| Timestamps | Last-write-wins | Simple, deterministic |
-| Health entries | User chooses | Medical data too important |
-| Supplements, conditions | User chooses | User intent matters |
-| Complex data (ingredients) | Attempt merge | Combine non-conflicting changes |
+```dart
+// 1. Update entity row — mark as conflicted
+final conflicted = localEntity.copyWith(
+  syncMetadata: localEntity.syncMetadata.markConflict(
+    jsonEncode(change.data),  // remote entity JSON
+  ),
+);
+await adapter.repository.update(conflicted, markDirty: false);
 
-**Conflict data storage:**
-```sql
-UPDATE supplements SET
-  sync_status = 2,  -- conflict
-  conflict_data = '{
-    "remote": { ...entity data... },
-    "local": { ...entity data... },
-    "detected_at": "2026-01-31T12:00:00Z",
-    "conflict_fields": ["name", "dosage"]
-  }'
-WHERE id = ?;
+// 2. Insert into sync_conflicts table — authoritative record
+await syncConflictDao.insert(SyncConflict(
+  id: const Uuid().v4(),
+  entityType: change.entityType,
+  entityId: change.entityId,
+  profileId: profileId,
+  localVersion: localEntity.syncMetadata.syncVersion,
+  remoteVersion: change.version,
+  localData: localEntity.toJson(),
+  remoteData: change.data,
+  detectedAt: DateTime.now().millisecondsSinceEpoch,
+));
 ```
 
-**User resolution flow:**
-1. Show conflict notification badge
-2. Present side-by-side comparison (local vs remote)
-3. User selects: Keep Local | Accept Remote | Merge
-4. After resolution: `sync_version++`, `sync_status = pending`, `conflict_data = NULL`
+See `22_API_CONTRACTS.md` Section 17.7 for the full resolution logic (keepLocal, keepRemote, merge).
+See `10_DATABASE_SCHEMA.md` Section 17 for the `sync_conflicts` table schema.
+
+**Resolution helper methods on SyncMetadata (REQUIRED):**
+
+```dart
+// On detection — marks entity as conflicted, stores remote JSON
+syncMetadata.markConflict(String remoteJson)
+// → syncStatus = conflict(3), syncIsDirty = true, conflictData = remoteJson
+
+// On resolution — clears conflict state, readies entity for re-upload
+syncMetadata.clearConflict()
+// → syncStatus = pending(0), syncIsDirty = true, syncVersion++, conflictData = null
+```
+
+**Counting conflicts:**
+```dart
+// Query sync_conflicts table — NOT entity tables
+// SELECT COUNT(*) FROM sync_conflicts WHERE profile_id = ? AND is_resolved = 0
+await syncConflictDao.countUnresolved(profileId);
+```
+
+**Resolution options:**
+
+| Option | Code | Behavior |
+|--------|------|----------|
+| Keep Mine | `keepLocal(0)` | Local entity stays; call `clearConflict()`, entity re-uploads next push |
+| Use Cloud Version | `keepRemote(1)` | Remote entity replaces local; `clearConflict()` + set `syncIsDirty = false` |
+| Merge | `merge(2)` | Disjoint field changes auto-merged; same-field conflicts fall back to keepRemote |
+
+**After resolution:** `sync_status = pending`, `sync_is_dirty = 1`, `sync_version++`, `conflict_data = NULL`
 
 ### 9.5 Archive vs Delete
 
@@ -2389,6 +2417,7 @@ Debug/Profile additionally includes:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3 | 2026-02-21 | Phase 4a spec: Updated Section 9.4 Conflict Resolution — replaced old in-place SQL pattern with dual-storage pattern (sync_conflicts table + conflict_data column); added markConflict()/clearConflict() helper method contracts; added conflict counting pattern; added resolution options table; cross-referenced 22_API_CONTRACTS.md Section 17.7 and 10_DATABASE_SCHEMA.md Section 17. |
 | 1.2 | 2026-02-12 | Added Rule 6.6.1 (date-range provider key normalization), Section 17 (platform configuration standards including macOS code signing, entitlements, FlutterSecureStorage options). |
 | 1.1 | 2026-02-07 | Added Rules 5.0.1 (private constructors on all entities), 5.2.1 (DateTime pre-computation), 9.1.1 (enum int values for all DB enums), 16.1-16.2 (specification document standards). Fixed NotFoundError → DatabaseError.notFound() in method table and code example. |
 | 1.0 | 2026-01-30 | Initial release |

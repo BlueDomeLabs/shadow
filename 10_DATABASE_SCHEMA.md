@@ -1,9 +1,9 @@
 # Shadow Database Schema
 
-**Version:** 1.2
-**Last Updated:** January 31, 2026
+**Version:** 1.7
+**Last Updated:** 2026-02-21
 **Database:** SQLCipher (Encrypted SQLite)
-**Current Schema Version:** 7
+**Current Schema Version:** 8
 
 ---
 
@@ -130,7 +130,7 @@ is_file_uploaded INTEGER DEFAULT 0   -- Upload status
 
 ### 2.4 Conflict Resolution Strategy
 
-When `sync_status = 2` (conflict), the following resolution strategies apply:
+When `sync_status = 3` (conflict), the following resolution strategies apply:
 
 | Entity Type | Resolution Strategy | Rationale |
 |-------------|---------------------|-----------|
@@ -151,95 +151,60 @@ When `sync_status = 2` (conflict), the following resolution strategies apply:
 | diets | LWW | Configuration data |
 | hipaa_authorizations | Preserve restrictive | Security requirement |
 
-**Conflict Resolution Process:**
+**Conflict Storage Architecture (Phase 4):**
 
-```dart
-// Resolution algorithm
-if (localVersion.syncUpdatedAt > remoteVersion.syncUpdatedAt) {
-  // Local wins, push to remote
-  keepVersion = localVersion;
-  discardVersion = remoteVersion;
-} else {
-  // Remote wins, overwrite local
-  keepVersion = remoteVersion;
-  discardVersion = localVersion;
-}
+Conflicts are stored in two places simultaneously — this is intentional:
 
-// Store discarded version for 30 days
-UPDATE entity SET
-  conflict_data = jsonEncode(discardVersion),
-  sync_status = 1  -- Mark as resolved
-WHERE id = entityId;
+1. **`sync_conflicts` table** (Section 17) — The authoritative record. One row per conflict, containing full JSON snapshots of both the local and remote versions. Used for querying, counting, and resolving conflicts. See Section 17 for the full schema.
+
+2. **`conflict_data` column on the entity row** — A convenience copy. When a conflict is detected, the entity row's `sync_status` is set to `3` (conflict) and `conflict_data` stores the remote version's JSON. This allows the entity's own row to signal its conflict state for sync logic without joining the `sync_conflicts` table.
+
+**On detection — two writes happen:**
+```sql
+-- 1. Mark the entity row as conflicted
+UPDATE <entity_table> SET
+  sync_status = 3,                       -- conflict
+  conflict_data = '<remote_entity_json>'
+WHERE id = '<entity_id>';
+
+-- 2. Insert into sync_conflicts table (authoritative record)
+INSERT INTO sync_conflicts (id, entity_type, entity_id, profile_id,
+  local_version, remote_version, local_data, remote_data,
+  detected_at, is_resolved)
+VALUES (...);
 ```
 
-**Manual Resolution Triggers:**
+**On resolution — two writes happen:**
+```sql
+-- 1. Update the entity row (apply chosen version, clear conflict state)
+UPDATE <entity_table> SET
+  sync_status = 0,    -- pending (re-sync with chosen version)
+  sync_is_dirty = 1,
+  sync_version = sync_version + 1,
+  conflict_data = NULL
+WHERE id = '<entity_id>';
 
-For entities marked "User choice required" (profiles, conditions), manual resolution triggers when:
-
-1. **Both versions have meaningful changes** - Different fields modified on each device
-2. **Critical data differs** - Names, primary identifiers, or severity levels differ
-3. **Auto-resolution would lose data** - Both versions contain unique, non-mergeable content
-
-```dart
-class ConflictDetector {
-  /// Determine if manual resolution is required
-  bool requiresManualResolution<T extends Syncable>(T local, T remote) {
-    // Always auto-resolve if timestamps differ by < 5 seconds (likely same edit)
-    final timeDiff = (local.syncUpdatedAt - remote.syncUpdatedAt).abs();
-    if (timeDiff < 5000) return false;
-
-    // Check entity-specific rules
-    return switch (T) {
-      Profile => _profileConflict(local as Profile, remote as Profile),
-      Condition => _conditionConflict(local as Condition, remote as Condition),
-      _ => false, // Other entities use LWW
-    };
-  }
-
-  bool _profileConflict(Profile local, Profile remote) {
-    // Manual if name differs and both were modified
-    return local.name != remote.name ||
-           local.birthDate != remote.birthDate ||
-           local.biologicalSex != remote.biologicalSex;
-  }
-
-  bool _conditionConflict(Condition local, Condition remote) {
-    // Manual if name or severity logic differs
-    return local.name != remote.name ||
-           local.isActive != remote.isActive;
-  }
-}
+-- 2. Mark conflict as resolved in sync_conflicts table
+UPDATE sync_conflicts SET
+  is_resolved = 1,
+  resolution = <0|1|2>,   -- 0=keepLocal, 1=keepRemote, 2=merge
+  resolved_at = <epoch_ms>
+WHERE id = '<conflict_id>';
 ```
 
-**Conflict Resolution UI:**
+**Resolution Strategies (Phase 4):**
 
-When manual resolution is required, the app presents a side-by-side comparison:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Sync Conflict Detected                                   │
-├─────────────────────────────────────────────────────────┤
-│ Profile: John Doe                                        │
-│                                                         │
-│ ┌─────────────────────┐  ┌─────────────────────┐       │
-│ │ This Device         │  │ Other Device        │       │
-│ │ (Modified 2:30 PM)  │  │ (Modified 3:15 PM)  │       │
-│ ├─────────────────────┤  ├─────────────────────┤       │
-│ │ Name: John D.       │  │ Name: John Doe      │ ← Diff│
-│ │ Birth: 1985-03-15   │  │ Birth: 1985-03-15   │       │
-│ │ Notes: Updated diet │  │ Notes: Added allergy│ ← Diff│
-│ └─────────────────────┘  └─────────────────────┘       │
-│                                                         │
-│ [Keep This Device]  [Keep Other Device]  [Merge Notes] │
-└─────────────────────────────────────────────────────────┘
-```
+| Option | Code | Behavior |
+|--------|------|----------|
+| Keep Mine | `keepLocal (0)` | Local version wins. Mark dirty so it re-uploads and overwrites remote. |
+| Use Cloud Version | `keepRemote (1)` | Remote version overwrites local. Mark clean (not dirty). |
+| Merge | `merge (2)` | If local and remote changed **different fields** → apply both sets of changes automatically. If they changed the **same field** → falls back to `keepRemote`. Special cases: journal entries append text with a separator; photo entries treat as "keep both" since images cannot be merged. |
 
 **Conflict Timeout:**
 
 - Conflicts must be resolved within **7 days** of detection
-- After 7 days, system auto-resolves using Last-Write-Wins
+- After 7 days, system auto-resolves using Last-Write-Wins (`keepRemote`)
 - User is notified before auto-resolution
-- Discarded version stored in `conflict_data` for 30 additional days
 
 ### 2.5 Soft Delete Cascade Rules
 
@@ -2492,16 +2457,94 @@ CREATE INDEX idx_pairing_cleanup ON pairing_sessions(expires_at) WHERE status = 
 
 ---
 
+## 17. Sync Conflict Table
+
+### 17.1 sync_conflicts
+
+Stores one row per detected sync conflict. This is the authoritative source for conflict state — it is always the table queried to count, list, and resolve conflicts.
+
+**When is a row added?** During `applyChanges` in `SyncServiceImpl`, when a downloaded remote entity arrives for a record that is already locally dirty (`sync_is_dirty = 1`).
+
+**When is a row updated?** When `resolveConflict()` is called — `is_resolved` is set to `1` and `resolution`/`resolved_at` are populated.
+
+```sql
+CREATE TABLE sync_conflicts (
+  id               TEXT NOT NULL PRIMARY KEY,  -- UUID v4 conflict identifier
+  entity_type      TEXT NOT NULL,              -- Table name (e.g. 'supplements')
+  entity_id        TEXT NOT NULL,              -- The conflicting entity's UUID
+  profile_id       TEXT NOT NULL,              -- Profile this conflict belongs to
+  local_version    INTEGER NOT NULL,           -- Local syncVersion at conflict detection
+  remote_version   INTEGER NOT NULL,           -- Remote syncVersion at conflict detection
+  local_data       TEXT NOT NULL,              -- Full local entity JSON at detection time
+  remote_data      TEXT NOT NULL,              -- Full remote entity JSON at detection time
+  detected_at      INTEGER NOT NULL,           -- Epoch ms when conflict was detected
+  is_resolved      INTEGER NOT NULL DEFAULT 0, -- 0 = unresolved, 1 = resolved
+  resolution       INTEGER,                    -- 0=keepLocal, 1=keepRemote, 2=merge (NULL if unresolved)
+  resolved_at      INTEGER                     -- Epoch ms when resolved (NULL if unresolved)
+);
+```
+
+**Indexes:**
+
+```sql
+-- Primary query: count/list unresolved conflicts for a profile
+CREATE INDEX idx_sync_conflicts_profile_unresolved
+  ON sync_conflicts (profile_id, is_resolved);
+
+-- Secondary query: find conflict for a specific entity
+CREATE INDEX idx_sync_conflicts_entity
+  ON sync_conflicts (entity_type, entity_id);
+```
+
+**Drift table definition (canonical):**
+
+```dart
+// lib/data/datasources/local/tables/sync_conflicts_table.dart
+
+@DataClassName('SyncConflictRow')
+class SyncConflicts extends Table {
+  TextColumn get id => text()();
+  TextColumn get entityType => text().named('entity_type')();
+  TextColumn get entityId => text().named('entity_id')();
+  TextColumn get profileId => text().named('profile_id')();
+  IntColumn get localVersion => integer().named('local_version')();
+  IntColumn get remoteVersion => integer().named('remote_version')();
+  TextColumn get localData => text().named('local_data')();    // JSON
+  TextColumn get remoteData => text().named('remote_data')();  // JSON
+  IntColumn get detectedAt => integer().named('detected_at')();
+  BoolColumn get isResolved =>
+      boolean().named('is_resolved').withDefault(const Constant(false))();
+  IntColumn get resolution => integer().nullable()();  // ConflictResolutionType.value
+  IntColumn get resolvedAt => integer().named('resolved_at').nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  String get tableName => 'sync_conflicts';
+}
+```
+
+**Schema version:** Adding `sync_conflicts` requires a schema migration.
+- Current schema version: 7
+- After adding this table: version 8
+- Migration: `if (from < 8) { await m.createTable(syncConflicts); }`
+
+**Note:** This table does NOT have sync metadata columns (`sync_is_dirty`, `sync_version`, etc.). Conflict records are local-only — they are never synced to Google Drive. They exist solely to coordinate conflict resolution on the current device.
+
+---
+
 ## 16. Summary Statistics
 
 | Category | Count |
 |----------|-------|
-| Total Tables | 42 |
-| Total Indexes | 120+ |
+| Total Tables | 43 |
+| Total Indexes | 122+ |
 | Tables with File Sync | 5 |
 | Tables with client_id | 35 (all health data + profile_access + diet + intelligence + wearable tables) |
 | Foreign Key Relationships | 35+ |
 | Primary Key Type | TEXT (UUID) |
+| Sync-only tables (no sync metadata) | 1 (`sync_conflicts`) |
 
 ---
 
@@ -2516,3 +2559,4 @@ CREATE INDEX idx_pairing_cleanup ON pairing_sessions(expires_at) WHERE status = 
 | 1.4 | 2026-01-31 | Added v6→v7 migration: HIPAA authorization tables, wearable integration tables (wearable_connections, imported_data_log, fhir_exports), import source tracking columns |
 | 1.5 | 2026-02-01 | Added Section 15: Security tables (refresh_token_usage, pairing_sessions) |
 | 1.6 | 2026-02-01 | Added Section 2.7 Sync Metadata Exemptions (7 tables); Fixed V7→6 rollback column names; Corrected table count to 42 |
+| 1.7 | 2026-02-21 | Phase 4a spec: Fixed Section 2.4 typo (sync_status = 3 for conflict, not 2); Replaced old in-place conflict resolution process with dual-storage architecture (sync_conflicts table + conflict_data column); Added Section 17 sync_conflicts table (schema, Drift definition, indexes, migration note); Updated table count to 43; Added merge resolution strategy definition |
