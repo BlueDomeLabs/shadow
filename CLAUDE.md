@@ -125,14 +125,14 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 5. SupplementEditScreen (full implementation)
   - Pre-work DONE: customDosageUnit field added to entity + database (schema v9)
   - DONE: Custom Unit field, Ingredients tag input, full Schedule section (79 tests)
-- [ ] 6. ConditionListScreen
+- [x] 6. ConditionListScreen (implementation existed; brought tests to reference level: 24 tests)
 - [ ] 7. FoodListScreen
 - [ ] 8. SleepListScreen
 - [ ] 9. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
 
-### Test Count: 2218 passing | Analyzer: clean | Schema: v9
+### Test Count: 2230 passing | Analyzer: clean | Schema: v9
 
 ---
 

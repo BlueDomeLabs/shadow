@@ -1,10 +1,11 @@
 {
   "status": "complete",
-  "task": "Phase 5: Complete SupplementEditScreen - Custom Dosage Unit, Ingredients, Schedule",
-  "timestamp": "2026-02-21T10:00:00Z",
+  "task": "Phase 6: ConditionListScreen - tests brought to reference pattern level",
+  "timestamp": "2026-02-22T11:00:00Z",
   "testsStatus": "passing",
-  "testCount": 2218,
+  "testCount": 2230,
   "analyzerStatus": "clean",
   "schemaVersion": 9,
-  "nextSteps": "Phase 6: ConditionListScreen"
+  "nextSteps": "Phase 7: FoodListScreen",
+  "notes": "Spec gap: ArchiveConditionInput lacks 'archive' boolean (unlike ArchiveSupplementInput), so unarchive may not work at the data layer. Screen UI shows both options but underlying use case may only archive."
 }

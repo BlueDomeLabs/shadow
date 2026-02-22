@@ -1,11 +1,7 @@
 // test/presentation/screens/conditions/condition_list_screen_test.dart
 // Tests for ConditionListScreen per 38_UI_FIELD_SPECIFICATIONS.md Section 8
 // and accessibility requirements from Section 18.7.
-//
-// NOTE: condition_list_screen.dart is INCOMPLETE as of writing (108 lines).
-// Tests match what the SPEC says the implementation SHOULD have, following
-// the supplement_list_screen reference pattern. The implementation team
-// has the same spec.
+// Follows supplement_list_screen_test.dart reference pattern.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +11,7 @@ import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
 import 'package:shadow_app/presentation/screens/conditions/condition_list_screen.dart';
+import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 void main() {
   group('ConditionListScreen', () {
@@ -27,6 +24,7 @@ void main() {
       List<String> bodyLocations = const ['Arms', 'Hands'],
       ConditionStatus status = ConditionStatus.active,
       bool isArchived = false,
+      String? baselinePhotoPath,
     }) => Condition(
       id: id,
       clientId: 'client-001',
@@ -37,6 +35,7 @@ void main() {
       startTimeframe: 1706745600000, // epoch ms
       status: status,
       isArchived: isArchived,
+      baselinePhotoPath: baselinePhotoPath,
       syncMetadata: SyncMetadata.empty(),
     );
 
@@ -158,7 +157,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      // Per the partial implementation lines 78 and 86
       expect(find.text('Active Conditions'), findsOneWidget);
       expect(find.text('Resolved Conditions'), findsOneWidget);
       expect(find.text('Eczema'), findsOneWidget);
@@ -184,6 +182,266 @@ void main() {
         (widget) => widget is Semantics && (widget.properties.header ?? false),
       );
       expect(headerFinder, findsWidgets);
+    });
+
+    testWidgets('condition card has more options menu', (tester) async {
+      final condition = createTestCondition();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            conditionListProvider(
+              testProfileId,
+            ).overrideWith(() => _MockConditionList([condition])),
+          ],
+          child: const MaterialApp(
+            home: ConditionListScreen(profileId: testProfileId),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.more_vert), findsOneWidget);
+    });
+
+    group('list display', () {
+      testWidgets('displays body locations on condition card', (tester) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Arms, Hands'), findsOneWidget);
+      });
+
+      testWidgets('shows photo indicator for condition with baseline photo', (
+        tester,
+      ) async {
+        final condition = createTestCondition(
+          baselinePhotoPath: '/path/to/photo.jpg',
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byIcon(Icons.photo_camera), findsOneWidget);
+      });
+
+      testWidgets('hides photo indicator when no baseline photo', (
+        tester,
+      ) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byIcon(Icons.photo_camera), findsNothing);
+      });
+
+      testWidgets('shows medical services icon on condition card', (
+        tester,
+      ) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byIcon(Icons.medical_services), findsOneWidget);
+      });
+
+      testWidgets('archived condition name has strikethrough', (tester) async {
+        final archivedCondition = createTestCondition(
+          isArchived: true,
+          status: ConditionStatus.resolved,
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([archivedCondition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final nameWidget = tester.widget<Text>(find.text('Eczema'));
+        expect(nameWidget.style?.decoration, TextDecoration.lineThrough);
+      });
+    });
+
+    group('popup menu', () {
+      testWidgets('shows Edit and Archive options', (tester) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+        expect(find.text('Edit'), findsOneWidget);
+        expect(find.text('Archive'), findsOneWidget);
+      });
+
+      testWidgets('shows Unarchive for archived conditions', (tester) async {
+        final archivedCondition = createTestCondition(
+          isArchived: true,
+          status: ConditionStatus.resolved,
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([archivedCondition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+        expect(find.text('Unarchive'), findsOneWidget);
+      });
+    });
+
+    group('loading and error states', () {
+      testWidgets('error state renders with retry button', (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(_ErrorConditionList.new),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Failed to load conditions'), findsOneWidget);
+        expect(find.text('Retry'), findsOneWidget);
+      });
+    });
+
+    group('filter bottom sheet', () {
+      testWidgets('filter button opens bottom sheet', (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byIcon(Icons.filter_list));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Filter Conditions'), findsOneWidget);
+        expect(find.text('Active only'), findsOneWidget);
+        expect(find.text('Show archived'), findsOneWidget);
+      });
+    });
+
+    group('navigation', () {
+      testWidgets('tapping FAB navigates to add screen', (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Add Condition'), findsOneWidget);
+      });
+
+      testWidgets('tapping condition card navigates to edit screen', (
+        tester,
+      ) async {
+        final condition = createTestCondition();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              conditionListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockConditionList([condition])),
+            ],
+            child: const MaterialApp(
+              home: ConditionListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(ShadowCard));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Edit Condition'), findsOneWidget);
+      });
     });
 
     group('accessibility', () {
@@ -227,10 +485,10 @@ void main() {
         );
         expect(semanticsFinder, findsOneWidget);
       });
-    });
 
-    group('popup menu', () {
-      testWidgets('shows Edit and Archive options', (tester) async {
+      testWidgets('condition card has semantic label with name and category', (
+        tester,
+      ) async {
         final condition = createTestCondition();
         await tester.pumpWidget(
           ProviderScope(
@@ -245,25 +503,24 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.more_vert));
-        await tester.pumpAndSettle();
-        expect(find.text('Edit'), findsOneWidget);
-        expect(find.text('Archive'), findsOneWidget);
+        final cardFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              (widget.properties.label?.contains('Eczema') ?? false),
+        );
+        expect(cardFinder, findsWidgets);
       });
 
-      testWidgets('shows Unarchive for archived conditions', (tester) async {
-        // Archived condition needs status=resolved to appear in the resolved section
-        // (isActive = !isArchived && status == active, so archived+active = invisible)
-        final archivedCondition = createTestCondition(
-          isArchived: true,
-          status: ConditionStatus.resolved,
+      testWidgets('photo indicator has semantic label', (tester) async {
+        final condition = createTestCondition(
+          baselinePhotoPath: '/path/to/photo.jpg',
         );
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
               conditionListProvider(
                 testProfileId,
-              ).overrideWith(() => _MockConditionList([archivedCondition])),
+              ).overrideWith(() => _MockConditionList([condition])),
             ],
             child: const MaterialApp(
               home: ConditionListScreen(profileId: testProfileId),
@@ -271,20 +528,21 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.more_vert));
-        await tester.pumpAndSettle();
-        expect(find.text('Unarchive'), findsOneWidget);
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Has baseline photo',
+        );
+        expect(semanticsFinder, findsOneWidget);
       });
-    });
 
-    group('loading and error states', () {
-      testWidgets('error state renders with retry button', (tester) async {
+      testWidgets('empty state is accessible', (tester) async {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
               conditionListProvider(
                 testProfileId,
-              ).overrideWith(_ErrorConditionList.new),
+              ).overrideWith(() => _MockConditionList([])),
             ],
             child: const MaterialApp(
               home: ConditionListScreen(profileId: testProfileId),
@@ -292,8 +550,12 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Failed to load conditions'), findsOneWidget);
-        expect(find.text('Retry'), findsOneWidget);
+
+        expect(find.text('No conditions yet'), findsOneWidget);
+        expect(
+          find.text('Tap the + button to add your first condition'),
+          findsOneWidget,
+        );
       });
     });
   });
