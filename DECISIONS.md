@@ -25,7 +25,9 @@ Each entry has:
 
 **Alternatives:** Could have added an "Evening" enum value, but that would change the data model without Reid's approval. Followed the rule: no decisions, follow the code specs exactly.
 
-**Impact:** Users see 6 anchor event options. If "Evening" is wanted later, it requires adding a new enum value and database migration.
+**Impact:** Users see 6 anchor event options (Morning, Breakfast, Lunch, Dinner, Bedtime, Specific Time).
+
+**Follow-up (2026-02-22):** Reid reviewed this and confirmed "Evening" is intentionally excluded. It's too vague and overlaps with existing options like Dinner and Bedtime. The five anchor events are sufficient. No future action needed.
 
 ---
 
