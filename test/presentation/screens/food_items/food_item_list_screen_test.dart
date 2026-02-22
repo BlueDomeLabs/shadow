@@ -414,6 +414,52 @@ void main() {
         expect(find.byIcon(Icons.info_outline), findsOneWidget);
       });
 
+      testWidgets('hides nutritional info icon when no nutrition data', (
+        tester,
+      ) async {
+        final foodItem = createTestFoodItem(); // no calories set
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([foodItem])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byIcon(Icons.info_outline), findsNothing);
+      });
+
+      testWidgets('archived food item name has strikethrough', (tester) async {
+        final archivedItem = createTestFoodItem(
+          isArchived: true,
+          name: 'Old Food',
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([archivedItem])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final textWidget = tester.widget<Text>(find.text('Old Food'));
+        expect(textWidget.style?.decoration, TextDecoration.lineThrough);
+      });
+
       testWidgets('food item card has more options menu', (tester) async {
         final foodItem = createTestFoodItem();
 
@@ -526,6 +572,31 @@ void main() {
           find.text('Tap the + button to add your first food item'),
           findsOneWidget,
         );
+      });
+
+      testWidgets('nutritional info icon has semantic label', (tester) async {
+        final foodItem = createTestFoodItem(calories: 250);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([foodItem])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Has nutritional info',
+        );
+        expect(semanticsFinder, findsOneWidget);
       });
 
       testWidgets('food item card has semantic label with name and type', (
