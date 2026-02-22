@@ -447,6 +447,43 @@ enum IntakeLogStatus {
       .firstWhere((e) => e.value == value, orElse: () => pending);
 }
 
+// === Profile Enums (22_API_CONTRACTS.md Section 10.7) ===
+
+enum BiologicalSex {
+  male(0),
+  female(1),
+  other(2);
+
+  final int value;
+  const BiologicalSex(this.value);
+
+  static BiologicalSex fromValue(int value) => BiologicalSex.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => other,
+  );
+}
+
+/// Simple diet indicator on Profile.
+/// NOTE: This is DISTINCT from the full Diet system (see Diet entity).
+/// - ProfileDietType: Simple label shown in profile, for quick reference
+/// - Diet entity: Full diet with rules, compliance tracking, eating windows
+/// A profile can have BOTH: dietType for display AND an active Diet for tracking
+enum ProfileDietType {
+  none(0),
+  vegan(1),
+  vegetarian(2),
+  paleo(3),
+  keto(4),
+  glutenFree(5),
+  other(6);
+
+  final int value;
+  const ProfileDietType(this.value);
+
+  static ProfileDietType fromValue(int value) => ProfileDietType.values
+      .firstWhere((e) => e.value == value, orElse: () => none);
+}
+
 // === Condition Enums (22_API_CONTRACTS.md Section 10.8) ===
 
 enum ConditionStatus {
