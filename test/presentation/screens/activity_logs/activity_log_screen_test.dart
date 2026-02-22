@@ -87,6 +87,45 @@ void main() {
       expect(find.text('Swimming'), findsOneWidget);
     });
 
+    testWidgets('renders Duration section header', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(find.text('Duration'), findsOneWidget);
+    });
+
+    testWidgets('renders Notes section header', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(find.text('Notes'), findsWidgets);
+    });
+
+    testWidgets('renders duration field', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(find.text('Duration (minutes)'), findsOneWidget);
+    });
+
+    testWidgets('renders notes field', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(find.text('Notes'), findsWidgets);
+    });
+
+    testWidgets('renders ad-hoc activity input field', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(find.text('Ad-hoc Activity'), findsOneWidget);
+    });
+
+    testWidgets('shows empty state when no activities defined', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pumpAndSettle();
+      expect(
+        find.text('No activities defined. Create activities first.'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('renders Save and Cancel buttons', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pumpAndSettle();
@@ -107,6 +146,30 @@ void main() {
         );
         expect(semanticsFinder, findsOneWidget);
       });
+
+      testWidgets('section headers have header semantics', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        final headerFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics && (widget.properties.header ?? false),
+        );
+        expect(headerFinder, findsWidgets);
+      });
+
+      testWidgets('save button has semantic label', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
+        await tester.pumpAndSettle();
+        expect(find.bySemanticsLabel('Save new activity log'), findsOneWidget);
+      });
+
+      testWidgets('ad-hoc add button has tooltip', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        expect(find.byTooltip('Add ad-hoc activity'), findsOneWidget);
+      });
     });
 
     group('edit mode', () {
@@ -121,6 +184,26 @@ void main() {
         await tester.pumpWidget(buildScreen(activityLog: log));
         await tester.pumpAndSettle();
         expect(find.text('Edit Activity Log'), findsOneWidget);
+      });
+
+      testWidgets('edit mode has different form semantic label', (
+        tester,
+      ) async {
+        final log = ActivityLog(
+          id: 'log-001',
+          clientId: 'client-001',
+          profileId: testProfileId,
+          timestamp: DateTime.now().millisecondsSinceEpoch,
+          syncMetadata: SyncMetadata.empty(),
+        );
+        await tester.pumpWidget(buildScreen(activityLog: log));
+        await tester.pumpAndSettle();
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Edit activity log form',
+        );
+        expect(semanticsFinder, findsOneWidget);
       });
     });
   });

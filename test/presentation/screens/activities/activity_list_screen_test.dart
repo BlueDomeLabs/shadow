@@ -8,6 +8,7 @@ import 'package:shadow_app/domain/entities/activity.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/presentation/providers/activities/activity_list_provider.dart';
 import 'package:shadow_app/presentation/screens/activities/activity_list_screen.dart';
+import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 void main() {
   group('ActivityListScreen', () {
@@ -99,6 +100,27 @@ void main() {
       expect(headerFinder, findsWidgets);
     });
 
+    group('navigation', () {
+      testWidgets('tapping FAB navigates to add screen', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+        expect(find.text('Add Activity'), findsOneWidget);
+      });
+
+      testWidgets('tapping activity card navigates to edit screen', (
+        tester,
+      ) async {
+        final activity = createTestActivity();
+        await tester.pumpWidget(buildScreen([activity]));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(ShadowCard));
+        await tester.pumpAndSettle();
+        expect(find.text('Edit Activity'), findsOneWidget);
+      });
+    });
+
     group('accessibility', () {
       testWidgets('FAB has semantic label Add new activity', (tester) async {
         await tester.pumpWidget(buildScreen());
@@ -114,6 +136,30 @@ void main() {
               widget is Semantics && widget.properties.label == 'Activity list',
         );
         expect(semanticsFinder, findsOneWidget);
+      });
+
+      testWidgets('activity card has semantic label with name and duration', (
+        tester,
+      ) async {
+        final activity = createTestActivity();
+        await tester.pumpWidget(buildScreen([activity]));
+        await tester.pumpAndSettle();
+        final cardFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              (widget.properties.label?.contains('Morning Run') ?? false),
+        );
+        expect(cardFinder, findsWidgets);
+      });
+
+      testWidgets('empty state is accessible', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        expect(find.text('No activities yet'), findsOneWidget);
+        expect(
+          find.text('Tap the + button to add your first activity'),
+          findsOneWidget,
+        );
       });
     });
 

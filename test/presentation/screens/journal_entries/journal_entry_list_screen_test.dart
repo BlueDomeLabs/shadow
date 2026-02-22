@@ -8,6 +8,7 @@ import 'package:shadow_app/domain/entities/journal_entry.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/presentation/providers/journal_entries/journal_entry_list_provider.dart';
 import 'package:shadow_app/presentation/screens/journal_entries/journal_entry_list_screen.dart';
+import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 void main() {
   group('JournalEntryListScreen', () {
@@ -92,6 +93,27 @@ void main() {
       expect(find.text('health'), findsOneWidget);
     });
 
+    group('navigation', () {
+      testWidgets('tapping FAB navigates to add screen', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pumpAndSettle();
+        expect(find.text('New Entry'), findsOneWidget);
+      });
+
+      testWidgets('tapping entry card navigates to edit screen', (
+        tester,
+      ) async {
+        final entry = createTestEntry();
+        await tester.pumpWidget(buildScreen([entry]));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(ShadowCard));
+        await tester.pumpAndSettle();
+        expect(find.text('Edit Entry'), findsOneWidget);
+      });
+    });
+
     group('accessibility', () {
       testWidgets('FAB has semantic label Add new journal entry', (
         tester,
@@ -110,6 +132,28 @@ void main() {
               widget.properties.label == 'Journal entry list',
         );
         expect(semanticsFinder, findsOneWidget);
+      });
+
+      testWidgets('entry card has semantic label', (tester) async {
+        final entry = createTestEntry(title: 'Daily Reflection');
+        await tester.pumpWidget(buildScreen([entry]));
+        await tester.pumpAndSettle();
+        final cardFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              (widget.properties.label?.contains('Daily Reflection') ?? false),
+        );
+        expect(cardFinder, findsWidgets);
+      });
+
+      testWidgets('empty state is accessible', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pumpAndSettle();
+        expect(find.text('No journal entries yet'), findsOneWidget);
+        expect(
+          find.text('Tap the + button to write your first entry'),
+          findsOneWidget,
+        );
       });
     });
 

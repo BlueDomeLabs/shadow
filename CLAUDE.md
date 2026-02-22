@@ -128,7 +128,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 6. ConditionListScreen (implementation existed; brought tests to reference level: 24 tests)
 - [x] 7. FoodListScreen (implementation existed; brought tests to reference level: 26 tests)
 - [x] 8. SleepListScreen (implementation and tests already at reference level: 27 tests)
-- [ ] 9. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
+- [x] 9. Remaining entity screens — verified all 16 screens at reference test level (+22 tests)
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
 - **Phase 12: Guest Profile Access (QR Code Invite System)** — See 56_GUEST_PROFILE_ACCESS.md for full spec. Allows host to invite a guest device to access a single profile via QR code. No separate patient login required. Implement AFTER Phase 11.
@@ -137,7 +137,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - **Phase 15a: Food Database Extension** — See 59a_FOOD_DATABASE_EXTENSION.md. Adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table, schema v9→v10 migration. Implement before Phase 15b.
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
 
-### Test Count: 2234 passing | Analyzer: clean | Schema: v9
+### Test Count: 2256 passing | Analyzer: clean | Schema: v9
 
 ---
 
