@@ -1,9 +1,19 @@
 {
   "status": "complete",
-  "task": "Add customDosageUnit field to Supplement entity (schema v9)",
-  "timestamp": "2026-02-21T06:30:00Z",
+  "task": "Pre-work for Phase 5: Added customDosageUnit to Supplement entity (schema v9)",
+  "timestamp": "2026-02-21T07:00:00Z",
   "testsStatus": "passing",
   "testCount": 2192,
   "analyzerStatus": "clean",
-  "notes": "customDosageUnit field added end-to-end: spec, entity, inputs, use cases, DB table, migration v8->v9, DAO mapper. Next: Phase 5 SupplementEditScreen full implementation (add customDosageUnit, ingredients tag input, full schedule section)."
+  "schemaVersion": 9,
+  "nextTask": "Phase 5: Complete SupplementEditScreen (full implementation per 38_UI_FIELD_SPECIFICATIONS.md Section 4.1)",
+  "nextTaskDetails": {
+    "file": "lib/presentation/screens/supplements/supplement_edit_screen.dart",
+    "testFile": "test/presentation/screens/supplements/supplement_edit_screen_test.dart",
+    "spec": "38_UI_FIELD_SPECIFICATIONS.md Section 4.1",
+    "alreadyImplemented": ["Name", "Brand", "Form", "Custom Form", "Dosage Amount", "Dosage Unit", "Quantity Per Dose", "Notes"],
+    "stillNeeded": ["Custom Dosage Unit (show when DosageUnit.custom selected)", "Ingredients tag input", "Schedule section (Frequency, Every X Days, Specific Days, Anchor Event, Timing, Offset Minutes, Specific Time, Start Date, End Date)"],
+    "timingLogic": "See 38_UI_FIELD_SPECIFICATIONS.md Section 15 for supplement timing field dependencies"
+  },
+  "notes": "IMPORTANT FOR NEXT INSTANCE: Claude.ai (not Reid) makes decisions. Reid shares your responses with Claude.ai via clipboard. ALWAYS copy every response to clipboard with pbcopy. This is in CLAUDE.md ABOUT YOUR MANAGER section."
 }
