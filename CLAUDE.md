@@ -127,7 +127,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
   - DONE: Custom Unit field, Ingredients tag input, full Schedule section (79 tests)
 - [x] 6. ConditionListScreen (implementation existed; brought tests to reference level: 24 tests)
 - [x] 7. FoodListScreen (implementation existed; brought tests to reference level: 26 tests)
-- [ ] 8. SleepListScreen
+- [x] 8. SleepListScreen (implementation and tests already at reference level: 27 tests)
 - [ ] 9. Remaining entity screens (see `38_UI_FIELD_SPECIFICATIONS.md`)
 - [ ] 10. Domain-layer Profile entity (freezed, with codegen)
 - [ ] 11. Profile repository + DAO (wire into database)
