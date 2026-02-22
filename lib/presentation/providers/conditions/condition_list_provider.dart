@@ -59,9 +59,11 @@ class ConditionList extends _$ConditionList {
     );
   }
 
-  /// Archives a condition.
+  /// Archives or unarchives a condition.
   Future<void> archive(ArchiveConditionInput input) async {
-    _log.debug('Archiving condition: ${input.id}');
+    _log.debug(
+      '${input.archive ? "Archiving" : "Unarchiving"} condition: ${input.id}',
+    );
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);
@@ -74,7 +76,9 @@ class ConditionList extends _$ConditionList {
 
     result.when(
       success: (_) {
-        _log.info('Condition archived successfully');
+        _log.info(
+          'Condition ${input.archive ? "archived" : "unarchived"} successfully',
+        );
         ref.invalidateSelf();
       },
       failure: (error) {

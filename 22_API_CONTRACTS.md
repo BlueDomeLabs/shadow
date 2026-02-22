@@ -4901,6 +4901,58 @@ class CreateConditionUseCase implements UseCase<CreateConditionInput, Condition>
   }
 }
 
+// lib/domain/usecases/conditions/archive_condition_use_case.dart
+// Matches ArchiveSupplementUseCase reference pattern
+
+@freezed
+class ArchiveConditionInput with _$ArchiveConditionInput {
+  const factory ArchiveConditionInput({
+    required String id,
+    required String profileId,
+    required bool archive, // true = archive, false = unarchive
+  }) = _ArchiveConditionInput;
+}
+
+class ArchiveConditionUseCase implements UseCase<ArchiveConditionInput, Condition> {
+  final ConditionRepository _repository;
+  final ProfileAuthorizationService _authService;
+
+  ArchiveConditionUseCase(this._repository, this._authService);
+
+  @override
+  Future<Result<Condition, AppError>> call(ArchiveConditionInput input) async {
+    // 1. Authorization
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 2. Fetch existing
+    final existingResult = await _repository.getById(input.id);
+    if (existingResult.isFailure) {
+      return Failure(existingResult.errorOrNull!);
+    }
+    final existing = existingResult.valueOrNull!;
+
+    // 3. Verify ownership
+    if (existing.profileId != input.profileId) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+
+    // 4. Update archive status
+    final updated = existing.copyWith(
+      isArchived: input.archive,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
+
+    // 5. Persist
+    return _repository.update(updated);
+  }
+}
+
 // lib/domain/usecases/condition_logs/log_condition_use_case.dart
 // UPDATED to match Section 10.9 ConditionLog entity definition
 
@@ -7518,6 +7570,25 @@ class ResolveConflictUseCase implements UseCase<ResolveConflictInput, void> {
 ```
 
 ---
+
+## 4.6 Archive/Unarchive Support
+
+Only the following three entities support archive/unarchive functionality:
+
+| Entity | Input Class | Use Case | Has `archive` boolean |
+|--------|-------------|----------|----------------------|
+| Supplement | `ArchiveSupplementInput` | `ArchiveSupplementUseCase` | `required bool archive` |
+| Condition | `ArchiveConditionInput` | `ArchiveConditionUseCase` | `required bool archive` |
+| FoodItem | `ArchiveFoodItemInput` | `ArchiveFoodItemUseCase` | `@Default(true) bool archive` |
+
+All three follow the same pattern:
+1. Authorization check
+2. Fetch existing entity
+3. Verify profile ownership
+4. `copyWith(isArchived: input.archive, syncMetadata: updated)`
+5. `_repository.update(updated)`
+
+All other entities (Sleep, Activities, Photos, Journal, etc.) use add/edit/delete only — no archive functionality.
 
 ## 5. Entity Contracts (Freezed)
 

@@ -320,15 +320,22 @@ void main() {
         mockRepository.getById('cond-001'),
       ).thenAnswer((_) async => Success(existing));
       when(
-        mockRepository.archive('cond-001'),
-      ).thenAnswer((_) async => const Success(null));
+        mockRepository.update(any),
+      ).thenAnswer((_) async => Success(existing.copyWith(isArchived: true)));
 
       final result = await useCase(
-        const ArchiveConditionInput(id: 'cond-001', profileId: testProfileId),
+        const ArchiveConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          archive: true,
+        ),
       );
 
       expect(result.isSuccess, isTrue);
-      verify(mockRepository.archive('cond-001')).called(1);
+      final captured = verify(
+        mockRepository.update(captureAny),
+      ).captured.single;
+      expect((captured as Condition).isArchived, isTrue);
     });
 
     test('call_whenUnauthorized_returnsAuthError', () async {
@@ -337,12 +344,16 @@ void main() {
       ).thenAnswer((_) async => false);
 
       final result = await useCase(
-        const ArchiveConditionInput(id: 'cond-001', profileId: testProfileId),
+        const ArchiveConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          archive: true,
+        ),
       );
 
       expect(result.isFailure, isTrue);
       expect(result.errorOrNull, isA<AuthError>());
-      verifyNever(mockRepository.archive(any));
+      verifyNever(mockRepository.update(any));
     });
 
     test('call_whenConditionNotFound_returnsFailure', () async {
@@ -354,7 +365,11 @@ void main() {
       );
 
       final result = await useCase(
-        const ArchiveConditionInput(id: 'cond-001', profileId: testProfileId),
+        const ArchiveConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          archive: true,
+        ),
       );
 
       expect(result.isFailure, isTrue);
@@ -372,7 +387,11 @@ void main() {
         ).thenAnswer((_) async => Success(existing));
 
         final result = await useCase(
-          const ArchiveConditionInput(id: 'cond-001', profileId: testProfileId),
+          const ArchiveConditionInput(
+            id: 'cond-001',
+            profileId: testProfileId,
+            archive: true,
+          ),
         );
 
         expect(result.isFailure, isTrue);

@@ -233,7 +233,11 @@ class ConditionsTab extends ConsumerWidget {
         await ref
             .read(conditionListProvider(profileId).notifier)
             .archive(
-              ArchiveConditionInput(id: condition.id, profileId: profileId),
+              ArchiveConditionInput(
+                id: condition.id,
+                profileId: profileId,
+                archive: true,
+              ),
             );
         if (context.mounted) {
           showAccessibleSnackBar(

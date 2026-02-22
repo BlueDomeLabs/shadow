@@ -593,6 +593,7 @@ abstract class _CreateConditionInput implements CreateConditionInput {
 mixin _$ArchiveConditionInput {
   String get id => throw _privateConstructorUsedError;
   String get profileId => throw _privateConstructorUsedError;
+  bool get archive => throw _privateConstructorUsedError;
 
   /// Create a copy of ArchiveConditionInput
   /// with the given fields replaced by the non-null parameter values.
@@ -608,7 +609,7 @@ abstract class $ArchiveConditionInputCopyWith<$Res> {
     $Res Function(ArchiveConditionInput) then,
   ) = _$ArchiveConditionInputCopyWithImpl<$Res, ArchiveConditionInput>;
   @useResult
-  $Res call({String id, String profileId});
+  $Res call({String id, String profileId, bool archive});
 }
 
 /// @nodoc
@@ -628,7 +629,11 @@ class _$ArchiveConditionInputCopyWithImpl<
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? id = null, Object? profileId = null}) {
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? archive = null,
+  }) {
     return _then(
       _value.copyWith(
             id: null == id
@@ -639,6 +644,10 @@ class _$ArchiveConditionInputCopyWithImpl<
                 ? _value.profileId
                 : profileId // ignore: cast_nullable_to_non_nullable
                       as String,
+            archive: null == archive
+                ? _value.archive
+                : archive // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -654,7 +663,7 @@ abstract class _$$ArchiveConditionInputImplCopyWith<$Res>
   ) = __$$ArchiveConditionInputImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, String profileId});
+  $Res call({String id, String profileId, bool archive});
 }
 
 /// @nodoc
@@ -671,7 +680,11 @@ class __$$ArchiveConditionInputImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? id = null, Object? profileId = null}) {
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? archive = null,
+  }) {
     return _then(
       _$ArchiveConditionInputImpl(
         id: null == id
@@ -682,6 +695,10 @@ class __$$ArchiveConditionInputImplCopyWithImpl<$Res>
             ? _value.profileId
             : profileId // ignore: cast_nullable_to_non_nullable
                   as String,
+        archive: null == archive
+            ? _value.archive
+            : archive // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -693,16 +710,19 @@ class _$ArchiveConditionInputImpl implements _ArchiveConditionInput {
   const _$ArchiveConditionInputImpl({
     required this.id,
     required this.profileId,
+    required this.archive,
   });
 
   @override
   final String id;
   @override
   final String profileId;
+  @override
+  final bool archive;
 
   @override
   String toString() {
-    return 'ArchiveConditionInput(id: $id, profileId: $profileId)';
+    return 'ArchiveConditionInput(id: $id, profileId: $profileId, archive: $archive)';
   }
 
   @override
@@ -712,11 +732,12 @@ class _$ArchiveConditionInputImpl implements _ArchiveConditionInput {
             other is _$ArchiveConditionInputImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.profileId, profileId) ||
-                other.profileId == profileId));
+                other.profileId == profileId) &&
+            (identical(other.archive, archive) || other.archive == archive));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, profileId);
+  int get hashCode => Object.hash(runtimeType, id, profileId, archive);
 
   /// Create a copy of ArchiveConditionInput
   /// with the given fields replaced by the non-null parameter values.
@@ -735,12 +756,15 @@ abstract class _ArchiveConditionInput implements ArchiveConditionInput {
   const factory _ArchiveConditionInput({
     required final String id,
     required final String profileId,
+    required final bool archive,
   }) = _$ArchiveConditionInputImpl;
 
   @override
   String get id;
   @override
   String get profileId;
+  @override
+  bool get archive;
 
   /// Create a copy of ArchiveConditionInput
   /// with the given fields replaced by the non-null parameter values.

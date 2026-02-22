@@ -6,7 +6,7 @@ part of 'condition_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$conditionListHash() => r'1bc66c36f864238b68eda464bf002634f7714770';
+String _$conditionListHash() => r'c20f97d3f554099763e4a99e922caeddca562ed3';
 
 /// Copied from Dart SDK
 class _SystemHash {

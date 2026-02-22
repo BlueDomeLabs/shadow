@@ -1,11 +1,11 @@
 {
   "status": "complete",
-  "task": "Phase 6: ConditionListScreen - tests brought to reference pattern level",
-  "timestamp": "2026-02-22T11:00:00Z",
+  "task": "Fix archive/unarchive for Conditions and Food (match Supplement reference pattern)",
+  "timestamp": "2026-02-22T12:30:00Z",
   "testsStatus": "passing",
-  "testCount": 2230,
+  "testCount": 2231,
   "analyzerStatus": "clean",
   "schemaVersion": 9,
   "nextSteps": "Phase 7: FoodListScreen",
-  "notes": "Spec gap: ArchiveConditionInput lacks 'archive' boolean (unlike ArchiveSupplementInput), so unarchive may not work at the data layer. Screen UI shows both options but underlying use case may only archive."
+  "notes": "Fixed Condition unarchive (was always archiving), fixed Food use case missing syncMetadata update, replaced Food 'Delete' menu with Archive/Unarchive toggle. API contracts updated with Section 4.6 documenting archive/unarchive support scope."
 }

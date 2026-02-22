@@ -17,6 +17,18 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-22: Only Supplements, Conditions, and Food support archive/unarchive
+
+**What:** Reid confirmed that only three types of health data support archiving (temporarily hiding) and unarchiving (bringing back): Supplements, Conditions, and Food Items. Everything else (Sleep, Activities, Photos, Journal entries) only needs add, edit, and delete.
+
+**Why:** Archiving makes sense for things that are ongoing and might come back — you might stop taking a supplement but start again later, a condition might flare up again, or you might return to eating a food you stopped. Sleep entries and journal entries are one-time records that don't need to be "paused."
+
+**What was fixed:** Conditions had a bug where tapping "Unarchive" actually archived the item again (the code always set archived=true, regardless of which button was pressed). Food Items were missing the Archive/Unarchive menu option entirely — they only had Edit and Delete, where Delete secretly archived instead of truly deleting. Both were fixed to match the working Supplement pattern. The cloud sync metadata is now properly updated when archiving/unarchiving all three types.
+
+**Impact:** Users can now reliably archive and unarchive Supplements, Conditions, and Food Items. The API contracts spec documents which entities support this feature.
+
+---
+
 ### 2026-02-21: Anchor Event dropdown uses code definitions, not UI spec wording
 
 **What:** The Supplement Edit Screen's "Anchor Event" dropdown shows: Morning, Breakfast, Lunch, Dinner, Bedtime, and Specific Time. The UI spec (Section 4.1) listed slightly different labels (including "Evening"), but the actual code enum only has 5 values: wake, breakfast, lunch, dinner, bed. We mapped wake→"Morning" and bed→"Bedtime", and handled "Specific Time" as a special option that switches the timing mode.

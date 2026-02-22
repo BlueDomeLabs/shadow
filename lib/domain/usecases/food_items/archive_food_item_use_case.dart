@@ -9,7 +9,14 @@ import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/usecases/base_use_case.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_item_inputs.dart';
 
-/// Use case to archive (soft delete) a food item.
+/// Use case to archive or unarchive a food item.
+///
+/// Follows the standard pattern:
+/// 1. Authorization - Check profile access FIRST
+/// 2. Fetch existing - Get current entity
+/// 3. Verify ownership - Ensure entity belongs to profile
+/// 4. Update archive status
+/// 5. Repository Call - Execute operation
 class ArchiveFoodItemUseCase
     implements UseCase<ArchiveFoodItemInput, FoodItem> {
   final FoodItemRepository _repository;
@@ -24,23 +31,29 @@ class ArchiveFoodItemUseCase
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 2. Fetch existing entity
+    // 2. Fetch existing
     final existingResult = await _repository.getById(input.id);
     if (existingResult.isFailure) {
       return Failure(existingResult.errorOrNull!);
     }
-
     final existing = existingResult.valueOrNull!;
 
-    // Verify the item belongs to the profile
+    // 3. Verify ownership
     if (existing.profileId != input.profileId) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 3. Apply archive status
-    final updated = existing.copyWith(isArchived: input.archive);
+    // 4. Update archive status
+    final updated = existing.copyWith(
+      isArchived: input.archive,
+      syncMetadata: existing.syncMetadata.copyWith(
+        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
+        syncVersion: existing.syncMetadata.syncVersion + 1,
+        syncIsDirty: true,
+      ),
+    );
 
-    // 4. Persist
+    // 5. Persist
     return _repository.update(updated);
   }
 }

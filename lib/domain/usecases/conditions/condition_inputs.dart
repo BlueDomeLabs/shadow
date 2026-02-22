@@ -40,5 +40,6 @@ class ArchiveConditionInput with _$ArchiveConditionInput {
   const factory ArchiveConditionInput({
     required String id,
     required String profileId,
+    required bool archive, // true = archive, false = unarchive
   }) = _ArchiveConditionInput;
 }

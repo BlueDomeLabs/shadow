@@ -343,7 +343,11 @@ class ConditionListScreen extends ConsumerWidget {
         await ref
             .read(conditionListProvider(profileId).notifier)
             .archive(
-              ArchiveConditionInput(id: condition.id, profileId: profileId),
+              ArchiveConditionInput(
+                id: condition.id,
+                profileId: profileId,
+                archive: !condition.isArchived,
+              ),
             );
         if (context.mounted) {
           showAccessibleSnackBar(

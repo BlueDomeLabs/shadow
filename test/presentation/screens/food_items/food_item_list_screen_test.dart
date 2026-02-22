@@ -204,7 +204,7 @@ void main() {
     });
 
     group('popup menu', () {
-      testWidgets('shows Edit and Delete options', (tester) async {
+      testWidgets('shows Edit and Archive options', (tester) async {
         final foodItem = createTestFoodItem();
 
         await tester.pumpWidget(
@@ -226,7 +226,33 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Edit'), findsOneWidget);
-        expect(find.text('Delete'), findsOneWidget);
+        expect(find.text('Archive'), findsOneWidget);
+      });
+
+      testWidgets('shows Unarchive for archived food items', (tester) async {
+        final archivedItem = createTestFoodItem(
+          isArchived: true,
+          name: 'Archived Food',
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([archivedItem])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Unarchive'), findsOneWidget);
       });
     });
 

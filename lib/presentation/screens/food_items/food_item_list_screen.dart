@@ -195,11 +195,13 @@ class FoodItemListScreen extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
-                const PopupMenuItem(
-                  value: 'delete',
+                PopupMenuItem(
+                  value: foodItem.isArchived ? 'unarchive' : 'archive',
                   child: ListTile(
-                    leading: Icon(Icons.delete),
-                    title: Text('Delete'),
+                    leading: Icon(
+                      foodItem.isArchived ? Icons.unarchive : Icons.archive,
+                    ),
+                    title: Text(foodItem.isArchived ? 'Unarchive' : 'Archive'),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -315,20 +317,26 @@ class FoodItemListScreen extends ConsumerWidget {
     switch (action) {
       case 'edit':
         _navigateToEditFoodItem(context, foodItem);
-      case 'delete':
-        await _deleteFoodItem(context, ref, foodItem);
+      case 'archive':
+      case 'unarchive':
+        await _toggleArchive(context, ref, foodItem);
     }
   }
 
-  Future<void> _deleteFoodItem(
+  Future<void> _toggleArchive(
     BuildContext context,
     WidgetRef ref,
     FoodItem foodItem,
   ) async {
     final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      title: 'Delete Food Item?',
-      contentText: 'Are you sure you want to delete "${foodItem.name}"?',
+      title: foodItem.isArchived
+          ? 'Unarchive Food Item?'
+          : 'Archive Food Item?',
+      contentText: foodItem.isArchived
+          ? 'This food item will appear in your active list again.'
+          : 'This food item will be moved to the archived section.',
+      confirmButtonText: foodItem.isArchived ? 'Unarchive' : 'Archive',
     );
 
     if (confirmed ?? false) {
@@ -336,12 +344,18 @@ class FoodItemListScreen extends ConsumerWidget {
         await ref
             .read(foodItemListProvider(profileId).notifier)
             .archive(
-              ArchiveFoodItemInput(id: foodItem.id, profileId: profileId),
+              ArchiveFoodItemInput(
+                id: foodItem.id,
+                profileId: profileId,
+                archive: !foodItem.isArchived,
+              ),
             );
         if (context.mounted) {
           showAccessibleSnackBar(
             context: context,
-            message: 'Food item deleted',
+            message: foodItem.isArchived
+                ? 'Food item unarchived'
+                : 'Food item archived',
           );
         }
       } on AppError catch (e) {
