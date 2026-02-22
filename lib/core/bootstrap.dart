@@ -16,6 +16,7 @@ import 'package:shadow_app/data/repositories/flare_up_repository_impl.dart';
 import 'package:shadow_app/data/repositories/fluids_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/food_item_repository_impl.dart';
 import 'package:shadow_app/data/repositories/food_log_repository_impl.dart';
+import 'package:shadow_app/data/repositories/guest_invite_repository_impl.dart';
 import 'package:shadow_app/data/repositories/intake_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/journal_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_area_repository_impl.dart';
@@ -121,6 +122,7 @@ Future<List<Override>> bootstrap() async {
     uuid,
     deviceInfoService,
   );
+  final guestInviteRepo = GuestInviteRepositoryImpl(database.guestInviteDao);
 
   // 5. Create encryption service and initialize key
   final encryptionService = EncryptionService(
@@ -254,6 +256,7 @@ Future<List<Override>> bootstrap() async {
     photoAreaRepositoryProvider.overrideWithValue(photoAreaRepo),
     photoEntryRepositoryProvider.overrideWithValue(photoEntryRepo),
     profileRepositoryProvider.overrideWithValue(profileRepo),
+    guestInviteRepositoryProvider.overrideWithValue(guestInviteRepo),
     // Services
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),

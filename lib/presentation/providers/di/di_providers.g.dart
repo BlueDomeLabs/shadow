@@ -305,6 +305,26 @@ final profileRepositoryProvider = Provider<ProfileRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProfileRepositoryRef = ProviderRef<ProfileRepository>;
+String _$guestInviteRepositoryHash() =>
+    r'1e4abb2e389f9d353e917f327f53729f391595d3';
+
+/// Guest invite repository provider - override in ProviderScope with implementation.
+///
+/// Copied from [guestInviteRepository].
+@ProviderFor(guestInviteRepository)
+final guestInviteRepositoryProvider = Provider<GuestInviteRepository>.internal(
+  guestInviteRepository,
+  name: r'guestInviteRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$guestInviteRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GuestInviteRepositoryRef = ProviderRef<GuestInviteRepository>;
 String _$profileAuthorizationServiceHash() =>
     r'43ec282813a778ca3774baf9e1c4ee1b180301e0';
 
@@ -1591,5 +1611,115 @@ final deletePhotoEntryUseCaseProvider =
 // ignore: unused_element
 typedef DeletePhotoEntryUseCaseRef =
     AutoDisposeProviderRef<DeletePhotoEntryUseCase>;
+String _$createGuestInviteUseCaseHash() =>
+    r'0230d3e2d9cbc1f55540dde8319806a3780f2ee0';
+
+/// CreateGuestInviteUseCase provider.
+///
+/// Copied from [createGuestInviteUseCase].
+@ProviderFor(createGuestInviteUseCase)
+final createGuestInviteUseCaseProvider =
+    AutoDisposeProvider<CreateGuestInviteUseCase>.internal(
+      createGuestInviteUseCase,
+      name: r'createGuestInviteUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$createGuestInviteUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CreateGuestInviteUseCaseRef =
+    AutoDisposeProviderRef<CreateGuestInviteUseCase>;
+String _$revokeGuestInviteUseCaseHash() =>
+    r'0b8c817368e72745ac2b341b8eb85b437a0b67fb';
+
+/// RevokeGuestInviteUseCase provider.
+///
+/// Copied from [revokeGuestInviteUseCase].
+@ProviderFor(revokeGuestInviteUseCase)
+final revokeGuestInviteUseCaseProvider =
+    AutoDisposeProvider<RevokeGuestInviteUseCase>.internal(
+      revokeGuestInviteUseCase,
+      name: r'revokeGuestInviteUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$revokeGuestInviteUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RevokeGuestInviteUseCaseRef =
+    AutoDisposeProviderRef<RevokeGuestInviteUseCase>;
+String _$listGuestInvitesUseCaseHash() =>
+    r'ebba0b2dd1fafdbcdc723f290ebcba0abff0495c';
+
+/// ListGuestInvitesUseCase provider.
+///
+/// Copied from [listGuestInvitesUseCase].
+@ProviderFor(listGuestInvitesUseCase)
+final listGuestInvitesUseCaseProvider =
+    AutoDisposeProvider<ListGuestInvitesUseCase>.internal(
+      listGuestInvitesUseCase,
+      name: r'listGuestInvitesUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$listGuestInvitesUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ListGuestInvitesUseCaseRef =
+    AutoDisposeProviderRef<ListGuestInvitesUseCase>;
+String _$validateGuestTokenUseCaseHash() =>
+    r'e5f7a8ff09195ed7296caf86e91e0e799fd227b4';
+
+/// ValidateGuestTokenUseCase provider.
+///
+/// Copied from [validateGuestTokenUseCase].
+@ProviderFor(validateGuestTokenUseCase)
+final validateGuestTokenUseCaseProvider =
+    AutoDisposeProvider<ValidateGuestTokenUseCase>.internal(
+      validateGuestTokenUseCase,
+      name: r'validateGuestTokenUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$validateGuestTokenUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ValidateGuestTokenUseCaseRef =
+    AutoDisposeProviderRef<ValidateGuestTokenUseCase>;
+String _$removeGuestDeviceUseCaseHash() =>
+    r'edd065d01a3321130fba37aa8559ddcf4d7189d8';
+
+/// RemoveGuestDeviceUseCase provider.
+///
+/// Copied from [removeGuestDeviceUseCase].
+@ProviderFor(removeGuestDeviceUseCase)
+final removeGuestDeviceUseCaseProvider =
+    AutoDisposeProvider<RemoveGuestDeviceUseCase>.internal(
+      removeGuestDeviceUseCase,
+      name: r'removeGuestDeviceUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$removeGuestDeviceUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RemoveGuestDeviceUseCaseRef =
+    AutoDisposeProviderRef<RemoveGuestDeviceUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

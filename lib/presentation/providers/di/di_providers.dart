@@ -28,6 +28,12 @@ import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecase
 import 'package:shadow_app/domain/usecases/food_items/food_items_usecases.dart';
 // Use Cases - Food Logs
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
+// Use Cases - Guest Invites
+import 'package:shadow_app/domain/usecases/guest_invites/create_guest_invite_use_case.dart';
+import 'package:shadow_app/domain/usecases/guest_invites/list_guest_invites_use_case.dart';
+import 'package:shadow_app/domain/usecases/guest_invites/remove_guest_device_use_case.dart';
+import 'package:shadow_app/domain/usecases/guest_invites/revoke_guest_invite_use_case.dart';
+import 'package:shadow_app/domain/usecases/guest_invites/validate_guest_token_use_case.dart';
 // Use Cases - Intake Logs
 import 'package:shadow_app/domain/usecases/intake_logs/intake_logs_usecases.dart';
 // Use Cases - Journal Entries
@@ -164,6 +170,14 @@ PhotoEntryRepository photoEntryRepository(Ref ref) {
 ProfileRepository profileRepository(Ref ref) {
   throw UnimplementedError(
     'Override profileRepositoryProvider in ProviderScope',
+  );
+}
+
+/// Guest invite repository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+GuestInviteRepository guestInviteRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override guestInviteRepositoryProvider in ProviderScope',
   );
 }
 
@@ -685,3 +699,32 @@ DeletePhotoEntryUseCase deletePhotoEntryUseCase(Ref ref) =>
       ref.read(photoEntryRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
     );
+
+// =============================================================================
+// USE CASES - GUEST INVITES (5)
+// =============================================================================
+
+/// CreateGuestInviteUseCase provider.
+@riverpod
+CreateGuestInviteUseCase createGuestInviteUseCase(Ref ref) =>
+    CreateGuestInviteUseCase(ref.read(guestInviteRepositoryProvider));
+
+/// RevokeGuestInviteUseCase provider.
+@riverpod
+RevokeGuestInviteUseCase revokeGuestInviteUseCase(Ref ref) =>
+    RevokeGuestInviteUseCase(ref.read(guestInviteRepositoryProvider));
+
+/// ListGuestInvitesUseCase provider.
+@riverpod
+ListGuestInvitesUseCase listGuestInvitesUseCase(Ref ref) =>
+    ListGuestInvitesUseCase(ref.read(guestInviteRepositoryProvider));
+
+/// ValidateGuestTokenUseCase provider.
+@riverpod
+ValidateGuestTokenUseCase validateGuestTokenUseCase(Ref ref) =>
+    ValidateGuestTokenUseCase(ref.read(guestInviteRepositoryProvider));
+
+/// RemoveGuestDeviceUseCase provider.
+@riverpod
+RemoveGuestDeviceUseCase removeGuestDeviceUseCase(Ref ref) =>
+    RemoveGuestDeviceUseCase(ref.read(guestInviteRepositoryProvider));

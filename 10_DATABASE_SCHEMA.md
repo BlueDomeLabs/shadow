@@ -3,7 +3,7 @@
 **Version:** 1.7
 **Last Updated:** 2026-02-21
 **Database:** SQLCipher (Encrypted SQLite)
-**Current Schema Version:** 10
+**Current Schema Version:** 11
 
 ---
 

@@ -18975,6 +18975,577 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   }
 }
 
+class $GuestInvitesTable extends GuestInvites
+    with TableInfo<$GuestInvitesTable, GuestInviteRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GuestInvitesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+    'token',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<int> expiresAt = GeneratedColumn<int>(
+    'expires_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isRevokedMeta = const VerificationMeta(
+    'isRevoked',
+  );
+  @override
+  late final GeneratedColumn<bool> isRevoked = GeneratedColumn<bool>(
+    'is_revoked',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_revoked" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _lastSeenAtMeta = const VerificationMeta(
+    'lastSeenAt',
+  );
+  @override
+  late final GeneratedColumn<int> lastSeenAt = GeneratedColumn<int>(
+    'last_seen_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _activeDeviceIdMeta = const VerificationMeta(
+    'activeDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> activeDeviceId = GeneratedColumn<String>(
+    'active_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    profileId,
+    token,
+    label,
+    createdAt,
+    expiresAt,
+    isRevoked,
+    lastSeenAt,
+    activeDeviceId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'guest_invites';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GuestInviteRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+        _tokenMeta,
+        token.isAcceptableOrUnknown(data['token']!, _tokenMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    }
+    if (data.containsKey('is_revoked')) {
+      context.handle(
+        _isRevokedMeta,
+        isRevoked.isAcceptableOrUnknown(data['is_revoked']!, _isRevokedMeta),
+      );
+    }
+    if (data.containsKey('last_seen_at')) {
+      context.handle(
+        _lastSeenAtMeta,
+        lastSeenAt.isAcceptableOrUnknown(
+          data['last_seen_at']!,
+          _lastSeenAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('active_device_id')) {
+      context.handle(
+        _activeDeviceIdMeta,
+        activeDeviceId.isAcceptableOrUnknown(
+          data['active_device_id']!,
+          _activeDeviceIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GuestInviteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GuestInviteRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      token: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_at'],
+      ),
+      isRevoked: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_revoked'],
+      )!,
+      lastSeenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_seen_at'],
+      ),
+      activeDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}active_device_id'],
+      ),
+    );
+  }
+
+  @override
+  $GuestInvitesTable createAlias(String alias) {
+    return $GuestInvitesTable(attachedDatabase, alias);
+  }
+}
+
+class GuestInviteRow extends DataClass implements Insertable<GuestInviteRow> {
+  final String id;
+  final String profileId;
+  final String token;
+  final String label;
+  final int createdAt;
+  final int? expiresAt;
+  final bool isRevoked;
+  final int? lastSeenAt;
+  final String? activeDeviceId;
+  const GuestInviteRow({
+    required this.id,
+    required this.profileId,
+    required this.token,
+    required this.label,
+    required this.createdAt,
+    this.expiresAt,
+    required this.isRevoked,
+    this.lastSeenAt,
+    this.activeDeviceId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['profile_id'] = Variable<String>(profileId);
+    map['token'] = Variable<String>(token);
+    map['label'] = Variable<String>(label);
+    map['created_at'] = Variable<int>(createdAt);
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<int>(expiresAt);
+    }
+    map['is_revoked'] = Variable<bool>(isRevoked);
+    if (!nullToAbsent || lastSeenAt != null) {
+      map['last_seen_at'] = Variable<int>(lastSeenAt);
+    }
+    if (!nullToAbsent || activeDeviceId != null) {
+      map['active_device_id'] = Variable<String>(activeDeviceId);
+    }
+    return map;
+  }
+
+  GuestInvitesCompanion toCompanion(bool nullToAbsent) {
+    return GuestInvitesCompanion(
+      id: Value(id),
+      profileId: Value(profileId),
+      token: Value(token),
+      label: Value(label),
+      createdAt: Value(createdAt),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+      isRevoked: Value(isRevoked),
+      lastSeenAt: lastSeenAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSeenAt),
+      activeDeviceId: activeDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(activeDeviceId),
+    );
+  }
+
+  factory GuestInviteRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GuestInviteRow(
+      id: serializer.fromJson<String>(json['id']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      token: serializer.fromJson<String>(json['token']),
+      label: serializer.fromJson<String>(json['label']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      expiresAt: serializer.fromJson<int?>(json['expiresAt']),
+      isRevoked: serializer.fromJson<bool>(json['isRevoked']),
+      lastSeenAt: serializer.fromJson<int?>(json['lastSeenAt']),
+      activeDeviceId: serializer.fromJson<String?>(json['activeDeviceId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'profileId': serializer.toJson<String>(profileId),
+      'token': serializer.toJson<String>(token),
+      'label': serializer.toJson<String>(label),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'expiresAt': serializer.toJson<int?>(expiresAt),
+      'isRevoked': serializer.toJson<bool>(isRevoked),
+      'lastSeenAt': serializer.toJson<int?>(lastSeenAt),
+      'activeDeviceId': serializer.toJson<String?>(activeDeviceId),
+    };
+  }
+
+  GuestInviteRow copyWith({
+    String? id,
+    String? profileId,
+    String? token,
+    String? label,
+    int? createdAt,
+    Value<int?> expiresAt = const Value.absent(),
+    bool? isRevoked,
+    Value<int?> lastSeenAt = const Value.absent(),
+    Value<String?> activeDeviceId = const Value.absent(),
+  }) => GuestInviteRow(
+    id: id ?? this.id,
+    profileId: profileId ?? this.profileId,
+    token: token ?? this.token,
+    label: label ?? this.label,
+    createdAt: createdAt ?? this.createdAt,
+    expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+    isRevoked: isRevoked ?? this.isRevoked,
+    lastSeenAt: lastSeenAt.present ? lastSeenAt.value : this.lastSeenAt,
+    activeDeviceId: activeDeviceId.present
+        ? activeDeviceId.value
+        : this.activeDeviceId,
+  );
+  GuestInviteRow copyWithCompanion(GuestInvitesCompanion data) {
+    return GuestInviteRow(
+      id: data.id.present ? data.id.value : this.id,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      token: data.token.present ? data.token.value : this.token,
+      label: data.label.present ? data.label.value : this.label,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      isRevoked: data.isRevoked.present ? data.isRevoked.value : this.isRevoked,
+      lastSeenAt: data.lastSeenAt.present
+          ? data.lastSeenAt.value
+          : this.lastSeenAt,
+      activeDeviceId: data.activeDeviceId.present
+          ? data.activeDeviceId.value
+          : this.activeDeviceId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GuestInviteRow(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('token: $token, ')
+          ..write('label: $label, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('isRevoked: $isRevoked, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('activeDeviceId: $activeDeviceId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    profileId,
+    token,
+    label,
+    createdAt,
+    expiresAt,
+    isRevoked,
+    lastSeenAt,
+    activeDeviceId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GuestInviteRow &&
+          other.id == this.id &&
+          other.profileId == this.profileId &&
+          other.token == this.token &&
+          other.label == this.label &&
+          other.createdAt == this.createdAt &&
+          other.expiresAt == this.expiresAt &&
+          other.isRevoked == this.isRevoked &&
+          other.lastSeenAt == this.lastSeenAt &&
+          other.activeDeviceId == this.activeDeviceId);
+}
+
+class GuestInvitesCompanion extends UpdateCompanion<GuestInviteRow> {
+  final Value<String> id;
+  final Value<String> profileId;
+  final Value<String> token;
+  final Value<String> label;
+  final Value<int> createdAt;
+  final Value<int?> expiresAt;
+  final Value<bool> isRevoked;
+  final Value<int?> lastSeenAt;
+  final Value<String?> activeDeviceId;
+  final Value<int> rowid;
+  const GuestInvitesCompanion({
+    this.id = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.token = const Value.absent(),
+    this.label = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.isRevoked = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.activeDeviceId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GuestInvitesCompanion.insert({
+    required String id,
+    required String profileId,
+    required String token,
+    this.label = const Value.absent(),
+    required int createdAt,
+    this.expiresAt = const Value.absent(),
+    this.isRevoked = const Value.absent(),
+    this.lastSeenAt = const Value.absent(),
+    this.activeDeviceId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       profileId = Value(profileId),
+       token = Value(token),
+       createdAt = Value(createdAt);
+  static Insertable<GuestInviteRow> custom({
+    Expression<String>? id,
+    Expression<String>? profileId,
+    Expression<String>? token,
+    Expression<String>? label,
+    Expression<int>? createdAt,
+    Expression<int>? expiresAt,
+    Expression<bool>? isRevoked,
+    Expression<int>? lastSeenAt,
+    Expression<String>? activeDeviceId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (profileId != null) 'profile_id': profileId,
+      if (token != null) 'token': token,
+      if (label != null) 'label': label,
+      if (createdAt != null) 'created_at': createdAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (isRevoked != null) 'is_revoked': isRevoked,
+      if (lastSeenAt != null) 'last_seen_at': lastSeenAt,
+      if (activeDeviceId != null) 'active_device_id': activeDeviceId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GuestInvitesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? profileId,
+    Value<String>? token,
+    Value<String>? label,
+    Value<int>? createdAt,
+    Value<int?>? expiresAt,
+    Value<bool>? isRevoked,
+    Value<int?>? lastSeenAt,
+    Value<String?>? activeDeviceId,
+    Value<int>? rowid,
+  }) {
+    return GuestInvitesCompanion(
+      id: id ?? this.id,
+      profileId: profileId ?? this.profileId,
+      token: token ?? this.token,
+      label: label ?? this.label,
+      createdAt: createdAt ?? this.createdAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      isRevoked: isRevoked ?? this.isRevoked,
+      lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+      activeDeviceId: activeDeviceId ?? this.activeDeviceId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<int>(expiresAt.value);
+    }
+    if (isRevoked.present) {
+      map['is_revoked'] = Variable<bool>(isRevoked.value);
+    }
+    if (lastSeenAt.present) {
+      map['last_seen_at'] = Variable<int>(lastSeenAt.value);
+    }
+    if (activeDeviceId.present) {
+      map['active_device_id'] = Variable<String>(activeDeviceId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GuestInvitesCompanion(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('token: $token, ')
+          ..write('label: $label, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('isRevoked: $isRevoked, ')
+          ..write('lastSeenAt: $lastSeenAt, ')
+          ..write('activeDeviceId: $activeDeviceId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncConflictsTable extends SyncConflicts
     with TableInfo<$SyncConflictsTable, SyncConflictRow> {
   @override
@@ -19722,6 +20293,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PhotoAreasTable photoAreas = $PhotoAreasTable(this);
   late final $PhotoEntriesTable photoEntries = $PhotoEntriesTable(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
+  late final $GuestInvitesTable guestInvites = $GuestInvitesTable(this);
   late final $SyncConflictsTable syncConflicts = $SyncConflictsTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
@@ -19746,6 +20318,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final PhotoAreaDao photoAreaDao = PhotoAreaDao(this as AppDatabase);
   late final PhotoEntryDao photoEntryDao = PhotoEntryDao(this as AppDatabase);
   late final ProfileDao profileDao = ProfileDao(this as AppDatabase);
+  late final GuestInviteDao guestInviteDao = GuestInviteDao(
+    this as AppDatabase,
+  );
   late final SyncConflictDao syncConflictDao = SyncConflictDao(
     this as AppDatabase,
   );
@@ -19769,6 +20344,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     photoAreas,
     photoEntries,
     profiles,
+    guestInvites,
     syncConflicts,
   ];
 }
@@ -28047,6 +28623,286 @@ typedef $$ProfilesTableProcessedTableManager =
       ProfileRow,
       PrefetchHooks Function()
     >;
+typedef $$GuestInvitesTableCreateCompanionBuilder =
+    GuestInvitesCompanion Function({
+      required String id,
+      required String profileId,
+      required String token,
+      Value<String> label,
+      required int createdAt,
+      Value<int?> expiresAt,
+      Value<bool> isRevoked,
+      Value<int?> lastSeenAt,
+      Value<String?> activeDeviceId,
+      Value<int> rowid,
+    });
+typedef $$GuestInvitesTableUpdateCompanionBuilder =
+    GuestInvitesCompanion Function({
+      Value<String> id,
+      Value<String> profileId,
+      Value<String> token,
+      Value<String> label,
+      Value<int> createdAt,
+      Value<int?> expiresAt,
+      Value<bool> isRevoked,
+      Value<int?> lastSeenAt,
+      Value<String?> activeDeviceId,
+      Value<int> rowid,
+    });
+
+class $$GuestInvitesTableFilterComposer
+    extends Composer<_$AppDatabase, $GuestInvitesTable> {
+  $$GuestInvitesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get token => $composableBuilder(
+    column: $table.token,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isRevoked => $composableBuilder(
+    column: $table.isRevoked,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activeDeviceId => $composableBuilder(
+    column: $table.activeDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GuestInvitesTableOrderingComposer
+    extends Composer<_$AppDatabase, $GuestInvitesTable> {
+  $$GuestInvitesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get token => $composableBuilder(
+    column: $table.token,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isRevoked => $composableBuilder(
+    column: $table.isRevoked,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activeDeviceId => $composableBuilder(
+    column: $table.activeDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GuestInvitesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GuestInvitesTable> {
+  $$GuestInvitesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRevoked =>
+      $composableBuilder(column: $table.isRevoked, builder: (column) => column);
+
+  GeneratedColumn<int> get lastSeenAt => $composableBuilder(
+    column: $table.lastSeenAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get activeDeviceId => $composableBuilder(
+    column: $table.activeDeviceId,
+    builder: (column) => column,
+  );
+}
+
+class $$GuestInvitesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GuestInvitesTable,
+          GuestInviteRow,
+          $$GuestInvitesTableFilterComposer,
+          $$GuestInvitesTableOrderingComposer,
+          $$GuestInvitesTableAnnotationComposer,
+          $$GuestInvitesTableCreateCompanionBuilder,
+          $$GuestInvitesTableUpdateCompanionBuilder,
+          (
+            GuestInviteRow,
+            BaseReferences<_$AppDatabase, $GuestInvitesTable, GuestInviteRow>,
+          ),
+          GuestInviteRow,
+          PrefetchHooks Function()
+        > {
+  $$GuestInvitesTableTableManager(_$AppDatabase db, $GuestInvitesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GuestInvitesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GuestInvitesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GuestInvitesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> token = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int?> expiresAt = const Value.absent(),
+                Value<bool> isRevoked = const Value.absent(),
+                Value<int?> lastSeenAt = const Value.absent(),
+                Value<String?> activeDeviceId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GuestInvitesCompanion(
+                id: id,
+                profileId: profileId,
+                token: token,
+                label: label,
+                createdAt: createdAt,
+                expiresAt: expiresAt,
+                isRevoked: isRevoked,
+                lastSeenAt: lastSeenAt,
+                activeDeviceId: activeDeviceId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String profileId,
+                required String token,
+                Value<String> label = const Value.absent(),
+                required int createdAt,
+                Value<int?> expiresAt = const Value.absent(),
+                Value<bool> isRevoked = const Value.absent(),
+                Value<int?> lastSeenAt = const Value.absent(),
+                Value<String?> activeDeviceId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GuestInvitesCompanion.insert(
+                id: id,
+                profileId: profileId,
+                token: token,
+                label: label,
+                createdAt: createdAt,
+                expiresAt: expiresAt,
+                isRevoked: isRevoked,
+                lastSeenAt: lastSeenAt,
+                activeDeviceId: activeDeviceId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GuestInvitesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GuestInvitesTable,
+      GuestInviteRow,
+      $$GuestInvitesTableFilterComposer,
+      $$GuestInvitesTableOrderingComposer,
+      $$GuestInvitesTableAnnotationComposer,
+      $$GuestInvitesTableCreateCompanionBuilder,
+      $$GuestInvitesTableUpdateCompanionBuilder,
+      (
+        GuestInviteRow,
+        BaseReferences<_$AppDatabase, $GuestInvitesTable, GuestInviteRow>,
+      ),
+      GuestInviteRow,
+      PrefetchHooks Function()
+    >;
 typedef $$SyncConflictsTableCreateCompanionBuilder =
     SyncConflictsCompanion Function({
       required String id,
@@ -28430,6 +29286,8 @@ class $AppDatabaseManager {
       $$PhotoEntriesTableTableManager(_db, _db.photoEntries);
   $$ProfilesTableTableManager get profiles =>
       $$ProfilesTableTableManager(_db, _db.profiles);
+  $$GuestInvitesTableTableManager get guestInvites =>
+      $$GuestInvitesTableTableManager(_db, _db.guestInvites);
   $$SyncConflictsTableTableManager get syncConflicts =>
       $$SyncConflictsTableTableManager(_db, _db.syncConflicts);
 }

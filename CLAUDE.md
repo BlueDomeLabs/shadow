@@ -131,13 +131,17 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 9. Remaining entity screens — verified all 16 screens at reference test level (+22 tests)
 - [x] 10. Domain-layer Profile entity (freezed, with codegen) — 26 tests
 - [x] 11. Profile repository + DAO (wire into database, schema v10) — 44 tests
-- **Phase 12: Guest Profile Access (QR Code Invite System)** — See 56_GUEST_PROFILE_ACCESS.md for full spec. Allows host to invite a guest device to access a single profile via QR code. No separate patient login required. Implement AFTER Phase 11.
+- **Phase 12: Guest Profile Access (QR Code Invite System)** — See 56_GUEST_PROFILE_ACCESS.md for full spec. Allows host to invite a guest device to access a single profile via QR code. No separate patient login required. Broken into 4 sub-phases:
+  - [x] 12a. Data foundation: Spec updates, GuestInvite entity, database table + DAO, repository, 5 use cases, schema v11 — 65 new tests
+  - [ ] 12b. User-facing: GuestMode provider, navigation changes, QR code screen, invite management screen
+  - [ ] 12c. Connectivity: Deep link handling, token validation, one-device limit, host notification, cloud sync, Access Revoked screen
+  - [ ] 12d. Integration testing: Full end-to-end test pass, disclaimer verification
 - **Phase 13: Notification System** — See 57_NOTIFICATION_SYSTEM.md. Active two-way notifications for all reporting categories with two scheduling modes: Anchor Events and Interval/Specific Times. Implement after Phase 12.
 - **Phase 14: Settings Screens** — See 58_SETTINGS_SCREENS.md. Notification Settings, Units Settings, Security Settings (all optional). Implement after Phase 13.
-- **Phase 15a: Food Database Extension + Supplement Extension** — See 59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md. Food: adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table. Supplements: adds barcode scan (NIH DSLD), label photo scan (Claude API), source and price fields, label photo storage. Both specs implement together in a single v10→v11 migration. Implement before Phase 15b.
+- **Phase 15a: Food Database Extension + Supplement Extension** — See 59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md. Food: adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table. Supplements: adds barcode scan (NIH DSLD), label photo scan (Claude API), source and price fields, label photo storage. Both specs implement together in a single v11→v12 migration. Implement before Phase 15b.
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
 
-### Test Count: 2326 passing | Analyzer: clean | Schema: v10
+### Test Count: 2391 passing | Analyzer: clean | Schema: v11
 
 ---
 

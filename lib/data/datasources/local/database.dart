@@ -19,6 +19,7 @@ import 'package:shadow_app/data/datasources/local/daos/flare_up_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/guest_invite_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/journal_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_area_dao.dart';
@@ -35,6 +36,7 @@ import 'package:shadow_app/data/datasources/local/tables/flare_ups_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_items_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/guest_invites_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/journal_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/photo_areas_table.dart';
@@ -78,6 +80,7 @@ part 'database.g.dart';
     PhotoAreas,
     PhotoEntries,
     Profiles,
+    GuestInvites,
     SyncConflicts,
   ],
   daos: [
@@ -96,6 +99,7 @@ part 'database.g.dart';
     PhotoAreaDao,
     PhotoEntryDao,
     ProfileDao,
+    GuestInviteDao,
     SyncConflictDao,
   ],
 )
@@ -118,8 +122,9 @@ class AppDatabase extends _$AppDatabase {
   /// v8: Added sync_conflicts table (Phase 4b — conflict handling)
   /// v9: Added custom_dosage_unit column to supplements table
   /// v10: Added profiles table (Phase 11)
+  /// v11: Added guest_invites table (Phase 12a)
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   /// Migration strategy for schema changes.
   ///
@@ -154,6 +159,11 @@ class AppDatabase extends _$AppDatabase {
       // v10: Add profiles table (Phase 11)
       if (from < 10) {
         await m.createTable(profiles);
+      }
+
+      // v11: Add guest_invites table (Phase 12a)
+      if (from < 11) {
+        await m.createTable(guestInvites);
       }
     },
     beforeOpen: (details) async {

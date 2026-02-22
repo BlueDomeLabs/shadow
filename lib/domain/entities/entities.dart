@@ -8,6 +8,7 @@ export 'flare_up.dart';
 export 'fluids_entry.dart';
 export 'food_item.dart';
 export 'food_log.dart';
+export 'guest_invite.dart';
 export 'intake_log.dart';
 export 'journal_entry.dart';
 export 'photo_area.dart';

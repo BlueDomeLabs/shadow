@@ -15447,6 +15447,254 @@ merge      → apply merged entity with markDirty:true, clearConflict()
 
 ---
 
+## 18. Guest Invite Contracts
+
+Guest invites allow a host to share access to a single profile with a guest device via QR code.
+See `56_GUEST_PROFILE_ACCESS.md` for the full feature spec.
+
+### 18.1 GuestInvite Entity
+
+```dart
+// lib/domain/entities/guest_invite.dart
+
+@Freezed(toJson: true, fromJson: true)
+class GuestInvite with _$GuestInvite {
+  const GuestInvite._();
+
+  @JsonSerializable(explicitToJson: true)
+  const factory GuestInvite({
+    required String id,
+    required String profileId,
+    required String token,         // Cryptographically secure token (UUID v4)
+    @Default('') String label,     // e.g. "John's iPhone"
+    required int createdAt,        // Epoch ms
+    int? expiresAt,                // Epoch ms, null = no expiry
+    @Default(false) bool isRevoked,
+    int? lastSeenAt,               // Epoch ms, last guest sync
+    String? activeDeviceId,        // Device ID of activated guest, null = not yet activated
+  }) = _GuestInvite;
+
+  factory GuestInvite.fromJson(Map<String, dynamic> json) =>
+      _$GuestInviteFromJson(json);
+
+  /// Whether this invite is currently usable (not revoked, not expired).
+  bool get isActive =>
+      !isRevoked &&
+      (expiresAt == null ||
+          expiresAt! > DateTime.now().millisecondsSinceEpoch);
+
+  /// Whether a guest device has activated this invite.
+  bool get isActivated => activeDeviceId != null;
+}
+```
+
+### 18.2 GuestInviteRepository
+
+```dart
+// lib/domain/repositories/guest_invite_repository.dart
+
+abstract class GuestInviteRepository {
+  /// Create a new guest invite for a profile.
+  Future<Result<GuestInvite, AppError>> create(GuestInvite invite);
+
+  /// Get a guest invite by ID.
+  Future<Result<GuestInvite, AppError>> getById(String id);
+
+  /// Get a guest invite by its token.
+  Future<Result<GuestInvite?, AppError>> getByToken(String token);
+
+  /// Get all invites for a profile.
+  Future<Result<List<GuestInvite>, AppError>> getByProfile(String profileId);
+
+  /// Update an existing invite (e.g., set activeDeviceId, lastSeenAt).
+  Future<Result<GuestInvite, AppError>> update(GuestInvite invite);
+
+  /// Revoke a guest invite (sets isRevoked = true, clears activeDeviceId).
+  Future<Result<void, AppError>> revoke(String id);
+
+  /// Permanently delete an invite.
+  Future<Result<void, AppError>> hardDelete(String id);
+}
+```
+
+### 18.3 Guest Invite Use Cases
+
+```dart
+// lib/domain/usecases/guest_invites/guest_invite_inputs.dart
+
+@freezed
+class CreateGuestInviteInput with _$CreateGuestInviteInput {
+  const factory CreateGuestInviteInput({
+    required String profileId,
+    @Default('') String label,
+    int? expiresAt,              // Epoch ms, null = no expiry
+  }) = _CreateGuestInviteInput;
+}
+
+@freezed
+class RevokeGuestInviteInput with _$RevokeGuestInviteInput {
+  const factory RevokeGuestInviteInput({
+    required String inviteId,
+  }) = _RevokeGuestInviteInput;
+}
+
+@freezed
+class ValidateGuestTokenInput with _$ValidateGuestTokenInput {
+  const factory ValidateGuestTokenInput({
+    required String token,
+    required String deviceId,
+  }) = _ValidateGuestTokenInput;
+}
+
+@freezed
+class RemoveGuestDeviceInput with _$RemoveGuestDeviceInput {
+  const factory RemoveGuestDeviceInput({
+    required String inviteId,
+  }) = _RemoveGuestDeviceInput;
+}
+
+// lib/domain/usecases/guest_invites/create_guest_invite_use_case.dart
+
+/// Creates a new guest invite with a cryptographically secure token.
+class CreateGuestInviteUseCase
+    implements UseCase<CreateGuestInviteInput, GuestInvite> {
+  final GuestInviteRepository _repository;
+
+  CreateGuestInviteUseCase(this._repository);
+
+  @override
+  Future<Result<GuestInvite, AppError>> call(
+    CreateGuestInviteInput input,
+  ) async {
+    final id = const Uuid().v4();
+    final token = const Uuid().v4();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    final invite = GuestInvite(
+      id: id,
+      profileId: input.profileId,
+      token: token,
+      label: input.label,
+      createdAt: now,
+      expiresAt: input.expiresAt,
+    );
+
+    return _repository.create(invite);
+  }
+}
+
+// lib/domain/usecases/guest_invites/revoke_guest_invite_use_case.dart
+
+/// Revokes a guest invite. The guest device loses access on next sync.
+class RevokeGuestInviteUseCase
+    implements UseCaseNoOutput<RevokeGuestInviteInput> {
+  final GuestInviteRepository _repository;
+
+  RevokeGuestInviteUseCase(this._repository);
+
+  @override
+  Future<Result<void, AppError>> call(RevokeGuestInviteInput input) async {
+    return _repository.revoke(input.inviteId);
+  }
+}
+
+// lib/domain/usecases/guest_invites/list_guest_invites_use_case.dart
+
+/// Lists all guest invites for a profile.
+class ListGuestInvitesUseCase
+    implements UseCase<String, List<GuestInvite>> {
+  final GuestInviteRepository _repository;
+
+  ListGuestInvitesUseCase(this._repository);
+
+  @override
+  Future<Result<List<GuestInvite>, AppError>> call(String profileId) async {
+    return _repository.getByProfile(profileId);
+  }
+}
+
+// lib/domain/usecases/guest_invites/validate_guest_token_use_case.dart
+
+/// Validates a guest token and checks one-device limit.
+/// Returns the GuestInvite if valid, or an appropriate error.
+class ValidateGuestTokenUseCase
+    implements UseCase<ValidateGuestTokenInput, GuestInvite> {
+  final GuestInviteRepository _repository;
+
+  ValidateGuestTokenUseCase(this._repository);
+
+  @override
+  Future<Result<GuestInvite, AppError>> call(
+    ValidateGuestTokenInput input,
+  ) async {
+    final result = await _repository.getByToken(input.token);
+    if (result.isFailure) return Failure(result.errorOrNull!);
+
+    final invite = result.valueOrNull;
+    if (invite == null) {
+      return Failure(AuthError.unauthorized('Invalid invite token'));
+    }
+    if (invite.isRevoked) {
+      return Failure(AuthError.unauthorized('Invite has been revoked'));
+    }
+    if (invite.expiresAt != null &&
+        invite.expiresAt! <= DateTime.now().millisecondsSinceEpoch) {
+      return Failure(AuthError.unauthorized('Invite has expired'));
+    }
+    // One-device limit: if already activated by a different device, reject
+    if (invite.activeDeviceId != null &&
+        invite.activeDeviceId != input.deviceId) {
+      return Failure(AuthError.unauthorized(
+        'Invite already active on another device',
+      ));
+    }
+    return Success(invite);
+  }
+}
+
+// lib/domain/usecases/guest_invites/remove_guest_device_use_case.dart
+
+/// Removes the active device from an invite (clears activeDeviceId).
+/// Host uses this before generating a replacement QR code.
+class RemoveGuestDeviceUseCase
+    implements UseCaseNoOutput<RemoveGuestDeviceInput> {
+  final GuestInviteRepository _repository;
+
+  RemoveGuestDeviceUseCase(this._repository);
+
+  @override
+  Future<Result<void, AppError>> call(RemoveGuestDeviceInput input) async {
+    final result = await _repository.getById(input.inviteId);
+    if (result.isFailure) return Failure(result.errorOrNull!);
+
+    final invite = result.valueOrNull!;
+    final updated = invite.copyWith(activeDeviceId: null);
+    final updateResult = await _repository.update(updated);
+    if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
+    return const Success(null);
+  }
+}
+```
+
+### 18.4 Database Table
+
+```sql
+-- guest_invites table (schema v11)
+CREATE TABLE guest_invites (
+  id TEXT PRIMARY KEY NOT NULL,
+  profile_id TEXT NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  label TEXT NOT NULL DEFAULT '',
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER,
+  is_revoked INTEGER NOT NULL DEFAULT 0,
+  last_seen_at INTEGER,
+  active_device_id TEXT
+);
+```
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
@@ -15463,3 +15711,4 @@ merge      → apply merged entity with markDirty:true, clearConflict()
 | 1.9 | 2026-02-18 | Added Sections 17.3–17.6: Cloud envelope format spec, SyncEntityAdapter fromJson requirement, pull path flow, updated implementation notes. Fixed envelope field name discrepancy (clientId/timestamp vs deviceId/updatedAt). Documented encryptedData format (AES-256-GCM, not raw JSON). (Phase 3a spec prep) |
 | 1.10 | 2026-02-19 | Fixed ConflictResolution → ConflictResolutionType to match actual enum name in code. (Phase 3b audit) |
 | 1.11 | 2026-02-21 | Phase 4a spec: Added markConflict() and clearConflict() to SyncMetadata; Added Section 17.7 Conflict Resolution Detailed Behavior (detection, keepLocal/keepRemote/merge resolution logic, getConflictCount implementation, post-resolution state machine); Updated Section 17.6 implementation notes with conflict storage and resolution rows. |
+| 1.12 | 2026-02-22 | Phase 12a: Added Section 18 Guest Invite Contracts (GuestInvite entity, GuestInviteRepository, use cases: CreateGuestInvite, RevokeGuestInvite, ListGuestInvites, ValidateGuestToken, RemoveGuestDevice; input types). |
