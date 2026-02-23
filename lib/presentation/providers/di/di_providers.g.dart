@@ -569,6 +569,46 @@ final notificationPermissionServiceProvider =
 // ignore: unused_element
 typedef NotificationPermissionServiceRef =
     ProviderRef<NotificationPermissionService>;
+String _$userSettingsRepositoryHash() =>
+    r'85754916969afa29eb23158777ed5a085234af2a';
+
+/// UserSettings repository provider - override in ProviderScope with implementation.
+///
+/// Copied from [userSettingsRepository].
+@ProviderFor(userSettingsRepository)
+final userSettingsRepositoryProvider =
+    Provider<UserSettingsRepository>.internal(
+      userSettingsRepository,
+      name: r'userSettingsRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$userSettingsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UserSettingsRepositoryRef = ProviderRef<UserSettingsRepository>;
+String _$securityServiceHash() => r'd83a639fec617b5190c4ac1fd5dd32e3687e2c64';
+
+/// SecurityService provider - override in ProviderScope with implementation.
+///
+/// Copied from [securityService].
+@ProviderFor(securityService)
+final securityServiceProvider = Provider<SecurityService>.internal(
+  securityService,
+  name: r'securityServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$securityServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SecurityServiceRef = ProviderRef<SecurityService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -2017,5 +2057,49 @@ final cancelNotificationsUseCaseProvider =
 // ignore: unused_element
 typedef CancelNotificationsUseCaseRef =
     AutoDisposeProviderRef<CancelNotificationsUseCase>;
+String _$getUserSettingsUseCaseHash() =>
+    r'c4082499bb8f87bcdc9cb238ff60349df2b384d4';
+
+/// GetUserSettingsUseCase provider.
+///
+/// Copied from [getUserSettingsUseCase].
+@ProviderFor(getUserSettingsUseCase)
+final getUserSettingsUseCaseProvider =
+    AutoDisposeProvider<GetUserSettingsUseCase>.internal(
+      getUserSettingsUseCase,
+      name: r'getUserSettingsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getUserSettingsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetUserSettingsUseCaseRef =
+    AutoDisposeProviderRef<GetUserSettingsUseCase>;
+String _$updateUserSettingsUseCaseHash() =>
+    r'5a17bf11b830cfaa7f530eb1c63d1574798054a4';
+
+/// UpdateUserSettingsUseCase provider.
+///
+/// Copied from [updateUserSettingsUseCase].
+@ProviderFor(updateUserSettingsUseCase)
+final updateUserSettingsUseCaseProvider =
+    AutoDisposeProvider<UpdateUserSettingsUseCase>.internal(
+      updateUserSettingsUseCase,
+      name: r'updateUserSettingsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateUserSettingsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateUserSettingsUseCaseRef =
+    AutoDisposeProviderRef<UpdateUserSettingsUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

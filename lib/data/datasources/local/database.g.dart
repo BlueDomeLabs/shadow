@@ -21249,6 +21249,753 @@ class NotificationCategorySettingsCompanion
   }
 }
 
+class $UserSettingsTableTable extends UserSettingsTable
+    with TableInfo<$UserSettingsTableTable, UserSettingsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserSettingsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weightUnitMeta = const VerificationMeta(
+    'weightUnit',
+  );
+  @override
+  late final GeneratedColumn<int> weightUnit = GeneratedColumn<int>(
+    'weight_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _foodWeightUnitMeta = const VerificationMeta(
+    'foodWeightUnit',
+  );
+  @override
+  late final GeneratedColumn<int> foodWeightUnit = GeneratedColumn<int>(
+    'food_weight_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _fluidUnitMeta = const VerificationMeta(
+    'fluidUnit',
+  );
+  @override
+  late final GeneratedColumn<int> fluidUnit = GeneratedColumn<int>(
+    'fluid_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _temperatureUnitMeta = const VerificationMeta(
+    'temperatureUnit',
+  );
+  @override
+  late final GeneratedColumn<int> temperatureUnit = GeneratedColumn<int>(
+    'temperature_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _energyUnitMeta = const VerificationMeta(
+    'energyUnit',
+  );
+  @override
+  late final GeneratedColumn<int> energyUnit = GeneratedColumn<int>(
+    'energy_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _macroDisplayMeta = const VerificationMeta(
+    'macroDisplay',
+  );
+  @override
+  late final GeneratedColumn<int> macroDisplay = GeneratedColumn<int>(
+    'macro_display',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _appLockEnabledMeta = const VerificationMeta(
+    'appLockEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> appLockEnabled = GeneratedColumn<bool>(
+    'app_lock_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("app_lock_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _biometricEnabledMeta = const VerificationMeta(
+    'biometricEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> biometricEnabled = GeneratedColumn<bool>(
+    'biometric_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("biometric_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _autoLockMinutesMeta = const VerificationMeta(
+    'autoLockMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> autoLockMinutes = GeneratedColumn<int>(
+    'auto_lock_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(5),
+  );
+  static const VerificationMeta _hideInAppSwitcherMeta = const VerificationMeta(
+    'hideInAppSwitcher',
+  );
+  @override
+  late final GeneratedColumn<bool> hideInAppSwitcher = GeneratedColumn<bool>(
+    'hide_in_app_switcher',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hide_in_app_switcher" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _allowBiometricBypassPinMeta =
+      const VerificationMeta('allowBiometricBypassPin');
+  @override
+  late final GeneratedColumn<bool> allowBiometricBypassPin =
+      GeneratedColumn<bool>(
+        'allow_biometric_bypass_pin',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("allow_biometric_bypass_pin" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    weightUnit,
+    foodWeightUnit,
+    fluidUnit,
+    temperatureUnit,
+    energyUnit,
+    macroDisplay,
+    appLockEnabled,
+    biometricEnabled,
+    autoLockMinutes,
+    hideInAppSwitcher,
+    allowBiometricBypassPin,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserSettingsRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('weight_unit')) {
+      context.handle(
+        _weightUnitMeta,
+        weightUnit.isAcceptableOrUnknown(data['weight_unit']!, _weightUnitMeta),
+      );
+    }
+    if (data.containsKey('food_weight_unit')) {
+      context.handle(
+        _foodWeightUnitMeta,
+        foodWeightUnit.isAcceptableOrUnknown(
+          data['food_weight_unit']!,
+          _foodWeightUnitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fluid_unit')) {
+      context.handle(
+        _fluidUnitMeta,
+        fluidUnit.isAcceptableOrUnknown(data['fluid_unit']!, _fluidUnitMeta),
+      );
+    }
+    if (data.containsKey('temperature_unit')) {
+      context.handle(
+        _temperatureUnitMeta,
+        temperatureUnit.isAcceptableOrUnknown(
+          data['temperature_unit']!,
+          _temperatureUnitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('energy_unit')) {
+      context.handle(
+        _energyUnitMeta,
+        energyUnit.isAcceptableOrUnknown(data['energy_unit']!, _energyUnitMeta),
+      );
+    }
+    if (data.containsKey('macro_display')) {
+      context.handle(
+        _macroDisplayMeta,
+        macroDisplay.isAcceptableOrUnknown(
+          data['macro_display']!,
+          _macroDisplayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('app_lock_enabled')) {
+      context.handle(
+        _appLockEnabledMeta,
+        appLockEnabled.isAcceptableOrUnknown(
+          data['app_lock_enabled']!,
+          _appLockEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('biometric_enabled')) {
+      context.handle(
+        _biometricEnabledMeta,
+        biometricEnabled.isAcceptableOrUnknown(
+          data['biometric_enabled']!,
+          _biometricEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_lock_minutes')) {
+      context.handle(
+        _autoLockMinutesMeta,
+        autoLockMinutes.isAcceptableOrUnknown(
+          data['auto_lock_minutes']!,
+          _autoLockMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('hide_in_app_switcher')) {
+      context.handle(
+        _hideInAppSwitcherMeta,
+        hideInAppSwitcher.isAcceptableOrUnknown(
+          data['hide_in_app_switcher']!,
+          _hideInAppSwitcherMeta,
+        ),
+      );
+    }
+    if (data.containsKey('allow_biometric_bypass_pin')) {
+      context.handle(
+        _allowBiometricBypassPinMeta,
+        allowBiometricBypassPin.isAcceptableOrUnknown(
+          data['allow_biometric_bypass_pin']!,
+          _allowBiometricBypassPinMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserSettingsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserSettingsRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      weightUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}weight_unit'],
+      )!,
+      foodWeightUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}food_weight_unit'],
+      )!,
+      fluidUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fluid_unit'],
+      )!,
+      temperatureUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}temperature_unit'],
+      )!,
+      energyUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}energy_unit'],
+      )!,
+      macroDisplay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}macro_display'],
+      )!,
+      appLockEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}app_lock_enabled'],
+      )!,
+      biometricEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}biometric_enabled'],
+      )!,
+      autoLockMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}auto_lock_minutes'],
+      )!,
+      hideInAppSwitcher: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hide_in_app_switcher'],
+      )!,
+      allowBiometricBypassPin: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}allow_biometric_bypass_pin'],
+      )!,
+    );
+  }
+
+  @override
+  $UserSettingsTableTable createAlias(String alias) {
+    return $UserSettingsTableTable(attachedDatabase, alias);
+  }
+}
+
+class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
+  final String id;
+  final int weightUnit;
+  final int foodWeightUnit;
+  final int fluidUnit;
+  final int temperatureUnit;
+  final int energyUnit;
+  final int macroDisplay;
+  final bool appLockEnabled;
+  final bool biometricEnabled;
+  final int autoLockMinutes;
+  final bool hideInAppSwitcher;
+  final bool allowBiometricBypassPin;
+  const UserSettingsRow({
+    required this.id,
+    required this.weightUnit,
+    required this.foodWeightUnit,
+    required this.fluidUnit,
+    required this.temperatureUnit,
+    required this.energyUnit,
+    required this.macroDisplay,
+    required this.appLockEnabled,
+    required this.biometricEnabled,
+    required this.autoLockMinutes,
+    required this.hideInAppSwitcher,
+    required this.allowBiometricBypassPin,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['weight_unit'] = Variable<int>(weightUnit);
+    map['food_weight_unit'] = Variable<int>(foodWeightUnit);
+    map['fluid_unit'] = Variable<int>(fluidUnit);
+    map['temperature_unit'] = Variable<int>(temperatureUnit);
+    map['energy_unit'] = Variable<int>(energyUnit);
+    map['macro_display'] = Variable<int>(macroDisplay);
+    map['app_lock_enabled'] = Variable<bool>(appLockEnabled);
+    map['biometric_enabled'] = Variable<bool>(biometricEnabled);
+    map['auto_lock_minutes'] = Variable<int>(autoLockMinutes);
+    map['hide_in_app_switcher'] = Variable<bool>(hideInAppSwitcher);
+    map['allow_biometric_bypass_pin'] = Variable<bool>(allowBiometricBypassPin);
+    return map;
+  }
+
+  UserSettingsTableCompanion toCompanion(bool nullToAbsent) {
+    return UserSettingsTableCompanion(
+      id: Value(id),
+      weightUnit: Value(weightUnit),
+      foodWeightUnit: Value(foodWeightUnit),
+      fluidUnit: Value(fluidUnit),
+      temperatureUnit: Value(temperatureUnit),
+      energyUnit: Value(energyUnit),
+      macroDisplay: Value(macroDisplay),
+      appLockEnabled: Value(appLockEnabled),
+      biometricEnabled: Value(biometricEnabled),
+      autoLockMinutes: Value(autoLockMinutes),
+      hideInAppSwitcher: Value(hideInAppSwitcher),
+      allowBiometricBypassPin: Value(allowBiometricBypassPin),
+    );
+  }
+
+  factory UserSettingsRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserSettingsRow(
+      id: serializer.fromJson<String>(json['id']),
+      weightUnit: serializer.fromJson<int>(json['weightUnit']),
+      foodWeightUnit: serializer.fromJson<int>(json['foodWeightUnit']),
+      fluidUnit: serializer.fromJson<int>(json['fluidUnit']),
+      temperatureUnit: serializer.fromJson<int>(json['temperatureUnit']),
+      energyUnit: serializer.fromJson<int>(json['energyUnit']),
+      macroDisplay: serializer.fromJson<int>(json['macroDisplay']),
+      appLockEnabled: serializer.fromJson<bool>(json['appLockEnabled']),
+      biometricEnabled: serializer.fromJson<bool>(json['biometricEnabled']),
+      autoLockMinutes: serializer.fromJson<int>(json['autoLockMinutes']),
+      hideInAppSwitcher: serializer.fromJson<bool>(json['hideInAppSwitcher']),
+      allowBiometricBypassPin: serializer.fromJson<bool>(
+        json['allowBiometricBypassPin'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'weightUnit': serializer.toJson<int>(weightUnit),
+      'foodWeightUnit': serializer.toJson<int>(foodWeightUnit),
+      'fluidUnit': serializer.toJson<int>(fluidUnit),
+      'temperatureUnit': serializer.toJson<int>(temperatureUnit),
+      'energyUnit': serializer.toJson<int>(energyUnit),
+      'macroDisplay': serializer.toJson<int>(macroDisplay),
+      'appLockEnabled': serializer.toJson<bool>(appLockEnabled),
+      'biometricEnabled': serializer.toJson<bool>(biometricEnabled),
+      'autoLockMinutes': serializer.toJson<int>(autoLockMinutes),
+      'hideInAppSwitcher': serializer.toJson<bool>(hideInAppSwitcher),
+      'allowBiometricBypassPin': serializer.toJson<bool>(
+        allowBiometricBypassPin,
+      ),
+    };
+  }
+
+  UserSettingsRow copyWith({
+    String? id,
+    int? weightUnit,
+    int? foodWeightUnit,
+    int? fluidUnit,
+    int? temperatureUnit,
+    int? energyUnit,
+    int? macroDisplay,
+    bool? appLockEnabled,
+    bool? biometricEnabled,
+    int? autoLockMinutes,
+    bool? hideInAppSwitcher,
+    bool? allowBiometricBypassPin,
+  }) => UserSettingsRow(
+    id: id ?? this.id,
+    weightUnit: weightUnit ?? this.weightUnit,
+    foodWeightUnit: foodWeightUnit ?? this.foodWeightUnit,
+    fluidUnit: fluidUnit ?? this.fluidUnit,
+    temperatureUnit: temperatureUnit ?? this.temperatureUnit,
+    energyUnit: energyUnit ?? this.energyUnit,
+    macroDisplay: macroDisplay ?? this.macroDisplay,
+    appLockEnabled: appLockEnabled ?? this.appLockEnabled,
+    biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+    autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
+    hideInAppSwitcher: hideInAppSwitcher ?? this.hideInAppSwitcher,
+    allowBiometricBypassPin:
+        allowBiometricBypassPin ?? this.allowBiometricBypassPin,
+  );
+  UserSettingsRow copyWithCompanion(UserSettingsTableCompanion data) {
+    return UserSettingsRow(
+      id: data.id.present ? data.id.value : this.id,
+      weightUnit: data.weightUnit.present
+          ? data.weightUnit.value
+          : this.weightUnit,
+      foodWeightUnit: data.foodWeightUnit.present
+          ? data.foodWeightUnit.value
+          : this.foodWeightUnit,
+      fluidUnit: data.fluidUnit.present ? data.fluidUnit.value : this.fluidUnit,
+      temperatureUnit: data.temperatureUnit.present
+          ? data.temperatureUnit.value
+          : this.temperatureUnit,
+      energyUnit: data.energyUnit.present
+          ? data.energyUnit.value
+          : this.energyUnit,
+      macroDisplay: data.macroDisplay.present
+          ? data.macroDisplay.value
+          : this.macroDisplay,
+      appLockEnabled: data.appLockEnabled.present
+          ? data.appLockEnabled.value
+          : this.appLockEnabled,
+      biometricEnabled: data.biometricEnabled.present
+          ? data.biometricEnabled.value
+          : this.biometricEnabled,
+      autoLockMinutes: data.autoLockMinutes.present
+          ? data.autoLockMinutes.value
+          : this.autoLockMinutes,
+      hideInAppSwitcher: data.hideInAppSwitcher.present
+          ? data.hideInAppSwitcher.value
+          : this.hideInAppSwitcher,
+      allowBiometricBypassPin: data.allowBiometricBypassPin.present
+          ? data.allowBiometricBypassPin.value
+          : this.allowBiometricBypassPin,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserSettingsRow(')
+          ..write('id: $id, ')
+          ..write('weightUnit: $weightUnit, ')
+          ..write('foodWeightUnit: $foodWeightUnit, ')
+          ..write('fluidUnit: $fluidUnit, ')
+          ..write('temperatureUnit: $temperatureUnit, ')
+          ..write('energyUnit: $energyUnit, ')
+          ..write('macroDisplay: $macroDisplay, ')
+          ..write('appLockEnabled: $appLockEnabled, ')
+          ..write('biometricEnabled: $biometricEnabled, ')
+          ..write('autoLockMinutes: $autoLockMinutes, ')
+          ..write('hideInAppSwitcher: $hideInAppSwitcher, ')
+          ..write('allowBiometricBypassPin: $allowBiometricBypassPin')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    weightUnit,
+    foodWeightUnit,
+    fluidUnit,
+    temperatureUnit,
+    energyUnit,
+    macroDisplay,
+    appLockEnabled,
+    biometricEnabled,
+    autoLockMinutes,
+    hideInAppSwitcher,
+    allowBiometricBypassPin,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserSettingsRow &&
+          other.id == this.id &&
+          other.weightUnit == this.weightUnit &&
+          other.foodWeightUnit == this.foodWeightUnit &&
+          other.fluidUnit == this.fluidUnit &&
+          other.temperatureUnit == this.temperatureUnit &&
+          other.energyUnit == this.energyUnit &&
+          other.macroDisplay == this.macroDisplay &&
+          other.appLockEnabled == this.appLockEnabled &&
+          other.biometricEnabled == this.biometricEnabled &&
+          other.autoLockMinutes == this.autoLockMinutes &&
+          other.hideInAppSwitcher == this.hideInAppSwitcher &&
+          other.allowBiometricBypassPin == this.allowBiometricBypassPin);
+}
+
+class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
+  final Value<String> id;
+  final Value<int> weightUnit;
+  final Value<int> foodWeightUnit;
+  final Value<int> fluidUnit;
+  final Value<int> temperatureUnit;
+  final Value<int> energyUnit;
+  final Value<int> macroDisplay;
+  final Value<bool> appLockEnabled;
+  final Value<bool> biometricEnabled;
+  final Value<int> autoLockMinutes;
+  final Value<bool> hideInAppSwitcher;
+  final Value<bool> allowBiometricBypassPin;
+  final Value<int> rowid;
+  const UserSettingsTableCompanion({
+    this.id = const Value.absent(),
+    this.weightUnit = const Value.absent(),
+    this.foodWeightUnit = const Value.absent(),
+    this.fluidUnit = const Value.absent(),
+    this.temperatureUnit = const Value.absent(),
+    this.energyUnit = const Value.absent(),
+    this.macroDisplay = const Value.absent(),
+    this.appLockEnabled = const Value.absent(),
+    this.biometricEnabled = const Value.absent(),
+    this.autoLockMinutes = const Value.absent(),
+    this.hideInAppSwitcher = const Value.absent(),
+    this.allowBiometricBypassPin = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserSettingsTableCompanion.insert({
+    required String id,
+    this.weightUnit = const Value.absent(),
+    this.foodWeightUnit = const Value.absent(),
+    this.fluidUnit = const Value.absent(),
+    this.temperatureUnit = const Value.absent(),
+    this.energyUnit = const Value.absent(),
+    this.macroDisplay = const Value.absent(),
+    this.appLockEnabled = const Value.absent(),
+    this.biometricEnabled = const Value.absent(),
+    this.autoLockMinutes = const Value.absent(),
+    this.hideInAppSwitcher = const Value.absent(),
+    this.allowBiometricBypassPin = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<UserSettingsRow> custom({
+    Expression<String>? id,
+    Expression<int>? weightUnit,
+    Expression<int>? foodWeightUnit,
+    Expression<int>? fluidUnit,
+    Expression<int>? temperatureUnit,
+    Expression<int>? energyUnit,
+    Expression<int>? macroDisplay,
+    Expression<bool>? appLockEnabled,
+    Expression<bool>? biometricEnabled,
+    Expression<int>? autoLockMinutes,
+    Expression<bool>? hideInAppSwitcher,
+    Expression<bool>? allowBiometricBypassPin,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weightUnit != null) 'weight_unit': weightUnit,
+      if (foodWeightUnit != null) 'food_weight_unit': foodWeightUnit,
+      if (fluidUnit != null) 'fluid_unit': fluidUnit,
+      if (temperatureUnit != null) 'temperature_unit': temperatureUnit,
+      if (energyUnit != null) 'energy_unit': energyUnit,
+      if (macroDisplay != null) 'macro_display': macroDisplay,
+      if (appLockEnabled != null) 'app_lock_enabled': appLockEnabled,
+      if (biometricEnabled != null) 'biometric_enabled': biometricEnabled,
+      if (autoLockMinutes != null) 'auto_lock_minutes': autoLockMinutes,
+      if (hideInAppSwitcher != null) 'hide_in_app_switcher': hideInAppSwitcher,
+      if (allowBiometricBypassPin != null)
+        'allow_biometric_bypass_pin': allowBiometricBypassPin,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserSettingsTableCompanion copyWith({
+    Value<String>? id,
+    Value<int>? weightUnit,
+    Value<int>? foodWeightUnit,
+    Value<int>? fluidUnit,
+    Value<int>? temperatureUnit,
+    Value<int>? energyUnit,
+    Value<int>? macroDisplay,
+    Value<bool>? appLockEnabled,
+    Value<bool>? biometricEnabled,
+    Value<int>? autoLockMinutes,
+    Value<bool>? hideInAppSwitcher,
+    Value<bool>? allowBiometricBypassPin,
+    Value<int>? rowid,
+  }) {
+    return UserSettingsTableCompanion(
+      id: id ?? this.id,
+      weightUnit: weightUnit ?? this.weightUnit,
+      foodWeightUnit: foodWeightUnit ?? this.foodWeightUnit,
+      fluidUnit: fluidUnit ?? this.fluidUnit,
+      temperatureUnit: temperatureUnit ?? this.temperatureUnit,
+      energyUnit: energyUnit ?? this.energyUnit,
+      macroDisplay: macroDisplay ?? this.macroDisplay,
+      appLockEnabled: appLockEnabled ?? this.appLockEnabled,
+      biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
+      hideInAppSwitcher: hideInAppSwitcher ?? this.hideInAppSwitcher,
+      allowBiometricBypassPin:
+          allowBiometricBypassPin ?? this.allowBiometricBypassPin,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (weightUnit.present) {
+      map['weight_unit'] = Variable<int>(weightUnit.value);
+    }
+    if (foodWeightUnit.present) {
+      map['food_weight_unit'] = Variable<int>(foodWeightUnit.value);
+    }
+    if (fluidUnit.present) {
+      map['fluid_unit'] = Variable<int>(fluidUnit.value);
+    }
+    if (temperatureUnit.present) {
+      map['temperature_unit'] = Variable<int>(temperatureUnit.value);
+    }
+    if (energyUnit.present) {
+      map['energy_unit'] = Variable<int>(energyUnit.value);
+    }
+    if (macroDisplay.present) {
+      map['macro_display'] = Variable<int>(macroDisplay.value);
+    }
+    if (appLockEnabled.present) {
+      map['app_lock_enabled'] = Variable<bool>(appLockEnabled.value);
+    }
+    if (biometricEnabled.present) {
+      map['biometric_enabled'] = Variable<bool>(biometricEnabled.value);
+    }
+    if (autoLockMinutes.present) {
+      map['auto_lock_minutes'] = Variable<int>(autoLockMinutes.value);
+    }
+    if (hideInAppSwitcher.present) {
+      map['hide_in_app_switcher'] = Variable<bool>(hideInAppSwitcher.value);
+    }
+    if (allowBiometricBypassPin.present) {
+      map['allow_biometric_bypass_pin'] = Variable<bool>(
+        allowBiometricBypassPin.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserSettingsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('weightUnit: $weightUnit, ')
+          ..write('foodWeightUnit: $foodWeightUnit, ')
+          ..write('fluidUnit: $fluidUnit, ')
+          ..write('temperatureUnit: $temperatureUnit, ')
+          ..write('energyUnit: $energyUnit, ')
+          ..write('macroDisplay: $macroDisplay, ')
+          ..write('appLockEnabled: $appLockEnabled, ')
+          ..write('biometricEnabled: $biometricEnabled, ')
+          ..write('autoLockMinutes: $autoLockMinutes, ')
+          ..write('hideInAppSwitcher: $hideInAppSwitcher, ')
+          ..write('allowBiometricBypassPin: $allowBiometricBypassPin, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -21274,6 +22021,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $NotificationCategorySettingsTable notificationCategorySettings =
       $NotificationCategorySettingsTable(this);
+  late final $UserSettingsTableTable userSettingsTable =
+      $UserSettingsTableTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -21308,6 +22057,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final NotificationCategorySettingsDao notificationCategorySettingsDao =
       NotificationCategorySettingsDao(this as AppDatabase);
+  late final UserSettingsDao userSettingsDao = UserSettingsDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -21332,6 +22084,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncConflicts,
     anchorEventTimes,
     notificationCategorySettings,
+    userSettingsTable,
   ];
 }
 
@@ -30757,6 +31510,368 @@ typedef $$NotificationCategorySettingsTableProcessedTableManager =
       NotificationCategorySettingsRow,
       PrefetchHooks Function()
     >;
+typedef $$UserSettingsTableTableCreateCompanionBuilder =
+    UserSettingsTableCompanion Function({
+      required String id,
+      Value<int> weightUnit,
+      Value<int> foodWeightUnit,
+      Value<int> fluidUnit,
+      Value<int> temperatureUnit,
+      Value<int> energyUnit,
+      Value<int> macroDisplay,
+      Value<bool> appLockEnabled,
+      Value<bool> biometricEnabled,
+      Value<int> autoLockMinutes,
+      Value<bool> hideInAppSwitcher,
+      Value<bool> allowBiometricBypassPin,
+      Value<int> rowid,
+    });
+typedef $$UserSettingsTableTableUpdateCompanionBuilder =
+    UserSettingsTableCompanion Function({
+      Value<String> id,
+      Value<int> weightUnit,
+      Value<int> foodWeightUnit,
+      Value<int> fluidUnit,
+      Value<int> temperatureUnit,
+      Value<int> energyUnit,
+      Value<int> macroDisplay,
+      Value<bool> appLockEnabled,
+      Value<bool> biometricEnabled,
+      Value<int> autoLockMinutes,
+      Value<bool> hideInAppSwitcher,
+      Value<bool> allowBiometricBypassPin,
+      Value<int> rowid,
+    });
+
+class $$UserSettingsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $UserSettingsTableTable> {
+  $$UserSettingsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get weightUnit => $composableBuilder(
+    column: $table.weightUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get foodWeightUnit => $composableBuilder(
+    column: $table.foodWeightUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fluidUnit => $composableBuilder(
+    column: $table.fluidUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get energyUnit => $composableBuilder(
+    column: $table.energyUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get macroDisplay => $composableBuilder(
+    column: $table.macroDisplay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get appLockEnabled => $composableBuilder(
+    column: $table.appLockEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get biometricEnabled => $composableBuilder(
+    column: $table.biometricEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get autoLockMinutes => $composableBuilder(
+    column: $table.autoLockMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hideInAppSwitcher => $composableBuilder(
+    column: $table.hideInAppSwitcher,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allowBiometricBypassPin => $composableBuilder(
+    column: $table.allowBiometricBypassPin,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UserSettingsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserSettingsTableTable> {
+  $$UserSettingsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get weightUnit => $composableBuilder(
+    column: $table.weightUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get foodWeightUnit => $composableBuilder(
+    column: $table.foodWeightUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fluidUnit => $composableBuilder(
+    column: $table.fluidUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get energyUnit => $composableBuilder(
+    column: $table.energyUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get macroDisplay => $composableBuilder(
+    column: $table.macroDisplay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get appLockEnabled => $composableBuilder(
+    column: $table.appLockEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get biometricEnabled => $composableBuilder(
+    column: $table.biometricEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get autoLockMinutes => $composableBuilder(
+    column: $table.autoLockMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hideInAppSwitcher => $composableBuilder(
+    column: $table.hideInAppSwitcher,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allowBiometricBypassPin => $composableBuilder(
+    column: $table.allowBiometricBypassPin,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UserSettingsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserSettingsTableTable> {
+  $$UserSettingsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get weightUnit => $composableBuilder(
+    column: $table.weightUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get foodWeightUnit => $composableBuilder(
+    column: $table.foodWeightUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get fluidUnit =>
+      $composableBuilder(column: $table.fluidUnit, builder: (column) => column);
+
+  GeneratedColumn<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get energyUnit => $composableBuilder(
+    column: $table.energyUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get macroDisplay => $composableBuilder(
+    column: $table.macroDisplay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get appLockEnabled => $composableBuilder(
+    column: $table.appLockEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get biometricEnabled => $composableBuilder(
+    column: $table.biometricEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get autoLockMinutes => $composableBuilder(
+    column: $table.autoLockMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hideInAppSwitcher => $composableBuilder(
+    column: $table.hideInAppSwitcher,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get allowBiometricBypassPin => $composableBuilder(
+    column: $table.allowBiometricBypassPin,
+    builder: (column) => column,
+  );
+}
+
+class $$UserSettingsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserSettingsTableTable,
+          UserSettingsRow,
+          $$UserSettingsTableTableFilterComposer,
+          $$UserSettingsTableTableOrderingComposer,
+          $$UserSettingsTableTableAnnotationComposer,
+          $$UserSettingsTableTableCreateCompanionBuilder,
+          $$UserSettingsTableTableUpdateCompanionBuilder,
+          (
+            UserSettingsRow,
+            BaseReferences<
+              _$AppDatabase,
+              $UserSettingsTableTable,
+              UserSettingsRow
+            >,
+          ),
+          UserSettingsRow,
+          PrefetchHooks Function()
+        > {
+  $$UserSettingsTableTableTableManager(
+    _$AppDatabase db,
+    $UserSettingsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserSettingsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserSettingsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserSettingsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> weightUnit = const Value.absent(),
+                Value<int> foodWeightUnit = const Value.absent(),
+                Value<int> fluidUnit = const Value.absent(),
+                Value<int> temperatureUnit = const Value.absent(),
+                Value<int> energyUnit = const Value.absent(),
+                Value<int> macroDisplay = const Value.absent(),
+                Value<bool> appLockEnabled = const Value.absent(),
+                Value<bool> biometricEnabled = const Value.absent(),
+                Value<int> autoLockMinutes = const Value.absent(),
+                Value<bool> hideInAppSwitcher = const Value.absent(),
+                Value<bool> allowBiometricBypassPin = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserSettingsTableCompanion(
+                id: id,
+                weightUnit: weightUnit,
+                foodWeightUnit: foodWeightUnit,
+                fluidUnit: fluidUnit,
+                temperatureUnit: temperatureUnit,
+                energyUnit: energyUnit,
+                macroDisplay: macroDisplay,
+                appLockEnabled: appLockEnabled,
+                biometricEnabled: biometricEnabled,
+                autoLockMinutes: autoLockMinutes,
+                hideInAppSwitcher: hideInAppSwitcher,
+                allowBiometricBypassPin: allowBiometricBypassPin,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<int> weightUnit = const Value.absent(),
+                Value<int> foodWeightUnit = const Value.absent(),
+                Value<int> fluidUnit = const Value.absent(),
+                Value<int> temperatureUnit = const Value.absent(),
+                Value<int> energyUnit = const Value.absent(),
+                Value<int> macroDisplay = const Value.absent(),
+                Value<bool> appLockEnabled = const Value.absent(),
+                Value<bool> biometricEnabled = const Value.absent(),
+                Value<int> autoLockMinutes = const Value.absent(),
+                Value<bool> hideInAppSwitcher = const Value.absent(),
+                Value<bool> allowBiometricBypassPin = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserSettingsTableCompanion.insert(
+                id: id,
+                weightUnit: weightUnit,
+                foodWeightUnit: foodWeightUnit,
+                fluidUnit: fluidUnit,
+                temperatureUnit: temperatureUnit,
+                energyUnit: energyUnit,
+                macroDisplay: macroDisplay,
+                appLockEnabled: appLockEnabled,
+                biometricEnabled: biometricEnabled,
+                autoLockMinutes: autoLockMinutes,
+                hideInAppSwitcher: hideInAppSwitcher,
+                allowBiometricBypassPin: allowBiometricBypassPin,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UserSettingsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserSettingsTableTable,
+      UserSettingsRow,
+      $$UserSettingsTableTableFilterComposer,
+      $$UserSettingsTableTableOrderingComposer,
+      $$UserSettingsTableTableAnnotationComposer,
+      $$UserSettingsTableTableCreateCompanionBuilder,
+      $$UserSettingsTableTableUpdateCompanionBuilder,
+      (
+        UserSettingsRow,
+        BaseReferences<_$AppDatabase, $UserSettingsTableTable, UserSettingsRow>,
+      ),
+      UserSettingsRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -30803,4 +31918,6 @@ class $AppDatabaseManager {
         _db,
         _db.notificationCategorySettings,
       );
+  $$UserSettingsTableTableTableManager get userSettingsTable =>
+      $$UserSettingsTableTableTableManager(_db, _db.userSettingsTable);
 }

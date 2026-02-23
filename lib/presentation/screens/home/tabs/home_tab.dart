@@ -12,6 +12,7 @@ import 'package:shadow_app/presentation/screens/food_logs/food_log_screen.dart';
 import 'package:shadow_app/presentation/screens/journal_entries/journal_entry_list_screen.dart';
 import 'package:shadow_app/presentation/screens/photo_areas/photo_area_list_screen.dart';
 import 'package:shadow_app/presentation/screens/profiles/profiles_screen.dart';
+import 'package:shadow_app/presentation/screens/settings/settings_screen.dart';
 import 'package:shadow_app/presentation/screens/sleep_entries/sleep_entry_edit_screen.dart';
 import 'package:shadow_app/presentation/screens/supplements/supplement_list_screen.dart';
 
@@ -269,7 +270,11 @@ class HomeTab extends ConsumerWidget {
                 onPressed: () =>
                     _navigateTo(context, const CloudSyncSettingsScreen()),
               ),
-              const Icon(Icons.settings, color: Colors.indigo),
+              IconButton(
+                icon: const Icon(Icons.settings, color: Colors.indigo),
+                tooltip: 'Settings',
+                onPressed: () => _navigateTo(context, const SettingsScreen()),
+              ),
             ],
           ),
         ),

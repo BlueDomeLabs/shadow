@@ -6,10 +6,13 @@ import 'package:shadow_app/core/bootstrap.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
+import 'package:shadow_app/presentation/providers/settings/security_provider.dart';
+import 'package:shadow_app/presentation/providers/settings/user_settings_provider.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/access_revoked_screen.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/guest_disclaimer_dialog.dart';
 import 'package:shadow_app/presentation/screens/home/home_screen.dart';
 import 'package:shadow_app/presentation/screens/profiles/welcome_screen.dart';
+import 'package:shadow_app/presentation/screens/settings/lock_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +46,8 @@ class ShadowApp extends ConsumerWidget {
       home: state.profiles.isEmpty && !guestMode.isGuestMode
           ? const WelcomeScreen()
           : const HomeScreen(),
-      builder: (context, child) => _GuestDisclaimerGuard(child: child!),
+      builder: (context, child) =>
+          _LockScreenGuard(child: _GuestDisclaimerGuard(child: child!)),
     );
   }
 
@@ -51,6 +55,23 @@ class ShadowApp extends ConsumerWidget {
     colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
     useMaterial3: true,
   );
+}
+
+/// Widget that shows the lock screen when the app is locked.
+class _LockScreenGuard extends ConsumerWidget {
+  final Widget child;
+
+  const _LockScreenGuard({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final security = ref.watch(securityProvider);
+    final settings = ref.watch(userSettingsNotifierProvider).valueOrNull;
+    if (settings != null && settings.appLockEnabled && security.isLocked) {
+      return const LockScreen();
+    }
+    return child;
+  }
 }
 
 /// Widget that shows the guest disclaimer dialog when needed.

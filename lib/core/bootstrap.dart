@@ -10,6 +10,7 @@ import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
+import 'package:shadow_app/core/services/security_settings_service.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
 import 'package:shadow_app/data/notifications/notification_scheduler_impl.dart';
@@ -31,6 +32,7 @@ import 'package:shadow_app/data/repositories/photo_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/profile_repository_impl.dart';
 import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
+import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/entities.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
@@ -144,6 +146,7 @@ Future<List<Override>> bootstrap() async {
   final notificationSettingsRepo = NotificationCategorySettingsRepositoryImpl(
     database.notificationCategorySettingsDao,
   );
+  final userSettingsRepo = UserSettingsRepositoryImpl(database.userSettingsDao);
 
   // 6. Create encryption service and initialize key
   final encryptionService = EncryptionService(
@@ -266,12 +269,15 @@ Future<List<Override>> bootstrap() async {
   );
   await seedService.seedDefaults();
 
-  // 11. Create guest access services
+  // 11. Create security service
+  final securityService = SecuritySettingsService();
+
+  // 13. Create guest access services
   final deepLinkService = DeepLinkService();
   final guestTokenService = GuestTokenService(guestInviteRepo);
   final guestSyncValidator = GuestSyncValidator(guestTokenService);
 
-  // 12. Initialize platform notification plugin, tap handler, and scheduler
+  // 14. Initialize platform notification plugin, tap handler, and scheduler
   final tapHandler = NotificationTapHandler();
   final plugin = FlutterLocalNotificationsPlugin();
   await plugin.initialize(
@@ -286,7 +292,7 @@ Future<List<Override>> bootstrap() async {
   final scheduler = NotificationSchedulerImpl(plugin);
   final permissionService = NotificationPermissionService(plugin);
 
-  // 13. Return provider overrides for all repos + services
+  // 15. Return provider overrides for all repos + services
   return [
     // Repositories
     supplementRepositoryProvider.overrideWithValue(supplementRepo),
@@ -309,11 +315,13 @@ Future<List<Override>> bootstrap() async {
     notificationCategorySettingsRepositoryProvider.overrideWithValue(
       notificationSettingsRepo,
     ),
+    userSettingsRepositoryProvider.overrideWithValue(userSettingsRepo),
     // Services
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),
     googleDriveProviderProvider.overrideWithValue(googleDriveProvider),
     syncServiceProvider.overrideWithValue(syncService),
+    securityServiceProvider.overrideWithValue(securityService),
     // Guest access services
     deepLinkServiceProvider.overrideWithValue(deepLinkService),
     guestTokenServiceProvider.overrideWithValue(guestTokenService),

@@ -30,6 +30,7 @@ import 'package:shadow_app/data/datasources/local/daos/profile_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/user_settings_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/anchor_event_times_table.dart';
@@ -49,6 +50,7 @@ import 'package:shadow_app/data/datasources/local/tables/profiles_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sync_conflicts_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/user_settings_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
@@ -88,6 +90,7 @@ part 'database.g.dart';
     SyncConflicts,
     AnchorEventTimes,
     NotificationCategorySettings,
+    UserSettingsTable,
   ],
   daos: [
     SupplementDao,
@@ -109,6 +112,7 @@ part 'database.g.dart';
     SyncConflictDao,
     AnchorEventTimeDao,
     NotificationCategorySettingsDao,
+    UserSettingsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -132,8 +136,9 @@ class AppDatabase extends _$AppDatabase {
   /// v10: Added profiles table (Phase 11)
   /// v11: Added guest_invites table (Phase 12a)
   /// v12: Added anchor_event_times and notification_category_settings tables (Phase 13a)
+  /// v13: Added user_settings table (Phase 14)
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   /// Migration strategy for schema changes.
   ///
@@ -179,6 +184,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 12) {
         await m.createTable(anchorEventTimes);
         await m.createTable(notificationCategorySettings);
+      }
+
+      // v13: Add user_settings table (Phase 14)
+      if (from < 13) {
+        await m.createTable(userSettingsTable);
       }
     },
     beforeOpen: (details) async {

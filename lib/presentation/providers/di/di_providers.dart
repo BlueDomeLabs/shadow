@@ -14,10 +14,12 @@ import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Repositories
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
+import 'package:shadow_app/domain/repositories/user_settings_repository.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/services/notification_schedule_service.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
+import 'package:shadow_app/domain/services/security_service.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
 // Use Cases - Activities
 import 'package:shadow_app/domain/usecases/activities/activities_usecases.dart';
@@ -56,6 +58,9 @@ import 'package:shadow_app/domain/usecases/notifications/update_notification_cat
 import 'package:shadow_app/domain/usecases/photo_areas/photo_areas_usecases.dart';
 // Use Cases - Photo Entries
 import 'package:shadow_app/domain/usecases/photo_entries/photo_entries_usecases.dart';
+// Use Cases - Settings
+import 'package:shadow_app/domain/usecases/settings/get_user_settings_use_case.dart';
+import 'package:shadow_app/domain/usecases/settings/update_user_settings_use_case.dart';
 // Use Cases - Sleep Entries
 import 'package:shadow_app/domain/usecases/sleep_entries/sleep_entries_usecases.dart';
 // Use Cases - Supplements
@@ -291,6 +296,20 @@ NotificationPermissionService notificationPermissionService(Ref ref) {
   throw UnimplementedError(
     'Override notificationPermissionServiceProvider in ProviderScope',
   );
+}
+
+/// UserSettings repository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+UserSettingsRepository userSettingsRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override userSettingsRepositoryProvider in ProviderScope',
+  );
+}
+
+/// SecurityService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+SecurityService securityService(Ref ref) {
+  throw UnimplementedError('Override securityServiceProvider in ProviderScope');
 }
 
 // =============================================================================
@@ -852,3 +871,17 @@ ScheduleNotificationsUseCase scheduleNotificationsUseCase(Ref ref) =>
 @riverpod
 CancelNotificationsUseCase cancelNotificationsUseCase(Ref ref) =>
     CancelNotificationsUseCase(ref.read(notificationSchedulerProvider));
+
+// =============================================================================
+// USE CASES - SETTINGS (2)
+// =============================================================================
+
+/// GetUserSettingsUseCase provider.
+@riverpod
+GetUserSettingsUseCase getUserSettingsUseCase(Ref ref) =>
+    GetUserSettingsUseCase(ref.read(userSettingsRepositoryProvider));
+
+/// UpdateUserSettingsUseCase provider.
+@riverpod
+UpdateUserSettingsUseCase updateUserSettingsUseCase(Ref ref) =>
+    UpdateUserSettingsUseCase(ref.read(userSettingsRepositoryProvider));
