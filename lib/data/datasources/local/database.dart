@@ -13,6 +13,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shadow_app/data/datasources/local/daos/activity_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/activity_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/anchor_event_time_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/flare_up_dao.dart';
@@ -22,6 +23,7 @@ import 'package:shadow_app/data/datasources/local/daos/food_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/guest_invite_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/journal_entry_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/notification_category_settings_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_area_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/profile_dao.dart';
@@ -30,6 +32,7 @@ import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/anchor_event_times_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/flare_ups_table.dart';
@@ -39,6 +42,7 @@ import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/guest_invites_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/journal_entries_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/notification_category_settings_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/photo_areas_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/photo_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/profiles_table.dart';
@@ -82,6 +86,8 @@ part 'database.g.dart';
     Profiles,
     GuestInvites,
     SyncConflicts,
+    AnchorEventTimes,
+    NotificationCategorySettings,
   ],
   daos: [
     SupplementDao,
@@ -101,6 +107,8 @@ part 'database.g.dart';
     ProfileDao,
     GuestInviteDao,
     SyncConflictDao,
+    AnchorEventTimeDao,
+    NotificationCategorySettingsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -123,8 +131,9 @@ class AppDatabase extends _$AppDatabase {
   /// v9: Added custom_dosage_unit column to supplements table
   /// v10: Added profiles table (Phase 11)
   /// v11: Added guest_invites table (Phase 12a)
+  /// v12: Added anchor_event_times and notification_category_settings tables (Phase 13a)
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   /// Migration strategy for schema changes.
   ///
@@ -164,6 +173,12 @@ class AppDatabase extends _$AppDatabase {
       // v11: Add guest_invites table (Phase 12a)
       if (from < 11) {
         await m.createTable(guestInvites);
+      }
+
+      // v12: Add notification tables (Phase 13a)
+      if (from < 12) {
+        await m.createTable(anchorEventTimes);
+        await m.createTable(notificationCategorySettings);
       }
     },
     beforeOpen: (details) async {

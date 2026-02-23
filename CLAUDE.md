@@ -137,11 +137,15 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
   - [x] 12c. Connectivity: Deep link handling, token validation, one-device limit, Access Revoked screen, sync validator — 45 new tests
   - [x] 12d. Integration testing: Full end-to-end test pass, disclaimer verification — 24 new tests
 - **Phase 13: Notification System** — See 57_NOTIFICATION_SYSTEM.md. Active two-way notifications for all reporting categories with two scheduling modes: Anchor Events and Interval/Specific Times. Implement after Phase 12.
+  - [x] 13a. Data foundation: AnchorEventTime + NotificationCategorySettings entities, DAOs, repositories, 4 use cases, NotificationSeedService, schema v12 — 86 new tests
+  - [ ] 13b. Scheduler engine: notification scheduling logic, anchor-event-based and interval/specific-time triggering
+  - [ ] 13c. Platform integration: flutter_local_notifications wiring, permission requests, test notifications
+  - [ ] 13d. Settings screens: Notification Settings UI (per 58_SETTINGS_SCREENS.md)
 - **Phase 14: Settings Screens** — See 58_SETTINGS_SCREENS.md. Notification Settings, Units Settings, Security Settings (all optional). Implement after Phase 13.
 - **Phase 15a: Food Database Extension + Supplement Extension** — See 59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md. Food: adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table. Supplements: adds barcode scan (NIH DSLD), label photo scan (Claude API), source and price fields, label photo storage. Both specs implement together in a single v11→v12 migration. Implement before Phase 15b.
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
 
-### Test Count: 2492 passing | Analyzer: clean | Schema: v11
+### Test Count: 2578 passing | Analyzer: clean | Schema: v12
 
 ---
 

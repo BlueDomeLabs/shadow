@@ -20275,6 +20275,980 @@ class SyncConflictsCompanion extends UpdateCompanion<SyncConflictRow> {
   }
 }
 
+class $AnchorEventTimesTable extends AnchorEventTimes
+    with TableInfo<$AnchorEventTimesTable, AnchorEventTimeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnchorEventTimesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<int> name = GeneratedColumn<int>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeOfDayMeta = const VerificationMeta(
+    'timeOfDay',
+  );
+  @override
+  late final GeneratedColumn<String> timeOfDay = GeneratedColumn<String>(
+    'time_of_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isEnabledMeta = const VerificationMeta(
+    'isEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+    'is_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, timeOfDay, isEnabled];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'anchor_event_times';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AnchorEventTimeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('time_of_day')) {
+      context.handle(
+        _timeOfDayMeta,
+        timeOfDay.isAcceptableOrUnknown(data['time_of_day']!, _timeOfDayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timeOfDayMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(
+        _isEnabledMeta,
+        isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnchorEventTimeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnchorEventTimeRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}name'],
+      )!,
+      timeOfDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_of_day'],
+      )!,
+      isEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_enabled'],
+      )!,
+    );
+  }
+
+  @override
+  $AnchorEventTimesTable createAlias(String alias) {
+    return $AnchorEventTimesTable(attachedDatabase, alias);
+  }
+}
+
+class AnchorEventTimeRow extends DataClass
+    implements Insertable<AnchorEventTimeRow> {
+  final String id;
+  final int name;
+  final String timeOfDay;
+  final bool isEnabled;
+  const AnchorEventTimeRow({
+    required this.id,
+    required this.name,
+    required this.timeOfDay,
+    required this.isEnabled,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<int>(name);
+    map['time_of_day'] = Variable<String>(timeOfDay);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    return map;
+  }
+
+  AnchorEventTimesCompanion toCompanion(bool nullToAbsent) {
+    return AnchorEventTimesCompanion(
+      id: Value(id),
+      name: Value(name),
+      timeOfDay: Value(timeOfDay),
+      isEnabled: Value(isEnabled),
+    );
+  }
+
+  factory AnchorEventTimeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnchorEventTimeRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<int>(json['name']),
+      timeOfDay: serializer.fromJson<String>(json['timeOfDay']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<int>(name),
+      'timeOfDay': serializer.toJson<String>(timeOfDay),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+    };
+  }
+
+  AnchorEventTimeRow copyWith({
+    String? id,
+    int? name,
+    String? timeOfDay,
+    bool? isEnabled,
+  }) => AnchorEventTimeRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    timeOfDay: timeOfDay ?? this.timeOfDay,
+    isEnabled: isEnabled ?? this.isEnabled,
+  );
+  AnchorEventTimeRow copyWithCompanion(AnchorEventTimesCompanion data) {
+    return AnchorEventTimeRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      timeOfDay: data.timeOfDay.present ? data.timeOfDay.value : this.timeOfDay,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnchorEventTimeRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('timeOfDay: $timeOfDay, ')
+          ..write('isEnabled: $isEnabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, timeOfDay, isEnabled);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnchorEventTimeRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.timeOfDay == this.timeOfDay &&
+          other.isEnabled == this.isEnabled);
+}
+
+class AnchorEventTimesCompanion extends UpdateCompanion<AnchorEventTimeRow> {
+  final Value<String> id;
+  final Value<int> name;
+  final Value<String> timeOfDay;
+  final Value<bool> isEnabled;
+  final Value<int> rowid;
+  const AnchorEventTimesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.timeOfDay = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AnchorEventTimesCompanion.insert({
+    required String id,
+    required int name,
+    required String timeOfDay,
+    this.isEnabled = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       timeOfDay = Value(timeOfDay);
+  static Insertable<AnchorEventTimeRow> custom({
+    Expression<String>? id,
+    Expression<int>? name,
+    Expression<String>? timeOfDay,
+    Expression<bool>? isEnabled,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (timeOfDay != null) 'time_of_day': timeOfDay,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AnchorEventTimesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? name,
+    Value<String>? timeOfDay,
+    Value<bool>? isEnabled,
+    Value<int>? rowid,
+  }) {
+    return AnchorEventTimesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      timeOfDay: timeOfDay ?? this.timeOfDay,
+      isEnabled: isEnabled ?? this.isEnabled,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<int>(name.value);
+    }
+    if (timeOfDay.present) {
+      map['time_of_day'] = Variable<String>(timeOfDay.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnchorEventTimesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('timeOfDay: $timeOfDay, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NotificationCategorySettingsTable extends NotificationCategorySettings
+    with
+        TableInfo<
+          $NotificationCategorySettingsTable,
+          NotificationCategorySettingsRow
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotificationCategorySettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<int> category = GeneratedColumn<int>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isEnabledMeta = const VerificationMeta(
+    'isEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+    'is_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _schedulingModeMeta = const VerificationMeta(
+    'schedulingMode',
+  );
+  @override
+  late final GeneratedColumn<int> schedulingMode = GeneratedColumn<int>(
+    'scheduling_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _anchorEventValuesMeta = const VerificationMeta(
+    'anchorEventValues',
+  );
+  @override
+  late final GeneratedColumn<String> anchorEventValues =
+      GeneratedColumn<String>(
+        'anchor_event_values',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _intervalHoursMeta = const VerificationMeta(
+    'intervalHours',
+  );
+  @override
+  late final GeneratedColumn<int> intervalHours = GeneratedColumn<int>(
+    'interval_hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _intervalStartTimeMeta = const VerificationMeta(
+    'intervalStartTime',
+  );
+  @override
+  late final GeneratedColumn<String> intervalStartTime =
+      GeneratedColumn<String>(
+        'interval_start_time',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _intervalEndTimeMeta = const VerificationMeta(
+    'intervalEndTime',
+  );
+  @override
+  late final GeneratedColumn<String> intervalEndTime = GeneratedColumn<String>(
+    'interval_end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _specificTimesMeta = const VerificationMeta(
+    'specificTimes',
+  );
+  @override
+  late final GeneratedColumn<String> specificTimes = GeneratedColumn<String>(
+    'specific_times',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _expiresAfterMinutesMeta =
+      const VerificationMeta('expiresAfterMinutes');
+  @override
+  late final GeneratedColumn<int> expiresAfterMinutes = GeneratedColumn<int>(
+    'expires_after_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(60),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    category,
+    isEnabled,
+    schedulingMode,
+    anchorEventValues,
+    intervalHours,
+    intervalStartTime,
+    intervalEndTime,
+    specificTimes,
+    expiresAfterMinutes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notification_category_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NotificationCategorySettingsRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(
+        _isEnabledMeta,
+        isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta),
+      );
+    }
+    if (data.containsKey('scheduling_mode')) {
+      context.handle(
+        _schedulingModeMeta,
+        schedulingMode.isAcceptableOrUnknown(
+          data['scheduling_mode']!,
+          _schedulingModeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_schedulingModeMeta);
+    }
+    if (data.containsKey('anchor_event_values')) {
+      context.handle(
+        _anchorEventValuesMeta,
+        anchorEventValues.isAcceptableOrUnknown(
+          data['anchor_event_values']!,
+          _anchorEventValuesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('interval_hours')) {
+      context.handle(
+        _intervalHoursMeta,
+        intervalHours.isAcceptableOrUnknown(
+          data['interval_hours']!,
+          _intervalHoursMeta,
+        ),
+      );
+    }
+    if (data.containsKey('interval_start_time')) {
+      context.handle(
+        _intervalStartTimeMeta,
+        intervalStartTime.isAcceptableOrUnknown(
+          data['interval_start_time']!,
+          _intervalStartTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('interval_end_time')) {
+      context.handle(
+        _intervalEndTimeMeta,
+        intervalEndTime.isAcceptableOrUnknown(
+          data['interval_end_time']!,
+          _intervalEndTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('specific_times')) {
+      context.handle(
+        _specificTimesMeta,
+        specificTimes.isAcceptableOrUnknown(
+          data['specific_times']!,
+          _specificTimesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('expires_after_minutes')) {
+      context.handle(
+        _expiresAfterMinutesMeta,
+        expiresAfterMinutes.isAcceptableOrUnknown(
+          data['expires_after_minutes']!,
+          _expiresAfterMinutesMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NotificationCategorySettingsRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NotificationCategorySettingsRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}category'],
+      )!,
+      isEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_enabled'],
+      )!,
+      schedulingMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}scheduling_mode'],
+      )!,
+      anchorEventValues: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}anchor_event_values'],
+      )!,
+      intervalHours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interval_hours'],
+      ),
+      intervalStartTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}interval_start_time'],
+      ),
+      intervalEndTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}interval_end_time'],
+      ),
+      specificTimes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}specific_times'],
+      )!,
+      expiresAfterMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_after_minutes'],
+      )!,
+    );
+  }
+
+  @override
+  $NotificationCategorySettingsTable createAlias(String alias) {
+    return $NotificationCategorySettingsTable(attachedDatabase, alias);
+  }
+}
+
+class NotificationCategorySettingsRow extends DataClass
+    implements Insertable<NotificationCategorySettingsRow> {
+  final String id;
+  final int category;
+  final bool isEnabled;
+  final int schedulingMode;
+  final String anchorEventValues;
+  final int? intervalHours;
+  final String? intervalStartTime;
+  final String? intervalEndTime;
+  final String specificTimes;
+  final int expiresAfterMinutes;
+  const NotificationCategorySettingsRow({
+    required this.id,
+    required this.category,
+    required this.isEnabled,
+    required this.schedulingMode,
+    required this.anchorEventValues,
+    this.intervalHours,
+    this.intervalStartTime,
+    this.intervalEndTime,
+    required this.specificTimes,
+    required this.expiresAfterMinutes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['category'] = Variable<int>(category);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    map['scheduling_mode'] = Variable<int>(schedulingMode);
+    map['anchor_event_values'] = Variable<String>(anchorEventValues);
+    if (!nullToAbsent || intervalHours != null) {
+      map['interval_hours'] = Variable<int>(intervalHours);
+    }
+    if (!nullToAbsent || intervalStartTime != null) {
+      map['interval_start_time'] = Variable<String>(intervalStartTime);
+    }
+    if (!nullToAbsent || intervalEndTime != null) {
+      map['interval_end_time'] = Variable<String>(intervalEndTime);
+    }
+    map['specific_times'] = Variable<String>(specificTimes);
+    map['expires_after_minutes'] = Variable<int>(expiresAfterMinutes);
+    return map;
+  }
+
+  NotificationCategorySettingsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationCategorySettingsCompanion(
+      id: Value(id),
+      category: Value(category),
+      isEnabled: Value(isEnabled),
+      schedulingMode: Value(schedulingMode),
+      anchorEventValues: Value(anchorEventValues),
+      intervalHours: intervalHours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(intervalHours),
+      intervalStartTime: intervalStartTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(intervalStartTime),
+      intervalEndTime: intervalEndTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(intervalEndTime),
+      specificTimes: Value(specificTimes),
+      expiresAfterMinutes: Value(expiresAfterMinutes),
+    );
+  }
+
+  factory NotificationCategorySettingsRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NotificationCategorySettingsRow(
+      id: serializer.fromJson<String>(json['id']),
+      category: serializer.fromJson<int>(json['category']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+      schedulingMode: serializer.fromJson<int>(json['schedulingMode']),
+      anchorEventValues: serializer.fromJson<String>(json['anchorEventValues']),
+      intervalHours: serializer.fromJson<int?>(json['intervalHours']),
+      intervalStartTime: serializer.fromJson<String?>(
+        json['intervalStartTime'],
+      ),
+      intervalEndTime: serializer.fromJson<String?>(json['intervalEndTime']),
+      specificTimes: serializer.fromJson<String>(json['specificTimes']),
+      expiresAfterMinutes: serializer.fromJson<int>(
+        json['expiresAfterMinutes'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'category': serializer.toJson<int>(category),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+      'schedulingMode': serializer.toJson<int>(schedulingMode),
+      'anchorEventValues': serializer.toJson<String>(anchorEventValues),
+      'intervalHours': serializer.toJson<int?>(intervalHours),
+      'intervalStartTime': serializer.toJson<String?>(intervalStartTime),
+      'intervalEndTime': serializer.toJson<String?>(intervalEndTime),
+      'specificTimes': serializer.toJson<String>(specificTimes),
+      'expiresAfterMinutes': serializer.toJson<int>(expiresAfterMinutes),
+    };
+  }
+
+  NotificationCategorySettingsRow copyWith({
+    String? id,
+    int? category,
+    bool? isEnabled,
+    int? schedulingMode,
+    String? anchorEventValues,
+    Value<int?> intervalHours = const Value.absent(),
+    Value<String?> intervalStartTime = const Value.absent(),
+    Value<String?> intervalEndTime = const Value.absent(),
+    String? specificTimes,
+    int? expiresAfterMinutes,
+  }) => NotificationCategorySettingsRow(
+    id: id ?? this.id,
+    category: category ?? this.category,
+    isEnabled: isEnabled ?? this.isEnabled,
+    schedulingMode: schedulingMode ?? this.schedulingMode,
+    anchorEventValues: anchorEventValues ?? this.anchorEventValues,
+    intervalHours: intervalHours.present
+        ? intervalHours.value
+        : this.intervalHours,
+    intervalStartTime: intervalStartTime.present
+        ? intervalStartTime.value
+        : this.intervalStartTime,
+    intervalEndTime: intervalEndTime.present
+        ? intervalEndTime.value
+        : this.intervalEndTime,
+    specificTimes: specificTimes ?? this.specificTimes,
+    expiresAfterMinutes: expiresAfterMinutes ?? this.expiresAfterMinutes,
+  );
+  NotificationCategorySettingsRow copyWithCompanion(
+    NotificationCategorySettingsCompanion data,
+  ) {
+    return NotificationCategorySettingsRow(
+      id: data.id.present ? data.id.value : this.id,
+      category: data.category.present ? data.category.value : this.category,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+      schedulingMode: data.schedulingMode.present
+          ? data.schedulingMode.value
+          : this.schedulingMode,
+      anchorEventValues: data.anchorEventValues.present
+          ? data.anchorEventValues.value
+          : this.anchorEventValues,
+      intervalHours: data.intervalHours.present
+          ? data.intervalHours.value
+          : this.intervalHours,
+      intervalStartTime: data.intervalStartTime.present
+          ? data.intervalStartTime.value
+          : this.intervalStartTime,
+      intervalEndTime: data.intervalEndTime.present
+          ? data.intervalEndTime.value
+          : this.intervalEndTime,
+      specificTimes: data.specificTimes.present
+          ? data.specificTimes.value
+          : this.specificTimes,
+      expiresAfterMinutes: data.expiresAfterMinutes.present
+          ? data.expiresAfterMinutes.value
+          : this.expiresAfterMinutes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationCategorySettingsRow(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('schedulingMode: $schedulingMode, ')
+          ..write('anchorEventValues: $anchorEventValues, ')
+          ..write('intervalHours: $intervalHours, ')
+          ..write('intervalStartTime: $intervalStartTime, ')
+          ..write('intervalEndTime: $intervalEndTime, ')
+          ..write('specificTimes: $specificTimes, ')
+          ..write('expiresAfterMinutes: $expiresAfterMinutes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    category,
+    isEnabled,
+    schedulingMode,
+    anchorEventValues,
+    intervalHours,
+    intervalStartTime,
+    intervalEndTime,
+    specificTimes,
+    expiresAfterMinutes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NotificationCategorySettingsRow &&
+          other.id == this.id &&
+          other.category == this.category &&
+          other.isEnabled == this.isEnabled &&
+          other.schedulingMode == this.schedulingMode &&
+          other.anchorEventValues == this.anchorEventValues &&
+          other.intervalHours == this.intervalHours &&
+          other.intervalStartTime == this.intervalStartTime &&
+          other.intervalEndTime == this.intervalEndTime &&
+          other.specificTimes == this.specificTimes &&
+          other.expiresAfterMinutes == this.expiresAfterMinutes);
+}
+
+class NotificationCategorySettingsCompanion
+    extends UpdateCompanion<NotificationCategorySettingsRow> {
+  final Value<String> id;
+  final Value<int> category;
+  final Value<bool> isEnabled;
+  final Value<int> schedulingMode;
+  final Value<String> anchorEventValues;
+  final Value<int?> intervalHours;
+  final Value<String?> intervalStartTime;
+  final Value<String?> intervalEndTime;
+  final Value<String> specificTimes;
+  final Value<int> expiresAfterMinutes;
+  final Value<int> rowid;
+  const NotificationCategorySettingsCompanion({
+    this.id = const Value.absent(),
+    this.category = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+    this.schedulingMode = const Value.absent(),
+    this.anchorEventValues = const Value.absent(),
+    this.intervalHours = const Value.absent(),
+    this.intervalStartTime = const Value.absent(),
+    this.intervalEndTime = const Value.absent(),
+    this.specificTimes = const Value.absent(),
+    this.expiresAfterMinutes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationCategorySettingsCompanion.insert({
+    required String id,
+    required int category,
+    this.isEnabled = const Value.absent(),
+    required int schedulingMode,
+    this.anchorEventValues = const Value.absent(),
+    this.intervalHours = const Value.absent(),
+    this.intervalStartTime = const Value.absent(),
+    this.intervalEndTime = const Value.absent(),
+    this.specificTimes = const Value.absent(),
+    this.expiresAfterMinutes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       category = Value(category),
+       schedulingMode = Value(schedulingMode);
+  static Insertable<NotificationCategorySettingsRow> custom({
+    Expression<String>? id,
+    Expression<int>? category,
+    Expression<bool>? isEnabled,
+    Expression<int>? schedulingMode,
+    Expression<String>? anchorEventValues,
+    Expression<int>? intervalHours,
+    Expression<String>? intervalStartTime,
+    Expression<String>? intervalEndTime,
+    Expression<String>? specificTimes,
+    Expression<int>? expiresAfterMinutes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (category != null) 'category': category,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (schedulingMode != null) 'scheduling_mode': schedulingMode,
+      if (anchorEventValues != null) 'anchor_event_values': anchorEventValues,
+      if (intervalHours != null) 'interval_hours': intervalHours,
+      if (intervalStartTime != null) 'interval_start_time': intervalStartTime,
+      if (intervalEndTime != null) 'interval_end_time': intervalEndTime,
+      if (specificTimes != null) 'specific_times': specificTimes,
+      if (expiresAfterMinutes != null)
+        'expires_after_minutes': expiresAfterMinutes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationCategorySettingsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? category,
+    Value<bool>? isEnabled,
+    Value<int>? schedulingMode,
+    Value<String>? anchorEventValues,
+    Value<int?>? intervalHours,
+    Value<String?>? intervalStartTime,
+    Value<String?>? intervalEndTime,
+    Value<String>? specificTimes,
+    Value<int>? expiresAfterMinutes,
+    Value<int>? rowid,
+  }) {
+    return NotificationCategorySettingsCompanion(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      isEnabled: isEnabled ?? this.isEnabled,
+      schedulingMode: schedulingMode ?? this.schedulingMode,
+      anchorEventValues: anchorEventValues ?? this.anchorEventValues,
+      intervalHours: intervalHours ?? this.intervalHours,
+      intervalStartTime: intervalStartTime ?? this.intervalStartTime,
+      intervalEndTime: intervalEndTime ?? this.intervalEndTime,
+      specificTimes: specificTimes ?? this.specificTimes,
+      expiresAfterMinutes: expiresAfterMinutes ?? this.expiresAfterMinutes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<int>(category.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    if (schedulingMode.present) {
+      map['scheduling_mode'] = Variable<int>(schedulingMode.value);
+    }
+    if (anchorEventValues.present) {
+      map['anchor_event_values'] = Variable<String>(anchorEventValues.value);
+    }
+    if (intervalHours.present) {
+      map['interval_hours'] = Variable<int>(intervalHours.value);
+    }
+    if (intervalStartTime.present) {
+      map['interval_start_time'] = Variable<String>(intervalStartTime.value);
+    }
+    if (intervalEndTime.present) {
+      map['interval_end_time'] = Variable<String>(intervalEndTime.value);
+    }
+    if (specificTimes.present) {
+      map['specific_times'] = Variable<String>(specificTimes.value);
+    }
+    if (expiresAfterMinutes.present) {
+      map['expires_after_minutes'] = Variable<int>(expiresAfterMinutes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationCategorySettingsCompanion(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('isEnabled: $isEnabled, ')
+          ..write('schedulingMode: $schedulingMode, ')
+          ..write('anchorEventValues: $anchorEventValues, ')
+          ..write('intervalHours: $intervalHours, ')
+          ..write('intervalStartTime: $intervalStartTime, ')
+          ..write('intervalEndTime: $intervalEndTime, ')
+          ..write('specificTimes: $specificTimes, ')
+          ..write('expiresAfterMinutes: $expiresAfterMinutes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -20295,6 +21269,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ProfilesTable profiles = $ProfilesTable(this);
   late final $GuestInvitesTable guestInvites = $GuestInvitesTable(this);
   late final $SyncConflictsTable syncConflicts = $SyncConflictsTable(this);
+  late final $AnchorEventTimesTable anchorEventTimes = $AnchorEventTimesTable(
+    this,
+  );
+  late final $NotificationCategorySettingsTable notificationCategorySettings =
+      $NotificationCategorySettingsTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -20324,6 +21303,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final SyncConflictDao syncConflictDao = SyncConflictDao(
     this as AppDatabase,
   );
+  late final AnchorEventTimeDao anchorEventTimeDao = AnchorEventTimeDao(
+    this as AppDatabase,
+  );
+  late final NotificationCategorySettingsDao notificationCategorySettingsDao =
+      NotificationCategorySettingsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -20346,6 +21330,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     profiles,
     guestInvites,
     syncConflicts,
+    anchorEventTimes,
+    notificationCategorySettings,
   ];
 }
 
@@ -29252,6 +30238,525 @@ typedef $$SyncConflictsTableProcessedTableManager =
       SyncConflictRow,
       PrefetchHooks Function()
     >;
+typedef $$AnchorEventTimesTableCreateCompanionBuilder =
+    AnchorEventTimesCompanion Function({
+      required String id,
+      required int name,
+      required String timeOfDay,
+      Value<bool> isEnabled,
+      Value<int> rowid,
+    });
+typedef $$AnchorEventTimesTableUpdateCompanionBuilder =
+    AnchorEventTimesCompanion Function({
+      Value<String> id,
+      Value<int> name,
+      Value<String> timeOfDay,
+      Value<bool> isEnabled,
+      Value<int> rowid,
+    });
+
+class $$AnchorEventTimesTableFilterComposer
+    extends Composer<_$AppDatabase, $AnchorEventTimesTable> {
+  $$AnchorEventTimesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeOfDay => $composableBuilder(
+    column: $table.timeOfDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AnchorEventTimesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AnchorEventTimesTable> {
+  $$AnchorEventTimesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timeOfDay => $composableBuilder(
+    column: $table.timeOfDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AnchorEventTimesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AnchorEventTimesTable> {
+  $$AnchorEventTimesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get timeOfDay =>
+      $composableBuilder(column: $table.timeOfDay, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+}
+
+class $$AnchorEventTimesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AnchorEventTimesTable,
+          AnchorEventTimeRow,
+          $$AnchorEventTimesTableFilterComposer,
+          $$AnchorEventTimesTableOrderingComposer,
+          $$AnchorEventTimesTableAnnotationComposer,
+          $$AnchorEventTimesTableCreateCompanionBuilder,
+          $$AnchorEventTimesTableUpdateCompanionBuilder,
+          (
+            AnchorEventTimeRow,
+            BaseReferences<
+              _$AppDatabase,
+              $AnchorEventTimesTable,
+              AnchorEventTimeRow
+            >,
+          ),
+          AnchorEventTimeRow,
+          PrefetchHooks Function()
+        > {
+  $$AnchorEventTimesTableTableManager(
+    _$AppDatabase db,
+    $AnchorEventTimesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnchorEventTimesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnchorEventTimesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AnchorEventTimesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> name = const Value.absent(),
+                Value<String> timeOfDay = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnchorEventTimesCompanion(
+                id: id,
+                name: name,
+                timeOfDay: timeOfDay,
+                isEnabled: isEnabled,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int name,
+                required String timeOfDay,
+                Value<bool> isEnabled = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnchorEventTimesCompanion.insert(
+                id: id,
+                name: name,
+                timeOfDay: timeOfDay,
+                isEnabled: isEnabled,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AnchorEventTimesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AnchorEventTimesTable,
+      AnchorEventTimeRow,
+      $$AnchorEventTimesTableFilterComposer,
+      $$AnchorEventTimesTableOrderingComposer,
+      $$AnchorEventTimesTableAnnotationComposer,
+      $$AnchorEventTimesTableCreateCompanionBuilder,
+      $$AnchorEventTimesTableUpdateCompanionBuilder,
+      (
+        AnchorEventTimeRow,
+        BaseReferences<
+          _$AppDatabase,
+          $AnchorEventTimesTable,
+          AnchorEventTimeRow
+        >,
+      ),
+      AnchorEventTimeRow,
+      PrefetchHooks Function()
+    >;
+typedef $$NotificationCategorySettingsTableCreateCompanionBuilder =
+    NotificationCategorySettingsCompanion Function({
+      required String id,
+      required int category,
+      Value<bool> isEnabled,
+      required int schedulingMode,
+      Value<String> anchorEventValues,
+      Value<int?> intervalHours,
+      Value<String?> intervalStartTime,
+      Value<String?> intervalEndTime,
+      Value<String> specificTimes,
+      Value<int> expiresAfterMinutes,
+      Value<int> rowid,
+    });
+typedef $$NotificationCategorySettingsTableUpdateCompanionBuilder =
+    NotificationCategorySettingsCompanion Function({
+      Value<String> id,
+      Value<int> category,
+      Value<bool> isEnabled,
+      Value<int> schedulingMode,
+      Value<String> anchorEventValues,
+      Value<int?> intervalHours,
+      Value<String?> intervalStartTime,
+      Value<String?> intervalEndTime,
+      Value<String> specificTimes,
+      Value<int> expiresAfterMinutes,
+      Value<int> rowid,
+    });
+
+class $$NotificationCategorySettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $NotificationCategorySettingsTable> {
+  $$NotificationCategorySettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get schedulingMode => $composableBuilder(
+    column: $table.schedulingMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get anchorEventValues => $composableBuilder(
+    column: $table.anchorEventValues,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get intervalHours => $composableBuilder(
+    column: $table.intervalHours,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get intervalStartTime => $composableBuilder(
+    column: $table.intervalStartTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get intervalEndTime => $composableBuilder(
+    column: $table.intervalEndTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get specificTimes => $composableBuilder(
+    column: $table.specificTimes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAfterMinutes => $composableBuilder(
+    column: $table.expiresAfterMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NotificationCategorySettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotificationCategorySettingsTable> {
+  $$NotificationCategorySettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get schedulingMode => $composableBuilder(
+    column: $table.schedulingMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get anchorEventValues => $composableBuilder(
+    column: $table.anchorEventValues,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get intervalHours => $composableBuilder(
+    column: $table.intervalHours,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get intervalStartTime => $composableBuilder(
+    column: $table.intervalStartTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get intervalEndTime => $composableBuilder(
+    column: $table.intervalEndTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get specificTimes => $composableBuilder(
+    column: $table.specificTimes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAfterMinutes => $composableBuilder(
+    column: $table.expiresAfterMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NotificationCategorySettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotificationCategorySettingsTable> {
+  $$NotificationCategorySettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+
+  GeneratedColumn<int> get schedulingMode => $composableBuilder(
+    column: $table.schedulingMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get anchorEventValues => $composableBuilder(
+    column: $table.anchorEventValues,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get intervalHours => $composableBuilder(
+    column: $table.intervalHours,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get intervalStartTime => $composableBuilder(
+    column: $table.intervalStartTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get intervalEndTime => $composableBuilder(
+    column: $table.intervalEndTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get specificTimes => $composableBuilder(
+    column: $table.specificTimes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get expiresAfterMinutes => $composableBuilder(
+    column: $table.expiresAfterMinutes,
+    builder: (column) => column,
+  );
+}
+
+class $$NotificationCategorySettingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotificationCategorySettingsTable,
+          NotificationCategorySettingsRow,
+          $$NotificationCategorySettingsTableFilterComposer,
+          $$NotificationCategorySettingsTableOrderingComposer,
+          $$NotificationCategorySettingsTableAnnotationComposer,
+          $$NotificationCategorySettingsTableCreateCompanionBuilder,
+          $$NotificationCategorySettingsTableUpdateCompanionBuilder,
+          (
+            NotificationCategorySettingsRow,
+            BaseReferences<
+              _$AppDatabase,
+              $NotificationCategorySettingsTable,
+              NotificationCategorySettingsRow
+            >,
+          ),
+          NotificationCategorySettingsRow,
+          PrefetchHooks Function()
+        > {
+  $$NotificationCategorySettingsTableTableManager(
+    _$AppDatabase db,
+    $NotificationCategorySettingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotificationCategorySettingsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$NotificationCategorySettingsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NotificationCategorySettingsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> category = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
+                Value<int> schedulingMode = const Value.absent(),
+                Value<String> anchorEventValues = const Value.absent(),
+                Value<int?> intervalHours = const Value.absent(),
+                Value<String?> intervalStartTime = const Value.absent(),
+                Value<String?> intervalEndTime = const Value.absent(),
+                Value<String> specificTimes = const Value.absent(),
+                Value<int> expiresAfterMinutes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationCategorySettingsCompanion(
+                id: id,
+                category: category,
+                isEnabled: isEnabled,
+                schedulingMode: schedulingMode,
+                anchorEventValues: anchorEventValues,
+                intervalHours: intervalHours,
+                intervalStartTime: intervalStartTime,
+                intervalEndTime: intervalEndTime,
+                specificTimes: specificTimes,
+                expiresAfterMinutes: expiresAfterMinutes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int category,
+                Value<bool> isEnabled = const Value.absent(),
+                required int schedulingMode,
+                Value<String> anchorEventValues = const Value.absent(),
+                Value<int?> intervalHours = const Value.absent(),
+                Value<String?> intervalStartTime = const Value.absent(),
+                Value<String?> intervalEndTime = const Value.absent(),
+                Value<String> specificTimes = const Value.absent(),
+                Value<int> expiresAfterMinutes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationCategorySettingsCompanion.insert(
+                id: id,
+                category: category,
+                isEnabled: isEnabled,
+                schedulingMode: schedulingMode,
+                anchorEventValues: anchorEventValues,
+                intervalHours: intervalHours,
+                intervalStartTime: intervalStartTime,
+                intervalEndTime: intervalEndTime,
+                specificTimes: specificTimes,
+                expiresAfterMinutes: expiresAfterMinutes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NotificationCategorySettingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotificationCategorySettingsTable,
+      NotificationCategorySettingsRow,
+      $$NotificationCategorySettingsTableFilterComposer,
+      $$NotificationCategorySettingsTableOrderingComposer,
+      $$NotificationCategorySettingsTableAnnotationComposer,
+      $$NotificationCategorySettingsTableCreateCompanionBuilder,
+      $$NotificationCategorySettingsTableUpdateCompanionBuilder,
+      (
+        NotificationCategorySettingsRow,
+        BaseReferences<
+          _$AppDatabase,
+          $NotificationCategorySettingsTable,
+          NotificationCategorySettingsRow
+        >,
+      ),
+      NotificationCategorySettingsRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -29290,4 +30795,12 @@ class $AppDatabaseManager {
       $$GuestInvitesTableTableManager(_db, _db.guestInvites);
   $$SyncConflictsTableTableManager get syncConflicts =>
       $$SyncConflictsTableTableManager(_db, _db.syncConflicts);
+  $$AnchorEventTimesTableTableManager get anchorEventTimes =>
+      $$AnchorEventTimesTableTableManager(_db, _db.anchorEventTimes);
+  $$NotificationCategorySettingsTableTableManager
+  get notificationCategorySettings =>
+      $$NotificationCategorySettingsTableTableManager(
+        _db,
+        _db.notificationCategorySettings,
+      );
 }

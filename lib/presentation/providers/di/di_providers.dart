@@ -41,6 +41,11 @@ import 'package:shadow_app/domain/usecases/guest_invites/validate_guest_token_us
 import 'package:shadow_app/domain/usecases/intake_logs/intake_logs_usecases.dart';
 // Use Cases - Journal Entries
 import 'package:shadow_app/domain/usecases/journal_entries/journal_entries_usecases.dart';
+// Use Cases - Notifications
+import 'package:shadow_app/domain/usecases/notifications/get_anchor_event_times_use_case.dart';
+import 'package:shadow_app/domain/usecases/notifications/get_notification_settings_use_case.dart';
+import 'package:shadow_app/domain/usecases/notifications/update_anchor_event_time_use_case.dart';
+import 'package:shadow_app/domain/usecases/notifications/update_notification_category_settings_use_case.dart';
 // Use Cases - Photo Areas
 import 'package:shadow_app/domain/usecases/photo_areas/photo_areas_usecases.dart';
 // Use Cases - Photo Entries
@@ -181,6 +186,24 @@ ProfileRepository profileRepository(Ref ref) {
 GuestInviteRepository guestInviteRepository(Ref ref) {
   throw UnimplementedError(
     'Override guestInviteRepositoryProvider in ProviderScope',
+  );
+}
+
+/// AnchorEventTime repository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+AnchorEventTimeRepository anchorEventTimeRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override anchorEventTimeRepositoryProvider in ProviderScope',
+  );
+}
+
+/// NotificationCategorySettings repository provider - override in ProviderScope.
+@Riverpod(keepAlive: true)
+NotificationCategorySettingsRepository notificationCategorySettingsRepository(
+  Ref ref,
+) {
+  throw UnimplementedError(
+    'Override notificationCategorySettingsRepositoryProvider in ProviderScope',
   );
 }
 
@@ -753,3 +776,32 @@ ValidateGuestTokenUseCase validateGuestTokenUseCase(Ref ref) =>
 @riverpod
 RemoveGuestDeviceUseCase removeGuestDeviceUseCase(Ref ref) =>
     RemoveGuestDeviceUseCase(ref.read(guestInviteRepositoryProvider));
+
+// =============================================================================
+// USE CASES - NOTIFICATIONS (4)
+// =============================================================================
+
+/// GetAnchorEventTimesUseCase provider.
+@riverpod
+GetAnchorEventTimesUseCase getAnchorEventTimesUseCase(Ref ref) =>
+    GetAnchorEventTimesUseCase(ref.read(anchorEventTimeRepositoryProvider));
+
+/// UpdateAnchorEventTimeUseCase provider.
+@riverpod
+UpdateAnchorEventTimeUseCase updateAnchorEventTimeUseCase(Ref ref) =>
+    UpdateAnchorEventTimeUseCase(ref.read(anchorEventTimeRepositoryProvider));
+
+/// GetNotificationSettingsUseCase provider.
+@riverpod
+GetNotificationSettingsUseCase getNotificationSettingsUseCase(Ref ref) =>
+    GetNotificationSettingsUseCase(
+      ref.read(notificationCategorySettingsRepositoryProvider),
+    );
+
+/// UpdateNotificationCategorySettingsUseCase provider.
+@riverpod
+UpdateNotificationCategorySettingsUseCase
+updateNotificationCategorySettingsUseCase(Ref ref) =>
+    UpdateNotificationCategorySettingsUseCase(
+      ref.read(notificationCategorySettingsRepositoryProvider),
+    );

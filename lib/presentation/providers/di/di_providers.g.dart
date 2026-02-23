@@ -325,6 +325,49 @@ final guestInviteRepositoryProvider = Provider<GuestInviteRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GuestInviteRepositoryRef = ProviderRef<GuestInviteRepository>;
+String _$anchorEventTimeRepositoryHash() =>
+    r'2e5b7e325ebfe1768932dc4d1fd0910e10f6cdae';
+
+/// AnchorEventTime repository provider - override in ProviderScope with implementation.
+///
+/// Copied from [anchorEventTimeRepository].
+@ProviderFor(anchorEventTimeRepository)
+final anchorEventTimeRepositoryProvider =
+    Provider<AnchorEventTimeRepository>.internal(
+      anchorEventTimeRepository,
+      name: r'anchorEventTimeRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$anchorEventTimeRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AnchorEventTimeRepositoryRef = ProviderRef<AnchorEventTimeRepository>;
+String _$notificationCategorySettingsRepositoryHash() =>
+    r'94734aa46fa980d36d594cd2d839405a34f62a2c';
+
+/// NotificationCategorySettings repository provider - override in ProviderScope.
+///
+/// Copied from [notificationCategorySettingsRepository].
+@ProviderFor(notificationCategorySettingsRepository)
+final notificationCategorySettingsRepositoryProvider =
+    Provider<NotificationCategorySettingsRepository>.internal(
+      notificationCategorySettingsRepository,
+      name: r'notificationCategorySettingsRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$notificationCategorySettingsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationCategorySettingsRepositoryRef =
+    ProviderRef<NotificationCategorySettingsRepository>;
 String _$profileAuthorizationServiceHash() =>
     r'43ec282813a778ca3774baf9e1c4ee1b180301e0';
 
@@ -1779,5 +1822,93 @@ final removeGuestDeviceUseCaseProvider =
 // ignore: unused_element
 typedef RemoveGuestDeviceUseCaseRef =
     AutoDisposeProviderRef<RemoveGuestDeviceUseCase>;
+String _$getAnchorEventTimesUseCaseHash() =>
+    r'00cec24f1491b15a23c75b2d715fb6d6f3f978de';
+
+/// GetAnchorEventTimesUseCase provider.
+///
+/// Copied from [getAnchorEventTimesUseCase].
+@ProviderFor(getAnchorEventTimesUseCase)
+final getAnchorEventTimesUseCaseProvider =
+    AutoDisposeProvider<GetAnchorEventTimesUseCase>.internal(
+      getAnchorEventTimesUseCase,
+      name: r'getAnchorEventTimesUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getAnchorEventTimesUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetAnchorEventTimesUseCaseRef =
+    AutoDisposeProviderRef<GetAnchorEventTimesUseCase>;
+String _$updateAnchorEventTimeUseCaseHash() =>
+    r'40b0001fd87e722775536dbbb8ef546489efcb94';
+
+/// UpdateAnchorEventTimeUseCase provider.
+///
+/// Copied from [updateAnchorEventTimeUseCase].
+@ProviderFor(updateAnchorEventTimeUseCase)
+final updateAnchorEventTimeUseCaseProvider =
+    AutoDisposeProvider<UpdateAnchorEventTimeUseCase>.internal(
+      updateAnchorEventTimeUseCase,
+      name: r'updateAnchorEventTimeUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateAnchorEventTimeUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateAnchorEventTimeUseCaseRef =
+    AutoDisposeProviderRef<UpdateAnchorEventTimeUseCase>;
+String _$getNotificationSettingsUseCaseHash() =>
+    r'd48df3af99ed53f3c29daa00efab4fd3197a692c';
+
+/// GetNotificationSettingsUseCase provider.
+///
+/// Copied from [getNotificationSettingsUseCase].
+@ProviderFor(getNotificationSettingsUseCase)
+final getNotificationSettingsUseCaseProvider =
+    AutoDisposeProvider<GetNotificationSettingsUseCase>.internal(
+      getNotificationSettingsUseCase,
+      name: r'getNotificationSettingsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getNotificationSettingsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetNotificationSettingsUseCaseRef =
+    AutoDisposeProviderRef<GetNotificationSettingsUseCase>;
+String _$updateNotificationCategorySettingsUseCaseHash() =>
+    r'dfd03571012427f7b521722fe4f4bb550e4d65bb';
+
+/// UpdateNotificationCategorySettingsUseCase provider.
+///
+/// Copied from [updateNotificationCategorySettingsUseCase].
+@ProviderFor(updateNotificationCategorySettingsUseCase)
+final updateNotificationCategorySettingsUseCaseProvider =
+    AutoDisposeProvider<UpdateNotificationCategorySettingsUseCase>.internal(
+      updateNotificationCategorySettingsUseCase,
+      name: r'updateNotificationCategorySettingsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateNotificationCategorySettingsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateNotificationCategorySettingsUseCaseRef =
+    AutoDisposeProviderRef<UpdateNotificationCategorySettingsUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

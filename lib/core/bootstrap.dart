@@ -11,6 +11,7 @@ import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
 import 'package:shadow_app/data/repositories/activity_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/activity_repository_impl.dart';
+import 'package:shadow_app/data/repositories/anchor_event_time_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_repository_impl.dart';
 import 'package:shadow_app/data/repositories/flare_up_repository_impl.dart';
@@ -20,6 +21,7 @@ import 'package:shadow_app/data/repositories/food_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/guest_invite_repository_impl.dart';
 import 'package:shadow_app/data/repositories/intake_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/journal_entry_repository_impl.dart';
+import 'package:shadow_app/data/repositories/notification_category_settings_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_area_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/profile_repository_impl.dart';
@@ -30,6 +32,7 @@ import 'package:shadow_app/domain/entities/entities.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/services/local_profile_authorization_service.dart';
+import 'package:shadow_app/domain/services/notification_seed_service.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -126,6 +129,12 @@ Future<List<Override>> bootstrap() async {
     deviceInfoService,
   );
   final guestInviteRepo = GuestInviteRepositoryImpl(database.guestInviteDao);
+  final anchorEventTimeRepo = AnchorEventTimeRepositoryImpl(
+    database.anchorEventTimeDao,
+  );
+  final notificationSettingsRepo = NotificationCategorySettingsRepositoryImpl(
+    database.notificationCategorySettingsDao,
+  );
 
   // 5. Create encryption service and initialize key
   final encryptionService = EncryptionService(
@@ -241,12 +250,19 @@ Future<List<Override>> bootstrap() async {
     conflictDao: database.syncConflictDao,
   );
 
-  // 9. Create guest access services
+  // 9. Seed notification defaults (safe to call every run — skips existing rows)
+  final seedService = NotificationSeedService(
+    anchorRepository: anchorEventTimeRepo,
+    settingsRepository: notificationSettingsRepo,
+  );
+  await seedService.seedDefaults();
+
+  // 10. Create guest access services
   final deepLinkService = DeepLinkService();
   final guestTokenService = GuestTokenService(guestInviteRepo);
   final guestSyncValidator = GuestSyncValidator(guestTokenService);
 
-  // 10. Return provider overrides for all repos + services
+  // 11. Return provider overrides for all repos + services
   return [
     // Repositories
     supplementRepositoryProvider.overrideWithValue(supplementRepo),
@@ -265,6 +281,10 @@ Future<List<Override>> bootstrap() async {
     photoEntryRepositoryProvider.overrideWithValue(photoEntryRepo),
     profileRepositoryProvider.overrideWithValue(profileRepo),
     guestInviteRepositoryProvider.overrideWithValue(guestInviteRepo),
+    anchorEventTimeRepositoryProvider.overrideWithValue(anchorEventTimeRepo),
+    notificationCategorySettingsRepositoryProvider.overrideWithValue(
+      notificationSettingsRepo,
+    ),
     // Services
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),
