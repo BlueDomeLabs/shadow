@@ -17,6 +17,16 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-23: BBT/Vitals quick-entry sheet captures BBT only — no BP, heart rate, or weight
+
+**What:** The BBT/Vitals quick-entry sheet captures basal body temperature (BBT) and optional notes only. It does not include fields for blood pressure, heart rate, or weight.
+
+**Why:** Blood pressure, heart rate, and weight have no dedicated storage in the current data model. The only vitals-related entity is `FluidsEntry`, which has a BBT field. Storing structured health values as free-form text in a notes field creates data that cannot be used in reports, charts, or trends later — which defeats the purpose of tracking.
+
+**Alternatives considered:** Storing BP/HR/weight as formatted text in the notes field (e.g., "BP: 120/80, HR: 72"). Rejected because unstructured data cannot be used for reporting.
+
+**Impact:** A dedicated `VitalsLog` entity is needed before BP, heart rate, and weight can be captured. This is planned as a future phase. Do not use the notes field as a workaround for structured data.
+
 ### 2026-02-22: Database migration versioning — profiles table gets v10, food/supplement extensions get v11
 
 **What:** The profiles table migration uses schema v9→v10 (Phase 11). The food database extension (59a) and supplement extension (60) migrations, originally planned as v9→v10, are now v10→v11 (Phase 15a). Both extension specs were updated to reflect this.
