@@ -4,10 +4,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/screens/home/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('HomeScreen', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
     Widget buildScreen() =>
         const ProviderScope(child: MaterialApp(home: HomeScreen()));
 
@@ -67,6 +73,69 @@ void main() {
       await tester.pump();
 
       expect(find.text('Food Library'), findsOneWidget);
+    });
+
+    group('guest mode', () {
+      testWidgets('guest mode hides profile card and shows guest header', (
+        tester,
+      ) async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+
+        // Activate guest mode
+        container
+            .read(guestModeProvider.notifier)
+            .activateGuestMode(
+              profileId: 'guest-profile-001',
+              token: 'guest-token-abc',
+            );
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const MaterialApp(home: HomeScreen()),
+          ),
+        );
+        await tester.pump();
+
+        // Guest header should be visible
+        expect(find.textContaining('Guest Access'), findsOneWidget);
+
+        // Profile card with "Tap to switch profile" should be hidden
+        expect(find.text('Tap to switch profile'), findsNothing);
+      });
+
+      testWidgets('guest mode hides cloud sync button', (tester) async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+
+        // Activate guest mode
+        container
+            .read(guestModeProvider.notifier)
+            .activateGuestMode(
+              profileId: 'guest-profile-001',
+              token: 'guest-token-abc',
+            );
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const MaterialApp(home: HomeScreen()),
+          ),
+        );
+        await tester.pump();
+
+        // Cloud sync icon should be hidden
+        expect(find.byIcon(Icons.cloud_sync), findsNothing);
+      });
+
+      testWidgets('host mode shows profile card normally', (tester) async {
+        await tester.pumpWidget(buildScreen());
+        await tester.pump();
+
+        // Profile card should be visible (no guest header)
+        expect(find.textContaining('Guest Access'), findsNothing);
+      });
     });
   });
 }

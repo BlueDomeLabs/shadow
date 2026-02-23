@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/conditions/condition_list_screen.dart';
@@ -25,14 +26,18 @@ class HomeTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(profileProvider);
     final currentProfile = state.currentProfile;
+    final guestMode = ref.watch(guestModeProvider);
 
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Profile Selector Card
-            _buildProfileCard(context, ref, currentProfile),
+            // Profile Selector Card (hidden in guest mode)
+            if (guestMode.isGuestMode)
+              _buildGuestHeader(context)
+            else
+              _buildProfileCard(context, ref, currentProfile),
             const SizedBox(height: 16),
             // App branding
             ExcludeSemantics(
@@ -158,6 +163,43 @@ class HomeTab extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _buildGuestHeader(BuildContext context) => Card(
+    elevation: 3,
+    color: Colors.teal[50],
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const CircleAvatar(
+            backgroundColor: Colors.teal,
+            radius: 24,
+            child: Icon(Icons.person, color: Colors.white, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${profileName ?? "Guest"} — Guest Access',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'You have guest access to this profile',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _buildProfileCard(
     BuildContext context,

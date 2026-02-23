@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/utils/sample_data_generator.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
+import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_list_screen.dart';
+import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_qr_screen.dart';
 import 'package:shadow_app/presentation/screens/profiles/add_edit_profile_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
@@ -213,6 +215,24 @@ class ProfilesScreen extends ConsumerWidget {
                 ref
                     .read(profileProvider.notifier)
                     .setCurrentProfile(profile.id);
+              } else if (value == 'invite_device') {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => GuestInviteQrScreen(
+                      profileId: profile.id,
+                      profileName: profile.name,
+                    ),
+                  ),
+                );
+              } else if (value == 'manage_invites') {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => GuestInviteListScreen(
+                      profileId: profile.id,
+                      profileName: profile.name,
+                    ),
+                  ),
+                );
               }
             },
             itemBuilder: (_) => [
@@ -222,6 +242,14 @@ class ProfilesScreen extends ConsumerWidget {
                   child: Text('Set as Active'),
                 ),
               const PopupMenuItem(value: 'edit', child: Text('Edit')),
+              const PopupMenuItem(
+                value: 'invite_device',
+                child: Text('Invite Device'),
+              ),
+              const PopupMenuItem(
+                value: 'manage_invites',
+                child: Text('Manage Invites'),
+              ),
               const PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),

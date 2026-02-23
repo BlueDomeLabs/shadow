@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/activities_tab.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/conditions_tab.dart';
@@ -28,7 +29,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
-    final profileId = state.currentProfileId ?? 'test-profile-001';
+    final guestMode = ref.watch(guestModeProvider);
+
+    // In guest mode, use the guest's profile ID instead of the selected profile
+    final profileId = guestMode.isGuestMode
+        ? (guestMode.guestProfileId ?? 'test-profile-001')
+        : (state.currentProfileId ?? 'test-profile-001');
     final profileName = state.currentProfile?.name;
 
     return Semantics(
