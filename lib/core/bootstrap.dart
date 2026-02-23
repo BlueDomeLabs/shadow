@@ -4,6 +4,7 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
@@ -26,6 +27,8 @@ import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/entities.dart';
+import 'package:shadow_app/domain/services/guest_sync_validator.dart';
+import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/services/local_profile_authorization_service.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -238,7 +241,12 @@ Future<List<Override>> bootstrap() async {
     conflictDao: database.syncConflictDao,
   );
 
-  // 9. Return provider overrides for all repos + services
+  // 9. Create guest access services
+  final deepLinkService = DeepLinkService();
+  final guestTokenService = GuestTokenService(guestInviteRepo);
+  final guestSyncValidator = GuestSyncValidator(guestTokenService);
+
+  // 10. Return provider overrides for all repos + services
   return [
     // Repositories
     supplementRepositoryProvider.overrideWithValue(supplementRepo),
@@ -262,5 +270,9 @@ Future<List<Override>> bootstrap() async {
     encryptionServiceProvider.overrideWithValue(encryptionService),
     googleDriveProviderProvider.overrideWithValue(googleDriveProvider),
     syncServiceProvider.overrideWithValue(syncService),
+    // Guest access services
+    deepLinkServiceProvider.overrideWithValue(deepLinkService),
+    guestTokenServiceProvider.overrideWithValue(guestTokenService),
+    guestSyncValidatorProvider.overrideWithValue(guestSyncValidator),
   ];
 }

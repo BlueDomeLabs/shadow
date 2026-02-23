@@ -64,6 +64,9 @@ class GuestModeNotifier extends StateNotifier<GuestModeState> {
     _loadDisclaimerState();
   }
 
+  /// Whether the disclaimer has been seen.
+  bool get hasSeenDisclaimer => state.hasSeenDisclaimer;
+
   /// Marks the disclaimer as seen and persists it.
   Future<void> markDisclaimerSeen() async {
     final prefs = await SharedPreferences.getInstance();

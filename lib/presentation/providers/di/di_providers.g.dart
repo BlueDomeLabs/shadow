@@ -405,6 +405,64 @@ final syncServiceProvider = Provider<SyncService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SyncServiceRef = ProviderRef<SyncService>;
+String _$deepLinkServiceHash() => r'abce859daaa83ba66febc821f90ba6fe555450e4';
+
+/// Deep link service provider - override in ProviderScope with implementation.
+///
+/// Copied from [deepLinkService].
+@ProviderFor(deepLinkService)
+final deepLinkServiceProvider = Provider<DeepLinkService>.internal(
+  deepLinkService,
+  name: r'deepLinkServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$deepLinkServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DeepLinkServiceRef = ProviderRef<DeepLinkService>;
+String _$guestTokenServiceHash() => r'4e81797707e9852d969905c056233db2ada17aff';
+
+/// Guest token service provider - override in ProviderScope with implementation.
+///
+/// Copied from [guestTokenService].
+@ProviderFor(guestTokenService)
+final guestTokenServiceProvider = Provider<GuestTokenService>.internal(
+  guestTokenService,
+  name: r'guestTokenServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$guestTokenServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GuestTokenServiceRef = ProviderRef<GuestTokenService>;
+String _$guestSyncValidatorHash() =>
+    r'1174f23272667ebe4b3df41498764391f07877ad';
+
+/// Guest sync validator provider - override in ProviderScope with implementation.
+///
+/// Copied from [guestSyncValidator].
+@ProviderFor(guestSyncValidator)
+final guestSyncValidatorProvider = Provider<GuestSyncValidator>.internal(
+  guestSyncValidator,
+  name: r'guestSyncValidatorProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$guestSyncValidatorHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GuestSyncValidatorRef = ProviderRef<GuestSyncValidator>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 

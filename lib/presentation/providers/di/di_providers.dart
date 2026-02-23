@@ -5,11 +5,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 // Services
+import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Repositories
 import 'package:shadow_app/domain/repositories/repositories.dart';
+import 'package:shadow_app/domain/services/guest_sync_validator.dart';
+import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
 // Use Cases - Activities
@@ -213,6 +216,28 @@ GoogleDriveProvider googleDriveProvider(Ref ref) {
 @Riverpod(keepAlive: true)
 SyncService syncService(Ref ref) {
   throw UnimplementedError('Override syncServiceProvider in ProviderScope');
+}
+
+/// Deep link service provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+DeepLinkService deepLinkService(Ref ref) {
+  throw UnimplementedError('Override deepLinkServiceProvider in ProviderScope');
+}
+
+/// Guest token service provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+GuestTokenService guestTokenService(Ref ref) {
+  throw UnimplementedError(
+    'Override guestTokenServiceProvider in ProviderScope',
+  );
+}
+
+/// Guest sync validator provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+GuestSyncValidator guestSyncValidator(Ref ref) {
+  throw UnimplementedError(
+    'Override guestSyncValidatorProvider in ProviderScope',
+  );
 }
 
 // =============================================================================
