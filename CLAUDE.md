@@ -140,13 +140,13 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
   - [x] 13a. Data foundation: AnchorEventTime + NotificationCategorySettings entities, DAOs, repositories, 4 use cases, NotificationSeedService, schema v12 — 86 new tests
   - [x] 13b. Scheduler engine: ScheduledNotification entity, NotificationScheduler port, NotificationScheduleService, ScheduleNotificationsUseCase, CancelNotificationsUseCase — 43 new tests
   - [x] 13c. Quick-entry sheets: 8 modal bottom sheets (one per notification category) opened when user taps a notification — 82 new tests
-  - [ ] 13d. Platform integration: flutter_local_notifications wiring, permission requests, test notifications
+  - [x] 13d. Platform integration: flutter_local_notifications wiring, permission requests, test notifications
   - [ ] 13e. Settings screens: Notification Settings UI (per 58_SETTINGS_SCREENS.md)
 - **Phase 14: Settings Screens** — See 58_SETTINGS_SCREENS.md. Notification Settings, Units Settings, Security Settings (all optional). Implement after Phase 13.
 - **Phase 15a: Food Database Extension + Supplement Extension** — See 59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md. Food: adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table. Supplements: adds barcode scan (NIH DSLD), label photo scan (Claude API), source and price fields, label photo storage. Both specs implement together in a single v11→v12 migration. Implement before Phase 15b.
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
 
-### Test Count: 2703 passing | Analyzer: clean | Schema: v12
+### Test Count: 2726 passing | Analyzer: clean | Schema: v12
 
 ---
 

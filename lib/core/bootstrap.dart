@@ -2,13 +2,17 @@
 // App initialization: creates database, repositories, and services.
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
+import 'package:shadow_app/core/services/notification_permission_service.dart';
+import 'package:shadow_app/core/services/notification_tap_handler.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
+import 'package:shadow_app/data/notifications/notification_scheduler_impl.dart';
 import 'package:shadow_app/data/repositories/activity_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/activity_repository_impl.dart';
 import 'package:shadow_app/data/repositories/anchor_event_time_repository_impl.dart';
@@ -35,24 +39,29 @@ import 'package:shadow_app/domain/services/local_profile_authorization_service.d
 import 'package:shadow_app/domain/services/notification_seed_service.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:uuid/uuid.dart';
 
 /// Initializes the app and returns provider overrides for [ProviderScope].
 ///
 /// Creates the encrypted database, shared services, all 14 repository
-/// implementations, encryption service, cloud provider, and sync service.
+/// implementations, encryption service, cloud provider, sync service, and
+/// platform notification scheduler.
 Future<List<Override>> bootstrap() async {
-  // 1. Create database with encrypted connection
+  // 1. Initialize timezone data (required for zonedSchedule)
+  tz_data.initializeTimeZones();
+
+  // 2. Create database with encrypted connection
   final database = AppDatabase(DatabaseConnection.openConnection());
 
-  // 2. Create shared services
+  // 3. Create shared services
   const uuid = Uuid();
   final deviceInfoService = DeviceInfoService(DeviceInfoPlugin());
 
-  // 3. Create local auth service (allows all access for local profiles)
+  // 4. Create local auth service (allows all access for local profiles)
   final authService = LocalProfileAuthorizationService();
 
-  // 4. Create all 14 repository implementations
+  // 5. Create all 14 repository implementations
   final supplementRepo = SupplementRepositoryImpl(
     database.supplementDao,
     uuid,
@@ -136,7 +145,7 @@ Future<List<Override>> bootstrap() async {
     database.notificationCategorySettingsDao,
   );
 
-  // 5. Create encryption service and initialize key
+  // 6. Create encryption service and initialize key
   final encryptionService = EncryptionService(
     const FlutterSecureStorage(
       mOptions: MacOsOptions(useDataProtectionKeyChain: false),
@@ -144,13 +153,13 @@ Future<List<Override>> bootstrap() async {
   );
   await encryptionService.initialize();
 
-  // 6. Create cloud storage provider (shared instance for auth + sync)
+  // 7. Create cloud storage provider (shared instance for auth + sync)
   final googleDriveProvider = GoogleDriveProvider();
 
-  // 7. Get SharedPreferences for sync timestamp/version storage
+  // 8. Get SharedPreferences for sync timestamp/version storage
   final prefs = await SharedPreferences.getInstance();
 
-  // 8. Build sync entity adapters for all 14 entity types
+  // 9. Build sync entity adapters for all 14 entity types
   final syncService = SyncServiceImpl(
     adapters: [
       SyncEntityAdapter<Supplement>(
@@ -250,19 +259,34 @@ Future<List<Override>> bootstrap() async {
     conflictDao: database.syncConflictDao,
   );
 
-  // 9. Seed notification defaults (safe to call every run — skips existing rows)
+  // 10. Seed notification defaults (safe to call every run — skips existing rows)
   final seedService = NotificationSeedService(
     anchorRepository: anchorEventTimeRepo,
     settingsRepository: notificationSettingsRepo,
   );
   await seedService.seedDefaults();
 
-  // 10. Create guest access services
+  // 11. Create guest access services
   final deepLinkService = DeepLinkService();
   final guestTokenService = GuestTokenService(guestInviteRepo);
   final guestSyncValidator = GuestSyncValidator(guestTokenService);
 
-  // 11. Return provider overrides for all repos + services
+  // 12. Initialize platform notification plugin, tap handler, and scheduler
+  final tapHandler = NotificationTapHandler();
+  final plugin = FlutterLocalNotificationsPlugin();
+  await plugin.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
+      macOS: DarwinInitializationSettings(),
+    ),
+    onDidReceiveNotificationResponse: tapHandler.handleTap,
+  );
+  await NotificationSchedulerImpl.createAndroidChannels(plugin);
+  final scheduler = NotificationSchedulerImpl(plugin);
+  final permissionService = NotificationPermissionService(plugin);
+
+  // 13. Return provider overrides for all repos + services
   return [
     // Repositories
     supplementRepositoryProvider.overrideWithValue(supplementRepo),
@@ -294,5 +318,9 @@ Future<List<Override>> bootstrap() async {
     deepLinkServiceProvider.overrideWithValue(deepLinkService),
     guestTokenServiceProvider.overrideWithValue(guestTokenService),
     guestSyncValidatorProvider.overrideWithValue(guestSyncValidator),
+    // Notification services
+    notificationSchedulerProvider.overrideWithValue(scheduler),
+    notificationTapHandlerProvider.overrideWithValue(tapHandler),
+    notificationPermissionServiceProvider.overrideWithValue(permissionService),
   ];
 }

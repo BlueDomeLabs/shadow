@@ -7,12 +7,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 // Services
 import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
+import 'package:shadow_app/core/services/notification_permission_service.dart';
+import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Repositories
+import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
+import 'package:shadow_app/domain/services/notification_schedule_service.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
 // Use Cases - Activities
@@ -42,8 +46,10 @@ import 'package:shadow_app/domain/usecases/intake_logs/intake_logs_usecases.dart
 // Use Cases - Journal Entries
 import 'package:shadow_app/domain/usecases/journal_entries/journal_entries_usecases.dart';
 // Use Cases - Notifications
+import 'package:shadow_app/domain/usecases/notifications/cancel_notifications_use_case.dart';
 import 'package:shadow_app/domain/usecases/notifications/get_anchor_event_times_use_case.dart';
 import 'package:shadow_app/domain/usecases/notifications/get_notification_settings_use_case.dart';
+import 'package:shadow_app/domain/usecases/notifications/schedule_notifications_use_case.dart';
 import 'package:shadow_app/domain/usecases/notifications/update_anchor_event_time_use_case.dart';
 import 'package:shadow_app/domain/usecases/notifications/update_notification_category_settings_use_case.dart';
 // Use Cases - Photo Areas
@@ -260,6 +266,30 @@ GuestTokenService guestTokenService(Ref ref) {
 GuestSyncValidator guestSyncValidator(Ref ref) {
   throw UnimplementedError(
     'Override guestSyncValidatorProvider in ProviderScope',
+  );
+}
+
+/// NotificationScheduler provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+NotificationScheduler notificationScheduler(Ref ref) {
+  throw UnimplementedError(
+    'Override notificationSchedulerProvider in ProviderScope',
+  );
+}
+
+/// NotificationTapHandler provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+NotificationTapHandler notificationTapHandler(Ref ref) {
+  throw UnimplementedError(
+    'Override notificationTapHandlerProvider in ProviderScope',
+  );
+}
+
+/// NotificationPermissionService provider - override in ProviderScope.
+@Riverpod(keepAlive: true)
+NotificationPermissionService notificationPermissionService(Ref ref) {
+  throw UnimplementedError(
+    'Override notificationPermissionServiceProvider in ProviderScope',
   );
 }
 
@@ -805,3 +835,20 @@ updateNotificationCategorySettingsUseCase(Ref ref) =>
     UpdateNotificationCategorySettingsUseCase(
       ref.read(notificationCategorySettingsRepositoryProvider),
     );
+
+/// ScheduleNotificationsUseCase provider.
+@riverpod
+ScheduleNotificationsUseCase scheduleNotificationsUseCase(Ref ref) =>
+    ScheduleNotificationsUseCase(
+      anchorRepository: ref.read(anchorEventTimeRepositoryProvider),
+      settingsRepository: ref.read(
+        notificationCategorySettingsRepositoryProvider,
+      ),
+      scheduleService: NotificationScheduleService(),
+      scheduler: ref.read(notificationSchedulerProvider),
+    );
+
+/// CancelNotificationsUseCase provider.
+@riverpod
+CancelNotificationsUseCase cancelNotificationsUseCase(Ref ref) =>
+    CancelNotificationsUseCase(ref.read(notificationSchedulerProvider));

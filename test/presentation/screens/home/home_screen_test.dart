@@ -4,6 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/services/notification_tap_handler.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/screens/home/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,8 +16,14 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    Widget buildScreen() =>
-        const ProviderScope(child: MaterialApp(home: HomeScreen()));
+    Widget buildScreen() => ProviderScope(
+      overrides: [
+        notificationTapHandlerProvider.overrideWithValue(
+          NotificationTapHandler(),
+        ),
+      ],
+      child: const MaterialApp(home: HomeScreen()),
+    );
 
     testWidgets('renders bottom navigation with 9 tabs', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -79,7 +87,13 @@ void main() {
       testWidgets('guest mode hides profile card and shows guest header', (
         tester,
       ) async {
-        final container = ProviderContainer();
+        final container = ProviderContainer(
+          overrides: [
+            notificationTapHandlerProvider.overrideWithValue(
+              NotificationTapHandler(),
+            ),
+          ],
+        );
         addTearDown(container.dispose);
 
         // Activate guest mode
@@ -106,7 +120,13 @@ void main() {
       });
 
       testWidgets('guest mode hides cloud sync button', (tester) async {
-        final container = ProviderContainer();
+        final container = ProviderContainer(
+          overrides: [
+            notificationTapHandlerProvider.overrideWithValue(
+              NotificationTapHandler(),
+            ),
+          ],
+        );
         addTearDown(container.dispose);
 
         // Activate guest mode

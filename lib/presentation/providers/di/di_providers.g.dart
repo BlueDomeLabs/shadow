@@ -506,6 +506,69 @@ final guestSyncValidatorProvider = Provider<GuestSyncValidator>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GuestSyncValidatorRef = ProviderRef<GuestSyncValidator>;
+String _$notificationSchedulerHash() =>
+    r'454e642d28d805f125862c97d85188ccd9d9f9b1';
+
+/// NotificationScheduler provider - override in ProviderScope with implementation.
+///
+/// Copied from [notificationScheduler].
+@ProviderFor(notificationScheduler)
+final notificationSchedulerProvider = Provider<NotificationScheduler>.internal(
+  notificationScheduler,
+  name: r'notificationSchedulerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$notificationSchedulerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationSchedulerRef = ProviderRef<NotificationScheduler>;
+String _$notificationTapHandlerHash() =>
+    r'e1c1af9b604c6b56adf9c1fee9da325a0c400985';
+
+/// NotificationTapHandler provider - override in ProviderScope with implementation.
+///
+/// Copied from [notificationTapHandler].
+@ProviderFor(notificationTapHandler)
+final notificationTapHandlerProvider =
+    Provider<NotificationTapHandler>.internal(
+      notificationTapHandler,
+      name: r'notificationTapHandlerProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$notificationTapHandlerHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationTapHandlerRef = ProviderRef<NotificationTapHandler>;
+String _$notificationPermissionServiceHash() =>
+    r'918be68125d8d4bf79a5321361ab3d0c7fbe25c1';
+
+/// NotificationPermissionService provider - override in ProviderScope.
+///
+/// Copied from [notificationPermissionService].
+@ProviderFor(notificationPermissionService)
+final notificationPermissionServiceProvider =
+    Provider<NotificationPermissionService>.internal(
+      notificationPermissionService,
+      name: r'notificationPermissionServiceProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$notificationPermissionServiceHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NotificationPermissionServiceRef =
+    ProviderRef<NotificationPermissionService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -1910,5 +1973,49 @@ final updateNotificationCategorySettingsUseCaseProvider =
 // ignore: unused_element
 typedef UpdateNotificationCategorySettingsUseCaseRef =
     AutoDisposeProviderRef<UpdateNotificationCategorySettingsUseCase>;
+String _$scheduleNotificationsUseCaseHash() =>
+    r'c542fd068d53d8455e7112b4f815526a501ba397';
+
+/// ScheduleNotificationsUseCase provider.
+///
+/// Copied from [scheduleNotificationsUseCase].
+@ProviderFor(scheduleNotificationsUseCase)
+final scheduleNotificationsUseCaseProvider =
+    AutoDisposeProvider<ScheduleNotificationsUseCase>.internal(
+      scheduleNotificationsUseCase,
+      name: r'scheduleNotificationsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$scheduleNotificationsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ScheduleNotificationsUseCaseRef =
+    AutoDisposeProviderRef<ScheduleNotificationsUseCase>;
+String _$cancelNotificationsUseCaseHash() =>
+    r'66d7941429dcbd9b626637df8e41a785b6cf683d';
+
+/// CancelNotificationsUseCase provider.
+///
+/// Copied from [cancelNotificationsUseCase].
+@ProviderFor(cancelNotificationsUseCase)
+final cancelNotificationsUseCaseProvider =
+    AutoDisposeProvider<CancelNotificationsUseCase>.internal(
+      cancelNotificationsUseCase,
+      name: r'cancelNotificationsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$cancelNotificationsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CancelNotificationsUseCaseRef =
+    AutoDisposeProviderRef<CancelNotificationsUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
