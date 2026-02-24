@@ -16,6 +16,11 @@ import 'package:shadow_app/data/datasources/local/daos/activity_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/anchor_event_time_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/diet_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/diet_exception_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/diet_rule_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/diet_violation_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/fasting_session_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/flare_up_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_barcode_cache_dao.dart';
@@ -40,6 +45,11 @@ import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dar
 import 'package:shadow_app/data/datasources/local/tables/anchor_event_times_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/diet_exceptions_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/diet_rules_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/diet_violations_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/diets_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/fasting_sessions_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/flare_ups_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_barcode_cache_table.dart';
@@ -103,6 +113,11 @@ part 'database.g.dart';
     AnchorEventTimes,
     NotificationCategorySettings,
     UserSettingsTable,
+    Diets,
+    DietRules,
+    DietExceptions,
+    FastingSessions,
+    DietViolations,
   ],
   daos: [
     SupplementDao,
@@ -129,6 +144,11 @@ part 'database.g.dart';
     AnchorEventTimeDao,
     NotificationCategorySettingsDao,
     UserSettingsDao,
+    DietDao,
+    DietRuleDao,
+    DietExceptionDao,
+    FastingSessionDao,
+    DietViolationDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -156,8 +176,11 @@ class AppDatabase extends _$AppDatabase {
   /// v14: Food Database Extension + Supplement Extension (Phase 15a)
   ///      Added food_item_components, food_barcode_cache, supplement_label_photos,
   ///      supplement_barcode_cache tables. Added columns to food_items and supplements.
+  /// v15: Diet Tracking data foundation (Phase 15b-1)
+  ///      Added diets, diet_rules, diet_exceptions, fasting_sessions,
+  ///      diet_violations tables. Added violation_flag column to food_logs.
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   /// Migration strategy for schema changes.
   ///
@@ -250,6 +273,18 @@ class AppDatabase extends _$AppDatabase {
             AND fi.simple_item_ids != '[]'
             AND fi.simple_item_ids != ''
         ''');
+      }
+
+      // v15: Diet Tracking data foundation (Phase 15b-1)
+      if (from < 15) {
+        // Add violation_flag column to food_logs
+        await m.addColumn(foodLogs, foodLogs.violationFlag);
+        // Create new diet tracking tables
+        await m.createTable(diets);
+        await m.createTable(dietRules);
+        await m.createTable(dietExceptions);
+        await m.createTable(fastingSessions);
+        await m.createTable(dietViolations);
       }
     },
     beforeOpen: (details) async {

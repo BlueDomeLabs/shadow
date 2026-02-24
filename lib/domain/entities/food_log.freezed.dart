@@ -32,6 +32,8 @@ mixin _$FoodLog {
   List<String> get adHocItems =>
       throw _privateConstructorUsedError; // Free-form food names (quick entry)
   String? get notes => throw _privateConstructorUsedError;
+  bool get violationFlag =>
+      throw _privateConstructorUsedError; // true = logged despite diet violation
   SyncMetadata get syncMetadata => throw _privateConstructorUsedError;
 
   /// Serializes this FoodLog to a JSON map.
@@ -57,6 +59,7 @@ abstract class $FoodLogCopyWith<$Res> {
     List<String> foodItemIds,
     List<String> adHocItems,
     String? notes,
+    bool violationFlag,
     SyncMetadata syncMetadata,
   });
 
@@ -86,6 +89,7 @@ class _$FoodLogCopyWithImpl<$Res, $Val extends FoodLog>
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = freezed,
+    Object? violationFlag = null,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -122,6 +126,10 @@ class _$FoodLogCopyWithImpl<$Res, $Val extends FoodLog>
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
+            violationFlag: null == violationFlag
+                ? _value.violationFlag
+                : violationFlag // ignore: cast_nullable_to_non_nullable
+                      as bool,
             syncMetadata: null == syncMetadata
                 ? _value.syncMetadata
                 : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -159,6 +167,7 @@ abstract class _$$FoodLogImplCopyWith<$Res> implements $FoodLogCopyWith<$Res> {
     List<String> foodItemIds,
     List<String> adHocItems,
     String? notes,
+    bool violationFlag,
     SyncMetadata syncMetadata,
   });
 
@@ -188,6 +197,7 @@ class __$$FoodLogImplCopyWithImpl<$Res>
     Object? foodItemIds = null,
     Object? adHocItems = null,
     Object? notes = freezed,
+    Object? violationFlag = null,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -224,6 +234,10 @@ class __$$FoodLogImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String?,
+        violationFlag: null == violationFlag
+            ? _value.violationFlag
+            : violationFlag // ignore: cast_nullable_to_non_nullable
+                  as bool,
         syncMetadata: null == syncMetadata
             ? _value.syncMetadata
             : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -246,6 +260,7 @@ class _$FoodLogImpl extends _FoodLog {
     final List<String> foodItemIds = const [],
     final List<String> adHocItems = const [],
     this.notes,
+    this.violationFlag = false,
     required this.syncMetadata,
   }) : _foodItemIds = foodItemIds,
        _adHocItems = adHocItems,
@@ -291,11 +306,15 @@ class _$FoodLogImpl extends _FoodLog {
   @override
   final String? notes;
   @override
+  @JsonKey()
+  final bool violationFlag;
+  // true = logged despite diet violation
+  @override
   final SyncMetadata syncMetadata;
 
   @override
   String toString() {
-    return 'FoodLog(id: $id, clientId: $clientId, profileId: $profileId, timestamp: $timestamp, mealType: $mealType, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes, syncMetadata: $syncMetadata)';
+    return 'FoodLog(id: $id, clientId: $clientId, profileId: $profileId, timestamp: $timestamp, mealType: $mealType, foodItemIds: $foodItemIds, adHocItems: $adHocItems, notes: $notes, violationFlag: $violationFlag, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -321,6 +340,8 @@ class _$FoodLogImpl extends _FoodLog {
               _adHocItems,
             ) &&
             (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.violationFlag, violationFlag) ||
+                other.violationFlag == violationFlag) &&
             (identical(other.syncMetadata, syncMetadata) ||
                 other.syncMetadata == syncMetadata));
   }
@@ -337,6 +358,7 @@ class _$FoodLogImpl extends _FoodLog {
     const DeepCollectionEquality().hash(_foodItemIds),
     const DeepCollectionEquality().hash(_adHocItems),
     notes,
+    violationFlag,
     syncMetadata,
   );
 
@@ -364,6 +386,7 @@ abstract class _FoodLog extends FoodLog {
     final List<String> foodItemIds,
     final List<String> adHocItems,
     final String? notes,
+    final bool violationFlag,
     required final SyncMetadata syncMetadata,
   }) = _$FoodLogImpl;
   const _FoodLog._() : super._();
@@ -386,6 +409,8 @@ abstract class _FoodLog extends FoodLog {
   List<String> get adHocItems; // Free-form food names (quick entry)
   @override
   String? get notes;
+  @override
+  bool get violationFlag; // true = logged despite diet violation
   @override
   SyncMetadata get syncMetadata;
 

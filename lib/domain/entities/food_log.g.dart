@@ -24,6 +24,7 @@ _$FoodLogImpl _$$FoodLogImplFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       notes: json['notes'] as String?,
+      violationFlag: json['violationFlag'] as bool? ?? false,
       syncMetadata: SyncMetadata.fromJson(
         json['syncMetadata'] as Map<String, dynamic>,
       ),
@@ -39,6 +40,7 @@ Map<String, dynamic> _$$FoodLogImplToJson(_$FoodLogImpl instance) =>
       'foodItemIds': instance.foodItemIds,
       'adHocItems': instance.adHocItems,
       'notes': instance.notes,
+      'violationFlag': instance.violationFlag,
       'syncMetadata': instance.syncMetadata.toJson(),
     };
 

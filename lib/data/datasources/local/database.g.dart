@@ -15657,6 +15657,21 @@ class $FoodLogsTable extends FoodLogs
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _violationFlagMeta = const VerificationMeta(
+    'violationFlag',
+  );
+  @override
+  late final GeneratedColumn<bool> violationFlag = GeneratedColumn<bool>(
+    'violation_flag',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("violation_flag" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
     'syncCreatedAt',
   );
@@ -15772,6 +15787,7 @@ class $FoodLogsTable extends FoodLogs
     foodItemIds,
     adHocItems,
     notes,
+    violationFlag,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -15855,6 +15871,15 @@ class $FoodLogsTable extends FoodLogs
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('violation_flag')) {
+      context.handle(
+        _violationFlagMeta,
+        violationFlag.isAcceptableOrUnknown(
+          data['violation_flag']!,
+          _violationFlagMeta,
+        ),
       );
     }
     if (data.containsKey('sync_created_at')) {
@@ -15978,6 +16003,10 @@ class $FoodLogsTable extends FoodLogs
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      violationFlag: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}violation_flag'],
+      )!,
       syncCreatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sync_created_at'],
@@ -16032,6 +16061,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
   final String foodItemIds;
   final String adHocItems;
   final String? notes;
+  final bool violationFlag;
   final int syncCreatedAt;
   final int? syncUpdatedAt;
   final int? syncDeletedAt;
@@ -16050,6 +16080,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     required this.foodItemIds,
     required this.adHocItems,
     this.notes,
+    required this.violationFlag,
     required this.syncCreatedAt,
     this.syncUpdatedAt,
     this.syncDeletedAt,
@@ -16075,6 +16106,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    map['violation_flag'] = Variable<bool>(violationFlag);
     map['sync_created_at'] = Variable<int>(syncCreatedAt);
     if (!nullToAbsent || syncUpdatedAt != null) {
       map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
@@ -16111,6 +16143,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      violationFlag: Value(violationFlag),
       syncCreatedAt: Value(syncCreatedAt),
       syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -16147,6 +16180,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       foodItemIds: serializer.fromJson<String>(json['foodItemIds']),
       adHocItems: serializer.fromJson<String>(json['adHocItems']),
       notes: serializer.fromJson<String?>(json['notes']),
+      violationFlag: serializer.fromJson<bool>(json['violationFlag']),
       syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
       syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
       syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
@@ -16170,6 +16204,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
       'foodItemIds': serializer.toJson<String>(foodItemIds),
       'adHocItems': serializer.toJson<String>(adHocItems),
       'notes': serializer.toJson<String?>(notes),
+      'violationFlag': serializer.toJson<bool>(violationFlag),
       'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
       'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
       'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
@@ -16191,6 +16226,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     String? foodItemIds,
     String? adHocItems,
     Value<String?> notes = const Value.absent(),
+    bool? violationFlag,
     int? syncCreatedAt,
     Value<int?> syncUpdatedAt = const Value.absent(),
     Value<int?> syncDeletedAt = const Value.absent(),
@@ -16209,6 +16245,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     foodItemIds: foodItemIds ?? this.foodItemIds,
     adHocItems: adHocItems ?? this.adHocItems,
     notes: notes.present ? notes.value : this.notes,
+    violationFlag: violationFlag ?? this.violationFlag,
     syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
     syncUpdatedAt: syncUpdatedAt.present
         ? syncUpdatedAt.value
@@ -16239,6 +16276,9 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
           ? data.adHocItems.value
           : this.adHocItems,
       notes: data.notes.present ? data.notes.value : this.notes,
+      violationFlag: data.violationFlag.present
+          ? data.violationFlag.value
+          : this.violationFlag,
       syncCreatedAt: data.syncCreatedAt.present
           ? data.syncCreatedAt.value
           : this.syncCreatedAt,
@@ -16280,6 +16320,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
           ..write('foodItemIds: $foodItemIds, ')
           ..write('adHocItems: $adHocItems, ')
           ..write('notes: $notes, ')
+          ..write('violationFlag: $violationFlag, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -16303,6 +16344,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
     foodItemIds,
     adHocItems,
     notes,
+    violationFlag,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -16325,6 +16367,7 @@ class FoodLogRow extends DataClass implements Insertable<FoodLogRow> {
           other.foodItemIds == this.foodItemIds &&
           other.adHocItems == this.adHocItems &&
           other.notes == this.notes &&
+          other.violationFlag == this.violationFlag &&
           other.syncCreatedAt == this.syncCreatedAt &&
           other.syncUpdatedAt == this.syncUpdatedAt &&
           other.syncDeletedAt == this.syncDeletedAt &&
@@ -16345,6 +16388,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
   final Value<String> foodItemIds;
   final Value<String> adHocItems;
   final Value<String?> notes;
+  final Value<bool> violationFlag;
   final Value<int> syncCreatedAt;
   final Value<int?> syncUpdatedAt;
   final Value<int?> syncDeletedAt;
@@ -16364,6 +16408,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     this.foodItemIds = const Value.absent(),
     this.adHocItems = const Value.absent(),
     this.notes = const Value.absent(),
+    this.violationFlag = const Value.absent(),
     this.syncCreatedAt = const Value.absent(),
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -16384,6 +16429,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     required String foodItemIds,
     required String adHocItems,
     this.notes = const Value.absent(),
+    this.violationFlag = const Value.absent(),
     required int syncCreatedAt,
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -16410,6 +16456,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     Expression<String>? foodItemIds,
     Expression<String>? adHocItems,
     Expression<String>? notes,
+    Expression<bool>? violationFlag,
     Expression<int>? syncCreatedAt,
     Expression<int>? syncUpdatedAt,
     Expression<int>? syncDeletedAt,
@@ -16430,6 +16477,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
       if (foodItemIds != null) 'food_item_ids': foodItemIds,
       if (adHocItems != null) 'ad_hoc_items': adHocItems,
       if (notes != null) 'notes': notes,
+      if (violationFlag != null) 'violation_flag': violationFlag,
       if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
       if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
       if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
@@ -16452,6 +16500,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     Value<String>? foodItemIds,
     Value<String>? adHocItems,
     Value<String?>? notes,
+    Value<bool>? violationFlag,
     Value<int>? syncCreatedAt,
     Value<int?>? syncUpdatedAt,
     Value<int?>? syncDeletedAt,
@@ -16472,6 +16521,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
       foodItemIds: foodItemIds ?? this.foodItemIds,
       adHocItems: adHocItems ?? this.adHocItems,
       notes: notes ?? this.notes,
+      violationFlag: violationFlag ?? this.violationFlag,
       syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
       syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
       syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
@@ -16511,6 +16561,9 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
+    }
+    if (violationFlag.present) {
+      map['violation_flag'] = Variable<bool>(violationFlag.value);
     }
     if (syncCreatedAt.present) {
       map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
@@ -16556,6 +16609,7 @@ class FoodLogsCompanion extends UpdateCompanion<FoodLogRow> {
           ..write('foodItemIds: $foodItemIds, ')
           ..write('adHocItems: $adHocItems, ')
           ..write('notes: $notes, ')
+          ..write('violationFlag: $violationFlag, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -24979,6 +25033,4245 @@ class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
   }
 }
 
+class $DietsTable extends Diets with TableInfo<$DietsTable, DietRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DietsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _presetTypeMeta = const VerificationMeta(
+    'presetType',
+  );
+  @override
+  late final GeneratedColumn<int> presetType = GeneratedColumn<int>(
+    'preset_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<int> startDate = GeneratedColumn<int>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<int> endDate = GeneratedColumn<int>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDraftMeta = const VerificationMeta(
+    'isDraft',
+  );
+  @override
+  late final GeneratedColumn<bool> isDraft = GeneratedColumn<bool>(
+    'is_draft',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_draft" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    name,
+    description,
+    presetType,
+    isActive,
+    startDate,
+    endDate,
+    isDraft,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DietRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preset_type')) {
+      context.handle(
+        _presetTypeMeta,
+        presetType.isAcceptableOrUnknown(data['preset_type']!, _presetTypeMeta),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    }
+    if (data.containsKey('is_draft')) {
+      context.handle(
+        _isDraftMeta,
+        isDraft.isAcceptableOrUnknown(data['is_draft']!, _isDraftMeta),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DietRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DietRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      presetType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}preset_type'],
+      ),
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_date'],
+      )!,
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_date'],
+      ),
+      isDraft: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_draft'],
+      )!,
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $DietsTable createAlias(String alias) {
+    return $DietsTable(attachedDatabase, alias);
+  }
+}
+
+class DietRow extends DataClass implements Insertable<DietRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final String name;
+  final String description;
+  final int? presetType;
+  final bool isActive;
+  final int startDate;
+  final int? endDate;
+  final bool isDraft;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const DietRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.name,
+    required this.description,
+    this.presetType,
+    required this.isActive,
+    required this.startDate,
+    this.endDate,
+    required this.isDraft,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['name'] = Variable<String>(name);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || presetType != null) {
+      map['preset_type'] = Variable<int>(presetType);
+    }
+    map['is_active'] = Variable<bool>(isActive);
+    map['start_date'] = Variable<int>(startDate);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<int>(endDate);
+    }
+    map['is_draft'] = Variable<bool>(isDraft);
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  DietsCompanion toCompanion(bool nullToAbsent) {
+    return DietsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      name: Value(name),
+      description: Value(description),
+      presetType: presetType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetType),
+      isActive: Value(isActive),
+      startDate: Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+      isDraft: Value(isDraft),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory DietRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DietRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
+      presetType: serializer.fromJson<int?>(json['presetType']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      startDate: serializer.fromJson<int>(json['startDate']),
+      endDate: serializer.fromJson<int?>(json['endDate']),
+      isDraft: serializer.fromJson<bool>(json['isDraft']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
+      'presetType': serializer.toJson<int?>(presetType),
+      'isActive': serializer.toJson<bool>(isActive),
+      'startDate': serializer.toJson<int>(startDate),
+      'endDate': serializer.toJson<int?>(endDate),
+      'isDraft': serializer.toJson<bool>(isDraft),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  DietRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    String? name,
+    String? description,
+    Value<int?> presetType = const Value.absent(),
+    bool? isActive,
+    int? startDate,
+    Value<int?> endDate = const Value.absent(),
+    bool? isDraft,
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => DietRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    presetType: presetType.present ? presetType.value : this.presetType,
+    isActive: isActive ?? this.isActive,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+    isDraft: isDraft ?? this.isDraft,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  DietRow copyWithCompanion(DietsCompanion data) {
+    return DietRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      presetType: data.presetType.present
+          ? data.presetType.value
+          : this.presetType,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      isDraft: data.isDraft.present ? data.isDraft.value : this.isDraft,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('presetType: $presetType, ')
+          ..write('isActive: $isActive, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('isDraft: $isDraft, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    profileId,
+    name,
+    description,
+    presetType,
+    isActive,
+    startDate,
+    endDate,
+    isDraft,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DietRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.presetType == this.presetType &&
+          other.isActive == this.isActive &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.isDraft == this.isDraft &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class DietsCompanion extends UpdateCompanion<DietRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<String> name;
+  final Value<String> description;
+  final Value<int?> presetType;
+  final Value<bool> isActive;
+  final Value<int> startDate;
+  final Value<int?> endDate;
+  final Value<bool> isDraft;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const DietsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.presetType = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.isDraft = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DietsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required String name,
+    this.description = const Value.absent(),
+    this.presetType = const Value.absent(),
+    this.isActive = const Value.absent(),
+    required int startDate,
+    this.endDate = const Value.absent(),
+    this.isDraft = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       name = Value(name),
+       startDate = Value(startDate),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<DietRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<int>? presetType,
+    Expression<bool>? isActive,
+    Expression<int>? startDate,
+    Expression<int>? endDate,
+    Expression<bool>? isDraft,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (presetType != null) 'preset_type': presetType,
+      if (isActive != null) 'is_active': isActive,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (isDraft != null) 'is_draft': isDraft,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DietsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<String>? name,
+    Value<String>? description,
+    Value<int?>? presetType,
+    Value<bool>? isActive,
+    Value<int>? startDate,
+    Value<int?>? endDate,
+    Value<bool>? isDraft,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return DietsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      presetType: presetType ?? this.presetType,
+      isActive: isActive ?? this.isActive,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isDraft: isDraft ?? this.isDraft,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (presetType.present) {
+      map['preset_type'] = Variable<int>(presetType.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<int>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<int>(endDate.value);
+    }
+    if (isDraft.present) {
+      map['is_draft'] = Variable<bool>(isDraft.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('presetType: $presetType, ')
+          ..write('isActive: $isActive, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('isDraft: $isDraft, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DietRulesTable extends DietRules
+    with TableInfo<$DietRulesTable, DietRuleRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DietRulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dietIdMeta = const VerificationMeta('dietId');
+  @override
+  late final GeneratedColumn<String> dietId = GeneratedColumn<String>(
+    'diet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleTypeMeta = const VerificationMeta(
+    'ruleType',
+  );
+  @override
+  late final GeneratedColumn<int> ruleType = GeneratedColumn<int>(
+    'rule_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetFoodItemIdMeta = const VerificationMeta(
+    'targetFoodItemId',
+  );
+  @override
+  late final GeneratedColumn<String> targetFoodItemId = GeneratedColumn<String>(
+    'target_food_item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetCategoryMeta = const VerificationMeta(
+    'targetCategory',
+  );
+  @override
+  late final GeneratedColumn<String> targetCategory = GeneratedColumn<String>(
+    'target_category',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetIngredientMeta = const VerificationMeta(
+    'targetIngredient',
+  );
+  @override
+  late final GeneratedColumn<String> targetIngredient = GeneratedColumn<String>(
+    'target_ingredient',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _minValueMeta = const VerificationMeta(
+    'minValue',
+  );
+  @override
+  late final GeneratedColumn<double> minValue = GeneratedColumn<double>(
+    'min_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _maxValueMeta = const VerificationMeta(
+    'maxValue',
+  );
+  @override
+  late final GeneratedColumn<double> maxValue = GeneratedColumn<double>(
+    'max_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _frequencyMeta = const VerificationMeta(
+    'frequency',
+  );
+  @override
+  late final GeneratedColumn<String> frequency = GeneratedColumn<String>(
+    'frequency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _timeValueMeta = const VerificationMeta(
+    'timeValue',
+  );
+  @override
+  late final GeneratedColumn<int> timeValue = GeneratedColumn<int>(
+    'time_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    dietId,
+    ruleType,
+    targetFoodItemId,
+    targetCategory,
+    targetIngredient,
+    minValue,
+    maxValue,
+    unit,
+    frequency,
+    timeValue,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diet_rules';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DietRuleRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('diet_id')) {
+      context.handle(
+        _dietIdMeta,
+        dietId.isAcceptableOrUnknown(data['diet_id']!, _dietIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dietIdMeta);
+    }
+    if (data.containsKey('rule_type')) {
+      context.handle(
+        _ruleTypeMeta,
+        ruleType.isAcceptableOrUnknown(data['rule_type']!, _ruleTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleTypeMeta);
+    }
+    if (data.containsKey('target_food_item_id')) {
+      context.handle(
+        _targetFoodItemIdMeta,
+        targetFoodItemId.isAcceptableOrUnknown(
+          data['target_food_item_id']!,
+          _targetFoodItemIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_category')) {
+      context.handle(
+        _targetCategoryMeta,
+        targetCategory.isAcceptableOrUnknown(
+          data['target_category']!,
+          _targetCategoryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('target_ingredient')) {
+      context.handle(
+        _targetIngredientMeta,
+        targetIngredient.isAcceptableOrUnknown(
+          data['target_ingredient']!,
+          _targetIngredientMeta,
+        ),
+      );
+    }
+    if (data.containsKey('min_value')) {
+      context.handle(
+        _minValueMeta,
+        minValue.isAcceptableOrUnknown(data['min_value']!, _minValueMeta),
+      );
+    }
+    if (data.containsKey('max_value')) {
+      context.handle(
+        _maxValueMeta,
+        maxValue.isAcceptableOrUnknown(data['max_value']!, _maxValueMeta),
+      );
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
+    if (data.containsKey('frequency')) {
+      context.handle(
+        _frequencyMeta,
+        frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta),
+      );
+    }
+    if (data.containsKey('time_value')) {
+      context.handle(
+        _timeValueMeta,
+        timeValue.isAcceptableOrUnknown(data['time_value']!, _timeValueMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DietRuleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DietRuleRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      dietId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diet_id'],
+      )!,
+      ruleType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rule_type'],
+      )!,
+      targetFoodItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_food_item_id'],
+      ),
+      targetCategory: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_category'],
+      ),
+      targetIngredient: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_ingredient'],
+      ),
+      minValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}min_value'],
+      ),
+      maxValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}max_value'],
+      ),
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      ),
+      frequency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}frequency'],
+      ),
+      timeValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_value'],
+      ),
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $DietRulesTable createAlias(String alias) {
+    return $DietRulesTable(attachedDatabase, alias);
+  }
+}
+
+class DietRuleRow extends DataClass implements Insertable<DietRuleRow> {
+  final String id;
+  final String dietId;
+  final int ruleType;
+  final String? targetFoodItemId;
+  final String? targetCategory;
+  final String? targetIngredient;
+  final double? minValue;
+  final double? maxValue;
+  final String? unit;
+  final String? frequency;
+  final int? timeValue;
+  final int sortOrder;
+  const DietRuleRow({
+    required this.id,
+    required this.dietId,
+    required this.ruleType,
+    this.targetFoodItemId,
+    this.targetCategory,
+    this.targetIngredient,
+    this.minValue,
+    this.maxValue,
+    this.unit,
+    this.frequency,
+    this.timeValue,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['diet_id'] = Variable<String>(dietId);
+    map['rule_type'] = Variable<int>(ruleType);
+    if (!nullToAbsent || targetFoodItemId != null) {
+      map['target_food_item_id'] = Variable<String>(targetFoodItemId);
+    }
+    if (!nullToAbsent || targetCategory != null) {
+      map['target_category'] = Variable<String>(targetCategory);
+    }
+    if (!nullToAbsent || targetIngredient != null) {
+      map['target_ingredient'] = Variable<String>(targetIngredient);
+    }
+    if (!nullToAbsent || minValue != null) {
+      map['min_value'] = Variable<double>(minValue);
+    }
+    if (!nullToAbsent || maxValue != null) {
+      map['max_value'] = Variable<double>(maxValue);
+    }
+    if (!nullToAbsent || unit != null) {
+      map['unit'] = Variable<String>(unit);
+    }
+    if (!nullToAbsent || frequency != null) {
+      map['frequency'] = Variable<String>(frequency);
+    }
+    if (!nullToAbsent || timeValue != null) {
+      map['time_value'] = Variable<int>(timeValue);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  DietRulesCompanion toCompanion(bool nullToAbsent) {
+    return DietRulesCompanion(
+      id: Value(id),
+      dietId: Value(dietId),
+      ruleType: Value(ruleType),
+      targetFoodItemId: targetFoodItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetFoodItemId),
+      targetCategory: targetCategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetCategory),
+      targetIngredient: targetIngredient == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetIngredient),
+      minValue: minValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minValue),
+      maxValue: maxValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxValue),
+      unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
+      frequency: frequency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(frequency),
+      timeValue: timeValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeValue),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory DietRuleRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DietRuleRow(
+      id: serializer.fromJson<String>(json['id']),
+      dietId: serializer.fromJson<String>(json['dietId']),
+      ruleType: serializer.fromJson<int>(json['ruleType']),
+      targetFoodItemId: serializer.fromJson<String?>(json['targetFoodItemId']),
+      targetCategory: serializer.fromJson<String?>(json['targetCategory']),
+      targetIngredient: serializer.fromJson<String?>(json['targetIngredient']),
+      minValue: serializer.fromJson<double?>(json['minValue']),
+      maxValue: serializer.fromJson<double?>(json['maxValue']),
+      unit: serializer.fromJson<String?>(json['unit']),
+      frequency: serializer.fromJson<String?>(json['frequency']),
+      timeValue: serializer.fromJson<int?>(json['timeValue']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'dietId': serializer.toJson<String>(dietId),
+      'ruleType': serializer.toJson<int>(ruleType),
+      'targetFoodItemId': serializer.toJson<String?>(targetFoodItemId),
+      'targetCategory': serializer.toJson<String?>(targetCategory),
+      'targetIngredient': serializer.toJson<String?>(targetIngredient),
+      'minValue': serializer.toJson<double?>(minValue),
+      'maxValue': serializer.toJson<double?>(maxValue),
+      'unit': serializer.toJson<String?>(unit),
+      'frequency': serializer.toJson<String?>(frequency),
+      'timeValue': serializer.toJson<int?>(timeValue),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  DietRuleRow copyWith({
+    String? id,
+    String? dietId,
+    int? ruleType,
+    Value<String?> targetFoodItemId = const Value.absent(),
+    Value<String?> targetCategory = const Value.absent(),
+    Value<String?> targetIngredient = const Value.absent(),
+    Value<double?> minValue = const Value.absent(),
+    Value<double?> maxValue = const Value.absent(),
+    Value<String?> unit = const Value.absent(),
+    Value<String?> frequency = const Value.absent(),
+    Value<int?> timeValue = const Value.absent(),
+    int? sortOrder,
+  }) => DietRuleRow(
+    id: id ?? this.id,
+    dietId: dietId ?? this.dietId,
+    ruleType: ruleType ?? this.ruleType,
+    targetFoodItemId: targetFoodItemId.present
+        ? targetFoodItemId.value
+        : this.targetFoodItemId,
+    targetCategory: targetCategory.present
+        ? targetCategory.value
+        : this.targetCategory,
+    targetIngredient: targetIngredient.present
+        ? targetIngredient.value
+        : this.targetIngredient,
+    minValue: minValue.present ? minValue.value : this.minValue,
+    maxValue: maxValue.present ? maxValue.value : this.maxValue,
+    unit: unit.present ? unit.value : this.unit,
+    frequency: frequency.present ? frequency.value : this.frequency,
+    timeValue: timeValue.present ? timeValue.value : this.timeValue,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  DietRuleRow copyWithCompanion(DietRulesCompanion data) {
+    return DietRuleRow(
+      id: data.id.present ? data.id.value : this.id,
+      dietId: data.dietId.present ? data.dietId.value : this.dietId,
+      ruleType: data.ruleType.present ? data.ruleType.value : this.ruleType,
+      targetFoodItemId: data.targetFoodItemId.present
+          ? data.targetFoodItemId.value
+          : this.targetFoodItemId,
+      targetCategory: data.targetCategory.present
+          ? data.targetCategory.value
+          : this.targetCategory,
+      targetIngredient: data.targetIngredient.present
+          ? data.targetIngredient.value
+          : this.targetIngredient,
+      minValue: data.minValue.present ? data.minValue.value : this.minValue,
+      maxValue: data.maxValue.present ? data.maxValue.value : this.maxValue,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      timeValue: data.timeValue.present ? data.timeValue.value : this.timeValue,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietRuleRow(')
+          ..write('id: $id, ')
+          ..write('dietId: $dietId, ')
+          ..write('ruleType: $ruleType, ')
+          ..write('targetFoodItemId: $targetFoodItemId, ')
+          ..write('targetCategory: $targetCategory, ')
+          ..write('targetIngredient: $targetIngredient, ')
+          ..write('minValue: $minValue, ')
+          ..write('maxValue: $maxValue, ')
+          ..write('unit: $unit, ')
+          ..write('frequency: $frequency, ')
+          ..write('timeValue: $timeValue, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    dietId,
+    ruleType,
+    targetFoodItemId,
+    targetCategory,
+    targetIngredient,
+    minValue,
+    maxValue,
+    unit,
+    frequency,
+    timeValue,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DietRuleRow &&
+          other.id == this.id &&
+          other.dietId == this.dietId &&
+          other.ruleType == this.ruleType &&
+          other.targetFoodItemId == this.targetFoodItemId &&
+          other.targetCategory == this.targetCategory &&
+          other.targetIngredient == this.targetIngredient &&
+          other.minValue == this.minValue &&
+          other.maxValue == this.maxValue &&
+          other.unit == this.unit &&
+          other.frequency == this.frequency &&
+          other.timeValue == this.timeValue &&
+          other.sortOrder == this.sortOrder);
+}
+
+class DietRulesCompanion extends UpdateCompanion<DietRuleRow> {
+  final Value<String> id;
+  final Value<String> dietId;
+  final Value<int> ruleType;
+  final Value<String?> targetFoodItemId;
+  final Value<String?> targetCategory;
+  final Value<String?> targetIngredient;
+  final Value<double?> minValue;
+  final Value<double?> maxValue;
+  final Value<String?> unit;
+  final Value<String?> frequency;
+  final Value<int?> timeValue;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const DietRulesCompanion({
+    this.id = const Value.absent(),
+    this.dietId = const Value.absent(),
+    this.ruleType = const Value.absent(),
+    this.targetFoodItemId = const Value.absent(),
+    this.targetCategory = const Value.absent(),
+    this.targetIngredient = const Value.absent(),
+    this.minValue = const Value.absent(),
+    this.maxValue = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.timeValue = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DietRulesCompanion.insert({
+    required String id,
+    required String dietId,
+    required int ruleType,
+    this.targetFoodItemId = const Value.absent(),
+    this.targetCategory = const Value.absent(),
+    this.targetIngredient = const Value.absent(),
+    this.minValue = const Value.absent(),
+    this.maxValue = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.timeValue = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       dietId = Value(dietId),
+       ruleType = Value(ruleType);
+  static Insertable<DietRuleRow> custom({
+    Expression<String>? id,
+    Expression<String>? dietId,
+    Expression<int>? ruleType,
+    Expression<String>? targetFoodItemId,
+    Expression<String>? targetCategory,
+    Expression<String>? targetIngredient,
+    Expression<double>? minValue,
+    Expression<double>? maxValue,
+    Expression<String>? unit,
+    Expression<String>? frequency,
+    Expression<int>? timeValue,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (dietId != null) 'diet_id': dietId,
+      if (ruleType != null) 'rule_type': ruleType,
+      if (targetFoodItemId != null) 'target_food_item_id': targetFoodItemId,
+      if (targetCategory != null) 'target_category': targetCategory,
+      if (targetIngredient != null) 'target_ingredient': targetIngredient,
+      if (minValue != null) 'min_value': minValue,
+      if (maxValue != null) 'max_value': maxValue,
+      if (unit != null) 'unit': unit,
+      if (frequency != null) 'frequency': frequency,
+      if (timeValue != null) 'time_value': timeValue,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DietRulesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? dietId,
+    Value<int>? ruleType,
+    Value<String?>? targetFoodItemId,
+    Value<String?>? targetCategory,
+    Value<String?>? targetIngredient,
+    Value<double?>? minValue,
+    Value<double?>? maxValue,
+    Value<String?>? unit,
+    Value<String?>? frequency,
+    Value<int?>? timeValue,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return DietRulesCompanion(
+      id: id ?? this.id,
+      dietId: dietId ?? this.dietId,
+      ruleType: ruleType ?? this.ruleType,
+      targetFoodItemId: targetFoodItemId ?? this.targetFoodItemId,
+      targetCategory: targetCategory ?? this.targetCategory,
+      targetIngredient: targetIngredient ?? this.targetIngredient,
+      minValue: minValue ?? this.minValue,
+      maxValue: maxValue ?? this.maxValue,
+      unit: unit ?? this.unit,
+      frequency: frequency ?? this.frequency,
+      timeValue: timeValue ?? this.timeValue,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (dietId.present) {
+      map['diet_id'] = Variable<String>(dietId.value);
+    }
+    if (ruleType.present) {
+      map['rule_type'] = Variable<int>(ruleType.value);
+    }
+    if (targetFoodItemId.present) {
+      map['target_food_item_id'] = Variable<String>(targetFoodItemId.value);
+    }
+    if (targetCategory.present) {
+      map['target_category'] = Variable<String>(targetCategory.value);
+    }
+    if (targetIngredient.present) {
+      map['target_ingredient'] = Variable<String>(targetIngredient.value);
+    }
+    if (minValue.present) {
+      map['min_value'] = Variable<double>(minValue.value);
+    }
+    if (maxValue.present) {
+      map['max_value'] = Variable<double>(maxValue.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<String>(frequency.value);
+    }
+    if (timeValue.present) {
+      map['time_value'] = Variable<int>(timeValue.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietRulesCompanion(')
+          ..write('id: $id, ')
+          ..write('dietId: $dietId, ')
+          ..write('ruleType: $ruleType, ')
+          ..write('targetFoodItemId: $targetFoodItemId, ')
+          ..write('targetCategory: $targetCategory, ')
+          ..write('targetIngredient: $targetIngredient, ')
+          ..write('minValue: $minValue, ')
+          ..write('maxValue: $maxValue, ')
+          ..write('unit: $unit, ')
+          ..write('frequency: $frequency, ')
+          ..write('timeValue: $timeValue, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DietExceptionsTable extends DietExceptions
+    with TableInfo<$DietExceptionsTable, DietExceptionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DietExceptionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleIdMeta = const VerificationMeta('ruleId');
+  @override
+  late final GeneratedColumn<String> ruleId = GeneratedColumn<String>(
+    'rule_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, ruleId, description, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diet_exceptions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DietExceptionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('rule_id')) {
+      context.handle(
+        _ruleIdMeta,
+        ruleId.isAcceptableOrUnknown(data['rule_id']!, _ruleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleIdMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DietExceptionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DietExceptionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ruleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule_id'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $DietExceptionsTable createAlias(String alias) {
+    return $DietExceptionsTable(attachedDatabase, alias);
+  }
+}
+
+class DietExceptionRow extends DataClass
+    implements Insertable<DietExceptionRow> {
+  final String id;
+  final String ruleId;
+  final String description;
+  final int sortOrder;
+  const DietExceptionRow({
+    required this.id,
+    required this.ruleId,
+    required this.description,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['rule_id'] = Variable<String>(ruleId);
+    map['description'] = Variable<String>(description);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  DietExceptionsCompanion toCompanion(bool nullToAbsent) {
+    return DietExceptionsCompanion(
+      id: Value(id),
+      ruleId: Value(ruleId),
+      description: Value(description),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory DietExceptionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DietExceptionRow(
+      id: serializer.fromJson<String>(json['id']),
+      ruleId: serializer.fromJson<String>(json['ruleId']),
+      description: serializer.fromJson<String>(json['description']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ruleId': serializer.toJson<String>(ruleId),
+      'description': serializer.toJson<String>(description),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  DietExceptionRow copyWith({
+    String? id,
+    String? ruleId,
+    String? description,
+    int? sortOrder,
+  }) => DietExceptionRow(
+    id: id ?? this.id,
+    ruleId: ruleId ?? this.ruleId,
+    description: description ?? this.description,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  DietExceptionRow copyWithCompanion(DietExceptionsCompanion data) {
+    return DietExceptionRow(
+      id: data.id.present ? data.id.value : this.id,
+      ruleId: data.ruleId.present ? data.ruleId.value : this.ruleId,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietExceptionRow(')
+          ..write('id: $id, ')
+          ..write('ruleId: $ruleId, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, ruleId, description, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DietExceptionRow &&
+          other.id == this.id &&
+          other.ruleId == this.ruleId &&
+          other.description == this.description &&
+          other.sortOrder == this.sortOrder);
+}
+
+class DietExceptionsCompanion extends UpdateCompanion<DietExceptionRow> {
+  final Value<String> id;
+  final Value<String> ruleId;
+  final Value<String> description;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const DietExceptionsCompanion({
+    this.id = const Value.absent(),
+    this.ruleId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DietExceptionsCompanion.insert({
+    required String id,
+    required String ruleId,
+    required String description,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ruleId = Value(ruleId),
+       description = Value(description);
+  static Insertable<DietExceptionRow> custom({
+    Expression<String>? id,
+    Expression<String>? ruleId,
+    Expression<String>? description,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ruleId != null) 'rule_id': ruleId,
+      if (description != null) 'description': description,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DietExceptionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ruleId,
+    Value<String>? description,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return DietExceptionsCompanion(
+      id: id ?? this.id,
+      ruleId: ruleId ?? this.ruleId,
+      description: description ?? this.description,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ruleId.present) {
+      map['rule_id'] = Variable<String>(ruleId.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietExceptionsCompanion(')
+          ..write('id: $id, ')
+          ..write('ruleId: $ruleId, ')
+          ..write('description: $description, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FastingSessionsTable extends FastingSessions
+    with TableInfo<$FastingSessionsTable, FastingSessionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FastingSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _protocolMeta = const VerificationMeta(
+    'protocol',
+  );
+  @override
+  late final GeneratedColumn<int> protocol = GeneratedColumn<int>(
+    'protocol',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endedAtMeta = const VerificationMeta(
+    'endedAt',
+  );
+  @override
+  late final GeneratedColumn<int> endedAt = GeneratedColumn<int>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetHoursMeta = const VerificationMeta(
+    'targetHours',
+  );
+  @override
+  late final GeneratedColumn<double> targetHours = GeneratedColumn<double>(
+    'target_hours',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isManualEndMeta = const VerificationMeta(
+    'isManualEnd',
+  );
+  @override
+  late final GeneratedColumn<bool> isManualEnd = GeneratedColumn<bool>(
+    'is_manual_end',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_manual_end" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    protocol,
+    startedAt,
+    endedAt,
+    targetHours,
+    isManualEnd,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fasting_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FastingSessionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('protocol')) {
+      context.handle(
+        _protocolMeta,
+        protocol.isAcceptableOrUnknown(data['protocol']!, _protocolMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_protocolMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('ended_at')) {
+      context.handle(
+        _endedAtMeta,
+        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
+      );
+    }
+    if (data.containsKey('target_hours')) {
+      context.handle(
+        _targetHoursMeta,
+        targetHours.isAcceptableOrUnknown(
+          data['target_hours']!,
+          _targetHoursMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetHoursMeta);
+    }
+    if (data.containsKey('is_manual_end')) {
+      context.handle(
+        _isManualEndMeta,
+        isManualEnd.isAcceptableOrUnknown(
+          data['is_manual_end']!,
+          _isManualEndMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FastingSessionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FastingSessionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      protocol: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}protocol'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}started_at'],
+      )!,
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ended_at'],
+      ),
+      targetHours: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}target_hours'],
+      )!,
+      isManualEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_manual_end'],
+      )!,
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $FastingSessionsTable createAlias(String alias) {
+    return $FastingSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class FastingSessionRow extends DataClass
+    implements Insertable<FastingSessionRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int protocol;
+  final int startedAt;
+  final int? endedAt;
+  final double targetHours;
+  final bool isManualEnd;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const FastingSessionRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.protocol,
+    required this.startedAt,
+    this.endedAt,
+    required this.targetHours,
+    required this.isManualEnd,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['protocol'] = Variable<int>(protocol);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<int>(endedAt);
+    }
+    map['target_hours'] = Variable<double>(targetHours);
+    map['is_manual_end'] = Variable<bool>(isManualEnd);
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  FastingSessionsCompanion toCompanion(bool nullToAbsent) {
+    return FastingSessionsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      protocol: Value(protocol),
+      startedAt: Value(startedAt),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
+      targetHours: Value(targetHours),
+      isManualEnd: Value(isManualEnd),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory FastingSessionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FastingSessionRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      protocol: serializer.fromJson<int>(json['protocol']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      endedAt: serializer.fromJson<int?>(json['endedAt']),
+      targetHours: serializer.fromJson<double>(json['targetHours']),
+      isManualEnd: serializer.fromJson<bool>(json['isManualEnd']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'protocol': serializer.toJson<int>(protocol),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'endedAt': serializer.toJson<int?>(endedAt),
+      'targetHours': serializer.toJson<double>(targetHours),
+      'isManualEnd': serializer.toJson<bool>(isManualEnd),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  FastingSessionRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? protocol,
+    int? startedAt,
+    Value<int?> endedAt = const Value.absent(),
+    double? targetHours,
+    bool? isManualEnd,
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => FastingSessionRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    protocol: protocol ?? this.protocol,
+    startedAt: startedAt ?? this.startedAt,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
+    targetHours: targetHours ?? this.targetHours,
+    isManualEnd: isManualEnd ?? this.isManualEnd,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  FastingSessionRow copyWithCompanion(FastingSessionsCompanion data) {
+    return FastingSessionRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      protocol: data.protocol.present ? data.protocol.value : this.protocol,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
+      targetHours: data.targetHours.present
+          ? data.targetHours.value
+          : this.targetHours,
+      isManualEnd: data.isManualEnd.present
+          ? data.isManualEnd.value
+          : this.isManualEnd,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FastingSessionRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('protocol: $protocol, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('isManualEnd: $isManualEnd, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    profileId,
+    protocol,
+    startedAt,
+    endedAt,
+    targetHours,
+    isManualEnd,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FastingSessionRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.protocol == this.protocol &&
+          other.startedAt == this.startedAt &&
+          other.endedAt == this.endedAt &&
+          other.targetHours == this.targetHours &&
+          other.isManualEnd == this.isManualEnd &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class FastingSessionsCompanion extends UpdateCompanion<FastingSessionRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> protocol;
+  final Value<int> startedAt;
+  final Value<int?> endedAt;
+  final Value<double> targetHours;
+  final Value<bool> isManualEnd;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const FastingSessionsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.protocol = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.endedAt = const Value.absent(),
+    this.targetHours = const Value.absent(),
+    this.isManualEnd = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FastingSessionsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int protocol,
+    required int startedAt,
+    this.endedAt = const Value.absent(),
+    required double targetHours,
+    this.isManualEnd = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       protocol = Value(protocol),
+       startedAt = Value(startedAt),
+       targetHours = Value(targetHours),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<FastingSessionRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? protocol,
+    Expression<int>? startedAt,
+    Expression<int>? endedAt,
+    Expression<double>? targetHours,
+    Expression<bool>? isManualEnd,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (protocol != null) 'protocol': protocol,
+      if (startedAt != null) 'started_at': startedAt,
+      if (endedAt != null) 'ended_at': endedAt,
+      if (targetHours != null) 'target_hours': targetHours,
+      if (isManualEnd != null) 'is_manual_end': isManualEnd,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FastingSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? protocol,
+    Value<int>? startedAt,
+    Value<int?>? endedAt,
+    Value<double>? targetHours,
+    Value<bool>? isManualEnd,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return FastingSessionsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      protocol: protocol ?? this.protocol,
+      startedAt: startedAt ?? this.startedAt,
+      endedAt: endedAt ?? this.endedAt,
+      targetHours: targetHours ?? this.targetHours,
+      isManualEnd: isManualEnd ?? this.isManualEnd,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (protocol.present) {
+      map['protocol'] = Variable<int>(protocol.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<int>(endedAt.value);
+    }
+    if (targetHours.present) {
+      map['target_hours'] = Variable<double>(targetHours.value);
+    }
+    if (isManualEnd.present) {
+      map['is_manual_end'] = Variable<bool>(isManualEnd.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FastingSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('protocol: $protocol, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('isManualEnd: $isManualEnd, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DietViolationsTable extends DietViolations
+    with TableInfo<$DietViolationsTable, DietViolationRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DietViolationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dietIdMeta = const VerificationMeta('dietId');
+  @override
+  late final GeneratedColumn<String> dietId = GeneratedColumn<String>(
+    'diet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleIdMeta = const VerificationMeta('ruleId');
+  @override
+  late final GeneratedColumn<String> ruleId = GeneratedColumn<String>(
+    'rule_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _foodLogIdMeta = const VerificationMeta(
+    'foodLogId',
+  );
+  @override
+  late final GeneratedColumn<String> foodLogId = GeneratedColumn<String>(
+    'food_log_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _foodNameMeta = const VerificationMeta(
+    'foodName',
+  );
+  @override
+  late final GeneratedColumn<String> foodName = GeneratedColumn<String>(
+    'food_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ruleDescriptionMeta = const VerificationMeta(
+    'ruleDescription',
+  );
+  @override
+  late final GeneratedColumn<String> ruleDescription = GeneratedColumn<String>(
+    'rule_description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _wasOverriddenMeta = const VerificationMeta(
+    'wasOverridden',
+  );
+  @override
+  late final GeneratedColumn<bool> wasOverridden = GeneratedColumn<bool>(
+    'was_overridden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("was_overridden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<int> timestamp = GeneratedColumn<int>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    dietId,
+    ruleId,
+    foodLogId,
+    foodName,
+    ruleDescription,
+    wasOverridden,
+    timestamp,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diet_violations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DietViolationRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('diet_id')) {
+      context.handle(
+        _dietIdMeta,
+        dietId.isAcceptableOrUnknown(data['diet_id']!, _dietIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dietIdMeta);
+    }
+    if (data.containsKey('rule_id')) {
+      context.handle(
+        _ruleIdMeta,
+        ruleId.isAcceptableOrUnknown(data['rule_id']!, _ruleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleIdMeta);
+    }
+    if (data.containsKey('food_log_id')) {
+      context.handle(
+        _foodLogIdMeta,
+        foodLogId.isAcceptableOrUnknown(data['food_log_id']!, _foodLogIdMeta),
+      );
+    }
+    if (data.containsKey('food_name')) {
+      context.handle(
+        _foodNameMeta,
+        foodName.isAcceptableOrUnknown(data['food_name']!, _foodNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_foodNameMeta);
+    }
+    if (data.containsKey('rule_description')) {
+      context.handle(
+        _ruleDescriptionMeta,
+        ruleDescription.isAcceptableOrUnknown(
+          data['rule_description']!,
+          _ruleDescriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_ruleDescriptionMeta);
+    }
+    if (data.containsKey('was_overridden')) {
+      context.handle(
+        _wasOverriddenMeta,
+        wasOverridden.isAcceptableOrUnknown(
+          data['was_overridden']!,
+          _wasOverriddenMeta,
+        ),
+      );
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DietViolationRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DietViolationRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      dietId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}diet_id'],
+      )!,
+      ruleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule_id'],
+      )!,
+      foodLogId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_log_id'],
+      ),
+      foodName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}food_name'],
+      )!,
+      ruleDescription: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rule_description'],
+      )!,
+      wasOverridden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}was_overridden'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $DietViolationsTable createAlias(String alias) {
+    return $DietViolationsTable(attachedDatabase, alias);
+  }
+}
+
+class DietViolationRow extends DataClass
+    implements Insertable<DietViolationRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final String dietId;
+  final String ruleId;
+  final String? foodLogId;
+  final String foodName;
+  final String ruleDescription;
+  final bool wasOverridden;
+  final int timestamp;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const DietViolationRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.dietId,
+    required this.ruleId,
+    this.foodLogId,
+    required this.foodName,
+    required this.ruleDescription,
+    required this.wasOverridden,
+    required this.timestamp,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['diet_id'] = Variable<String>(dietId);
+    map['rule_id'] = Variable<String>(ruleId);
+    if (!nullToAbsent || foodLogId != null) {
+      map['food_log_id'] = Variable<String>(foodLogId);
+    }
+    map['food_name'] = Variable<String>(foodName);
+    map['rule_description'] = Variable<String>(ruleDescription);
+    map['was_overridden'] = Variable<bool>(wasOverridden);
+    map['timestamp'] = Variable<int>(timestamp);
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  DietViolationsCompanion toCompanion(bool nullToAbsent) {
+    return DietViolationsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      dietId: Value(dietId),
+      ruleId: Value(ruleId),
+      foodLogId: foodLogId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(foodLogId),
+      foodName: Value(foodName),
+      ruleDescription: Value(ruleDescription),
+      wasOverridden: Value(wasOverridden),
+      timestamp: Value(timestamp),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory DietViolationRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DietViolationRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      dietId: serializer.fromJson<String>(json['dietId']),
+      ruleId: serializer.fromJson<String>(json['ruleId']),
+      foodLogId: serializer.fromJson<String?>(json['foodLogId']),
+      foodName: serializer.fromJson<String>(json['foodName']),
+      ruleDescription: serializer.fromJson<String>(json['ruleDescription']),
+      wasOverridden: serializer.fromJson<bool>(json['wasOverridden']),
+      timestamp: serializer.fromJson<int>(json['timestamp']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'dietId': serializer.toJson<String>(dietId),
+      'ruleId': serializer.toJson<String>(ruleId),
+      'foodLogId': serializer.toJson<String?>(foodLogId),
+      'foodName': serializer.toJson<String>(foodName),
+      'ruleDescription': serializer.toJson<String>(ruleDescription),
+      'wasOverridden': serializer.toJson<bool>(wasOverridden),
+      'timestamp': serializer.toJson<int>(timestamp),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  DietViolationRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    String? dietId,
+    String? ruleId,
+    Value<String?> foodLogId = const Value.absent(),
+    String? foodName,
+    String? ruleDescription,
+    bool? wasOverridden,
+    int? timestamp,
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => DietViolationRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    dietId: dietId ?? this.dietId,
+    ruleId: ruleId ?? this.ruleId,
+    foodLogId: foodLogId.present ? foodLogId.value : this.foodLogId,
+    foodName: foodName ?? this.foodName,
+    ruleDescription: ruleDescription ?? this.ruleDescription,
+    wasOverridden: wasOverridden ?? this.wasOverridden,
+    timestamp: timestamp ?? this.timestamp,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  DietViolationRow copyWithCompanion(DietViolationsCompanion data) {
+    return DietViolationRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      dietId: data.dietId.present ? data.dietId.value : this.dietId,
+      ruleId: data.ruleId.present ? data.ruleId.value : this.ruleId,
+      foodLogId: data.foodLogId.present ? data.foodLogId.value : this.foodLogId,
+      foodName: data.foodName.present ? data.foodName.value : this.foodName,
+      ruleDescription: data.ruleDescription.present
+          ? data.ruleDescription.value
+          : this.ruleDescription,
+      wasOverridden: data.wasOverridden.present
+          ? data.wasOverridden.value
+          : this.wasOverridden,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietViolationRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('dietId: $dietId, ')
+          ..write('ruleId: $ruleId, ')
+          ..write('foodLogId: $foodLogId, ')
+          ..write('foodName: $foodName, ')
+          ..write('ruleDescription: $ruleDescription, ')
+          ..write('wasOverridden: $wasOverridden, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    profileId,
+    dietId,
+    ruleId,
+    foodLogId,
+    foodName,
+    ruleDescription,
+    wasOverridden,
+    timestamp,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DietViolationRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.dietId == this.dietId &&
+          other.ruleId == this.ruleId &&
+          other.foodLogId == this.foodLogId &&
+          other.foodName == this.foodName &&
+          other.ruleDescription == this.ruleDescription &&
+          other.wasOverridden == this.wasOverridden &&
+          other.timestamp == this.timestamp &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class DietViolationsCompanion extends UpdateCompanion<DietViolationRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<String> dietId;
+  final Value<String> ruleId;
+  final Value<String?> foodLogId;
+  final Value<String> foodName;
+  final Value<String> ruleDescription;
+  final Value<bool> wasOverridden;
+  final Value<int> timestamp;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const DietViolationsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.dietId = const Value.absent(),
+    this.ruleId = const Value.absent(),
+    this.foodLogId = const Value.absent(),
+    this.foodName = const Value.absent(),
+    this.ruleDescription = const Value.absent(),
+    this.wasOverridden = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DietViolationsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required String dietId,
+    required String ruleId,
+    this.foodLogId = const Value.absent(),
+    required String foodName,
+    required String ruleDescription,
+    this.wasOverridden = const Value.absent(),
+    required int timestamp,
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       dietId = Value(dietId),
+       ruleId = Value(ruleId),
+       foodName = Value(foodName),
+       ruleDescription = Value(ruleDescription),
+       timestamp = Value(timestamp),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<DietViolationRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<String>? dietId,
+    Expression<String>? ruleId,
+    Expression<String>? foodLogId,
+    Expression<String>? foodName,
+    Expression<String>? ruleDescription,
+    Expression<bool>? wasOverridden,
+    Expression<int>? timestamp,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (dietId != null) 'diet_id': dietId,
+      if (ruleId != null) 'rule_id': ruleId,
+      if (foodLogId != null) 'food_log_id': foodLogId,
+      if (foodName != null) 'food_name': foodName,
+      if (ruleDescription != null) 'rule_description': ruleDescription,
+      if (wasOverridden != null) 'was_overridden': wasOverridden,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DietViolationsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<String>? dietId,
+    Value<String>? ruleId,
+    Value<String?>? foodLogId,
+    Value<String>? foodName,
+    Value<String>? ruleDescription,
+    Value<bool>? wasOverridden,
+    Value<int>? timestamp,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return DietViolationsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      dietId: dietId ?? this.dietId,
+      ruleId: ruleId ?? this.ruleId,
+      foodLogId: foodLogId ?? this.foodLogId,
+      foodName: foodName ?? this.foodName,
+      ruleDescription: ruleDescription ?? this.ruleDescription,
+      wasOverridden: wasOverridden ?? this.wasOverridden,
+      timestamp: timestamp ?? this.timestamp,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (dietId.present) {
+      map['diet_id'] = Variable<String>(dietId.value);
+    }
+    if (ruleId.present) {
+      map['rule_id'] = Variable<String>(ruleId.value);
+    }
+    if (foodLogId.present) {
+      map['food_log_id'] = Variable<String>(foodLogId.value);
+    }
+    if (foodName.present) {
+      map['food_name'] = Variable<String>(foodName.value);
+    }
+    if (ruleDescription.present) {
+      map['rule_description'] = Variable<String>(ruleDescription.value);
+    }
+    if (wasOverridden.present) {
+      map['was_overridden'] = Variable<bool>(wasOverridden.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<int>(timestamp.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DietViolationsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('dietId: $dietId, ')
+          ..write('ruleId: $ruleId, ')
+          ..write('foodLogId: $foodLogId, ')
+          ..write('foodName: $foodName, ')
+          ..write('ruleDescription: $ruleDescription, ')
+          ..write('wasOverridden: $wasOverridden, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -25015,6 +29308,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $NotificationCategorySettingsTable(this);
   late final $UserSettingsTableTable userSettingsTable =
       $UserSettingsTableTable(this);
+  late final $DietsTable diets = $DietsTable(this);
+  late final $DietRulesTable dietRules = $DietRulesTable(this);
+  late final $DietExceptionsTable dietExceptions = $DietExceptionsTable(this);
+  late final $FastingSessionsTable fastingSessions = $FastingSessionsTable(
+    this,
+  );
+  late final $DietViolationsTable dietViolations = $DietViolationsTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -25062,6 +29362,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final UserSettingsDao userSettingsDao = UserSettingsDao(
     this as AppDatabase,
   );
+  late final DietDao dietDao = DietDao(this as AppDatabase);
+  late final DietRuleDao dietRuleDao = DietRuleDao(this as AppDatabase);
+  late final DietExceptionDao dietExceptionDao = DietExceptionDao(
+    this as AppDatabase,
+  );
+  late final FastingSessionDao fastingSessionDao = FastingSessionDao(
+    this as AppDatabase,
+  );
+  late final DietViolationDao dietViolationDao = DietViolationDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -25091,6 +29402,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     anchorEventTimes,
     notificationCategorySettings,
     userSettingsTable,
+    diets,
+    dietRules,
+    dietExceptions,
+    fastingSessions,
+    dietViolations,
   ];
 }
 
@@ -31892,6 +36208,7 @@ typedef $$FoodLogsTableCreateCompanionBuilder =
       required String foodItemIds,
       required String adHocItems,
       Value<String?> notes,
+      Value<bool> violationFlag,
       required int syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -31913,6 +36230,7 @@ typedef $$FoodLogsTableUpdateCompanionBuilder =
       Value<String> foodItemIds,
       Value<String> adHocItems,
       Value<String?> notes,
+      Value<bool> violationFlag,
       Value<int> syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -31971,6 +36289,11 @@ class $$FoodLogsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get violationFlag => $composableBuilder(
+    column: $table.violationFlag,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -32069,6 +36392,11 @@ class $$FoodLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get violationFlag => $composableBuilder(
+    column: $table.violationFlag,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -32151,6 +36479,11 @@ class $$FoodLogsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<bool> get violationFlag => $composableBuilder(
+    column: $table.violationFlag,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
@@ -32237,6 +36570,7 @@ class $$FoodLogsTableTableManager
                 Value<String> foodItemIds = const Value.absent(),
                 Value<String> adHocItems = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<bool> violationFlag = const Value.absent(),
                 Value<int> syncCreatedAt = const Value.absent(),
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -32256,6 +36590,7 @@ class $$FoodLogsTableTableManager
                 foodItemIds: foodItemIds,
                 adHocItems: adHocItems,
                 notes: notes,
+                violationFlag: violationFlag,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -32277,6 +36612,7 @@ class $$FoodLogsTableTableManager
                 required String foodItemIds,
                 required String adHocItems,
                 Value<String?> notes = const Value.absent(),
+                Value<bool> violationFlag = const Value.absent(),
                 required int syncCreatedAt,
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -32296,6 +36632,7 @@ class $$FoodLogsTableTableManager
                 foodItemIds: foodItemIds,
                 adHocItems: adHocItems,
                 notes: notes,
+                violationFlag: violationFlag,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -36324,6 +40661,1965 @@ typedef $$UserSettingsTableTableProcessedTableManager =
       UserSettingsRow,
       PrefetchHooks Function()
     >;
+typedef $$DietsTableCreateCompanionBuilder =
+    DietsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required String name,
+      Value<String> description,
+      Value<int?> presetType,
+      Value<bool> isActive,
+      required int startDate,
+      Value<int?> endDate,
+      Value<bool> isDraft,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$DietsTableUpdateCompanionBuilder =
+    DietsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<String> name,
+      Value<String> description,
+      Value<int?> presetType,
+      Value<bool> isActive,
+      Value<int> startDate,
+      Value<int?> endDate,
+      Value<bool> isDraft,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$DietsTableFilterComposer extends Composer<_$AppDatabase, $DietsTable> {
+  $$DietsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get presetType => $composableBuilder(
+    column: $table.presetType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDraft => $composableBuilder(
+    column: $table.isDraft,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DietsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DietsTable> {
+  $$DietsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get presetType => $composableBuilder(
+    column: $table.presetType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDraft => $composableBuilder(
+    column: $table.isDraft,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DietsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DietsTable> {
+  $$DietsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get presetType => $composableBuilder(
+    column: $table.presetType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<int> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDraft =>
+      $composableBuilder(column: $table.isDraft, builder: (column) => column);
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$DietsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DietsTable,
+          DietRow,
+          $$DietsTableFilterComposer,
+          $$DietsTableOrderingComposer,
+          $$DietsTableAnnotationComposer,
+          $$DietsTableCreateCompanionBuilder,
+          $$DietsTableUpdateCompanionBuilder,
+          (DietRow, BaseReferences<_$AppDatabase, $DietsTable, DietRow>),
+          DietRow,
+          PrefetchHooks Function()
+        > {
+  $$DietsTableTableManager(_$AppDatabase db, $DietsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DietsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DietsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DietsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<int?> presetType = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<int> startDate = const Value.absent(),
+                Value<int?> endDate = const Value.absent(),
+                Value<bool> isDraft = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                name: name,
+                description: description,
+                presetType: presetType,
+                isActive: isActive,
+                startDate: startDate,
+                endDate: endDate,
+                isDraft: isDraft,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required String name,
+                Value<String> description = const Value.absent(),
+                Value<int?> presetType = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                required int startDate,
+                Value<int?> endDate = const Value.absent(),
+                Value<bool> isDraft = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                name: name,
+                description: description,
+                presetType: presetType,
+                isActive: isActive,
+                startDate: startDate,
+                endDate: endDate,
+                isDraft: isDraft,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DietsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DietsTable,
+      DietRow,
+      $$DietsTableFilterComposer,
+      $$DietsTableOrderingComposer,
+      $$DietsTableAnnotationComposer,
+      $$DietsTableCreateCompanionBuilder,
+      $$DietsTableUpdateCompanionBuilder,
+      (DietRow, BaseReferences<_$AppDatabase, $DietsTable, DietRow>),
+      DietRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DietRulesTableCreateCompanionBuilder =
+    DietRulesCompanion Function({
+      required String id,
+      required String dietId,
+      required int ruleType,
+      Value<String?> targetFoodItemId,
+      Value<String?> targetCategory,
+      Value<String?> targetIngredient,
+      Value<double?> minValue,
+      Value<double?> maxValue,
+      Value<String?> unit,
+      Value<String?> frequency,
+      Value<int?> timeValue,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+typedef $$DietRulesTableUpdateCompanionBuilder =
+    DietRulesCompanion Function({
+      Value<String> id,
+      Value<String> dietId,
+      Value<int> ruleType,
+      Value<String?> targetFoodItemId,
+      Value<String?> targetCategory,
+      Value<String?> targetIngredient,
+      Value<double?> minValue,
+      Value<double?> maxValue,
+      Value<String?> unit,
+      Value<String?> frequency,
+      Value<int?> timeValue,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+class $$DietRulesTableFilterComposer
+    extends Composer<_$AppDatabase, $DietRulesTable> {
+  $$DietRulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dietId => $composableBuilder(
+    column: $table.dietId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ruleType => $composableBuilder(
+    column: $table.ruleType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetFoodItemId => $composableBuilder(
+    column: $table.targetFoodItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetCategory => $composableBuilder(
+    column: $table.targetCategory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetIngredient => $composableBuilder(
+    column: $table.targetIngredient,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get minValue => $composableBuilder(
+    column: $table.minValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get maxValue => $composableBuilder(
+    column: $table.maxValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeValue => $composableBuilder(
+    column: $table.timeValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DietRulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $DietRulesTable> {
+  $$DietRulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dietId => $composableBuilder(
+    column: $table.dietId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ruleType => $composableBuilder(
+    column: $table.ruleType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetFoodItemId => $composableBuilder(
+    column: $table.targetFoodItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetCategory => $composableBuilder(
+    column: $table.targetCategory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetIngredient => $composableBuilder(
+    column: $table.targetIngredient,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get minValue => $composableBuilder(
+    column: $table.minValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get maxValue => $composableBuilder(
+    column: $table.maxValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timeValue => $composableBuilder(
+    column: $table.timeValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DietRulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DietRulesTable> {
+  $$DietRulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get dietId =>
+      $composableBuilder(column: $table.dietId, builder: (column) => column);
+
+  GeneratedColumn<int> get ruleType =>
+      $composableBuilder(column: $table.ruleType, builder: (column) => column);
+
+  GeneratedColumn<String> get targetFoodItemId => $composableBuilder(
+    column: $table.targetFoodItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetCategory => $composableBuilder(
+    column: $table.targetCategory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetIngredient => $composableBuilder(
+    column: $table.targetIngredient,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get minValue =>
+      $composableBuilder(column: $table.minValue, builder: (column) => column);
+
+  GeneratedColumn<double> get maxValue =>
+      $composableBuilder(column: $table.maxValue, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<String> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<int> get timeValue =>
+      $composableBuilder(column: $table.timeValue, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$DietRulesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DietRulesTable,
+          DietRuleRow,
+          $$DietRulesTableFilterComposer,
+          $$DietRulesTableOrderingComposer,
+          $$DietRulesTableAnnotationComposer,
+          $$DietRulesTableCreateCompanionBuilder,
+          $$DietRulesTableUpdateCompanionBuilder,
+          (
+            DietRuleRow,
+            BaseReferences<_$AppDatabase, $DietRulesTable, DietRuleRow>,
+          ),
+          DietRuleRow,
+          PrefetchHooks Function()
+        > {
+  $$DietRulesTableTableManager(_$AppDatabase db, $DietRulesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DietRulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DietRulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DietRulesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> dietId = const Value.absent(),
+                Value<int> ruleType = const Value.absent(),
+                Value<String?> targetFoodItemId = const Value.absent(),
+                Value<String?> targetCategory = const Value.absent(),
+                Value<String?> targetIngredient = const Value.absent(),
+                Value<double?> minValue = const Value.absent(),
+                Value<double?> maxValue = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<String?> frequency = const Value.absent(),
+                Value<int?> timeValue = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietRulesCompanion(
+                id: id,
+                dietId: dietId,
+                ruleType: ruleType,
+                targetFoodItemId: targetFoodItemId,
+                targetCategory: targetCategory,
+                targetIngredient: targetIngredient,
+                minValue: minValue,
+                maxValue: maxValue,
+                unit: unit,
+                frequency: frequency,
+                timeValue: timeValue,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String dietId,
+                required int ruleType,
+                Value<String?> targetFoodItemId = const Value.absent(),
+                Value<String?> targetCategory = const Value.absent(),
+                Value<String?> targetIngredient = const Value.absent(),
+                Value<double?> minValue = const Value.absent(),
+                Value<double?> maxValue = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<String?> frequency = const Value.absent(),
+                Value<int?> timeValue = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietRulesCompanion.insert(
+                id: id,
+                dietId: dietId,
+                ruleType: ruleType,
+                targetFoodItemId: targetFoodItemId,
+                targetCategory: targetCategory,
+                targetIngredient: targetIngredient,
+                minValue: minValue,
+                maxValue: maxValue,
+                unit: unit,
+                frequency: frequency,
+                timeValue: timeValue,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DietRulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DietRulesTable,
+      DietRuleRow,
+      $$DietRulesTableFilterComposer,
+      $$DietRulesTableOrderingComposer,
+      $$DietRulesTableAnnotationComposer,
+      $$DietRulesTableCreateCompanionBuilder,
+      $$DietRulesTableUpdateCompanionBuilder,
+      (
+        DietRuleRow,
+        BaseReferences<_$AppDatabase, $DietRulesTable, DietRuleRow>,
+      ),
+      DietRuleRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DietExceptionsTableCreateCompanionBuilder =
+    DietExceptionsCompanion Function({
+      required String id,
+      required String ruleId,
+      required String description,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+typedef $$DietExceptionsTableUpdateCompanionBuilder =
+    DietExceptionsCompanion Function({
+      Value<String> id,
+      Value<String> ruleId,
+      Value<String> description,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+class $$DietExceptionsTableFilterComposer
+    extends Composer<_$AppDatabase, $DietExceptionsTable> {
+  $$DietExceptionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ruleId => $composableBuilder(
+    column: $table.ruleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DietExceptionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DietExceptionsTable> {
+  $$DietExceptionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ruleId => $composableBuilder(
+    column: $table.ruleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DietExceptionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DietExceptionsTable> {
+  $$DietExceptionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ruleId =>
+      $composableBuilder(column: $table.ruleId, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$DietExceptionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DietExceptionsTable,
+          DietExceptionRow,
+          $$DietExceptionsTableFilterComposer,
+          $$DietExceptionsTableOrderingComposer,
+          $$DietExceptionsTableAnnotationComposer,
+          $$DietExceptionsTableCreateCompanionBuilder,
+          $$DietExceptionsTableUpdateCompanionBuilder,
+          (
+            DietExceptionRow,
+            BaseReferences<
+              _$AppDatabase,
+              $DietExceptionsTable,
+              DietExceptionRow
+            >,
+          ),
+          DietExceptionRow,
+          PrefetchHooks Function()
+        > {
+  $$DietExceptionsTableTableManager(
+    _$AppDatabase db,
+    $DietExceptionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DietExceptionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DietExceptionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DietExceptionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ruleId = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietExceptionsCompanion(
+                id: id,
+                ruleId: ruleId,
+                description: description,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ruleId,
+                required String description,
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietExceptionsCompanion.insert(
+                id: id,
+                ruleId: ruleId,
+                description: description,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DietExceptionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DietExceptionsTable,
+      DietExceptionRow,
+      $$DietExceptionsTableFilterComposer,
+      $$DietExceptionsTableOrderingComposer,
+      $$DietExceptionsTableAnnotationComposer,
+      $$DietExceptionsTableCreateCompanionBuilder,
+      $$DietExceptionsTableUpdateCompanionBuilder,
+      (
+        DietExceptionRow,
+        BaseReferences<_$AppDatabase, $DietExceptionsTable, DietExceptionRow>,
+      ),
+      DietExceptionRow,
+      PrefetchHooks Function()
+    >;
+typedef $$FastingSessionsTableCreateCompanionBuilder =
+    FastingSessionsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int protocol,
+      required int startedAt,
+      Value<int?> endedAt,
+      required double targetHours,
+      Value<bool> isManualEnd,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$FastingSessionsTableUpdateCompanionBuilder =
+    FastingSessionsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> protocol,
+      Value<int> startedAt,
+      Value<int?> endedAt,
+      Value<double> targetHours,
+      Value<bool> isManualEnd,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$FastingSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $FastingSessionsTable> {
+  $$FastingSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get protocol => $composableBuilder(
+    column: $table.protocol,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isManualEnd => $composableBuilder(
+    column: $table.isManualEnd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FastingSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FastingSessionsTable> {
+  $$FastingSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get protocol => $composableBuilder(
+    column: $table.protocol,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isManualEnd => $composableBuilder(
+    column: $table.isManualEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FastingSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FastingSessionsTable> {
+  $$FastingSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get protocol =>
+      $composableBuilder(column: $table.protocol, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => column);
+
+  GeneratedColumn<double> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isManualEnd => $composableBuilder(
+    column: $table.isManualEnd,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$FastingSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FastingSessionsTable,
+          FastingSessionRow,
+          $$FastingSessionsTableFilterComposer,
+          $$FastingSessionsTableOrderingComposer,
+          $$FastingSessionsTableAnnotationComposer,
+          $$FastingSessionsTableCreateCompanionBuilder,
+          $$FastingSessionsTableUpdateCompanionBuilder,
+          (
+            FastingSessionRow,
+            BaseReferences<
+              _$AppDatabase,
+              $FastingSessionsTable,
+              FastingSessionRow
+            >,
+          ),
+          FastingSessionRow,
+          PrefetchHooks Function()
+        > {
+  $$FastingSessionsTableTableManager(
+    _$AppDatabase db,
+    $FastingSessionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FastingSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FastingSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FastingSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> protocol = const Value.absent(),
+                Value<int> startedAt = const Value.absent(),
+                Value<int?> endedAt = const Value.absent(),
+                Value<double> targetHours = const Value.absent(),
+                Value<bool> isManualEnd = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FastingSessionsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                protocol: protocol,
+                startedAt: startedAt,
+                endedAt: endedAt,
+                targetHours: targetHours,
+                isManualEnd: isManualEnd,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int protocol,
+                required int startedAt,
+                Value<int?> endedAt = const Value.absent(),
+                required double targetHours,
+                Value<bool> isManualEnd = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FastingSessionsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                protocol: protocol,
+                startedAt: startedAt,
+                endedAt: endedAt,
+                targetHours: targetHours,
+                isManualEnd: isManualEnd,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FastingSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FastingSessionsTable,
+      FastingSessionRow,
+      $$FastingSessionsTableFilterComposer,
+      $$FastingSessionsTableOrderingComposer,
+      $$FastingSessionsTableAnnotationComposer,
+      $$FastingSessionsTableCreateCompanionBuilder,
+      $$FastingSessionsTableUpdateCompanionBuilder,
+      (
+        FastingSessionRow,
+        BaseReferences<_$AppDatabase, $FastingSessionsTable, FastingSessionRow>,
+      ),
+      FastingSessionRow,
+      PrefetchHooks Function()
+    >;
+typedef $$DietViolationsTableCreateCompanionBuilder =
+    DietViolationsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required String dietId,
+      required String ruleId,
+      Value<String?> foodLogId,
+      required String foodName,
+      required String ruleDescription,
+      Value<bool> wasOverridden,
+      required int timestamp,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$DietViolationsTableUpdateCompanionBuilder =
+    DietViolationsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<String> dietId,
+      Value<String> ruleId,
+      Value<String?> foodLogId,
+      Value<String> foodName,
+      Value<String> ruleDescription,
+      Value<bool> wasOverridden,
+      Value<int> timestamp,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$DietViolationsTableFilterComposer
+    extends Composer<_$AppDatabase, $DietViolationsTable> {
+  $$DietViolationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dietId => $composableBuilder(
+    column: $table.dietId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ruleId => $composableBuilder(
+    column: $table.ruleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get foodLogId => $composableBuilder(
+    column: $table.foodLogId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get foodName => $composableBuilder(
+    column: $table.foodName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ruleDescription => $composableBuilder(
+    column: $table.ruleDescription,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get wasOverridden => $composableBuilder(
+    column: $table.wasOverridden,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DietViolationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DietViolationsTable> {
+  $$DietViolationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dietId => $composableBuilder(
+    column: $table.dietId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ruleId => $composableBuilder(
+    column: $table.ruleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get foodLogId => $composableBuilder(
+    column: $table.foodLogId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get foodName => $composableBuilder(
+    column: $table.foodName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ruleDescription => $composableBuilder(
+    column: $table.ruleDescription,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get wasOverridden => $composableBuilder(
+    column: $table.wasOverridden,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DietViolationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DietViolationsTable> {
+  $$DietViolationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get dietId =>
+      $composableBuilder(column: $table.dietId, builder: (column) => column);
+
+  GeneratedColumn<String> get ruleId =>
+      $composableBuilder(column: $table.ruleId, builder: (column) => column);
+
+  GeneratedColumn<String> get foodLogId =>
+      $composableBuilder(column: $table.foodLogId, builder: (column) => column);
+
+  GeneratedColumn<String> get foodName =>
+      $composableBuilder(column: $table.foodName, builder: (column) => column);
+
+  GeneratedColumn<String> get ruleDescription => $composableBuilder(
+    column: $table.ruleDescription,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get wasOverridden => $composableBuilder(
+    column: $table.wasOverridden,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$DietViolationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DietViolationsTable,
+          DietViolationRow,
+          $$DietViolationsTableFilterComposer,
+          $$DietViolationsTableOrderingComposer,
+          $$DietViolationsTableAnnotationComposer,
+          $$DietViolationsTableCreateCompanionBuilder,
+          $$DietViolationsTableUpdateCompanionBuilder,
+          (
+            DietViolationRow,
+            BaseReferences<
+              _$AppDatabase,
+              $DietViolationsTable,
+              DietViolationRow
+            >,
+          ),
+          DietViolationRow,
+          PrefetchHooks Function()
+        > {
+  $$DietViolationsTableTableManager(
+    _$AppDatabase db,
+    $DietViolationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DietViolationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DietViolationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DietViolationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> dietId = const Value.absent(),
+                Value<String> ruleId = const Value.absent(),
+                Value<String?> foodLogId = const Value.absent(),
+                Value<String> foodName = const Value.absent(),
+                Value<String> ruleDescription = const Value.absent(),
+                Value<bool> wasOverridden = const Value.absent(),
+                Value<int> timestamp = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietViolationsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                dietId: dietId,
+                ruleId: ruleId,
+                foodLogId: foodLogId,
+                foodName: foodName,
+                ruleDescription: ruleDescription,
+                wasOverridden: wasOverridden,
+                timestamp: timestamp,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required String dietId,
+                required String ruleId,
+                Value<String?> foodLogId = const Value.absent(),
+                required String foodName,
+                required String ruleDescription,
+                Value<bool> wasOverridden = const Value.absent(),
+                required int timestamp,
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DietViolationsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                dietId: dietId,
+                ruleId: ruleId,
+                foodLogId: foodLogId,
+                foodName: foodName,
+                ruleDescription: ruleDescription,
+                wasOverridden: wasOverridden,
+                timestamp: timestamp,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DietViolationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DietViolationsTable,
+      DietViolationRow,
+      $$DietViolationsTableFilterComposer,
+      $$DietViolationsTableOrderingComposer,
+      $$DietViolationsTableAnnotationComposer,
+      $$DietViolationsTableCreateCompanionBuilder,
+      $$DietViolationsTableUpdateCompanionBuilder,
+      (
+        DietViolationRow,
+        BaseReferences<_$AppDatabase, $DietViolationsTable, DietViolationRow>,
+      ),
+      DietViolationRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -36383,4 +42679,14 @@ class $AppDatabaseManager {
       );
   $$UserSettingsTableTableTableManager get userSettingsTable =>
       $$UserSettingsTableTableTableManager(_db, _db.userSettingsTable);
+  $$DietsTableTableManager get diets =>
+      $$DietsTableTableManager(_db, _db.diets);
+  $$DietRulesTableTableManager get dietRules =>
+      $$DietRulesTableTableManager(_db, _db.dietRules);
+  $$DietExceptionsTableTableManager get dietExceptions =>
+      $$DietExceptionsTableTableManager(_db, _db.dietExceptions);
+  $$FastingSessionsTableTableManager get fastingSessions =>
+      $$FastingSessionsTableTableManager(_db, _db.fastingSessions);
+  $$DietViolationsTableTableManager get dietViolations =>
+      $$DietViolationsTableTableManager(_db, _db.dietViolations);
 }

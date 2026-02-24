@@ -214,5 +214,26 @@ void main() {
         expect(result.valueOrNull?.any((l) => l.id == 'dirty'), isTrue);
       });
     });
+
+    group('violationFlag', () {
+      test('violationFlag_defaultsFalse', () async {
+        await database.foodLogDao.create(createTestFoodLog(id: 'vf-default'));
+
+        final result = await database.foodLogDao.getById('vf-default');
+
+        expect(result.valueOrNull?.violationFlag, isFalse);
+      });
+
+      test('violationFlag_persistsTrue', () async {
+        final log = createTestFoodLog(
+          id: 'vf-true',
+        ).copyWith(violationFlag: true);
+        await database.foodLogDao.create(log);
+
+        final result = await database.foodLogDao.getById('vf-true');
+
+        expect(result.valueOrNull?.violationFlag, isTrue);
+      });
+    });
   });
 }

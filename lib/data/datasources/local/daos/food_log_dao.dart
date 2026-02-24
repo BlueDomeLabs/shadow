@@ -271,6 +271,7 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
     foodItemIds: _parseJsonList(row.foodItemIds),
     adHocItems: _parseJsonList(row.adHocItems),
     notes: row.notes,
+    violationFlag: row.violationFlag,
     syncMetadata: SyncMetadata(
       syncCreatedAt: row.syncCreatedAt,
       syncUpdatedAt: row.syncUpdatedAt ?? row.syncCreatedAt,
@@ -295,6 +296,7 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
         foodItemIds: Value(jsonEncode(entity.foodItemIds)),
         adHocItems: Value(jsonEncode(entity.adHocItems)),
         notes: Value(entity.notes),
+        violationFlag: Value(entity.violationFlag),
         syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
         syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
         syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),

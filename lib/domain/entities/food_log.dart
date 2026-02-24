@@ -25,6 +25,7 @@ class FoodLog with _$FoodLog implements Syncable {
     @Default([]) List<String> foodItemIds, // References to FoodItem entities
     @Default([]) List<String> adHocItems, // Free-form food names (quick entry)
     String? notes,
+    @Default(false) bool violationFlag, // true = logged despite diet violation
     required SyncMetadata syncMetadata,
   }) = _FoodLog;
 
