@@ -21,6 +21,9 @@ import 'package:shadow_app/data/repositories/activity_repository_impl.dart';
 import 'package:shadow_app/data/repositories/anchor_event_time_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_repository_impl.dart';
+import 'package:shadow_app/data/repositories/diet_repository_impl.dart';
+import 'package:shadow_app/data/repositories/diet_violation_repository_impl.dart';
+import 'package:shadow_app/data/repositories/fasting_repository_impl.dart';
 import 'package:shadow_app/data/repositories/flare_up_repository_impl.dart';
 import 'package:shadow_app/data/repositories/fluids_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/food_item_repository_impl.dart';
@@ -36,6 +39,7 @@ import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_label_photo_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
+import 'package:shadow_app/data/services/diet_compliance_service_impl.dart';
 import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/supplement_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
@@ -171,6 +175,26 @@ Future<List<Override>> bootstrap() async {
   final supplementLabelPhotoRepo = SupplementLabelPhotoRepositoryImpl(
     database.supplementLabelPhotoDao,
   );
+
+  // 5c. Create Phase 15b diet tracking repositories and services
+  final dietRepo = DietRepositoryImpl(
+    database.dietDao,
+    database.dietRuleDao,
+    database.dietExceptionDao,
+    uuid,
+    deviceInfoService,
+  );
+  final fastingRepo = FastingRepositoryImpl(
+    database.fastingSessionDao,
+    uuid,
+    deviceInfoService,
+  );
+  final dietViolationRepo = DietViolationRepositoryImpl(
+    database.dietViolationDao,
+    uuid,
+    deviceInfoService,
+  );
+  const dietComplianceService = DietComplianceServiceImpl();
 
   // 6. Create encryption service and initialize key
   final encryptionService = EncryptionService(
@@ -363,5 +387,10 @@ Future<List<Override>> bootstrap() async {
     supplementLabelPhotoRepositoryProvider.overrideWithValue(
       supplementLabelPhotoRepo,
     ),
+    // Phase 15b diet tracking repositories + service
+    dietRepositoryProvider.overrideWithValue(dietRepo),
+    fastingRepositoryProvider.overrideWithValue(fastingRepo),
+    dietViolationRepositoryProvider.overrideWithValue(dietViolationRepo),
+    dietComplianceServiceProvider.overrideWithValue(dietComplianceService),
   ];
 }

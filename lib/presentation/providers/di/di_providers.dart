@@ -16,6 +16,7 @@ import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
 import 'package:shadow_app/domain/repositories/user_settings_repository.dart';
+import 'package:shadow_app/domain/services/diet_compliance_service.dart';
 import 'package:shadow_app/domain/services/food_barcode_service.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
@@ -32,6 +33,10 @@ import 'package:shadow_app/domain/usecases/activity_logs/activity_logs_usecases.
 import 'package:shadow_app/domain/usecases/condition_logs/condition_logs_usecases.dart';
 // Use Cases - Conditions
 import 'package:shadow_app/domain/usecases/conditions/conditions_usecases.dart';
+// Use Cases - Diet
+import 'package:shadow_app/domain/usecases/diet/diets_usecases.dart';
+// Use Cases - Fasting
+import 'package:shadow_app/domain/usecases/fasting/fasting_usecases.dart';
 // Use Cases - Flare Ups
 import 'package:shadow_app/domain/usecases/flare_ups/flare_ups_usecases.dart';
 // Use Cases - Fluids Entries
@@ -344,6 +349,36 @@ AnthropicApiClient anthropicApiClient(Ref ref) {
 SupplementLabelPhotoRepository supplementLabelPhotoRepository(Ref ref) {
   throw UnimplementedError(
     'Override supplementLabelPhotoRepositoryProvider in ProviderScope',
+  );
+}
+
+/// DietRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+DietRepository dietRepository(Ref ref) {
+  throw UnimplementedError('Override dietRepositoryProvider in ProviderScope');
+}
+
+/// FastingRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+FastingRepository fastingRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override fastingRepositoryProvider in ProviderScope',
+  );
+}
+
+/// DietViolationRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+DietViolationRepository dietViolationRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override dietViolationRepositoryProvider in ProviderScope',
+  );
+}
+
+/// DietComplianceService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+DietComplianceService dietComplianceService(Ref ref) {
+  throw UnimplementedError(
+    'Override dietComplianceServiceProvider in ProviderScope',
   );
 }
 
@@ -947,3 +982,103 @@ GetUserSettingsUseCase getUserSettingsUseCase(Ref ref) =>
 @riverpod
 UpdateUserSettingsUseCase updateUserSettingsUseCase(Ref ref) =>
     UpdateUserSettingsUseCase(ref.read(userSettingsRepositoryProvider));
+
+// =============================================================================
+// USE CASES - DIET (7)
+// =============================================================================
+
+/// GetDietsUseCase provider.
+@riverpod
+GetDietsUseCase getDietsUseCase(Ref ref) => GetDietsUseCase(
+  ref.read(dietRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// GetActiveDietUseCase provider.
+@riverpod
+GetActiveDietUseCase getActiveDietUseCase(Ref ref) => GetActiveDietUseCase(
+  ref.read(dietRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// CreateDietUseCase provider.
+@riverpod
+CreateDietUseCase createDietUseCase(Ref ref) => CreateDietUseCase(
+  ref.read(dietRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// ActivateDietUseCase provider.
+@riverpod
+ActivateDietUseCase activateDietUseCase(Ref ref) => ActivateDietUseCase(
+  ref.read(dietRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// CheckComplianceUseCase provider.
+@riverpod
+CheckComplianceUseCase checkComplianceUseCase(Ref ref) =>
+    CheckComplianceUseCase(
+      ref.read(dietRepositoryProvider),
+      ref.read(foodItemRepositoryProvider),
+      ref.read(dietComplianceServiceProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// GetComplianceStatsUseCase provider.
+@riverpod
+GetComplianceStatsUseCase getComplianceStatsUseCase(Ref ref) =>
+    GetComplianceStatsUseCase(
+      ref.read(dietRepositoryProvider),
+      ref.read(dietViolationRepositoryProvider),
+      ref.read(foodLogRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// RecordViolationUseCase provider.
+@riverpod
+RecordViolationUseCase recordViolationUseCase(Ref ref) =>
+    RecordViolationUseCase(
+      ref.read(dietViolationRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// GetViolationsUseCase provider.
+@riverpod
+GetViolationsUseCase getViolationsUseCase(Ref ref) => GetViolationsUseCase(
+  ref.read(dietViolationRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+// =============================================================================
+// USE CASES - FASTING (4)
+// =============================================================================
+
+/// StartFastUseCase provider.
+@riverpod
+StartFastUseCase startFastUseCase(Ref ref) => StartFastUseCase(
+  ref.read(fastingRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// EndFastUseCase provider.
+@riverpod
+EndFastUseCase endFastUseCase(Ref ref) => EndFastUseCase(
+  ref.read(fastingRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// GetActiveFastUseCase provider.
+@riverpod
+GetActiveFastUseCase getActiveFastUseCase(Ref ref) => GetActiveFastUseCase(
+  ref.read(fastingRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// GetFastingHistoryUseCase provider.
+@riverpod
+GetFastingHistoryUseCase getFastingHistoryUseCase(Ref ref) =>
+    GetFastingHistoryUseCase(
+      ref.read(fastingRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );

@@ -692,6 +692,85 @@ final supplementLabelPhotoRepositoryProvider =
 // ignore: unused_element
 typedef SupplementLabelPhotoRepositoryRef =
     ProviderRef<SupplementLabelPhotoRepository>;
+String _$dietRepositoryHash() => r'9b4fad81036561763d54c4554976607621f52c39';
+
+/// DietRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [dietRepository].
+@ProviderFor(dietRepository)
+final dietRepositoryProvider = Provider<DietRepository>.internal(
+  dietRepository,
+  name: r'dietRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$dietRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DietRepositoryRef = ProviderRef<DietRepository>;
+String _$fastingRepositoryHash() => r'9885b6f049d63f46fe1bcbe484396542c118ce7d';
+
+/// FastingRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [fastingRepository].
+@ProviderFor(fastingRepository)
+final fastingRepositoryProvider = Provider<FastingRepository>.internal(
+  fastingRepository,
+  name: r'fastingRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$fastingRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FastingRepositoryRef = ProviderRef<FastingRepository>;
+String _$dietViolationRepositoryHash() =>
+    r'2614ffc7cb9f42011dd4e65550df4d8d63071387';
+
+/// DietViolationRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [dietViolationRepository].
+@ProviderFor(dietViolationRepository)
+final dietViolationRepositoryProvider =
+    Provider<DietViolationRepository>.internal(
+      dietViolationRepository,
+      name: r'dietViolationRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$dietViolationRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DietViolationRepositoryRef = ProviderRef<DietViolationRepository>;
+String _$dietComplianceServiceHash() =>
+    r'53ab14b5d77ad9dbd575643ccf84548f753159b0';
+
+/// DietComplianceService provider - override in ProviderScope with implementation.
+///
+/// Copied from [dietComplianceService].
+@ProviderFor(dietComplianceService)
+final dietComplianceServiceProvider = Provider<DietComplianceService>.internal(
+  dietComplianceService,
+  name: r'dietComplianceServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$dietComplianceServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DietComplianceServiceRef = ProviderRef<DietComplianceService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -2293,5 +2372,254 @@ final updateUserSettingsUseCaseProvider =
 // ignore: unused_element
 typedef UpdateUserSettingsUseCaseRef =
     AutoDisposeProviderRef<UpdateUserSettingsUseCase>;
+String _$getDietsUseCaseHash() => r'717959be76e20b172b3fb7c7fc684c5564722f41';
+
+/// GetDietsUseCase provider.
+///
+/// Copied from [getDietsUseCase].
+@ProviderFor(getDietsUseCase)
+final getDietsUseCaseProvider = AutoDisposeProvider<GetDietsUseCase>.internal(
+  getDietsUseCase,
+  name: r'getDietsUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$getDietsUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetDietsUseCaseRef = AutoDisposeProviderRef<GetDietsUseCase>;
+String _$getActiveDietUseCaseHash() =>
+    r'f36611cf97231f354727fac3a2d113982676ad18';
+
+/// GetActiveDietUseCase provider.
+///
+/// Copied from [getActiveDietUseCase].
+@ProviderFor(getActiveDietUseCase)
+final getActiveDietUseCaseProvider =
+    AutoDisposeProvider<GetActiveDietUseCase>.internal(
+      getActiveDietUseCase,
+      name: r'getActiveDietUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getActiveDietUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetActiveDietUseCaseRef = AutoDisposeProviderRef<GetActiveDietUseCase>;
+String _$createDietUseCaseHash() => r'b1a404b2fdc29ea76b030cded03ddd304dbed347';
+
+/// CreateDietUseCase provider.
+///
+/// Copied from [createDietUseCase].
+@ProviderFor(createDietUseCase)
+final createDietUseCaseProvider =
+    AutoDisposeProvider<CreateDietUseCase>.internal(
+      createDietUseCase,
+      name: r'createDietUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$createDietUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CreateDietUseCaseRef = AutoDisposeProviderRef<CreateDietUseCase>;
+String _$activateDietUseCaseHash() =>
+    r'34882ab8ae35a15549166f5936d47bce54449ed2';
+
+/// ActivateDietUseCase provider.
+///
+/// Copied from [activateDietUseCase].
+@ProviderFor(activateDietUseCase)
+final activateDietUseCaseProvider =
+    AutoDisposeProvider<ActivateDietUseCase>.internal(
+      activateDietUseCase,
+      name: r'activateDietUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$activateDietUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ActivateDietUseCaseRef = AutoDisposeProviderRef<ActivateDietUseCase>;
+String _$checkComplianceUseCaseHash() =>
+    r'a3cb405d04fb038c586bac1fb916dc31f0e285d4';
+
+/// CheckComplianceUseCase provider.
+///
+/// Copied from [checkComplianceUseCase].
+@ProviderFor(checkComplianceUseCase)
+final checkComplianceUseCaseProvider =
+    AutoDisposeProvider<CheckComplianceUseCase>.internal(
+      checkComplianceUseCase,
+      name: r'checkComplianceUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$checkComplianceUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CheckComplianceUseCaseRef =
+    AutoDisposeProviderRef<CheckComplianceUseCase>;
+String _$getComplianceStatsUseCaseHash() =>
+    r'975f244cd4c67423179759e7c1de94d9f348f025';
+
+/// GetComplianceStatsUseCase provider.
+///
+/// Copied from [getComplianceStatsUseCase].
+@ProviderFor(getComplianceStatsUseCase)
+final getComplianceStatsUseCaseProvider =
+    AutoDisposeProvider<GetComplianceStatsUseCase>.internal(
+      getComplianceStatsUseCase,
+      name: r'getComplianceStatsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getComplianceStatsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetComplianceStatsUseCaseRef =
+    AutoDisposeProviderRef<GetComplianceStatsUseCase>;
+String _$recordViolationUseCaseHash() =>
+    r'bf3eacd493b28cb8e47c6289ab826ff05e08a4ad';
+
+/// RecordViolationUseCase provider.
+///
+/// Copied from [recordViolationUseCase].
+@ProviderFor(recordViolationUseCase)
+final recordViolationUseCaseProvider =
+    AutoDisposeProvider<RecordViolationUseCase>.internal(
+      recordViolationUseCase,
+      name: r'recordViolationUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$recordViolationUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RecordViolationUseCaseRef =
+    AutoDisposeProviderRef<RecordViolationUseCase>;
+String _$getViolationsUseCaseHash() =>
+    r'0930f193f4552d6f9fdb9d11b156e0d9127a0227';
+
+/// GetViolationsUseCase provider.
+///
+/// Copied from [getViolationsUseCase].
+@ProviderFor(getViolationsUseCase)
+final getViolationsUseCaseProvider =
+    AutoDisposeProvider<GetViolationsUseCase>.internal(
+      getViolationsUseCase,
+      name: r'getViolationsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getViolationsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetViolationsUseCaseRef = AutoDisposeProviderRef<GetViolationsUseCase>;
+String _$startFastUseCaseHash() => r'9a2d3727919e4f18d2ff3fe063dbc98eed1b01c3';
+
+/// StartFastUseCase provider.
+///
+/// Copied from [startFastUseCase].
+@ProviderFor(startFastUseCase)
+final startFastUseCaseProvider = AutoDisposeProvider<StartFastUseCase>.internal(
+  startFastUseCase,
+  name: r'startFastUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$startFastUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef StartFastUseCaseRef = AutoDisposeProviderRef<StartFastUseCase>;
+String _$endFastUseCaseHash() => r'22586ae35c88ed289a18c6d98b63ce9b28965ee1';
+
+/// EndFastUseCase provider.
+///
+/// Copied from [endFastUseCase].
+@ProviderFor(endFastUseCase)
+final endFastUseCaseProvider = AutoDisposeProvider<EndFastUseCase>.internal(
+  endFastUseCase,
+  name: r'endFastUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$endFastUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EndFastUseCaseRef = AutoDisposeProviderRef<EndFastUseCase>;
+String _$getActiveFastUseCaseHash() =>
+    r'5ab2d320f0093aaac7c982315335421a69b6af16';
+
+/// GetActiveFastUseCase provider.
+///
+/// Copied from [getActiveFastUseCase].
+@ProviderFor(getActiveFastUseCase)
+final getActiveFastUseCaseProvider =
+    AutoDisposeProvider<GetActiveFastUseCase>.internal(
+      getActiveFastUseCase,
+      name: r'getActiveFastUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getActiveFastUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetActiveFastUseCaseRef = AutoDisposeProviderRef<GetActiveFastUseCase>;
+String _$getFastingHistoryUseCaseHash() =>
+    r'77521d029f5470d0278cbc97a246536b16a30c1b';
+
+/// GetFastingHistoryUseCase provider.
+///
+/// Copied from [getFastingHistoryUseCase].
+@ProviderFor(getFastingHistoryUseCase)
+final getFastingHistoryUseCaseProvider =
+    AutoDisposeProvider<GetFastingHistoryUseCase>.internal(
+      getFastingHistoryUseCase,
+      name: r'getFastingHistoryUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getFastingHistoryUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetFastingHistoryUseCaseRef =
+    AutoDisposeProviderRef<GetFastingHistoryUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
