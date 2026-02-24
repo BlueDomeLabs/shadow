@@ -29,6 +29,27 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); echo \"$input\" | grep -q 'pbcopy' && touch /tmp/shadow_pbcopy_done; exit 0"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "S=/tmp/shadow_pbcopy_done; if [ -f \"$S\" ] && [ $(( $(date +%s) - $(stat -f %m \"$S\") )) -lt 300 ]; then rm -f \"$S\"; exit 0; fi; echo 'CLIPBOARD REMINDER: You did NOT copy your response to clipboard. CLAUDE.md requires this for every response. Run: echo \"your response text\" | pbcopy — Do it now before Reid reads your reply.'"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "compact",
