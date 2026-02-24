@@ -10,6 +10,11 @@ import 'package:shadow_app/presentation/providers/food_items/food_item_list_prov
 import 'package:shadow_app/presentation/screens/food_items/food_item_edit_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
+Future<void> scrollDown(WidgetTester tester, {double by = 600}) async {
+  await tester.drag(find.byType(ListView), Offset(0, -by));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('FoodItemEditScreen', () {
     const testProfileId = 'profile-001';
@@ -67,7 +72,8 @@ void main() {
 
         expect(find.text('Food Name'), findsOneWidget);
         expect(find.text('Type'), findsOneWidget);
-        expect(find.text('Notes'), findsOneWidget);
+        // Phase 15a: Notes removed, nutritional section added
+        expect(find.text('Nutritional Data'), findsOneWidget);
       });
 
       testWidgets('renders Save button', (tester) async {
@@ -129,13 +135,6 @@ void main() {
 
         expect(find.text('e.g., Grilled Chicken'), findsOneWidget);
       });
-
-      testWidgets('notes field has correct placeholder', (tester) async {
-        await tester.pumpWidget(buildAddScreen());
-        await tester.pumpAndSettle();
-
-        expect(find.text('Notes about this food'), findsOneWidget);
-      });
     });
 
     group('edit mode', () {
@@ -156,7 +155,7 @@ void main() {
       });
 
       testWidgets('pre-populates type segment in edit mode', (tester) async {
-        final foodItem = createTestFoodItem(type: FoodItemType.complex);
+        final foodItem = createTestFoodItem(type: FoodItemType.composed);
         await tester.pumpWidget(buildEditScreen(foodItem));
         await tester.pumpAndSettle();
 
@@ -164,7 +163,7 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is SegmentedButton<FoodItemType> &&
-                widget.selected.contains(FoodItemType.complex),
+                widget.selected.contains(FoodItemType.composed),
           ),
           findsOneWidget,
         );
@@ -175,6 +174,8 @@ void main() {
         await tester.pumpWidget(buildEditScreen(foodItem));
         await tester.pumpAndSettle();
 
+        // Phase 15a: nutritional section is long — scroll to bring Update button into view
+        await scrollDown(tester);
         expect(find.text('Update'), findsOneWidget);
       });
 
@@ -326,19 +327,7 @@ void main() {
         final semanticsFinder = find.byWidgetPredicate(
           (widget) =>
               widget is Semantics &&
-              widget.properties.label == 'Food category, optional',
-        );
-        expect(semanticsFinder, findsOneWidget);
-      });
-
-      testWidgets('notes field has correct semantic label', (tester) async {
-        await tester.pumpWidget(buildAddScreen());
-        await tester.pumpAndSettle();
-
-        final semanticsFinder = find.byWidgetPredicate(
-          (widget) =>
-              widget is Semantics &&
-              widget.properties.label == 'Food notes, optional',
+              widget.properties.label == 'Food type, required',
         );
         expect(semanticsFinder, findsOneWidget);
       });
@@ -382,6 +371,8 @@ void main() {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
+        // Phase 15a: nutritional section is long — scroll to bring ShadowButton into view
+        await scrollDown(tester);
         expect(find.byType(ShadowButton), findsWidgets);
       });
 
@@ -402,14 +393,6 @@ void main() {
         // The ShadowTextField wraps a TextField - verify it exists
         // with the maxLength constraint set in the implementation
         expect(find.text('Food Name'), findsOneWidget);
-      });
-
-      testWidgets('notes field has max length 1000', (tester) async {
-        await tester.pumpWidget(buildAddScreen());
-        await tester.pumpAndSettle();
-
-        // Verify notes field exists
-        expect(find.text('Notes'), findsOneWidget);
       });
     });
   });

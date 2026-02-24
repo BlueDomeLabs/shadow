@@ -21,15 +21,24 @@ mixin _$CreateFoodItemInput {
   String get clientId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   FoodItemType get type => throw _privateConstructorUsedError;
-  List<String> get simpleItemIds =>
-      throw _privateConstructorUsedError; // For complex items
+  List<String> get simpleItemIds => throw _privateConstructorUsedError;
+  List<FoodItemComponentInput> get components =>
+      throw _privateConstructorUsedError;
   String? get servingSize => throw _privateConstructorUsedError;
   double? get calories => throw _privateConstructorUsedError;
   double? get carbsGrams => throw _privateConstructorUsedError;
   double? get fatGrams => throw _privateConstructorUsedError;
   double? get proteinGrams => throw _privateConstructorUsedError;
   double? get fiberGrams => throw _privateConstructorUsedError;
-  double? get sugarGrams => throw _privateConstructorUsedError;
+  double? get sugarGrams =>
+      throw _privateConstructorUsedError; // Phase 15a fields
+  double? get sodiumMg => throw _privateConstructorUsedError;
+  String? get barcode => throw _privateConstructorUsedError;
+  String? get brand => throw _privateConstructorUsedError;
+  String? get ingredientsText => throw _privateConstructorUsedError;
+  String? get openFoodFactsId => throw _privateConstructorUsedError;
+  String? get importSource => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
@@ -51,6 +60,7 @@ abstract class $CreateFoodItemInputCopyWith<$Res> {
     String name,
     FoodItemType type,
     List<String> simpleItemIds,
+    List<FoodItemComponentInput> components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -58,6 +68,13 @@ abstract class $CreateFoodItemInputCopyWith<$Res> {
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   });
 }
 
@@ -81,6 +98,7 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
     Object? name = null,
     Object? type = null,
     Object? simpleItemIds = null,
+    Object? components = null,
     Object? servingSize = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
@@ -88,6 +106,13 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -111,6 +136,10 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
                 ? _value.simpleItemIds
                 : simpleItemIds // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            components: null == components
+                ? _value.components
+                : components // ignore: cast_nullable_to_non_nullable
+                      as List<FoodItemComponentInput>,
             servingSize: freezed == servingSize
                 ? _value.servingSize
                 : servingSize // ignore: cast_nullable_to_non_nullable
@@ -139,6 +168,34 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
                 ? _value.sugarGrams
                 : sugarGrams // ignore: cast_nullable_to_non_nullable
                       as double?,
+            sodiumMg: freezed == sodiumMg
+                ? _value.sodiumMg
+                : sodiumMg // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            brand: freezed == brand
+                ? _value.brand
+                : brand // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ingredientsText: freezed == ingredientsText
+                ? _value.ingredientsText
+                : ingredientsText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            openFoodFactsId: freezed == openFoodFactsId
+                ? _value.openFoodFactsId
+                : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -160,6 +217,7 @@ abstract class _$$CreateFoodItemInputImplCopyWith<$Res>
     String name,
     FoodItemType type,
     List<String> simpleItemIds,
+    List<FoodItemComponentInput> components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -167,6 +225,13 @@ abstract class _$$CreateFoodItemInputImplCopyWith<$Res>
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   });
 }
 
@@ -189,6 +254,7 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
     Object? name = null,
     Object? type = null,
     Object? simpleItemIds = null,
+    Object? components = null,
     Object? servingSize = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
@@ -196,6 +262,13 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$CreateFoodItemInputImpl(
@@ -219,6 +292,10 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
             ? _value._simpleItemIds
             : simpleItemIds // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        components: null == components
+            ? _value._components
+            : components // ignore: cast_nullable_to_non_nullable
+                  as List<FoodItemComponentInput>,
         servingSize: freezed == servingSize
             ? _value.servingSize
             : servingSize // ignore: cast_nullable_to_non_nullable
@@ -247,6 +324,34 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
             ? _value.sugarGrams
             : sugarGrams // ignore: cast_nullable_to_non_nullable
                   as double?,
+        sodiumMg: freezed == sodiumMg
+            ? _value.sodiumMg
+            : sodiumMg // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        brand: freezed == brand
+            ? _value.brand
+            : brand // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ingredientsText: freezed == ingredientsText
+            ? _value.ingredientsText
+            : ingredientsText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        openFoodFactsId: freezed == openFoodFactsId
+            ? _value.openFoodFactsId
+            : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -261,6 +366,7 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     required this.name,
     this.type = FoodItemType.simple,
     final List<String> simpleItemIds = const [],
+    final List<FoodItemComponentInput> components = const [],
     this.servingSize,
     this.calories,
     this.carbsGrams,
@@ -268,7 +374,15 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     this.proteinGrams,
     this.fiberGrams,
     this.sugarGrams,
-  }) : _simpleItemIds = simpleItemIds;
+    this.sodiumMg,
+    this.barcode,
+    this.brand,
+    this.ingredientsText,
+    this.openFoodFactsId,
+    this.importSource,
+    this.imageUrl,
+  }) : _simpleItemIds = simpleItemIds,
+       _components = components;
 
   @override
   final String profileId;
@@ -288,7 +402,15 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     return EqualUnmodifiableListView(_simpleItemIds);
   }
 
-  // For complex items
+  final List<FoodItemComponentInput> _components;
+  @override
+  @JsonKey()
+  List<FoodItemComponentInput> get components {
+    if (_components is EqualUnmodifiableListView) return _components;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_components);
+  }
+
   @override
   final String? servingSize;
   @override
@@ -303,10 +425,25 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
   final double? fiberGrams;
   @override
   final double? sugarGrams;
+  // Phase 15a fields
+  @override
+  final double? sodiumMg;
+  @override
+  final String? barcode;
+  @override
+  final String? brand;
+  @override
+  final String? ingredientsText;
+  @override
+  final String? openFoodFactsId;
+  @override
+  final String? importSource;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'CreateFoodItemInput(profileId: $profileId, clientId: $clientId, name: $name, type: $type, simpleItemIds: $simpleItemIds, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams)';
+    return 'CreateFoodItemInput(profileId: $profileId, clientId: $clientId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
   }
 
   @override
@@ -324,6 +461,10 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
               other._simpleItemIds,
               _simpleItemIds,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._components,
+              _components,
+            ) &&
             (identical(other.servingSize, servingSize) ||
                 other.servingSize == servingSize) &&
             (identical(other.calories, calories) ||
@@ -337,17 +478,30 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
             (identical(other.fiberGrams, fiberGrams) ||
                 other.fiberGrams == fiberGrams) &&
             (identical(other.sugarGrams, sugarGrams) ||
-                other.sugarGrams == sugarGrams));
+                other.sugarGrams == sugarGrams) &&
+            (identical(other.sodiumMg, sodiumMg) ||
+                other.sodiumMg == sodiumMg) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.brand, brand) || other.brand == brand) &&
+            (identical(other.ingredientsText, ingredientsText) ||
+                other.ingredientsText == ingredientsText) &&
+            (identical(other.openFoodFactsId, openFoodFactsId) ||
+                other.openFoodFactsId == openFoodFactsId) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     profileId,
     clientId,
     name,
     type,
     const DeepCollectionEquality().hash(_simpleItemIds),
+    const DeepCollectionEquality().hash(_components),
     servingSize,
     calories,
     carbsGrams,
@@ -355,7 +509,14 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     proteinGrams,
     fiberGrams,
     sugarGrams,
-  );
+    sodiumMg,
+    barcode,
+    brand,
+    ingredientsText,
+    openFoodFactsId,
+    importSource,
+    imageUrl,
+  ]);
 
   /// Create a copy of CreateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
@@ -376,6 +537,7 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
     required final String name,
     final FoodItemType type,
     final List<String> simpleItemIds,
+    final List<FoodItemComponentInput> components,
     final String? servingSize,
     final double? calories,
     final double? carbsGrams,
@@ -383,6 +545,13 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
     final double? proteinGrams,
     final double? fiberGrams,
     final double? sugarGrams,
+    final double? sodiumMg,
+    final String? barcode,
+    final String? brand,
+    final String? ingredientsText,
+    final String? openFoodFactsId,
+    final String? importSource,
+    final String? imageUrl,
   }) = _$CreateFoodItemInputImpl;
 
   @override
@@ -394,7 +563,9 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
   @override
   FoodItemType get type;
   @override
-  List<String> get simpleItemIds; // For complex items
+  List<String> get simpleItemIds;
+  @override
+  List<FoodItemComponentInput> get components;
   @override
   String? get servingSize;
   @override
@@ -408,7 +579,21 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
   @override
   double? get fiberGrams;
   @override
-  double? get sugarGrams;
+  double? get sugarGrams; // Phase 15a fields
+  @override
+  double? get sodiumMg;
+  @override
+  String? get barcode;
+  @override
+  String? get brand;
+  @override
+  String? get ingredientsText;
+  @override
+  String? get openFoodFactsId;
+  @override
+  String? get importSource;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of CreateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
@@ -841,13 +1026,23 @@ mixin _$UpdateFoodItemInput {
   String? get name => throw _privateConstructorUsedError;
   FoodItemType? get type => throw _privateConstructorUsedError;
   List<String>? get simpleItemIds => throw _privateConstructorUsedError;
+  List<FoodItemComponentInput>? get components =>
+      throw _privateConstructorUsedError;
   String? get servingSize => throw _privateConstructorUsedError;
   double? get calories => throw _privateConstructorUsedError;
   double? get carbsGrams => throw _privateConstructorUsedError;
   double? get fatGrams => throw _privateConstructorUsedError;
   double? get proteinGrams => throw _privateConstructorUsedError;
   double? get fiberGrams => throw _privateConstructorUsedError;
-  double? get sugarGrams => throw _privateConstructorUsedError;
+  double? get sugarGrams =>
+      throw _privateConstructorUsedError; // Phase 15a fields
+  double? get sodiumMg => throw _privateConstructorUsedError;
+  String? get barcode => throw _privateConstructorUsedError;
+  String? get brand => throw _privateConstructorUsedError;
+  String? get ingredientsText => throw _privateConstructorUsedError;
+  String? get openFoodFactsId => throw _privateConstructorUsedError;
+  String? get importSource => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Create a copy of UpdateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
@@ -869,6 +1064,7 @@ abstract class $UpdateFoodItemInputCopyWith<$Res> {
     String? name,
     FoodItemType? type,
     List<String>? simpleItemIds,
+    List<FoodItemComponentInput>? components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -876,6 +1072,13 @@ abstract class $UpdateFoodItemInputCopyWith<$Res> {
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   });
 }
 
@@ -899,6 +1102,7 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
     Object? name = freezed,
     Object? type = freezed,
     Object? simpleItemIds = freezed,
+    Object? components = freezed,
     Object? servingSize = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
@@ -906,6 +1110,13 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -929,6 +1140,10 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
                 ? _value.simpleItemIds
                 : simpleItemIds // ignore: cast_nullable_to_non_nullable
                       as List<String>?,
+            components: freezed == components
+                ? _value.components
+                : components // ignore: cast_nullable_to_non_nullable
+                      as List<FoodItemComponentInput>?,
             servingSize: freezed == servingSize
                 ? _value.servingSize
                 : servingSize // ignore: cast_nullable_to_non_nullable
@@ -957,6 +1172,34 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
                 ? _value.sugarGrams
                 : sugarGrams // ignore: cast_nullable_to_non_nullable
                       as double?,
+            sodiumMg: freezed == sodiumMg
+                ? _value.sodiumMg
+                : sodiumMg // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            brand: freezed == brand
+                ? _value.brand
+                : brand // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ingredientsText: freezed == ingredientsText
+                ? _value.ingredientsText
+                : ingredientsText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            openFoodFactsId: freezed == openFoodFactsId
+                ? _value.openFoodFactsId
+                : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -978,6 +1221,7 @@ abstract class _$$UpdateFoodItemInputImplCopyWith<$Res>
     String? name,
     FoodItemType? type,
     List<String>? simpleItemIds,
+    List<FoodItemComponentInput>? components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -985,6 +1229,13 @@ abstract class _$$UpdateFoodItemInputImplCopyWith<$Res>
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   });
 }
 
@@ -1007,6 +1258,7 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
     Object? name = freezed,
     Object? type = freezed,
     Object? simpleItemIds = freezed,
+    Object? components = freezed,
     Object? servingSize = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
@@ -1014,6 +1266,13 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$UpdateFoodItemInputImpl(
@@ -1037,6 +1296,10 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
             ? _value._simpleItemIds
             : simpleItemIds // ignore: cast_nullable_to_non_nullable
                   as List<String>?,
+        components: freezed == components
+            ? _value._components
+            : components // ignore: cast_nullable_to_non_nullable
+                  as List<FoodItemComponentInput>?,
         servingSize: freezed == servingSize
             ? _value.servingSize
             : servingSize // ignore: cast_nullable_to_non_nullable
@@ -1065,6 +1328,34 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
             ? _value.sugarGrams
             : sugarGrams // ignore: cast_nullable_to_non_nullable
                   as double?,
+        sodiumMg: freezed == sodiumMg
+            ? _value.sodiumMg
+            : sodiumMg // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        brand: freezed == brand
+            ? _value.brand
+            : brand // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ingredientsText: freezed == ingredientsText
+            ? _value.ingredientsText
+            : ingredientsText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        openFoodFactsId: freezed == openFoodFactsId
+            ? _value.openFoodFactsId
+            : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1079,6 +1370,7 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     this.name,
     this.type,
     final List<String>? simpleItemIds,
+    final List<FoodItemComponentInput>? components,
     this.servingSize,
     this.calories,
     this.carbsGrams,
@@ -1086,7 +1378,15 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     this.proteinGrams,
     this.fiberGrams,
     this.sugarGrams,
-  }) : _simpleItemIds = simpleItemIds;
+    this.sodiumMg,
+    this.barcode,
+    this.brand,
+    this.ingredientsText,
+    this.openFoodFactsId,
+    this.importSource,
+    this.imageUrl,
+  }) : _simpleItemIds = simpleItemIds,
+       _components = components;
 
   @override
   final String id;
@@ -1106,6 +1406,16 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     return EqualUnmodifiableListView(value);
   }
 
+  final List<FoodItemComponentInput>? _components;
+  @override
+  List<FoodItemComponentInput>? get components {
+    final value = _components;
+    if (value == null) return null;
+    if (_components is EqualUnmodifiableListView) return _components;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   final String? servingSize;
   @override
@@ -1120,10 +1430,25 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
   final double? fiberGrams;
   @override
   final double? sugarGrams;
+  // Phase 15a fields
+  @override
+  final double? sodiumMg;
+  @override
+  final String? barcode;
+  @override
+  final String? brand;
+  @override
+  final String? ingredientsText;
+  @override
+  final String? openFoodFactsId;
+  @override
+  final String? importSource;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'UpdateFoodItemInput(id: $id, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams)';
+    return 'UpdateFoodItemInput(id: $id, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
   }
 
   @override
@@ -1140,6 +1465,10 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
               other._simpleItemIds,
               _simpleItemIds,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._components,
+              _components,
+            ) &&
             (identical(other.servingSize, servingSize) ||
                 other.servingSize == servingSize) &&
             (identical(other.calories, calories) ||
@@ -1153,17 +1482,30 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
             (identical(other.fiberGrams, fiberGrams) ||
                 other.fiberGrams == fiberGrams) &&
             (identical(other.sugarGrams, sugarGrams) ||
-                other.sugarGrams == sugarGrams));
+                other.sugarGrams == sugarGrams) &&
+            (identical(other.sodiumMg, sodiumMg) ||
+                other.sodiumMg == sodiumMg) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.brand, brand) || other.brand == brand) &&
+            (identical(other.ingredientsText, ingredientsText) ||
+                other.ingredientsText == ingredientsText) &&
+            (identical(other.openFoodFactsId, openFoodFactsId) ||
+                other.openFoodFactsId == openFoodFactsId) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     profileId,
     name,
     type,
     const DeepCollectionEquality().hash(_simpleItemIds),
+    const DeepCollectionEquality().hash(_components),
     servingSize,
     calories,
     carbsGrams,
@@ -1171,7 +1513,14 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     proteinGrams,
     fiberGrams,
     sugarGrams,
-  );
+    sodiumMg,
+    barcode,
+    brand,
+    ingredientsText,
+    openFoodFactsId,
+    importSource,
+    imageUrl,
+  ]);
 
   /// Create a copy of UpdateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
@@ -1192,6 +1541,7 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
     final String? name,
     final FoodItemType? type,
     final List<String>? simpleItemIds,
+    final List<FoodItemComponentInput>? components,
     final String? servingSize,
     final double? calories,
     final double? carbsGrams,
@@ -1199,6 +1549,13 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
     final double? proteinGrams,
     final double? fiberGrams,
     final double? sugarGrams,
+    final double? sodiumMg,
+    final String? barcode,
+    final String? brand,
+    final String? ingredientsText,
+    final String? openFoodFactsId,
+    final String? importSource,
+    final String? imageUrl,
   }) = _$UpdateFoodItemInputImpl;
 
   @override
@@ -1212,6 +1569,8 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
   @override
   List<String>? get simpleItemIds;
   @override
+  List<FoodItemComponentInput>? get components;
+  @override
   String? get servingSize;
   @override
   double? get calories;
@@ -1224,13 +1583,163 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
   @override
   double? get fiberGrams;
   @override
-  double? get sugarGrams;
+  double? get sugarGrams; // Phase 15a fields
+  @override
+  double? get sodiumMg;
+  @override
+  String? get barcode;
+  @override
+  String? get brand;
+  @override
+  String? get ingredientsText;
+  @override
+  String? get openFoodFactsId;
+  @override
+  String? get importSource;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of UpdateFoodItemInput
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UpdateFoodItemInputImplCopyWith<_$UpdateFoodItemInputImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$LookupBarcodeInput {
+  String get barcode => throw _privateConstructorUsedError;
+
+  /// Create a copy of LookupBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $LookupBarcodeInputCopyWith<LookupBarcodeInput> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LookupBarcodeInputCopyWith<$Res> {
+  factory $LookupBarcodeInputCopyWith(
+    LookupBarcodeInput value,
+    $Res Function(LookupBarcodeInput) then,
+  ) = _$LookupBarcodeInputCopyWithImpl<$Res, LookupBarcodeInput>;
+  @useResult
+  $Res call({String barcode});
+}
+
+/// @nodoc
+class _$LookupBarcodeInputCopyWithImpl<$Res, $Val extends LookupBarcodeInput>
+    implements $LookupBarcodeInputCopyWith<$Res> {
+  _$LookupBarcodeInputCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of LookupBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? barcode = null}) {
+    return _then(
+      _value.copyWith(
+            barcode: null == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$LookupBarcodeInputImplCopyWith<$Res>
+    implements $LookupBarcodeInputCopyWith<$Res> {
+  factory _$$LookupBarcodeInputImplCopyWith(
+    _$LookupBarcodeInputImpl value,
+    $Res Function(_$LookupBarcodeInputImpl) then,
+  ) = __$$LookupBarcodeInputImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String barcode});
+}
+
+/// @nodoc
+class __$$LookupBarcodeInputImplCopyWithImpl<$Res>
+    extends _$LookupBarcodeInputCopyWithImpl<$Res, _$LookupBarcodeInputImpl>
+    implements _$$LookupBarcodeInputImplCopyWith<$Res> {
+  __$$LookupBarcodeInputImplCopyWithImpl(
+    _$LookupBarcodeInputImpl _value,
+    $Res Function(_$LookupBarcodeInputImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of LookupBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? barcode = null}) {
+    return _then(
+      _$LookupBarcodeInputImpl(
+        barcode: null == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LookupBarcodeInputImpl implements _LookupBarcodeInput {
+  const _$LookupBarcodeInputImpl({required this.barcode});
+
+  @override
+  final String barcode;
+
+  @override
+  String toString() {
+    return 'LookupBarcodeInput(barcode: $barcode)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LookupBarcodeInputImpl &&
+            (identical(other.barcode, barcode) || other.barcode == barcode));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, barcode);
+
+  /// Create a copy of LookupBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LookupBarcodeInputImplCopyWith<_$LookupBarcodeInputImpl> get copyWith =>
+      __$$LookupBarcodeInputImplCopyWithImpl<_$LookupBarcodeInputImpl>(
+        this,
+        _$identity,
+      );
+}
+
+abstract class _LookupBarcodeInput implements LookupBarcodeInput {
+  const factory _LookupBarcodeInput({required final String barcode}) =
+      _$LookupBarcodeInputImpl;
+
+  @override
+  String get barcode;
+
+  /// Create a copy of LookupBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LookupBarcodeInputImplCopyWith<_$LookupBarcodeInputImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

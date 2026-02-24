@@ -29,6 +29,13 @@ _$FoodItemImpl _$$FoodItemImplFromJson(Map<String, dynamic> json) =>
       proteinGrams: (json['proteinGrams'] as num?)?.toDouble(),
       fiberGrams: (json['fiberGrams'] as num?)?.toDouble(),
       sugarGrams: (json['sugarGrams'] as num?)?.toDouble(),
+      sodiumMg: (json['sodiumMg'] as num?)?.toDouble(),
+      barcode: json['barcode'] as String?,
+      brand: json['brand'] as String?,
+      ingredientsText: json['ingredientsText'] as String?,
+      openFoodFactsId: json['openFoodFactsId'] as String?,
+      importSource: json['importSource'] as String?,
+      imageUrl: json['imageUrl'] as String?,
       syncMetadata: SyncMetadata.fromJson(
         json['syncMetadata'] as Map<String, dynamic>,
       ),
@@ -51,10 +58,18 @@ Map<String, dynamic> _$$FoodItemImplToJson(_$FoodItemImpl instance) =>
       'proteinGrams': instance.proteinGrams,
       'fiberGrams': instance.fiberGrams,
       'sugarGrams': instance.sugarGrams,
+      'sodiumMg': instance.sodiumMg,
+      'barcode': instance.barcode,
+      'brand': instance.brand,
+      'ingredientsText': instance.ingredientsText,
+      'openFoodFactsId': instance.openFoodFactsId,
+      'importSource': instance.importSource,
+      'imageUrl': instance.imageUrl,
       'syncMetadata': instance.syncMetadata.toJson(),
     };
 
 const _$FoodItemTypeEnumMap = {
   FoodItemType.simple: 'simple',
-  FoodItemType.complex: 'complex',
+  FoodItemType.composed: 'composed',
+  FoodItemType.packaged: 'packaged',
 };

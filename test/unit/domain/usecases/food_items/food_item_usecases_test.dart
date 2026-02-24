@@ -121,7 +121,7 @@ void main() {
     });
 
     test(
-      'call_whenComplexItemWithoutComponents_returnsValidationError',
+      'call_whenComposedItemWithoutComponents_returnsValidationError',
       () async {
         when(
           mockAuthService.canWrite(testProfileId),
@@ -132,8 +132,8 @@ void main() {
             profileId: testProfileId,
             clientId: testClientId,
             name: 'Salad Bowl',
-            type: FoodItemType.complex,
-            // Complex item without components - simpleItemIds defaults to []
+            type: FoodItemType.composed,
+            // Composed item without components - simpleItemIds defaults to []
           ),
         );
 

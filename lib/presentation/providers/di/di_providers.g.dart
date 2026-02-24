@@ -609,6 +609,89 @@ final securityServiceProvider = Provider<SecurityService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SecurityServiceRef = ProviderRef<SecurityService>;
+String _$foodBarcodeServiceHash() =>
+    r'dde097218b5186c5acbcf6690c40eb4aeb82def4';
+
+/// FoodBarcodeService provider - override in ProviderScope with implementation.
+///
+/// Copied from [foodBarcodeService].
+@ProviderFor(foodBarcodeService)
+final foodBarcodeServiceProvider = Provider<FoodBarcodeService>.internal(
+  foodBarcodeService,
+  name: r'foodBarcodeServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$foodBarcodeServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef FoodBarcodeServiceRef = ProviderRef<FoodBarcodeService>;
+String _$supplementBarcodeServiceHash() =>
+    r'c8c1e9c2e0a085d5c2ead6986906f24930f99689';
+
+/// SupplementBarcodeService provider - override in ProviderScope with implementation.
+///
+/// Copied from [supplementBarcodeService].
+@ProviderFor(supplementBarcodeService)
+final supplementBarcodeServiceProvider =
+    Provider<SupplementBarcodeService>.internal(
+      supplementBarcodeService,
+      name: r'supplementBarcodeServiceProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$supplementBarcodeServiceHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SupplementBarcodeServiceRef = ProviderRef<SupplementBarcodeService>;
+String _$anthropicApiClientHash() =>
+    r'1ef1b9f8b6348bbe8223970d7db6709f47154d8f';
+
+/// AnthropicApiClient provider - override in ProviderScope with implementation.
+///
+/// Copied from [anthropicApiClient].
+@ProviderFor(anthropicApiClient)
+final anthropicApiClientProvider = Provider<AnthropicApiClient>.internal(
+  anthropicApiClient,
+  name: r'anthropicApiClientProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$anthropicApiClientHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AnthropicApiClientRef = ProviderRef<AnthropicApiClient>;
+String _$supplementLabelPhotoRepositoryHash() =>
+    r'7301554a9fa6a115984a356df294436d8d69637c';
+
+/// SupplementLabelPhotoRepository provider - override in ProviderScope.
+///
+/// Copied from [supplementLabelPhotoRepository].
+@ProviderFor(supplementLabelPhotoRepository)
+final supplementLabelPhotoRepositoryProvider =
+    Provider<SupplementLabelPhotoRepository>.internal(
+      supplementLabelPhotoRepository,
+      name: r'supplementLabelPhotoRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$supplementLabelPhotoRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SupplementLabelPhotoRepositoryRef =
+    ProviderRef<SupplementLabelPhotoRepository>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -697,6 +780,72 @@ final archiveSupplementUseCaseProvider =
 // ignore: unused_element
 typedef ArchiveSupplementUseCaseRef =
     AutoDisposeProviderRef<ArchiveSupplementUseCase>;
+String _$lookupSupplementBarcodeUseCaseHash() =>
+    r'21995e58de44933c53811941c7bd2ad448a58290';
+
+/// LookupSupplementBarcodeUseCase provider.
+///
+/// Copied from [lookupSupplementBarcodeUseCase].
+@ProviderFor(lookupSupplementBarcodeUseCase)
+final lookupSupplementBarcodeUseCaseProvider =
+    AutoDisposeProvider<LookupSupplementBarcodeUseCase>.internal(
+      lookupSupplementBarcodeUseCase,
+      name: r'lookupSupplementBarcodeUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$lookupSupplementBarcodeUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef LookupSupplementBarcodeUseCaseRef =
+    AutoDisposeProviderRef<LookupSupplementBarcodeUseCase>;
+String _$scanSupplementLabelUseCaseHash() =>
+    r'6dfc92e5e99bacef8d811913b5b762a7cd99d291';
+
+/// ScanSupplementLabelUseCase provider.
+///
+/// Copied from [scanSupplementLabelUseCase].
+@ProviderFor(scanSupplementLabelUseCase)
+final scanSupplementLabelUseCaseProvider =
+    AutoDisposeProvider<ScanSupplementLabelUseCase>.internal(
+      scanSupplementLabelUseCase,
+      name: r'scanSupplementLabelUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$scanSupplementLabelUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ScanSupplementLabelUseCaseRef =
+    AutoDisposeProviderRef<ScanSupplementLabelUseCase>;
+String _$addSupplementLabelPhotoUseCaseHash() =>
+    r'b4e7e463e2d558f293c882ec6cdebb00efa7ddc4';
+
+/// AddSupplementLabelPhotoUseCase provider.
+///
+/// Copied from [addSupplementLabelPhotoUseCase].
+@ProviderFor(addSupplementLabelPhotoUseCase)
+final addSupplementLabelPhotoUseCaseProvider =
+    AutoDisposeProvider<AddSupplementLabelPhotoUseCase>.internal(
+      addSupplementLabelPhotoUseCase,
+      name: r'addSupplementLabelPhotoUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$addSupplementLabelPhotoUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AddSupplementLabelPhotoUseCaseRef =
+    AutoDisposeProviderRef<AddSupplementLabelPhotoUseCase>;
 String _$getIntakeLogsUseCaseHash() =>
     r'a1f093f2d1273e93d15376a3c4909f30d3523cc1';
 
@@ -1448,6 +1597,49 @@ final archiveFoodItemUseCaseProvider =
 // ignore: unused_element
 typedef ArchiveFoodItemUseCaseRef =
     AutoDisposeProviderRef<ArchiveFoodItemUseCase>;
+String _$lookupBarcodeUseCaseHash() =>
+    r'94764ee6f373116f17f09a8a2b2d0d71f56e6da2';
+
+/// LookupBarcodeUseCase provider.
+///
+/// Copied from [lookupBarcodeUseCase].
+@ProviderFor(lookupBarcodeUseCase)
+final lookupBarcodeUseCaseProvider =
+    AutoDisposeProvider<LookupBarcodeUseCase>.internal(
+      lookupBarcodeUseCase,
+      name: r'lookupBarcodeUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$lookupBarcodeUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef LookupBarcodeUseCaseRef = AutoDisposeProviderRef<LookupBarcodeUseCase>;
+String _$scanIngredientPhotoUseCaseHash() =>
+    r'fd7874fea74e4c3ab00e3e2f8087edc4a44c7c5a';
+
+/// ScanIngredientPhotoUseCase provider.
+///
+/// Copied from [scanIngredientPhotoUseCase].
+@ProviderFor(scanIngredientPhotoUseCase)
+final scanIngredientPhotoUseCaseProvider =
+    AutoDisposeProvider<ScanIngredientPhotoUseCase>.internal(
+      scanIngredientPhotoUseCase,
+      name: r'scanIngredientPhotoUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$scanIngredientPhotoUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ScanIngredientPhotoUseCaseRef =
+    AutoDisposeProviderRef<ScanIngredientPhotoUseCase>;
 String _$getFoodLogsUseCaseHash() =>
     r'c1acdda1ef039c3afe822f2b2ef876dad62c4ded';
 

@@ -5,11 +5,13 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
+import 'package:shadow_app/domain/entities/food_item_component.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/food_item_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/usecases/base_use_case.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_item_inputs.dart';
+import 'package:uuid/uuid.dart';
 
 /// Use case to update an existing food item.
 class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
@@ -38,11 +40,17 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
+    // Derive simpleItemIds from components if components are provided
+    final componentIds =
+        (input.components != null && input.components!.isNotEmpty)
+        ? input.components!.map((c) => c.simpleFoodItemId).toList()
+        : input.simpleItemIds;
+
     // 3. Apply updates
     final updated = existing.copyWith(
       name: input.name ?? existing.name,
       type: input.type ?? existing.type,
-      simpleItemIds: input.simpleItemIds ?? existing.simpleItemIds,
+      simpleItemIds: componentIds ?? existing.simpleItemIds,
       servingSize: input.servingSize ?? existing.servingSize,
       calories: input.calories ?? existing.calories,
       carbsGrams: input.carbsGrams ?? existing.carbsGrams,
@@ -50,6 +58,13 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
       proteinGrams: input.proteinGrams ?? existing.proteinGrams,
       fiberGrams: input.fiberGrams ?? existing.fiberGrams,
       sugarGrams: input.sugarGrams ?? existing.sugarGrams,
+      sodiumMg: input.sodiumMg ?? existing.sodiumMg,
+      barcode: input.barcode ?? existing.barcode,
+      brand: input.brand ?? existing.brand,
+      ingredientsText: input.ingredientsText ?? existing.ingredientsText,
+      openFoodFactsId: input.openFoodFactsId ?? existing.openFoodFactsId,
+      importSource: input.importSource ?? existing.importSource,
+      imageUrl: input.imageUrl ?? existing.imageUrl,
     );
 
     // 4. Validation
@@ -59,7 +74,28 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
     }
 
     // 5. Persist
-    return _repository.update(updated);
+    final updateResult = await _repository.update(updated);
+    if (updateResult.isFailure) return updateResult;
+
+    // 6. Replace components if provided (Phase 15a — composed items with quantity multipliers)
+    if (input.components != null &&
+        (input.type ?? existing.type) == FoodItemType.composed) {
+      var sortOrder = 0;
+      final components = input.components!
+          .map(
+            (c) => FoodItemComponent(
+              id: const Uuid().v4(),
+              composedFoodItemId: existing.id,
+              simpleFoodItemId: c.simpleFoodItemId,
+              quantity: c.quantity,
+              sortOrder: sortOrder++,
+            ),
+          )
+          .toList();
+      await _repository.replaceComponents(existing.id, components);
+    }
+
+    return updateResult;
   }
 
   Future<ValidationError?> _validate(FoodItem item, String profileId) async {
@@ -73,16 +109,19 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
       ];
     }
 
-    // Complex items must have simple item IDs
-    if (item.type == FoodItemType.complex && item.simpleItemIds.isEmpty) {
+    // Composed items must have simple item IDs
+    if (item.type == FoodItemType.composed && item.simpleItemIds.isEmpty) {
       errors['simpleItemIds'] = [
-        'Complex items must include at least one simple item',
+        'Composed items must include at least one simple item',
       ];
     }
 
-    // Simple items should not have simple item IDs
+    // Simple and packaged items should not have simple item IDs
     if (item.type == FoodItemType.simple && item.simpleItemIds.isNotEmpty) {
       errors['simpleItemIds'] = ['Simple items cannot have component items'];
+    }
+    if (item.type == FoodItemType.packaged && item.simpleItemIds.isNotEmpty) {
+      errors['simpleItemIds'] = ['Packaged items cannot have component items'];
     }
 
     // Verify simple item IDs exist and belong to profile
@@ -98,7 +137,7 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
         break;
       }
       // Prevent nesting complex items
-      if (foundItem.isComplex) {
+      if (foundItem.isComposed) {
         errors['simpleItemIds'] = ['Cannot nest complex items'];
         break;
       }

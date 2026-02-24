@@ -57,6 +57,7 @@ dependencies:
   cached_network_image: ^3.3.0
   image_picker: ^1.0.4
   qr_flutter: ^4.1.0
+  mobile_scanner: ^5.0.0
 
   # Local Storage
   shared_preferences: ^2.2.2

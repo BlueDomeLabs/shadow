@@ -5,6 +5,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:shadow_app/core/services/anthropic_api_client.dart';
 import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
@@ -31,8 +33,11 @@ import 'package:shadow_app/data/repositories/photo_area_repository_impl.dart';
 import 'package:shadow_app/data/repositories/photo_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/profile_repository_impl.dart';
 import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
+import 'package:shadow_app/data/repositories/supplement_label_photo_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
+import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
+import 'package:shadow_app/data/services/supplement_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/entities.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
@@ -111,6 +116,7 @@ Future<List<Override>> bootstrap() async {
   );
   final foodItemRepo = FoodItemRepositoryImpl(
     database.foodItemDao,
+    database.foodItemComponentDao,
     uuid,
     deviceInfoService,
   );
@@ -147,6 +153,24 @@ Future<List<Override>> bootstrap() async {
     database.notificationCategorySettingsDao,
   );
   final userSettingsRepo = UserSettingsRepositoryImpl(database.userSettingsDao);
+
+  // 5b. Create Phase 15a services and repositories
+  final httpClient = http.Client();
+  const secureStorage = FlutterSecureStorage(
+    mOptions: MacOsOptions(useDataProtectionKeyChain: false),
+  );
+  final foodBarcodeService = FoodBarcodeServiceImpl(
+    database.foodBarcodeCacheDao,
+    httpClient,
+  );
+  final supplementBarcodeService = SupplementBarcodeServiceImpl(
+    database.supplementBarcodeCacheDao,
+    httpClient,
+  );
+  final anthropicClient = AnthropicApiClientImpl(secureStorage, httpClient);
+  final supplementLabelPhotoRepo = SupplementLabelPhotoRepositoryImpl(
+    database.supplementLabelPhotoDao,
+  );
 
   // 6. Create encryption service and initialize key
   final encryptionService = EncryptionService(
@@ -330,5 +354,14 @@ Future<List<Override>> bootstrap() async {
     notificationSchedulerProvider.overrideWithValue(scheduler),
     notificationTapHandlerProvider.overrideWithValue(tapHandler),
     notificationPermissionServiceProvider.overrideWithValue(permissionService),
+    // Phase 15a services + repositories
+    foodBarcodeServiceProvider.overrideWithValue(foodBarcodeService),
+    supplementBarcodeServiceProvider.overrideWithValue(
+      supplementBarcodeService,
+    ),
+    anthropicApiClientProvider.overrideWithValue(anthropicClient),
+    supplementLabelPhotoRepositoryProvider.overrideWithValue(
+      supplementLabelPhotoRepo,
+    ),
   ];
 }

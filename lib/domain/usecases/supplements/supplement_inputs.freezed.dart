@@ -231,7 +231,11 @@ mixin _$CreateSupplementInput {
       throw _privateConstructorUsedError;
   List<SupplementSchedule> get schedules => throw _privateConstructorUsedError;
   int? get startDate => throw _privateConstructorUsedError;
-  int? get endDate => throw _privateConstructorUsedError;
+  int? get endDate => throw _privateConstructorUsedError; // Phase 15a fields
+  String? get source => throw _privateConstructorUsedError;
+  double? get pricePaid => throw _privateConstructorUsedError;
+  String? get barcode => throw _privateConstructorUsedError;
+  String? get importSource => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateSupplementInput
   /// with the given fields replaced by the non-null parameter values.
@@ -262,6 +266,10 @@ abstract class $CreateSupplementInputCopyWith<$Res> {
     List<SupplementSchedule> schedules,
     int? startDate,
     int? endDate,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   });
 }
 
@@ -297,6 +305,10 @@ class _$CreateSupplementInputCopyWithImpl<
     Object? schedules = null,
     Object? startDate = freezed,
     Object? endDate = freezed,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -356,6 +368,22 @@ class _$CreateSupplementInputCopyWithImpl<
                 ? _value.endDate
                 : endDate // ignore: cast_nullable_to_non_nullable
                       as int?,
+            source: freezed == source
+                ? _value.source
+                : source // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            pricePaid: freezed == pricePaid
+                ? _value.pricePaid
+                : pricePaid // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -386,6 +414,10 @@ abstract class _$$CreateSupplementInputImplCopyWith<$Res>
     List<SupplementSchedule> schedules,
     int? startDate,
     int? endDate,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   });
 }
 
@@ -418,6 +450,10 @@ class __$$CreateSupplementInputImplCopyWithImpl<$Res>
     Object? schedules = null,
     Object? startDate = freezed,
     Object? endDate = freezed,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
   }) {
     return _then(
       _$CreateSupplementInputImpl(
@@ -477,6 +513,22 @@ class __$$CreateSupplementInputImplCopyWithImpl<$Res>
             ? _value.endDate
             : endDate // ignore: cast_nullable_to_non_nullable
                   as int?,
+        source: freezed == source
+            ? _value.source
+            : source // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        pricePaid: freezed == pricePaid
+            ? _value.pricePaid
+            : pricePaid // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -500,6 +552,10 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
     final List<SupplementSchedule> schedules = const [],
     this.startDate,
     this.endDate,
+    this.source,
+    this.pricePaid,
+    this.barcode,
+    this.importSource,
   }) : _ingredients = ingredients,
        _schedules = schedules;
 
@@ -547,10 +603,19 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
   final int? startDate;
   @override
   final int? endDate;
+  // Phase 15a fields
+  @override
+  final String? source;
+  @override
+  final double? pricePaid;
+  @override
+  final String? barcode;
+  @override
+  final String? importSource;
 
   @override
   String toString() {
-    return 'CreateSupplementInput(profileId: $profileId, clientId: $clientId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate)';
+    return 'CreateSupplementInput(profileId: $profileId, clientId: $clientId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, source: $source, pricePaid: $pricePaid, barcode: $barcode, importSource: $importSource)';
   }
 
   @override
@@ -584,7 +649,13 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
             ) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            (identical(other.endDate, endDate) || other.endDate == endDate) &&
+            (identical(other.source, source) || other.source == source) &&
+            (identical(other.pricePaid, pricePaid) ||
+                other.pricePaid == pricePaid) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource));
   }
 
   @override
@@ -604,6 +675,10 @@ class _$CreateSupplementInputImpl implements _CreateSupplementInput {
     const DeepCollectionEquality().hash(_schedules),
     startDate,
     endDate,
+    source,
+    pricePaid,
+    barcode,
+    importSource,
   );
 
   /// Create a copy of CreateSupplementInput
@@ -635,6 +710,10 @@ abstract class _CreateSupplementInput implements CreateSupplementInput {
     final List<SupplementSchedule> schedules,
     final int? startDate,
     final int? endDate,
+    final String? source,
+    final double? pricePaid,
+    final String? barcode,
+    final String? importSource,
   }) = _$CreateSupplementInputImpl;
 
   @override
@@ -664,7 +743,15 @@ abstract class _CreateSupplementInput implements CreateSupplementInput {
   @override
   int? get startDate;
   @override
-  int? get endDate;
+  int? get endDate; // Phase 15a fields
+  @override
+  String? get source;
+  @override
+  double? get pricePaid;
+  @override
+  String? get barcode;
+  @override
+  String? get importSource;
 
   /// Create a copy of CreateSupplementInput
   /// with the given fields replaced by the non-null parameter values.
@@ -691,7 +778,12 @@ mixin _$UpdateSupplementInput {
   List<SupplementSchedule>? get schedules => throw _privateConstructorUsedError;
   int? get startDate => throw _privateConstructorUsedError;
   int? get endDate => throw _privateConstructorUsedError;
-  bool? get isArchived => throw _privateConstructorUsedError;
+  bool? get isArchived =>
+      throw _privateConstructorUsedError; // Phase 15a fields
+  String? get source => throw _privateConstructorUsedError;
+  double? get pricePaid => throw _privateConstructorUsedError;
+  String? get barcode => throw _privateConstructorUsedError;
+  String? get importSource => throw _privateConstructorUsedError;
 
   /// Create a copy of UpdateSupplementInput
   /// with the given fields replaced by the non-null parameter values.
@@ -723,6 +815,10 @@ abstract class $UpdateSupplementInputCopyWith<$Res> {
     int? startDate,
     int? endDate,
     bool? isArchived,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   });
 }
 
@@ -759,6 +855,10 @@ class _$UpdateSupplementInputCopyWithImpl<
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? isArchived = freezed,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -822,6 +922,22 @@ class _$UpdateSupplementInputCopyWithImpl<
                 ? _value.isArchived
                 : isArchived // ignore: cast_nullable_to_non_nullable
                       as bool?,
+            source: freezed == source
+                ? _value.source
+                : source // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            pricePaid: freezed == pricePaid
+                ? _value.pricePaid
+                : pricePaid // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -853,6 +969,10 @@ abstract class _$$UpdateSupplementInputImplCopyWith<$Res>
     int? startDate,
     int? endDate,
     bool? isArchived,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   });
 }
 
@@ -886,6 +1006,10 @@ class __$$UpdateSupplementInputImplCopyWithImpl<$Res>
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? isArchived = freezed,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
   }) {
     return _then(
       _$UpdateSupplementInputImpl(
@@ -949,6 +1073,22 @@ class __$$UpdateSupplementInputImplCopyWithImpl<$Res>
             ? _value.isArchived
             : isArchived // ignore: cast_nullable_to_non_nullable
                   as bool?,
+        source: freezed == source
+            ? _value.source
+            : source // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        pricePaid: freezed == pricePaid
+            ? _value.pricePaid
+            : pricePaid // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -973,6 +1113,10 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
     this.startDate,
     this.endDate,
     this.isArchived,
+    this.source,
+    this.pricePaid,
+    this.barcode,
+    this.importSource,
   }) : _ingredients = ingredients,
        _schedules = schedules;
 
@@ -1022,10 +1166,19 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
   final int? endDate;
   @override
   final bool? isArchived;
+  // Phase 15a fields
+  @override
+  final String? source;
+  @override
+  final double? pricePaid;
+  @override
+  final String? barcode;
+  @override
+  final String? importSource;
 
   @override
   String toString() {
-    return 'UpdateSupplementInput(id: $id, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived)';
+    return 'UpdateSupplementInput(id: $id, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived, source: $source, pricePaid: $pricePaid, barcode: $barcode, importSource: $importSource)';
   }
 
   @override
@@ -1060,11 +1213,17 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.isArchived, isArchived) ||
-                other.isArchived == isArchived));
+                other.isArchived == isArchived) &&
+            (identical(other.source, source) || other.source == source) &&
+            (identical(other.pricePaid, pricePaid) ||
+                other.pricePaid == pricePaid) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     profileId,
@@ -1081,7 +1240,11 @@ class _$UpdateSupplementInputImpl implements _UpdateSupplementInput {
     startDate,
     endDate,
     isArchived,
-  );
+    source,
+    pricePaid,
+    barcode,
+    importSource,
+  ]);
 
   /// Create a copy of UpdateSupplementInput
   /// with the given fields replaced by the non-null parameter values.
@@ -1113,6 +1276,10 @@ abstract class _UpdateSupplementInput implements UpdateSupplementInput {
     final int? startDate,
     final int? endDate,
     final bool? isArchived,
+    final String? source,
+    final double? pricePaid,
+    final String? barcode,
+    final String? importSource,
   }) = _$UpdateSupplementInputImpl;
 
   @override
@@ -1144,13 +1311,174 @@ abstract class _UpdateSupplementInput implements UpdateSupplementInput {
   @override
   int? get endDate;
   @override
-  bool? get isArchived;
+  bool? get isArchived; // Phase 15a fields
+  @override
+  String? get source;
+  @override
+  double? get pricePaid;
+  @override
+  String? get barcode;
+  @override
+  String? get importSource;
 
   /// Create a copy of UpdateSupplementInput
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UpdateSupplementInputImplCopyWith<_$UpdateSupplementInputImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$LookupSupplementBarcodeInput {
+  String get barcode => throw _privateConstructorUsedError;
+
+  /// Create a copy of LookupSupplementBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $LookupSupplementBarcodeInputCopyWith<LookupSupplementBarcodeInput>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $LookupSupplementBarcodeInputCopyWith<$Res> {
+  factory $LookupSupplementBarcodeInputCopyWith(
+    LookupSupplementBarcodeInput value,
+    $Res Function(LookupSupplementBarcodeInput) then,
+  ) =
+      _$LookupSupplementBarcodeInputCopyWithImpl<
+        $Res,
+        LookupSupplementBarcodeInput
+      >;
+  @useResult
+  $Res call({String barcode});
+}
+
+/// @nodoc
+class _$LookupSupplementBarcodeInputCopyWithImpl<
+  $Res,
+  $Val extends LookupSupplementBarcodeInput
+>
+    implements $LookupSupplementBarcodeInputCopyWith<$Res> {
+  _$LookupSupplementBarcodeInputCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of LookupSupplementBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? barcode = null}) {
+    return _then(
+      _value.copyWith(
+            barcode: null == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$LookupSupplementBarcodeInputImplCopyWith<$Res>
+    implements $LookupSupplementBarcodeInputCopyWith<$Res> {
+  factory _$$LookupSupplementBarcodeInputImplCopyWith(
+    _$LookupSupplementBarcodeInputImpl value,
+    $Res Function(_$LookupSupplementBarcodeInputImpl) then,
+  ) = __$$LookupSupplementBarcodeInputImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String barcode});
+}
+
+/// @nodoc
+class __$$LookupSupplementBarcodeInputImplCopyWithImpl<$Res>
+    extends
+        _$LookupSupplementBarcodeInputCopyWithImpl<
+          $Res,
+          _$LookupSupplementBarcodeInputImpl
+        >
+    implements _$$LookupSupplementBarcodeInputImplCopyWith<$Res> {
+  __$$LookupSupplementBarcodeInputImplCopyWithImpl(
+    _$LookupSupplementBarcodeInputImpl _value,
+    $Res Function(_$LookupSupplementBarcodeInputImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of LookupSupplementBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? barcode = null}) {
+    return _then(
+      _$LookupSupplementBarcodeInputImpl(
+        barcode: null == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LookupSupplementBarcodeInputImpl
+    implements _LookupSupplementBarcodeInput {
+  const _$LookupSupplementBarcodeInputImpl({required this.barcode});
+
+  @override
+  final String barcode;
+
+  @override
+  String toString() {
+    return 'LookupSupplementBarcodeInput(barcode: $barcode)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LookupSupplementBarcodeInputImpl &&
+            (identical(other.barcode, barcode) || other.barcode == barcode));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, barcode);
+
+  /// Create a copy of LookupSupplementBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LookupSupplementBarcodeInputImplCopyWith<
+    _$LookupSupplementBarcodeInputImpl
+  >
+  get copyWith =>
+      __$$LookupSupplementBarcodeInputImplCopyWithImpl<
+        _$LookupSupplementBarcodeInputImpl
+      >(this, _$identity);
+}
+
+abstract class _LookupSupplementBarcodeInput
+    implements LookupSupplementBarcodeInput {
+  const factory _LookupSupplementBarcodeInput({required final String barcode}) =
+      _$LookupSupplementBarcodeInputImpl;
+
+  @override
+  String get barcode;
+
+  /// Create a copy of LookupSupplementBarcodeInput
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LookupSupplementBarcodeInputImplCopyWith<
+    _$LookupSupplementBarcodeInputImpl
+  >
   get copyWith => throw _privateConstructorUsedError;
 }
 

@@ -183,6 +183,48 @@ class $SupplementsTable extends Supplements
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pricePaidMeta = const VerificationMeta(
+    'pricePaid',
+  );
+  @override
+  late final GeneratedColumn<double> pricePaid = GeneratedColumn<double>(
+    'price_paid',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importSourceMeta = const VerificationMeta(
+    'importSource',
+  );
+  @override
+  late final GeneratedColumn<String> importSource = GeneratedColumn<String>(
+    'import_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
     'syncCreatedAt',
   );
@@ -306,6 +348,10 @@ class $SupplementsTable extends Supplements
     startDate,
     endDate,
     isArchived,
+    source,
+    pricePaid,
+    barcode,
+    importSource,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -442,6 +488,33 @@ class $SupplementsTable extends Supplements
       context.handle(
         _isArchivedMeta,
         isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('price_paid')) {
+      context.handle(
+        _pricePaidMeta,
+        pricePaid.isAcceptableOrUnknown(data['price_paid']!, _pricePaidMeta),
+      );
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    }
+    if (data.containsKey('import_source')) {
+      context.handle(
+        _importSourceMeta,
+        importSource.isAcceptableOrUnknown(
+          data['import_source']!,
+          _importSourceMeta,
+        ),
       );
     }
     if (data.containsKey('sync_created_at')) {
@@ -597,6 +670,22 @@ class $SupplementsTable extends Supplements
         DriftSqlType.bool,
         data['${effectivePrefix}is_archived'],
       )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
+      pricePaid: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}price_paid'],
+      ),
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      ),
+      importSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_source'],
+      ),
       syncCreatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sync_created_at'],
@@ -659,6 +748,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
   final int? startDate;
   final int? endDate;
   final bool isArchived;
+  final String? source;
+  final double? pricePaid;
+  final String? barcode;
+  final String? importSource;
   final int syncCreatedAt;
   final int? syncUpdatedAt;
   final int? syncDeletedAt;
@@ -685,6 +778,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     this.startDate,
     this.endDate,
     required this.isArchived,
+    this.source,
+    this.pricePaid,
+    this.barcode,
+    this.importSource,
     required this.syncCreatedAt,
     this.syncUpdatedAt,
     this.syncDeletedAt,
@@ -722,6 +819,18 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       map['end_date'] = Variable<int>(endDate);
     }
     map['is_archived'] = Variable<bool>(isArchived);
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    if (!nullToAbsent || pricePaid != null) {
+      map['price_paid'] = Variable<double>(pricePaid);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || importSource != null) {
+      map['import_source'] = Variable<String>(importSource);
+    }
     map['sync_created_at'] = Variable<int>(syncCreatedAt);
     if (!nullToAbsent || syncUpdatedAt != null) {
       map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
@@ -770,6 +879,18 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
           ? const Value.absent()
           : Value(endDate),
       isArchived: Value(isArchived),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
+      pricePaid: pricePaid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pricePaid),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      importSource: importSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importSource),
       syncCreatedAt: Value(syncCreatedAt),
       syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -814,6 +935,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       startDate: serializer.fromJson<int?>(json['startDate']),
       endDate: serializer.fromJson<int?>(json['endDate']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
+      source: serializer.fromJson<String?>(json['source']),
+      pricePaid: serializer.fromJson<double?>(json['pricePaid']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      importSource: serializer.fromJson<String?>(json['importSource']),
       syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
       syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
       syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
@@ -845,6 +970,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       'startDate': serializer.toJson<int?>(startDate),
       'endDate': serializer.toJson<int?>(endDate),
       'isArchived': serializer.toJson<bool>(isArchived),
+      'source': serializer.toJson<String?>(source),
+      'pricePaid': serializer.toJson<double?>(pricePaid),
+      'barcode': serializer.toJson<String?>(barcode),
+      'importSource': serializer.toJson<String?>(importSource),
       'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
       'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
       'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
@@ -874,6 +1003,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     Value<int?> startDate = const Value.absent(),
     Value<int?> endDate = const Value.absent(),
     bool? isArchived,
+    Value<String?> source = const Value.absent(),
+    Value<double?> pricePaid = const Value.absent(),
+    Value<String?> barcode = const Value.absent(),
+    Value<String?> importSource = const Value.absent(),
     int? syncCreatedAt,
     Value<int?> syncUpdatedAt = const Value.absent(),
     Value<int?> syncDeletedAt = const Value.absent(),
@@ -902,6 +1035,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     startDate: startDate.present ? startDate.value : this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
     isArchived: isArchived ?? this.isArchived,
+    source: source.present ? source.value : this.source,
+    pricePaid: pricePaid.present ? pricePaid.value : this.pricePaid,
+    barcode: barcode.present ? barcode.value : this.barcode,
+    importSource: importSource.present ? importSource.value : this.importSource,
     syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
     syncUpdatedAt: syncUpdatedAt.present
         ? syncUpdatedAt.value
@@ -948,6 +1085,12 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
       isArchived: data.isArchived.present
           ? data.isArchived.value
           : this.isArchived,
+      source: data.source.present ? data.source.value : this.source,
+      pricePaid: data.pricePaid.present ? data.pricePaid.value : this.pricePaid,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      importSource: data.importSource.present
+          ? data.importSource.value
+          : this.importSource,
       syncCreatedAt: data.syncCreatedAt.present
           ? data.syncCreatedAt.value
           : this.syncCreatedAt,
@@ -997,6 +1140,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('isArchived: $isArchived, ')
+          ..write('source: $source, ')
+          ..write('pricePaid: $pricePaid, ')
+          ..write('barcode: $barcode, ')
+          ..write('importSource: $importSource, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -1028,6 +1175,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
     startDate,
     endDate,
     isArchived,
+    source,
+    pricePaid,
+    barcode,
+    importSource,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -1058,6 +1209,10 @@ class SupplementRow extends DataClass implements Insertable<SupplementRow> {
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
           other.isArchived == this.isArchived &&
+          other.source == this.source &&
+          other.pricePaid == this.pricePaid &&
+          other.barcode == this.barcode &&
+          other.importSource == this.importSource &&
           other.syncCreatedAt == this.syncCreatedAt &&
           other.syncUpdatedAt == this.syncUpdatedAt &&
           other.syncDeletedAt == this.syncDeletedAt &&
@@ -1086,6 +1241,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
   final Value<int?> startDate;
   final Value<int?> endDate;
   final Value<bool> isArchived;
+  final Value<String?> source;
+  final Value<double?> pricePaid;
+  final Value<String?> barcode;
+  final Value<String?> importSource;
   final Value<int> syncCreatedAt;
   final Value<int?> syncUpdatedAt;
   final Value<int?> syncDeletedAt;
@@ -1113,6 +1272,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.isArchived = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pricePaid = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.importSource = const Value.absent(),
     this.syncCreatedAt = const Value.absent(),
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -1141,6 +1304,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.isArchived = const Value.absent(),
+    this.source = const Value.absent(),
+    this.pricePaid = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.importSource = const Value.absent(),
     required int syncCreatedAt,
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -1176,6 +1343,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     Expression<int>? startDate,
     Expression<int>? endDate,
     Expression<bool>? isArchived,
+    Expression<String>? source,
+    Expression<double>? pricePaid,
+    Expression<String>? barcode,
+    Expression<String>? importSource,
     Expression<int>? syncCreatedAt,
     Expression<int>? syncUpdatedAt,
     Expression<int>? syncDeletedAt,
@@ -1204,6 +1375,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
       if (isArchived != null) 'is_archived': isArchived,
+      if (source != null) 'source': source,
+      if (pricePaid != null) 'price_paid': pricePaid,
+      if (barcode != null) 'barcode': barcode,
+      if (importSource != null) 'import_source': importSource,
       if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
       if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
       if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
@@ -1234,6 +1409,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     Value<int?>? startDate,
     Value<int?>? endDate,
     Value<bool>? isArchived,
+    Value<String?>? source,
+    Value<double?>? pricePaid,
+    Value<String?>? barcode,
+    Value<String?>? importSource,
     Value<int>? syncCreatedAt,
     Value<int?>? syncUpdatedAt,
     Value<int?>? syncDeletedAt,
@@ -1262,6 +1441,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       isArchived: isArchived ?? this.isArchived,
+      source: source ?? this.source,
+      pricePaid: pricePaid ?? this.pricePaid,
+      barcode: barcode ?? this.barcode,
+      importSource: importSource ?? this.importSource,
       syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
       syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
       syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
@@ -1326,6 +1509,18 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
     if (isArchived.present) {
       map['is_archived'] = Variable<bool>(isArchived.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (pricePaid.present) {
+      map['price_paid'] = Variable<double>(pricePaid.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (importSource.present) {
+      map['import_source'] = Variable<String>(importSource.value);
+    }
     if (syncCreatedAt.present) {
       map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
     }
@@ -1378,6 +1573,10 @@ class SupplementsCompanion extends UpdateCompanion<SupplementRow> {
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('isArchived: $isArchived, ')
+          ..write('source: $source, ')
+          ..write('pricePaid: $pricePaid, ')
+          ..write('barcode: $barcode, ')
+          ..write('importSource: $importSource, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -12426,6 +12625,81 @@ class $FoodItemsTable extends FoodItems
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sodiumMgMeta = const VerificationMeta(
+    'sodiumMg',
+  );
+  @override
+  late final GeneratedColumn<double> sodiumMg = GeneratedColumn<double>(
+    'sodium_mg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _brandMeta = const VerificationMeta('brand');
+  @override
+  late final GeneratedColumn<String> brand = GeneratedColumn<String>(
+    'brand',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ingredientsTextMeta = const VerificationMeta(
+    'ingredientsText',
+  );
+  @override
+  late final GeneratedColumn<String> ingredientsText = GeneratedColumn<String>(
+    'ingredients_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _openFoodFactsIdMeta = const VerificationMeta(
+    'openFoodFactsId',
+  );
+  @override
+  late final GeneratedColumn<String> openFoodFactsId = GeneratedColumn<String>(
+    'open_food_facts_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importSourceMeta = const VerificationMeta(
+    'importSource',
+  );
+  @override
+  late final GeneratedColumn<String> importSource = GeneratedColumn<String>(
+    'import_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
     'syncCreatedAt',
   );
@@ -12549,6 +12823,13 @@ class $FoodItemsTable extends FoodItems
     proteinGrams,
     fiberGrams,
     sugarGrams,
+    sodiumMg,
+    barcode,
+    brand,
+    ingredientsText,
+    openFoodFactsId,
+    importSource,
+    imageUrl,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -12685,6 +12966,57 @@ class $FoodItemsTable extends FoodItems
       context.handle(
         _sugarGramsMeta,
         sugarGrams.isAcceptableOrUnknown(data['sugar_grams']!, _sugarGramsMeta),
+      );
+    }
+    if (data.containsKey('sodium_mg')) {
+      context.handle(
+        _sodiumMgMeta,
+        sodiumMg.isAcceptableOrUnknown(data['sodium_mg']!, _sodiumMgMeta),
+      );
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    }
+    if (data.containsKey('brand')) {
+      context.handle(
+        _brandMeta,
+        brand.isAcceptableOrUnknown(data['brand']!, _brandMeta),
+      );
+    }
+    if (data.containsKey('ingredients_text')) {
+      context.handle(
+        _ingredientsTextMeta,
+        ingredientsText.isAcceptableOrUnknown(
+          data['ingredients_text']!,
+          _ingredientsTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('open_food_facts_id')) {
+      context.handle(
+        _openFoodFactsIdMeta,
+        openFoodFactsId.isAcceptableOrUnknown(
+          data['open_food_facts_id']!,
+          _openFoodFactsIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_source')) {
+      context.handle(
+        _importSourceMeta,
+        importSource.isAcceptableOrUnknown(
+          data['import_source']!,
+          _importSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
       );
     }
     if (data.containsKey('sync_created_at')) {
@@ -12840,6 +13172,34 @@ class $FoodItemsTable extends FoodItems
         DriftSqlType.double,
         data['${effectivePrefix}sugar_grams'],
       ),
+      sodiumMg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sodium_mg'],
+      ),
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      ),
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      ),
+      ingredientsText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ingredients_text'],
+      ),
+      openFoodFactsId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}open_food_facts_id'],
+      ),
+      importSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_source'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
       syncCreatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sync_created_at'],
@@ -12902,6 +13262,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
   final double? proteinGrams;
   final double? fiberGrams;
   final double? sugarGrams;
+  final double? sodiumMg;
+  final String? barcode;
+  final String? brand;
+  final String? ingredientsText;
+  final String? openFoodFactsId;
+  final String? importSource;
+  final String? imageUrl;
   final int syncCreatedAt;
   final int? syncUpdatedAt;
   final int? syncDeletedAt;
@@ -12928,6 +13295,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
     this.proteinGrams,
     this.fiberGrams,
     this.sugarGrams,
+    this.sodiumMg,
+    this.barcode,
+    this.brand,
+    this.ingredientsText,
+    this.openFoodFactsId,
+    this.importSource,
+    this.imageUrl,
     required this.syncCreatedAt,
     this.syncUpdatedAt,
     this.syncDeletedAt,
@@ -12974,6 +13348,27 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
     }
     if (!nullToAbsent || sugarGrams != null) {
       map['sugar_grams'] = Variable<double>(sugarGrams);
+    }
+    if (!nullToAbsent || sodiumMg != null) {
+      map['sodium_mg'] = Variable<double>(sodiumMg);
+    }
+    if (!nullToAbsent || barcode != null) {
+      map['barcode'] = Variable<String>(barcode);
+    }
+    if (!nullToAbsent || brand != null) {
+      map['brand'] = Variable<String>(brand);
+    }
+    if (!nullToAbsent || ingredientsText != null) {
+      map['ingredients_text'] = Variable<String>(ingredientsText);
+    }
+    if (!nullToAbsent || openFoodFactsId != null) {
+      map['open_food_facts_id'] = Variable<String>(openFoodFactsId);
+    }
+    if (!nullToAbsent || importSource != null) {
+      map['import_source'] = Variable<String>(importSource);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
     }
     map['sync_created_at'] = Variable<int>(syncCreatedAt);
     if (!nullToAbsent || syncUpdatedAt != null) {
@@ -13033,6 +13428,27 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
       sugarGrams: sugarGrams == null && nullToAbsent
           ? const Value.absent()
           : Value(sugarGrams),
+      sodiumMg: sodiumMg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sodiumMg),
+      barcode: barcode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(barcode),
+      brand: brand == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brand),
+      ingredientsText: ingredientsText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ingredientsText),
+      openFoodFactsId: openFoodFactsId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(openFoodFactsId),
+      importSource: importSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importSource),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
       syncCreatedAt: Value(syncCreatedAt),
       syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -13077,6 +13493,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
       proteinGrams: serializer.fromJson<double?>(json['proteinGrams']),
       fiberGrams: serializer.fromJson<double?>(json['fiberGrams']),
       sugarGrams: serializer.fromJson<double?>(json['sugarGrams']),
+      sodiumMg: serializer.fromJson<double?>(json['sodiumMg']),
+      barcode: serializer.fromJson<String?>(json['barcode']),
+      brand: serializer.fromJson<String?>(json['brand']),
+      ingredientsText: serializer.fromJson<String?>(json['ingredientsText']),
+      openFoodFactsId: serializer.fromJson<String?>(json['openFoodFactsId']),
+      importSource: serializer.fromJson<String?>(json['importSource']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
       syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
       syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
       syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
@@ -13108,6 +13531,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
       'proteinGrams': serializer.toJson<double?>(proteinGrams),
       'fiberGrams': serializer.toJson<double?>(fiberGrams),
       'sugarGrams': serializer.toJson<double?>(sugarGrams),
+      'sodiumMg': serializer.toJson<double?>(sodiumMg),
+      'barcode': serializer.toJson<String?>(barcode),
+      'brand': serializer.toJson<String?>(brand),
+      'ingredientsText': serializer.toJson<String?>(ingredientsText),
+      'openFoodFactsId': serializer.toJson<String?>(openFoodFactsId),
+      'importSource': serializer.toJson<String?>(importSource),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
       'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
       'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
       'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
@@ -13137,6 +13567,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
     Value<double?> proteinGrams = const Value.absent(),
     Value<double?> fiberGrams = const Value.absent(),
     Value<double?> sugarGrams = const Value.absent(),
+    Value<double?> sodiumMg = const Value.absent(),
+    Value<String?> barcode = const Value.absent(),
+    Value<String?> brand = const Value.absent(),
+    Value<String?> ingredientsText = const Value.absent(),
+    Value<String?> openFoodFactsId = const Value.absent(),
+    Value<String?> importSource = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
     int? syncCreatedAt,
     Value<int?> syncUpdatedAt = const Value.absent(),
     Value<int?> syncDeletedAt = const Value.absent(),
@@ -13165,6 +13602,17 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
     proteinGrams: proteinGrams.present ? proteinGrams.value : this.proteinGrams,
     fiberGrams: fiberGrams.present ? fiberGrams.value : this.fiberGrams,
     sugarGrams: sugarGrams.present ? sugarGrams.value : this.sugarGrams,
+    sodiumMg: sodiumMg.present ? sodiumMg.value : this.sodiumMg,
+    barcode: barcode.present ? barcode.value : this.barcode,
+    brand: brand.present ? brand.value : this.brand,
+    ingredientsText: ingredientsText.present
+        ? ingredientsText.value
+        : this.ingredientsText,
+    openFoodFactsId: openFoodFactsId.present
+        ? openFoodFactsId.value
+        : this.openFoodFactsId,
+    importSource: importSource.present ? importSource.value : this.importSource,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
     syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
     syncUpdatedAt: syncUpdatedAt.present
         ? syncUpdatedAt.value
@@ -13217,6 +13665,19 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
       sugarGrams: data.sugarGrams.present
           ? data.sugarGrams.value
           : this.sugarGrams,
+      sodiumMg: data.sodiumMg.present ? data.sodiumMg.value : this.sodiumMg,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      ingredientsText: data.ingredientsText.present
+          ? data.ingredientsText.value
+          : this.ingredientsText,
+      openFoodFactsId: data.openFoodFactsId.present
+          ? data.openFoodFactsId.value
+          : this.openFoodFactsId,
+      importSource: data.importSource.present
+          ? data.importSource.value
+          : this.importSource,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
       syncCreatedAt: data.syncCreatedAt.present
           ? data.syncCreatedAt.value
           : this.syncCreatedAt,
@@ -13266,6 +13727,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
           ..write('proteinGrams: $proteinGrams, ')
           ..write('fiberGrams: $fiberGrams, ')
           ..write('sugarGrams: $sugarGrams, ')
+          ..write('sodiumMg: $sodiumMg, ')
+          ..write('barcode: $barcode, ')
+          ..write('brand: $brand, ')
+          ..write('ingredientsText: $ingredientsText, ')
+          ..write('openFoodFactsId: $openFoodFactsId, ')
+          ..write('importSource: $importSource, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -13297,6 +13765,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
     proteinGrams,
     fiberGrams,
     sugarGrams,
+    sodiumMg,
+    barcode,
+    brand,
+    ingredientsText,
+    openFoodFactsId,
+    importSource,
+    imageUrl,
     syncCreatedAt,
     syncUpdatedAt,
     syncDeletedAt,
@@ -13327,6 +13802,13 @@ class FoodItemRow extends DataClass implements Insertable<FoodItemRow> {
           other.proteinGrams == this.proteinGrams &&
           other.fiberGrams == this.fiberGrams &&
           other.sugarGrams == this.sugarGrams &&
+          other.sodiumMg == this.sodiumMg &&
+          other.barcode == this.barcode &&
+          other.brand == this.brand &&
+          other.ingredientsText == this.ingredientsText &&
+          other.openFoodFactsId == this.openFoodFactsId &&
+          other.importSource == this.importSource &&
+          other.imageUrl == this.imageUrl &&
           other.syncCreatedAt == this.syncCreatedAt &&
           other.syncUpdatedAt == this.syncUpdatedAt &&
           other.syncDeletedAt == this.syncDeletedAt &&
@@ -13355,6 +13837,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
   final Value<double?> proteinGrams;
   final Value<double?> fiberGrams;
   final Value<double?> sugarGrams;
+  final Value<double?> sodiumMg;
+  final Value<String?> barcode;
+  final Value<String?> brand;
+  final Value<String?> ingredientsText;
+  final Value<String?> openFoodFactsId;
+  final Value<String?> importSource;
+  final Value<String?> imageUrl;
   final Value<int> syncCreatedAt;
   final Value<int?> syncUpdatedAt;
   final Value<int?> syncDeletedAt;
@@ -13382,6 +13871,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
     this.proteinGrams = const Value.absent(),
     this.fiberGrams = const Value.absent(),
     this.sugarGrams = const Value.absent(),
+    this.sodiumMg = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.ingredientsText = const Value.absent(),
+    this.openFoodFactsId = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.syncCreatedAt = const Value.absent(),
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -13410,6 +13906,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
     this.proteinGrams = const Value.absent(),
     this.fiberGrams = const Value.absent(),
     this.sugarGrams = const Value.absent(),
+    this.sodiumMg = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.ingredientsText = const Value.absent(),
+    this.openFoodFactsId = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     required int syncCreatedAt,
     this.syncUpdatedAt = const Value.absent(),
     this.syncDeletedAt = const Value.absent(),
@@ -13442,6 +13945,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
     Expression<double>? proteinGrams,
     Expression<double>? fiberGrams,
     Expression<double>? sugarGrams,
+    Expression<double>? sodiumMg,
+    Expression<String>? barcode,
+    Expression<String>? brand,
+    Expression<String>? ingredientsText,
+    Expression<String>? openFoodFactsId,
+    Expression<String>? importSource,
+    Expression<String>? imageUrl,
     Expression<int>? syncCreatedAt,
     Expression<int>? syncUpdatedAt,
     Expression<int>? syncDeletedAt,
@@ -13470,6 +13980,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
       if (proteinGrams != null) 'protein_grams': proteinGrams,
       if (fiberGrams != null) 'fiber_grams': fiberGrams,
       if (sugarGrams != null) 'sugar_grams': sugarGrams,
+      if (sodiumMg != null) 'sodium_mg': sodiumMg,
+      if (barcode != null) 'barcode': barcode,
+      if (brand != null) 'brand': brand,
+      if (ingredientsText != null) 'ingredients_text': ingredientsText,
+      if (openFoodFactsId != null) 'open_food_facts_id': openFoodFactsId,
+      if (importSource != null) 'import_source': importSource,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
       if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
       if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
@@ -13500,6 +14017,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
     Value<double?>? proteinGrams,
     Value<double?>? fiberGrams,
     Value<double?>? sugarGrams,
+    Value<double?>? sodiumMg,
+    Value<String?>? barcode,
+    Value<String?>? brand,
+    Value<String?>? ingredientsText,
+    Value<String?>? openFoodFactsId,
+    Value<String?>? importSource,
+    Value<String?>? imageUrl,
     Value<int>? syncCreatedAt,
     Value<int?>? syncUpdatedAt,
     Value<int?>? syncDeletedAt,
@@ -13528,6 +14052,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
       proteinGrams: proteinGrams ?? this.proteinGrams,
       fiberGrams: fiberGrams ?? this.fiberGrams,
       sugarGrams: sugarGrams ?? this.sugarGrams,
+      sodiumMg: sodiumMg ?? this.sodiumMg,
+      barcode: barcode ?? this.barcode,
+      brand: brand ?? this.brand,
+      ingredientsText: ingredientsText ?? this.ingredientsText,
+      openFoodFactsId: openFoodFactsId ?? this.openFoodFactsId,
+      importSource: importSource ?? this.importSource,
+      imageUrl: imageUrl ?? this.imageUrl,
       syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
       syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
       syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
@@ -13592,6 +14123,27 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
     if (sugarGrams.present) {
       map['sugar_grams'] = Variable<double>(sugarGrams.value);
     }
+    if (sodiumMg.present) {
+      map['sodium_mg'] = Variable<double>(sodiumMg.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (ingredientsText.present) {
+      map['ingredients_text'] = Variable<String>(ingredientsText.value);
+    }
+    if (openFoodFactsId.present) {
+      map['open_food_facts_id'] = Variable<String>(openFoodFactsId.value);
+    }
+    if (importSource.present) {
+      map['import_source'] = Variable<String>(importSource.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (syncCreatedAt.present) {
       map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
     }
@@ -13644,6 +14196,13 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
           ..write('proteinGrams: $proteinGrams, ')
           ..write('fiberGrams: $fiberGrams, ')
           ..write('sugarGrams: $sugarGrams, ')
+          ..write('sodiumMg: $sodiumMg, ')
+          ..write('barcode: $barcode, ')
+          ..write('brand: $brand, ')
+          ..write('ingredientsText: $ingredientsText, ')
+          ..write('openFoodFactsId: $openFoodFactsId, ')
+          ..write('importSource: $importSource, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
           ..write('syncUpdatedAt: $syncUpdatedAt, ')
           ..write('syncDeletedAt: $syncDeletedAt, ')
@@ -13653,6 +14212,1355 @@ class FoodItemsCompanion extends UpdateCompanion<FoodItemRow> {
           ..write('syncDeviceId: $syncDeviceId, ')
           ..write('syncIsDirty: $syncIsDirty, ')
           ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodItemComponentsTable extends FoodItemComponents
+    with TableInfo<$FoodItemComponentsTable, FoodItemComponentRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodItemComponentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _composedFoodItemIdMeta =
+      const VerificationMeta('composedFoodItemId');
+  @override
+  late final GeneratedColumn<String> composedFoodItemId =
+      GeneratedColumn<String>(
+        'composed_food_item_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _simpleFoodItemIdMeta = const VerificationMeta(
+    'simpleFoodItemId',
+  );
+  @override
+  late final GeneratedColumn<String> simpleFoodItemId = GeneratedColumn<String>(
+    'simple_food_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    composedFoodItemId,
+    simpleFoodItemId,
+    quantity,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_item_components';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodItemComponentRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('composed_food_item_id')) {
+      context.handle(
+        _composedFoodItemIdMeta,
+        composedFoodItemId.isAcceptableOrUnknown(
+          data['composed_food_item_id']!,
+          _composedFoodItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_composedFoodItemIdMeta);
+    }
+    if (data.containsKey('simple_food_item_id')) {
+      context.handle(
+        _simpleFoodItemIdMeta,
+        simpleFoodItemId.isAcceptableOrUnknown(
+          data['simple_food_item_id']!,
+          _simpleFoodItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_simpleFoodItemIdMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FoodItemComponentRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodItemComponentRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      composedFoodItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}composed_food_item_id'],
+      )!,
+      simpleFoodItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}simple_food_item_id'],
+      )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}quantity'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $FoodItemComponentsTable createAlias(String alias) {
+    return $FoodItemComponentsTable(attachedDatabase, alias);
+  }
+}
+
+class FoodItemComponentRow extends DataClass
+    implements Insertable<FoodItemComponentRow> {
+  final String id;
+  final String composedFoodItemId;
+  final String simpleFoodItemId;
+  final double quantity;
+  final int sortOrder;
+  const FoodItemComponentRow({
+    required this.id,
+    required this.composedFoodItemId,
+    required this.simpleFoodItemId,
+    required this.quantity,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['composed_food_item_id'] = Variable<String>(composedFoodItemId);
+    map['simple_food_item_id'] = Variable<String>(simpleFoodItemId);
+    map['quantity'] = Variable<double>(quantity);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  FoodItemComponentsCompanion toCompanion(bool nullToAbsent) {
+    return FoodItemComponentsCompanion(
+      id: Value(id),
+      composedFoodItemId: Value(composedFoodItemId),
+      simpleFoodItemId: Value(simpleFoodItemId),
+      quantity: Value(quantity),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory FoodItemComponentRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodItemComponentRow(
+      id: serializer.fromJson<String>(json['id']),
+      composedFoodItemId: serializer.fromJson<String>(
+        json['composedFoodItemId'],
+      ),
+      simpleFoodItemId: serializer.fromJson<String>(json['simpleFoodItemId']),
+      quantity: serializer.fromJson<double>(json['quantity']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'composedFoodItemId': serializer.toJson<String>(composedFoodItemId),
+      'simpleFoodItemId': serializer.toJson<String>(simpleFoodItemId),
+      'quantity': serializer.toJson<double>(quantity),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  FoodItemComponentRow copyWith({
+    String? id,
+    String? composedFoodItemId,
+    String? simpleFoodItemId,
+    double? quantity,
+    int? sortOrder,
+  }) => FoodItemComponentRow(
+    id: id ?? this.id,
+    composedFoodItemId: composedFoodItemId ?? this.composedFoodItemId,
+    simpleFoodItemId: simpleFoodItemId ?? this.simpleFoodItemId,
+    quantity: quantity ?? this.quantity,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  FoodItemComponentRow copyWithCompanion(FoodItemComponentsCompanion data) {
+    return FoodItemComponentRow(
+      id: data.id.present ? data.id.value : this.id,
+      composedFoodItemId: data.composedFoodItemId.present
+          ? data.composedFoodItemId.value
+          : this.composedFoodItemId,
+      simpleFoodItemId: data.simpleFoodItemId.present
+          ? data.simpleFoodItemId.value
+          : this.simpleFoodItemId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodItemComponentRow(')
+          ..write('id: $id, ')
+          ..write('composedFoodItemId: $composedFoodItemId, ')
+          ..write('simpleFoodItemId: $simpleFoodItemId, ')
+          ..write('quantity: $quantity, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    composedFoodItemId,
+    simpleFoodItemId,
+    quantity,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodItemComponentRow &&
+          other.id == this.id &&
+          other.composedFoodItemId == this.composedFoodItemId &&
+          other.simpleFoodItemId == this.simpleFoodItemId &&
+          other.quantity == this.quantity &&
+          other.sortOrder == this.sortOrder);
+}
+
+class FoodItemComponentsCompanion
+    extends UpdateCompanion<FoodItemComponentRow> {
+  final Value<String> id;
+  final Value<String> composedFoodItemId;
+  final Value<String> simpleFoodItemId;
+  final Value<double> quantity;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const FoodItemComponentsCompanion({
+    this.id = const Value.absent(),
+    this.composedFoodItemId = const Value.absent(),
+    this.simpleFoodItemId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FoodItemComponentsCompanion.insert({
+    required String id,
+    required String composedFoodItemId,
+    required String simpleFoodItemId,
+    this.quantity = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       composedFoodItemId = Value(composedFoodItemId),
+       simpleFoodItemId = Value(simpleFoodItemId);
+  static Insertable<FoodItemComponentRow> custom({
+    Expression<String>? id,
+    Expression<String>? composedFoodItemId,
+    Expression<String>? simpleFoodItemId,
+    Expression<double>? quantity,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (composedFoodItemId != null)
+        'composed_food_item_id': composedFoodItemId,
+      if (simpleFoodItemId != null) 'simple_food_item_id': simpleFoodItemId,
+      if (quantity != null) 'quantity': quantity,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FoodItemComponentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? composedFoodItemId,
+    Value<String>? simpleFoodItemId,
+    Value<double>? quantity,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return FoodItemComponentsCompanion(
+      id: id ?? this.id,
+      composedFoodItemId: composedFoodItemId ?? this.composedFoodItemId,
+      simpleFoodItemId: simpleFoodItemId ?? this.simpleFoodItemId,
+      quantity: quantity ?? this.quantity,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (composedFoodItemId.present) {
+      map['composed_food_item_id'] = Variable<String>(composedFoodItemId.value);
+    }
+    if (simpleFoodItemId.present) {
+      map['simple_food_item_id'] = Variable<String>(simpleFoodItemId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<double>(quantity.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodItemComponentsCompanion(')
+          ..write('id: $id, ')
+          ..write('composedFoodItemId: $composedFoodItemId, ')
+          ..write('simpleFoodItemId: $simpleFoodItemId, ')
+          ..write('quantity: $quantity, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodBarcodeCacheTable extends FoodBarcodeCache
+    with TableInfo<$FoodBarcodeCacheTable, FoodBarcodeCacheRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodBarcodeCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _brandMeta = const VerificationMeta('brand');
+  @override
+  late final GeneratedColumn<String> brand = GeneratedColumn<String>(
+    'brand',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ingredientsTextMeta = const VerificationMeta(
+    'ingredientsText',
+  );
+  @override
+  late final GeneratedColumn<String> ingredientsText = GeneratedColumn<String>(
+    'ingredients_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _caloriesMeta = const VerificationMeta(
+    'calories',
+  );
+  @override
+  late final GeneratedColumn<double> calories = GeneratedColumn<double>(
+    'calories',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _carbsMeta = const VerificationMeta('carbs');
+  @override
+  late final GeneratedColumn<double> carbs = GeneratedColumn<double>(
+    'carbs',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fatMeta = const VerificationMeta('fat');
+  @override
+  late final GeneratedColumn<double> fat = GeneratedColumn<double>(
+    'fat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _proteinMeta = const VerificationMeta(
+    'protein',
+  );
+  @override
+  late final GeneratedColumn<double> protein = GeneratedColumn<double>(
+    'protein',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fiberMeta = const VerificationMeta('fiber');
+  @override
+  late final GeneratedColumn<double> fiber = GeneratedColumn<double>(
+    'fiber',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sugarMeta = const VerificationMeta('sugar');
+  @override
+  late final GeneratedColumn<double> sugar = GeneratedColumn<double>(
+    'sugar',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sodiumMgMeta = const VerificationMeta(
+    'sodiumMg',
+  );
+  @override
+  late final GeneratedColumn<double> sodiumMg = GeneratedColumn<double>(
+    'sodium_mg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _openFoodFactsIdMeta = const VerificationMeta(
+    'openFoodFactsId',
+  );
+  @override
+  late final GeneratedColumn<String> openFoodFactsId = GeneratedColumn<String>(
+    'open_food_facts_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawResponseMeta = const VerificationMeta(
+    'rawResponse',
+  );
+  @override
+  late final GeneratedColumn<String> rawResponse = GeneratedColumn<String>(
+    'raw_response',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<int> fetchedAt = GeneratedColumn<int>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<int> expiresAt = GeneratedColumn<int>(
+    'expires_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    barcode,
+    productName,
+    brand,
+    ingredientsText,
+    calories,
+    carbs,
+    fat,
+    protein,
+    fiber,
+    sugar,
+    sodiumMg,
+    openFoodFactsId,
+    imageUrl,
+    rawResponse,
+    fetchedAt,
+    expiresAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_barcode_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodBarcodeCacheRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_barcodeMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('brand')) {
+      context.handle(
+        _brandMeta,
+        brand.isAcceptableOrUnknown(data['brand']!, _brandMeta),
+      );
+    }
+    if (data.containsKey('ingredients_text')) {
+      context.handle(
+        _ingredientsTextMeta,
+        ingredientsText.isAcceptableOrUnknown(
+          data['ingredients_text']!,
+          _ingredientsTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('calories')) {
+      context.handle(
+        _caloriesMeta,
+        calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta),
+      );
+    }
+    if (data.containsKey('carbs')) {
+      context.handle(
+        _carbsMeta,
+        carbs.isAcceptableOrUnknown(data['carbs']!, _carbsMeta),
+      );
+    }
+    if (data.containsKey('fat')) {
+      context.handle(
+        _fatMeta,
+        fat.isAcceptableOrUnknown(data['fat']!, _fatMeta),
+      );
+    }
+    if (data.containsKey('protein')) {
+      context.handle(
+        _proteinMeta,
+        protein.isAcceptableOrUnknown(data['protein']!, _proteinMeta),
+      );
+    }
+    if (data.containsKey('fiber')) {
+      context.handle(
+        _fiberMeta,
+        fiber.isAcceptableOrUnknown(data['fiber']!, _fiberMeta),
+      );
+    }
+    if (data.containsKey('sugar')) {
+      context.handle(
+        _sugarMeta,
+        sugar.isAcceptableOrUnknown(data['sugar']!, _sugarMeta),
+      );
+    }
+    if (data.containsKey('sodium_mg')) {
+      context.handle(
+        _sodiumMgMeta,
+        sodiumMg.isAcceptableOrUnknown(data['sodium_mg']!, _sodiumMgMeta),
+      );
+    }
+    if (data.containsKey('open_food_facts_id')) {
+      context.handle(
+        _openFoodFactsIdMeta,
+        openFoodFactsId.isAcceptableOrUnknown(
+          data['open_food_facts_id']!,
+          _openFoodFactsIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('raw_response')) {
+      context.handle(
+        _rawResponseMeta,
+        rawResponse.isAcceptableOrUnknown(
+          data['raw_response']!,
+          _rawResponseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expiresAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FoodBarcodeCacheRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodBarcodeCacheRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      ),
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      ),
+      ingredientsText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ingredients_text'],
+      ),
+      calories: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}calories'],
+      ),
+      carbs: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carbs'],
+      ),
+      fat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fat'],
+      ),
+      protein: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}protein'],
+      ),
+      fiber: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fiber'],
+      ),
+      sugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sugar'],
+      ),
+      sodiumMg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sodium_mg'],
+      ),
+      openFoodFactsId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}open_food_facts_id'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+      rawResponse: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_response'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_at'],
+      )!,
+    );
+  }
+
+  @override
+  $FoodBarcodeCacheTable createAlias(String alias) {
+    return $FoodBarcodeCacheTable(attachedDatabase, alias);
+  }
+}
+
+class FoodBarcodeCacheRow extends DataClass
+    implements Insertable<FoodBarcodeCacheRow> {
+  final String id;
+  final String barcode;
+  final String? productName;
+  final String? brand;
+  final String? ingredientsText;
+  final double? calories;
+  final double? carbs;
+  final double? fat;
+  final double? protein;
+  final double? fiber;
+  final double? sugar;
+  final double? sodiumMg;
+  final String? openFoodFactsId;
+  final String? imageUrl;
+  final String? rawResponse;
+  final int fetchedAt;
+  final int expiresAt;
+  const FoodBarcodeCacheRow({
+    required this.id,
+    required this.barcode,
+    this.productName,
+    this.brand,
+    this.ingredientsText,
+    this.calories,
+    this.carbs,
+    this.fat,
+    this.protein,
+    this.fiber,
+    this.sugar,
+    this.sodiumMg,
+    this.openFoodFactsId,
+    this.imageUrl,
+    this.rawResponse,
+    required this.fetchedAt,
+    required this.expiresAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['barcode'] = Variable<String>(barcode);
+    if (!nullToAbsent || productName != null) {
+      map['product_name'] = Variable<String>(productName);
+    }
+    if (!nullToAbsent || brand != null) {
+      map['brand'] = Variable<String>(brand);
+    }
+    if (!nullToAbsent || ingredientsText != null) {
+      map['ingredients_text'] = Variable<String>(ingredientsText);
+    }
+    if (!nullToAbsent || calories != null) {
+      map['calories'] = Variable<double>(calories);
+    }
+    if (!nullToAbsent || carbs != null) {
+      map['carbs'] = Variable<double>(carbs);
+    }
+    if (!nullToAbsent || fat != null) {
+      map['fat'] = Variable<double>(fat);
+    }
+    if (!nullToAbsent || protein != null) {
+      map['protein'] = Variable<double>(protein);
+    }
+    if (!nullToAbsent || fiber != null) {
+      map['fiber'] = Variable<double>(fiber);
+    }
+    if (!nullToAbsent || sugar != null) {
+      map['sugar'] = Variable<double>(sugar);
+    }
+    if (!nullToAbsent || sodiumMg != null) {
+      map['sodium_mg'] = Variable<double>(sodiumMg);
+    }
+    if (!nullToAbsent || openFoodFactsId != null) {
+      map['open_food_facts_id'] = Variable<String>(openFoodFactsId);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    if (!nullToAbsent || rawResponse != null) {
+      map['raw_response'] = Variable<String>(rawResponse);
+    }
+    map['fetched_at'] = Variable<int>(fetchedAt);
+    map['expires_at'] = Variable<int>(expiresAt);
+    return map;
+  }
+
+  FoodBarcodeCacheCompanion toCompanion(bool nullToAbsent) {
+    return FoodBarcodeCacheCompanion(
+      id: Value(id),
+      barcode: Value(barcode),
+      productName: productName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productName),
+      brand: brand == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brand),
+      ingredientsText: ingredientsText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ingredientsText),
+      calories: calories == null && nullToAbsent
+          ? const Value.absent()
+          : Value(calories),
+      carbs: carbs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(carbs),
+      fat: fat == null && nullToAbsent ? const Value.absent() : Value(fat),
+      protein: protein == null && nullToAbsent
+          ? const Value.absent()
+          : Value(protein),
+      fiber: fiber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fiber),
+      sugar: sugar == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sugar),
+      sodiumMg: sodiumMg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sodiumMg),
+      openFoodFactsId: openFoodFactsId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(openFoodFactsId),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+      rawResponse: rawResponse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawResponse),
+      fetchedAt: Value(fetchedAt),
+      expiresAt: Value(expiresAt),
+    );
+  }
+
+  factory FoodBarcodeCacheRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodBarcodeCacheRow(
+      id: serializer.fromJson<String>(json['id']),
+      barcode: serializer.fromJson<String>(json['barcode']),
+      productName: serializer.fromJson<String?>(json['productName']),
+      brand: serializer.fromJson<String?>(json['brand']),
+      ingredientsText: serializer.fromJson<String?>(json['ingredientsText']),
+      calories: serializer.fromJson<double?>(json['calories']),
+      carbs: serializer.fromJson<double?>(json['carbs']),
+      fat: serializer.fromJson<double?>(json['fat']),
+      protein: serializer.fromJson<double?>(json['protein']),
+      fiber: serializer.fromJson<double?>(json['fiber']),
+      sugar: serializer.fromJson<double?>(json['sugar']),
+      sodiumMg: serializer.fromJson<double?>(json['sodiumMg']),
+      openFoodFactsId: serializer.fromJson<String?>(json['openFoodFactsId']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      rawResponse: serializer.fromJson<String?>(json['rawResponse']),
+      fetchedAt: serializer.fromJson<int>(json['fetchedAt']),
+      expiresAt: serializer.fromJson<int>(json['expiresAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'barcode': serializer.toJson<String>(barcode),
+      'productName': serializer.toJson<String?>(productName),
+      'brand': serializer.toJson<String?>(brand),
+      'ingredientsText': serializer.toJson<String?>(ingredientsText),
+      'calories': serializer.toJson<double?>(calories),
+      'carbs': serializer.toJson<double?>(carbs),
+      'fat': serializer.toJson<double?>(fat),
+      'protein': serializer.toJson<double?>(protein),
+      'fiber': serializer.toJson<double?>(fiber),
+      'sugar': serializer.toJson<double?>(sugar),
+      'sodiumMg': serializer.toJson<double?>(sodiumMg),
+      'openFoodFactsId': serializer.toJson<String?>(openFoodFactsId),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+      'rawResponse': serializer.toJson<String?>(rawResponse),
+      'fetchedAt': serializer.toJson<int>(fetchedAt),
+      'expiresAt': serializer.toJson<int>(expiresAt),
+    };
+  }
+
+  FoodBarcodeCacheRow copyWith({
+    String? id,
+    String? barcode,
+    Value<String?> productName = const Value.absent(),
+    Value<String?> brand = const Value.absent(),
+    Value<String?> ingredientsText = const Value.absent(),
+    Value<double?> calories = const Value.absent(),
+    Value<double?> carbs = const Value.absent(),
+    Value<double?> fat = const Value.absent(),
+    Value<double?> protein = const Value.absent(),
+    Value<double?> fiber = const Value.absent(),
+    Value<double?> sugar = const Value.absent(),
+    Value<double?> sodiumMg = const Value.absent(),
+    Value<String?> openFoodFactsId = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
+    Value<String?> rawResponse = const Value.absent(),
+    int? fetchedAt,
+    int? expiresAt,
+  }) => FoodBarcodeCacheRow(
+    id: id ?? this.id,
+    barcode: barcode ?? this.barcode,
+    productName: productName.present ? productName.value : this.productName,
+    brand: brand.present ? brand.value : this.brand,
+    ingredientsText: ingredientsText.present
+        ? ingredientsText.value
+        : this.ingredientsText,
+    calories: calories.present ? calories.value : this.calories,
+    carbs: carbs.present ? carbs.value : this.carbs,
+    fat: fat.present ? fat.value : this.fat,
+    protein: protein.present ? protein.value : this.protein,
+    fiber: fiber.present ? fiber.value : this.fiber,
+    sugar: sugar.present ? sugar.value : this.sugar,
+    sodiumMg: sodiumMg.present ? sodiumMg.value : this.sodiumMg,
+    openFoodFactsId: openFoodFactsId.present
+        ? openFoodFactsId.value
+        : this.openFoodFactsId,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    rawResponse: rawResponse.present ? rawResponse.value : this.rawResponse,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    expiresAt: expiresAt ?? this.expiresAt,
+  );
+  FoodBarcodeCacheRow copyWithCompanion(FoodBarcodeCacheCompanion data) {
+    return FoodBarcodeCacheRow(
+      id: data.id.present ? data.id.value : this.id,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      ingredientsText: data.ingredientsText.present
+          ? data.ingredientsText.value
+          : this.ingredientsText,
+      calories: data.calories.present ? data.calories.value : this.calories,
+      carbs: data.carbs.present ? data.carbs.value : this.carbs,
+      fat: data.fat.present ? data.fat.value : this.fat,
+      protein: data.protein.present ? data.protein.value : this.protein,
+      fiber: data.fiber.present ? data.fiber.value : this.fiber,
+      sugar: data.sugar.present ? data.sugar.value : this.sugar,
+      sodiumMg: data.sodiumMg.present ? data.sodiumMg.value : this.sodiumMg,
+      openFoodFactsId: data.openFoodFactsId.present
+          ? data.openFoodFactsId.value
+          : this.openFoodFactsId,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      rawResponse: data.rawResponse.present
+          ? data.rawResponse.value
+          : this.rawResponse,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodBarcodeCacheRow(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('productName: $productName, ')
+          ..write('brand: $brand, ')
+          ..write('ingredientsText: $ingredientsText, ')
+          ..write('calories: $calories, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat, ')
+          ..write('protein: $protein, ')
+          ..write('fiber: $fiber, ')
+          ..write('sugar: $sugar, ')
+          ..write('sodiumMg: $sodiumMg, ')
+          ..write('openFoodFactsId: $openFoodFactsId, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('rawResponse: $rawResponse, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    barcode,
+    productName,
+    brand,
+    ingredientsText,
+    calories,
+    carbs,
+    fat,
+    protein,
+    fiber,
+    sugar,
+    sodiumMg,
+    openFoodFactsId,
+    imageUrl,
+    rawResponse,
+    fetchedAt,
+    expiresAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodBarcodeCacheRow &&
+          other.id == this.id &&
+          other.barcode == this.barcode &&
+          other.productName == this.productName &&
+          other.brand == this.brand &&
+          other.ingredientsText == this.ingredientsText &&
+          other.calories == this.calories &&
+          other.carbs == this.carbs &&
+          other.fat == this.fat &&
+          other.protein == this.protein &&
+          other.fiber == this.fiber &&
+          other.sugar == this.sugar &&
+          other.sodiumMg == this.sodiumMg &&
+          other.openFoodFactsId == this.openFoodFactsId &&
+          other.imageUrl == this.imageUrl &&
+          other.rawResponse == this.rawResponse &&
+          other.fetchedAt == this.fetchedAt &&
+          other.expiresAt == this.expiresAt);
+}
+
+class FoodBarcodeCacheCompanion extends UpdateCompanion<FoodBarcodeCacheRow> {
+  final Value<String> id;
+  final Value<String> barcode;
+  final Value<String?> productName;
+  final Value<String?> brand;
+  final Value<String?> ingredientsText;
+  final Value<double?> calories;
+  final Value<double?> carbs;
+  final Value<double?> fat;
+  final Value<double?> protein;
+  final Value<double?> fiber;
+  final Value<double?> sugar;
+  final Value<double?> sodiumMg;
+  final Value<String?> openFoodFactsId;
+  final Value<String?> imageUrl;
+  final Value<String?> rawResponse;
+  final Value<int> fetchedAt;
+  final Value<int> expiresAt;
+  final Value<int> rowid;
+  const FoodBarcodeCacheCompanion({
+    this.id = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.ingredientsText = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.carbs = const Value.absent(),
+    this.fat = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.fiber = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.sodiumMg = const Value.absent(),
+    this.openFoodFactsId = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.rawResponse = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FoodBarcodeCacheCompanion.insert({
+    required String id,
+    required String barcode,
+    this.productName = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.ingredientsText = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.carbs = const Value.absent(),
+    this.fat = const Value.absent(),
+    this.protein = const Value.absent(),
+    this.fiber = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.sodiumMg = const Value.absent(),
+    this.openFoodFactsId = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.rawResponse = const Value.absent(),
+    required int fetchedAt,
+    required int expiresAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       barcode = Value(barcode),
+       fetchedAt = Value(fetchedAt),
+       expiresAt = Value(expiresAt);
+  static Insertable<FoodBarcodeCacheRow> custom({
+    Expression<String>? id,
+    Expression<String>? barcode,
+    Expression<String>? productName,
+    Expression<String>? brand,
+    Expression<String>? ingredientsText,
+    Expression<double>? calories,
+    Expression<double>? carbs,
+    Expression<double>? fat,
+    Expression<double>? protein,
+    Expression<double>? fiber,
+    Expression<double>? sugar,
+    Expression<double>? sodiumMg,
+    Expression<String>? openFoodFactsId,
+    Expression<String>? imageUrl,
+    Expression<String>? rawResponse,
+    Expression<int>? fetchedAt,
+    Expression<int>? expiresAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (barcode != null) 'barcode': barcode,
+      if (productName != null) 'product_name': productName,
+      if (brand != null) 'brand': brand,
+      if (ingredientsText != null) 'ingredients_text': ingredientsText,
+      if (calories != null) 'calories': calories,
+      if (carbs != null) 'carbs': carbs,
+      if (fat != null) 'fat': fat,
+      if (protein != null) 'protein': protein,
+      if (fiber != null) 'fiber': fiber,
+      if (sugar != null) 'sugar': sugar,
+      if (sodiumMg != null) 'sodium_mg': sodiumMg,
+      if (openFoodFactsId != null) 'open_food_facts_id': openFoodFactsId,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (rawResponse != null) 'raw_response': rawResponse,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FoodBarcodeCacheCompanion copyWith({
+    Value<String>? id,
+    Value<String>? barcode,
+    Value<String?>? productName,
+    Value<String?>? brand,
+    Value<String?>? ingredientsText,
+    Value<double?>? calories,
+    Value<double?>? carbs,
+    Value<double?>? fat,
+    Value<double?>? protein,
+    Value<double?>? fiber,
+    Value<double?>? sugar,
+    Value<double?>? sodiumMg,
+    Value<String?>? openFoodFactsId,
+    Value<String?>? imageUrl,
+    Value<String?>? rawResponse,
+    Value<int>? fetchedAt,
+    Value<int>? expiresAt,
+    Value<int>? rowid,
+  }) {
+    return FoodBarcodeCacheCompanion(
+      id: id ?? this.id,
+      barcode: barcode ?? this.barcode,
+      productName: productName ?? this.productName,
+      brand: brand ?? this.brand,
+      ingredientsText: ingredientsText ?? this.ingredientsText,
+      calories: calories ?? this.calories,
+      carbs: carbs ?? this.carbs,
+      fat: fat ?? this.fat,
+      protein: protein ?? this.protein,
+      fiber: fiber ?? this.fiber,
+      sugar: sugar ?? this.sugar,
+      sodiumMg: sodiumMg ?? this.sodiumMg,
+      openFoodFactsId: openFoodFactsId ?? this.openFoodFactsId,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rawResponse: rawResponse ?? this.rawResponse,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (ingredientsText.present) {
+      map['ingredients_text'] = Variable<String>(ingredientsText.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<double>(calories.value);
+    }
+    if (carbs.present) {
+      map['carbs'] = Variable<double>(carbs.value);
+    }
+    if (fat.present) {
+      map['fat'] = Variable<double>(fat.value);
+    }
+    if (protein.present) {
+      map['protein'] = Variable<double>(protein.value);
+    }
+    if (fiber.present) {
+      map['fiber'] = Variable<double>(fiber.value);
+    }
+    if (sugar.present) {
+      map['sugar'] = Variable<double>(sugar.value);
+    }
+    if (sodiumMg.present) {
+      map['sodium_mg'] = Variable<double>(sodiumMg.value);
+    }
+    if (openFoodFactsId.present) {
+      map['open_food_facts_id'] = Variable<String>(openFoodFactsId.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (rawResponse.present) {
+      map['raw_response'] = Variable<String>(rawResponse.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<int>(fetchedAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<int>(expiresAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodBarcodeCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('productName: $productName, ')
+          ..write('brand: $brand, ')
+          ..write('ingredientsText: $ingredientsText, ')
+          ..write('calories: $calories, ')
+          ..write('carbs: $carbs, ')
+          ..write('fat: $fat, ')
+          ..write('protein: $protein, ')
+          ..write('fiber: $fiber, ')
+          ..write('sugar: $sugar, ')
+          ..write('sodiumMg: $sodiumMg, ')
+          ..write('openFoodFactsId: $openFoodFactsId, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('rawResponse: $rawResponse, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -19546,6 +21454,1081 @@ class GuestInvitesCompanion extends UpdateCompanion<GuestInviteRow> {
   }
 }
 
+class $SupplementLabelPhotosTable extends SupplementLabelPhotos
+    with TableInfo<$SupplementLabelPhotosTable, SupplementLabelPhotoRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SupplementLabelPhotosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _supplementIdMeta = const VerificationMeta(
+    'supplementId',
+  );
+  @override
+  late final GeneratedColumn<String> supplementId = GeneratedColumn<String>(
+    'supplement_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _filePathMeta = const VerificationMeta(
+    'filePath',
+  );
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+    'file_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<int> capturedAt = GeneratedColumn<int>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    supplementId,
+    filePath,
+    capturedAt,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'supplement_label_photos';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SupplementLabelPhotoRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('supplement_id')) {
+      context.handle(
+        _supplementIdMeta,
+        supplementId.isAcceptableOrUnknown(
+          data['supplement_id']!,
+          _supplementIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_supplementIdMeta);
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(
+        _filePathMeta,
+        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_filePathMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SupplementLabelPhotoRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SupplementLabelPhotoRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      supplementId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}supplement_id'],
+      )!,
+      filePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_path'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}captured_at'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $SupplementLabelPhotosTable createAlias(String alias) {
+    return $SupplementLabelPhotosTable(attachedDatabase, alias);
+  }
+}
+
+class SupplementLabelPhotoRow extends DataClass
+    implements Insertable<SupplementLabelPhotoRow> {
+  final String id;
+  final String supplementId;
+  final String filePath;
+  final int capturedAt;
+  final int sortOrder;
+  const SupplementLabelPhotoRow({
+    required this.id,
+    required this.supplementId,
+    required this.filePath,
+    required this.capturedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['supplement_id'] = Variable<String>(supplementId);
+    map['file_path'] = Variable<String>(filePath);
+    map['captured_at'] = Variable<int>(capturedAt);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  SupplementLabelPhotosCompanion toCompanion(bool nullToAbsent) {
+    return SupplementLabelPhotosCompanion(
+      id: Value(id),
+      supplementId: Value(supplementId),
+      filePath: Value(filePath),
+      capturedAt: Value(capturedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory SupplementLabelPhotoRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SupplementLabelPhotoRow(
+      id: serializer.fromJson<String>(json['id']),
+      supplementId: serializer.fromJson<String>(json['supplementId']),
+      filePath: serializer.fromJson<String>(json['filePath']),
+      capturedAt: serializer.fromJson<int>(json['capturedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'supplementId': serializer.toJson<String>(supplementId),
+      'filePath': serializer.toJson<String>(filePath),
+      'capturedAt': serializer.toJson<int>(capturedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  SupplementLabelPhotoRow copyWith({
+    String? id,
+    String? supplementId,
+    String? filePath,
+    int? capturedAt,
+    int? sortOrder,
+  }) => SupplementLabelPhotoRow(
+    id: id ?? this.id,
+    supplementId: supplementId ?? this.supplementId,
+    filePath: filePath ?? this.filePath,
+    capturedAt: capturedAt ?? this.capturedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  SupplementLabelPhotoRow copyWithCompanion(
+    SupplementLabelPhotosCompanion data,
+  ) {
+    return SupplementLabelPhotoRow(
+      id: data.id.present ? data.id.value : this.id,
+      supplementId: data.supplementId.present
+          ? data.supplementId.value
+          : this.supplementId,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplementLabelPhotoRow(')
+          ..write('id: $id, ')
+          ..write('supplementId: $supplementId, ')
+          ..write('filePath: $filePath, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, supplementId, filePath, capturedAt, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SupplementLabelPhotoRow &&
+          other.id == this.id &&
+          other.supplementId == this.supplementId &&
+          other.filePath == this.filePath &&
+          other.capturedAt == this.capturedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class SupplementLabelPhotosCompanion
+    extends UpdateCompanion<SupplementLabelPhotoRow> {
+  final Value<String> id;
+  final Value<String> supplementId;
+  final Value<String> filePath;
+  final Value<int> capturedAt;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const SupplementLabelPhotosCompanion({
+    this.id = const Value.absent(),
+    this.supplementId = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SupplementLabelPhotosCompanion.insert({
+    required String id,
+    required String supplementId,
+    required String filePath,
+    required int capturedAt,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       supplementId = Value(supplementId),
+       filePath = Value(filePath),
+       capturedAt = Value(capturedAt);
+  static Insertable<SupplementLabelPhotoRow> custom({
+    Expression<String>? id,
+    Expression<String>? supplementId,
+    Expression<String>? filePath,
+    Expression<int>? capturedAt,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (supplementId != null) 'supplement_id': supplementId,
+      if (filePath != null) 'file_path': filePath,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SupplementLabelPhotosCompanion copyWith({
+    Value<String>? id,
+    Value<String>? supplementId,
+    Value<String>? filePath,
+    Value<int>? capturedAt,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return SupplementLabelPhotosCompanion(
+      id: id ?? this.id,
+      supplementId: supplementId ?? this.supplementId,
+      filePath: filePath ?? this.filePath,
+      capturedAt: capturedAt ?? this.capturedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (supplementId.present) {
+      map['supplement_id'] = Variable<String>(supplementId.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<int>(capturedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplementLabelPhotosCompanion(')
+          ..write('id: $id, ')
+          ..write('supplementId: $supplementId, ')
+          ..write('filePath: $filePath, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SupplementBarcodeCacheTable extends SupplementBarcodeCache
+    with TableInfo<$SupplementBarcodeCacheTable, SupplementBarcodeCacheRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SupplementBarcodeCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _brandMeta = const VerificationMeta('brand');
+  @override
+  late final GeneratedColumn<String> brand = GeneratedColumn<String>(
+    'brand',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _servingSizeMeta = const VerificationMeta(
+    'servingSize',
+  );
+  @override
+  late final GeneratedColumn<String> servingSize = GeneratedColumn<String>(
+    'serving_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _servingsPerContainerMeta =
+      const VerificationMeta('servingsPerContainer');
+  @override
+  late final GeneratedColumn<double> servingsPerContainer =
+      GeneratedColumn<double>(
+        'servings_per_container',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _ingredientsJsonMeta = const VerificationMeta(
+    'ingredientsJson',
+  );
+  @override
+  late final GeneratedColumn<String> ingredientsJson = GeneratedColumn<String>(
+    'ingredients_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dsldIdMeta = const VerificationMeta('dsldId');
+  @override
+  late final GeneratedColumn<String> dsldId = GeneratedColumn<String>(
+    'dsld_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rawResponseMeta = const VerificationMeta(
+    'rawResponse',
+  );
+  @override
+  late final GeneratedColumn<String> rawResponse = GeneratedColumn<String>(
+    'raw_response',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<int> fetchedAt = GeneratedColumn<int>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<int> expiresAt = GeneratedColumn<int>(
+    'expires_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    barcode,
+    productName,
+    brand,
+    servingSize,
+    servingsPerContainer,
+    ingredientsJson,
+    dsldId,
+    rawResponse,
+    fetchedAt,
+    expiresAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'supplement_barcode_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SupplementBarcodeCacheRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_barcodeMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('brand')) {
+      context.handle(
+        _brandMeta,
+        brand.isAcceptableOrUnknown(data['brand']!, _brandMeta),
+      );
+    }
+    if (data.containsKey('serving_size')) {
+      context.handle(
+        _servingSizeMeta,
+        servingSize.isAcceptableOrUnknown(
+          data['serving_size']!,
+          _servingSizeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('servings_per_container')) {
+      context.handle(
+        _servingsPerContainerMeta,
+        servingsPerContainer.isAcceptableOrUnknown(
+          data['servings_per_container']!,
+          _servingsPerContainerMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ingredients_json')) {
+      context.handle(
+        _ingredientsJsonMeta,
+        ingredientsJson.isAcceptableOrUnknown(
+          data['ingredients_json']!,
+          _ingredientsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dsld_id')) {
+      context.handle(
+        _dsldIdMeta,
+        dsldId.isAcceptableOrUnknown(data['dsld_id']!, _dsldIdMeta),
+      );
+    }
+    if (data.containsKey('raw_response')) {
+      context.handle(
+        _rawResponseMeta,
+        rawResponse.isAcceptableOrUnknown(
+          data['raw_response']!,
+          _rawResponseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expiresAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SupplementBarcodeCacheRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SupplementBarcodeCacheRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      ),
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      ),
+      servingSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}serving_size'],
+      ),
+      servingsPerContainer: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}servings_per_container'],
+      ),
+      ingredientsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ingredients_json'],
+      ),
+      dsldId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dsld_id'],
+      ),
+      rawResponse: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_response'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expires_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SupplementBarcodeCacheTable createAlias(String alias) {
+    return $SupplementBarcodeCacheTable(attachedDatabase, alias);
+  }
+}
+
+class SupplementBarcodeCacheRow extends DataClass
+    implements Insertable<SupplementBarcodeCacheRow> {
+  final String id;
+  final String barcode;
+  final String? productName;
+  final String? brand;
+  final String? servingSize;
+  final double? servingsPerContainer;
+  final String? ingredientsJson;
+  final String? dsldId;
+  final String? rawResponse;
+  final int fetchedAt;
+  final int expiresAt;
+  const SupplementBarcodeCacheRow({
+    required this.id,
+    required this.barcode,
+    this.productName,
+    this.brand,
+    this.servingSize,
+    this.servingsPerContainer,
+    this.ingredientsJson,
+    this.dsldId,
+    this.rawResponse,
+    required this.fetchedAt,
+    required this.expiresAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['barcode'] = Variable<String>(barcode);
+    if (!nullToAbsent || productName != null) {
+      map['product_name'] = Variable<String>(productName);
+    }
+    if (!nullToAbsent || brand != null) {
+      map['brand'] = Variable<String>(brand);
+    }
+    if (!nullToAbsent || servingSize != null) {
+      map['serving_size'] = Variable<String>(servingSize);
+    }
+    if (!nullToAbsent || servingsPerContainer != null) {
+      map['servings_per_container'] = Variable<double>(servingsPerContainer);
+    }
+    if (!nullToAbsent || ingredientsJson != null) {
+      map['ingredients_json'] = Variable<String>(ingredientsJson);
+    }
+    if (!nullToAbsent || dsldId != null) {
+      map['dsld_id'] = Variable<String>(dsldId);
+    }
+    if (!nullToAbsent || rawResponse != null) {
+      map['raw_response'] = Variable<String>(rawResponse);
+    }
+    map['fetched_at'] = Variable<int>(fetchedAt);
+    map['expires_at'] = Variable<int>(expiresAt);
+    return map;
+  }
+
+  SupplementBarcodeCacheCompanion toCompanion(bool nullToAbsent) {
+    return SupplementBarcodeCacheCompanion(
+      id: Value(id),
+      barcode: Value(barcode),
+      productName: productName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productName),
+      brand: brand == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brand),
+      servingSize: servingSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingSize),
+      servingsPerContainer: servingsPerContainer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(servingsPerContainer),
+      ingredientsJson: ingredientsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ingredientsJson),
+      dsldId: dsldId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dsldId),
+      rawResponse: rawResponse == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rawResponse),
+      fetchedAt: Value(fetchedAt),
+      expiresAt: Value(expiresAt),
+    );
+  }
+
+  factory SupplementBarcodeCacheRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SupplementBarcodeCacheRow(
+      id: serializer.fromJson<String>(json['id']),
+      barcode: serializer.fromJson<String>(json['barcode']),
+      productName: serializer.fromJson<String?>(json['productName']),
+      brand: serializer.fromJson<String?>(json['brand']),
+      servingSize: serializer.fromJson<String?>(json['servingSize']),
+      servingsPerContainer: serializer.fromJson<double?>(
+        json['servingsPerContainer'],
+      ),
+      ingredientsJson: serializer.fromJson<String?>(json['ingredientsJson']),
+      dsldId: serializer.fromJson<String?>(json['dsldId']),
+      rawResponse: serializer.fromJson<String?>(json['rawResponse']),
+      fetchedAt: serializer.fromJson<int>(json['fetchedAt']),
+      expiresAt: serializer.fromJson<int>(json['expiresAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'barcode': serializer.toJson<String>(barcode),
+      'productName': serializer.toJson<String?>(productName),
+      'brand': serializer.toJson<String?>(brand),
+      'servingSize': serializer.toJson<String?>(servingSize),
+      'servingsPerContainer': serializer.toJson<double?>(servingsPerContainer),
+      'ingredientsJson': serializer.toJson<String?>(ingredientsJson),
+      'dsldId': serializer.toJson<String?>(dsldId),
+      'rawResponse': serializer.toJson<String?>(rawResponse),
+      'fetchedAt': serializer.toJson<int>(fetchedAt),
+      'expiresAt': serializer.toJson<int>(expiresAt),
+    };
+  }
+
+  SupplementBarcodeCacheRow copyWith({
+    String? id,
+    String? barcode,
+    Value<String?> productName = const Value.absent(),
+    Value<String?> brand = const Value.absent(),
+    Value<String?> servingSize = const Value.absent(),
+    Value<double?> servingsPerContainer = const Value.absent(),
+    Value<String?> ingredientsJson = const Value.absent(),
+    Value<String?> dsldId = const Value.absent(),
+    Value<String?> rawResponse = const Value.absent(),
+    int? fetchedAt,
+    int? expiresAt,
+  }) => SupplementBarcodeCacheRow(
+    id: id ?? this.id,
+    barcode: barcode ?? this.barcode,
+    productName: productName.present ? productName.value : this.productName,
+    brand: brand.present ? brand.value : this.brand,
+    servingSize: servingSize.present ? servingSize.value : this.servingSize,
+    servingsPerContainer: servingsPerContainer.present
+        ? servingsPerContainer.value
+        : this.servingsPerContainer,
+    ingredientsJson: ingredientsJson.present
+        ? ingredientsJson.value
+        : this.ingredientsJson,
+    dsldId: dsldId.present ? dsldId.value : this.dsldId,
+    rawResponse: rawResponse.present ? rawResponse.value : this.rawResponse,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    expiresAt: expiresAt ?? this.expiresAt,
+  );
+  SupplementBarcodeCacheRow copyWithCompanion(
+    SupplementBarcodeCacheCompanion data,
+  ) {
+    return SupplementBarcodeCacheRow(
+      id: data.id.present ? data.id.value : this.id,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      servingSize: data.servingSize.present
+          ? data.servingSize.value
+          : this.servingSize,
+      servingsPerContainer: data.servingsPerContainer.present
+          ? data.servingsPerContainer.value
+          : this.servingsPerContainer,
+      ingredientsJson: data.ingredientsJson.present
+          ? data.ingredientsJson.value
+          : this.ingredientsJson,
+      dsldId: data.dsldId.present ? data.dsldId.value : this.dsldId,
+      rawResponse: data.rawResponse.present
+          ? data.rawResponse.value
+          : this.rawResponse,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplementBarcodeCacheRow(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('productName: $productName, ')
+          ..write('brand: $brand, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingsPerContainer: $servingsPerContainer, ')
+          ..write('ingredientsJson: $ingredientsJson, ')
+          ..write('dsldId: $dsldId, ')
+          ..write('rawResponse: $rawResponse, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    barcode,
+    productName,
+    brand,
+    servingSize,
+    servingsPerContainer,
+    ingredientsJson,
+    dsldId,
+    rawResponse,
+    fetchedAt,
+    expiresAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SupplementBarcodeCacheRow &&
+          other.id == this.id &&
+          other.barcode == this.barcode &&
+          other.productName == this.productName &&
+          other.brand == this.brand &&
+          other.servingSize == this.servingSize &&
+          other.servingsPerContainer == this.servingsPerContainer &&
+          other.ingredientsJson == this.ingredientsJson &&
+          other.dsldId == this.dsldId &&
+          other.rawResponse == this.rawResponse &&
+          other.fetchedAt == this.fetchedAt &&
+          other.expiresAt == this.expiresAt);
+}
+
+class SupplementBarcodeCacheCompanion
+    extends UpdateCompanion<SupplementBarcodeCacheRow> {
+  final Value<String> id;
+  final Value<String> barcode;
+  final Value<String?> productName;
+  final Value<String?> brand;
+  final Value<String?> servingSize;
+  final Value<double?> servingsPerContainer;
+  final Value<String?> ingredientsJson;
+  final Value<String?> dsldId;
+  final Value<String?> rawResponse;
+  final Value<int> fetchedAt;
+  final Value<int> expiresAt;
+  final Value<int> rowid;
+  const SupplementBarcodeCacheCompanion({
+    this.id = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingsPerContainer = const Value.absent(),
+    this.ingredientsJson = const Value.absent(),
+    this.dsldId = const Value.absent(),
+    this.rawResponse = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SupplementBarcodeCacheCompanion.insert({
+    required String id,
+    required String barcode,
+    this.productName = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.servingSize = const Value.absent(),
+    this.servingsPerContainer = const Value.absent(),
+    this.ingredientsJson = const Value.absent(),
+    this.dsldId = const Value.absent(),
+    this.rawResponse = const Value.absent(),
+    required int fetchedAt,
+    required int expiresAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       barcode = Value(barcode),
+       fetchedAt = Value(fetchedAt),
+       expiresAt = Value(expiresAt);
+  static Insertable<SupplementBarcodeCacheRow> custom({
+    Expression<String>? id,
+    Expression<String>? barcode,
+    Expression<String>? productName,
+    Expression<String>? brand,
+    Expression<String>? servingSize,
+    Expression<double>? servingsPerContainer,
+    Expression<String>? ingredientsJson,
+    Expression<String>? dsldId,
+    Expression<String>? rawResponse,
+    Expression<int>? fetchedAt,
+    Expression<int>? expiresAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (barcode != null) 'barcode': barcode,
+      if (productName != null) 'product_name': productName,
+      if (brand != null) 'brand': brand,
+      if (servingSize != null) 'serving_size': servingSize,
+      if (servingsPerContainer != null)
+        'servings_per_container': servingsPerContainer,
+      if (ingredientsJson != null) 'ingredients_json': ingredientsJson,
+      if (dsldId != null) 'dsld_id': dsldId,
+      if (rawResponse != null) 'raw_response': rawResponse,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SupplementBarcodeCacheCompanion copyWith({
+    Value<String>? id,
+    Value<String>? barcode,
+    Value<String?>? productName,
+    Value<String?>? brand,
+    Value<String?>? servingSize,
+    Value<double?>? servingsPerContainer,
+    Value<String?>? ingredientsJson,
+    Value<String?>? dsldId,
+    Value<String?>? rawResponse,
+    Value<int>? fetchedAt,
+    Value<int>? expiresAt,
+    Value<int>? rowid,
+  }) {
+    return SupplementBarcodeCacheCompanion(
+      id: id ?? this.id,
+      barcode: barcode ?? this.barcode,
+      productName: productName ?? this.productName,
+      brand: brand ?? this.brand,
+      servingSize: servingSize ?? this.servingSize,
+      servingsPerContainer: servingsPerContainer ?? this.servingsPerContainer,
+      ingredientsJson: ingredientsJson ?? this.ingredientsJson,
+      dsldId: dsldId ?? this.dsldId,
+      rawResponse: rawResponse ?? this.rawResponse,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (servingSize.present) {
+      map['serving_size'] = Variable<String>(servingSize.value);
+    }
+    if (servingsPerContainer.present) {
+      map['servings_per_container'] = Variable<double>(
+        servingsPerContainer.value,
+      );
+    }
+    if (ingredientsJson.present) {
+      map['ingredients_json'] = Variable<String>(ingredientsJson.value);
+    }
+    if (dsldId.present) {
+      map['dsld_id'] = Variable<String>(dsldId.value);
+    }
+    if (rawResponse.present) {
+      map['raw_response'] = Variable<String>(rawResponse.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<int>(fetchedAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<int>(expiresAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SupplementBarcodeCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('productName: $productName, ')
+          ..write('brand: $brand, ')
+          ..write('servingSize: $servingSize, ')
+          ..write('servingsPerContainer: $servingsPerContainer, ')
+          ..write('ingredientsJson: $ingredientsJson, ')
+          ..write('dsldId: $dsldId, ')
+          ..write('rawResponse: $rawResponse, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncConflictsTable extends SyncConflicts
     with TableInfo<$SyncConflictsTable, SyncConflictRow> {
   @override
@@ -22009,12 +24992,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ActivitiesTable activities = $ActivitiesTable(this);
   late final $ActivityLogsTable activityLogs = $ActivityLogsTable(this);
   late final $FoodItemsTable foodItems = $FoodItemsTable(this);
+  late final $FoodItemComponentsTable foodItemComponents =
+      $FoodItemComponentsTable(this);
+  late final $FoodBarcodeCacheTable foodBarcodeCache = $FoodBarcodeCacheTable(
+    this,
+  );
   late final $FoodLogsTable foodLogs = $FoodLogsTable(this);
   late final $JournalEntriesTable journalEntries = $JournalEntriesTable(this);
   late final $PhotoAreasTable photoAreas = $PhotoAreasTable(this);
   late final $PhotoEntriesTable photoEntries = $PhotoEntriesTable(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
   late final $GuestInvitesTable guestInvites = $GuestInvitesTable(this);
+  late final $SupplementLabelPhotosTable supplementLabelPhotos =
+      $SupplementLabelPhotosTable(this);
+  late final $SupplementBarcodeCacheTable supplementBarcodeCache =
+      $SupplementBarcodeCacheTable(this);
   late final $SyncConflictsTable syncConflicts = $SyncConflictsTable(this);
   late final $AnchorEventTimesTable anchorEventTimes = $AnchorEventTimesTable(
     this,
@@ -22039,6 +25031,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this as AppDatabase,
   );
   late final FoodItemDao foodItemDao = FoodItemDao(this as AppDatabase);
+  late final FoodItemComponentDao foodItemComponentDao = FoodItemComponentDao(
+    this as AppDatabase,
+  );
+  late final FoodBarcodeCacheDao foodBarcodeCacheDao = FoodBarcodeCacheDao(
+    this as AppDatabase,
+  );
   late final FoodLogDao foodLogDao = FoodLogDao(this as AppDatabase);
   late final JournalEntryDao journalEntryDao = JournalEntryDao(
     this as AppDatabase,
@@ -22049,6 +25047,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final GuestInviteDao guestInviteDao = GuestInviteDao(
     this as AppDatabase,
   );
+  late final SupplementLabelPhotoDao supplementLabelPhotoDao =
+      SupplementLabelPhotoDao(this as AppDatabase);
+  late final SupplementBarcodeCacheDao supplementBarcodeCacheDao =
+      SupplementBarcodeCacheDao(this as AppDatabase);
   late final SyncConflictDao syncConflictDao = SyncConflictDao(
     this as AppDatabase,
   );
@@ -22075,12 +25077,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     activities,
     activityLogs,
     foodItems,
+    foodItemComponents,
+    foodBarcodeCache,
     foodLogs,
     journalEntries,
     photoAreas,
     photoEntries,
     profiles,
     guestInvites,
+    supplementLabelPhotos,
+    supplementBarcodeCache,
     syncConflicts,
     anchorEventTimes,
     notificationCategorySettings,
@@ -22106,6 +25112,10 @@ typedef $$SupplementsTableCreateCompanionBuilder =
       Value<int?> startDate,
       Value<int?> endDate,
       Value<bool> isArchived,
+      Value<String?> source,
+      Value<double?> pricePaid,
+      Value<String?> barcode,
+      Value<String?> importSource,
       required int syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -22135,6 +25145,10 @@ typedef $$SupplementsTableUpdateCompanionBuilder =
       Value<int?> startDate,
       Value<int?> endDate,
       Value<bool> isArchived,
+      Value<String?> source,
+      Value<double?> pricePaid,
+      Value<String?> barcode,
+      Value<String?> importSource,
       Value<int> syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -22233,6 +25247,26 @@ class $$SupplementsTableFilterComposer
 
   ColumnFilters<bool> get isArchived => $composableBuilder(
     column: $table.isArchived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get pricePaid => $composableBuilder(
+    column: $table.pricePaid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importSource => $composableBuilder(
+    column: $table.importSource,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22371,6 +25405,26 @@ class $$SupplementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get pricePaid => $composableBuilder(
+    column: $table.pricePaid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -22486,6 +25540,20 @@ class $$SupplementsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<double> get pricePaid =>
+      $composableBuilder(column: $table.pricePaid, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => column,
@@ -22579,6 +25647,10 @@ class $$SupplementsTableTableManager
                 Value<int?> startDate = const Value.absent(),
                 Value<int?> endDate = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                Value<double?> pricePaid = const Value.absent(),
+                Value<String?> barcode = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
                 Value<int> syncCreatedAt = const Value.absent(),
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -22606,6 +25678,10 @@ class $$SupplementsTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 isArchived: isArchived,
+                source: source,
+                pricePaid: pricePaid,
+                barcode: barcode,
+                importSource: importSource,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -22635,6 +25711,10 @@ class $$SupplementsTableTableManager
                 Value<int?> startDate = const Value.absent(),
                 Value<int?> endDate = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                Value<double?> pricePaid = const Value.absent(),
+                Value<String?> barcode = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
                 required int syncCreatedAt,
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -22662,6 +25742,10 @@ class $$SupplementsTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 isArchived: isArchived,
+                source: source,
+                pricePaid: pricePaid,
+                barcode: barcode,
+                importSource: importSource,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -27398,6 +30482,13 @@ typedef $$FoodItemsTableCreateCompanionBuilder =
       Value<double?> proteinGrams,
       Value<double?> fiberGrams,
       Value<double?> sugarGrams,
+      Value<double?> sodiumMg,
+      Value<String?> barcode,
+      Value<String?> brand,
+      Value<String?> ingredientsText,
+      Value<String?> openFoodFactsId,
+      Value<String?> importSource,
+      Value<String?> imageUrl,
       required int syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -27427,6 +30518,13 @@ typedef $$FoodItemsTableUpdateCompanionBuilder =
       Value<double?> proteinGrams,
       Value<double?> fiberGrams,
       Value<double?> sugarGrams,
+      Value<double?> sodiumMg,
+      Value<String?> barcode,
+      Value<String?> brand,
+      Value<String?> ingredientsText,
+      Value<String?> openFoodFactsId,
+      Value<String?> importSource,
+      Value<String?> imageUrl,
       Value<int> syncCreatedAt,
       Value<int?> syncUpdatedAt,
       Value<int?> syncDeletedAt,
@@ -27525,6 +30623,41 @@ class $$FoodItemsTableFilterComposer
 
   ColumnFilters<double> get sugarGrams => $composableBuilder(
     column: $table.sugarGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sodiumMg => $composableBuilder(
+    column: $table.sodiumMg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -27663,6 +30796,41 @@ class $$FoodItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get sodiumMg => $composableBuilder(
+    column: $table.sodiumMg,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -27784,6 +30952,33 @@ class $$FoodItemsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get sodiumMg =>
+      $composableBuilder(column: $table.sodiumMg, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get brand =>
+      $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
   GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
     column: $table.syncCreatedAt,
     builder: (column) => column,
@@ -27877,6 +31072,13 @@ class $$FoodItemsTableTableManager
                 Value<double?> proteinGrams = const Value.absent(),
                 Value<double?> fiberGrams = const Value.absent(),
                 Value<double?> sugarGrams = const Value.absent(),
+                Value<double?> sodiumMg = const Value.absent(),
+                Value<String?> barcode = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> ingredientsText = const Value.absent(),
+                Value<String?> openFoodFactsId = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<int> syncCreatedAt = const Value.absent(),
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -27904,6 +31106,13 @@ class $$FoodItemsTableTableManager
                 proteinGrams: proteinGrams,
                 fiberGrams: fiberGrams,
                 sugarGrams: sugarGrams,
+                sodiumMg: sodiumMg,
+                barcode: barcode,
+                brand: brand,
+                ingredientsText: ingredientsText,
+                openFoodFactsId: openFoodFactsId,
+                importSource: importSource,
+                imageUrl: imageUrl,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -27933,6 +31142,13 @@ class $$FoodItemsTableTableManager
                 Value<double?> proteinGrams = const Value.absent(),
                 Value<double?> fiberGrams = const Value.absent(),
                 Value<double?> sugarGrams = const Value.absent(),
+                Value<double?> sodiumMg = const Value.absent(),
+                Value<String?> barcode = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> ingredientsText = const Value.absent(),
+                Value<String?> openFoodFactsId = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 required int syncCreatedAt,
                 Value<int?> syncUpdatedAt = const Value.absent(),
                 Value<int?> syncDeletedAt = const Value.absent(),
@@ -27960,6 +31176,13 @@ class $$FoodItemsTableTableManager
                 proteinGrams: proteinGrams,
                 fiberGrams: fiberGrams,
                 sugarGrams: sugarGrams,
+                sodiumMg: sodiumMg,
+                barcode: barcode,
+                brand: brand,
+                ingredientsText: ingredientsText,
+                openFoodFactsId: openFoodFactsId,
+                importSource: importSource,
+                imageUrl: imageUrl,
                 syncCreatedAt: syncCreatedAt,
                 syncUpdatedAt: syncUpdatedAt,
                 syncDeletedAt: syncDeletedAt,
@@ -27994,6 +31217,669 @@ typedef $$FoodItemsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $FoodItemsTable, FoodItemRow>,
       ),
       FoodItemRow,
+      PrefetchHooks Function()
+    >;
+typedef $$FoodItemComponentsTableCreateCompanionBuilder =
+    FoodItemComponentsCompanion Function({
+      required String id,
+      required String composedFoodItemId,
+      required String simpleFoodItemId,
+      Value<double> quantity,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+typedef $$FoodItemComponentsTableUpdateCompanionBuilder =
+    FoodItemComponentsCompanion Function({
+      Value<String> id,
+      Value<String> composedFoodItemId,
+      Value<String> simpleFoodItemId,
+      Value<double> quantity,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+class $$FoodItemComponentsTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodItemComponentsTable> {
+  $$FoodItemComponentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get composedFoodItemId => $composableBuilder(
+    column: $table.composedFoodItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get simpleFoodItemId => $composableBuilder(
+    column: $table.simpleFoodItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodItemComponentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodItemComponentsTable> {
+  $$FoodItemComponentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get composedFoodItemId => $composableBuilder(
+    column: $table.composedFoodItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get simpleFoodItemId => $composableBuilder(
+    column: $table.simpleFoodItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodItemComponentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodItemComponentsTable> {
+  $$FoodItemComponentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get composedFoodItemId => $composableBuilder(
+    column: $table.composedFoodItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get simpleFoodItemId => $composableBuilder(
+    column: $table.simpleFoodItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$FoodItemComponentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodItemComponentsTable,
+          FoodItemComponentRow,
+          $$FoodItemComponentsTableFilterComposer,
+          $$FoodItemComponentsTableOrderingComposer,
+          $$FoodItemComponentsTableAnnotationComposer,
+          $$FoodItemComponentsTableCreateCompanionBuilder,
+          $$FoodItemComponentsTableUpdateCompanionBuilder,
+          (
+            FoodItemComponentRow,
+            BaseReferences<
+              _$AppDatabase,
+              $FoodItemComponentsTable,
+              FoodItemComponentRow
+            >,
+          ),
+          FoodItemComponentRow,
+          PrefetchHooks Function()
+        > {
+  $$FoodItemComponentsTableTableManager(
+    _$AppDatabase db,
+    $FoodItemComponentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodItemComponentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodItemComponentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodItemComponentsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> composedFoodItemId = const Value.absent(),
+                Value<String> simpleFoodItemId = const Value.absent(),
+                Value<double> quantity = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodItemComponentsCompanion(
+                id: id,
+                composedFoodItemId: composedFoodItemId,
+                simpleFoodItemId: simpleFoodItemId,
+                quantity: quantity,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String composedFoodItemId,
+                required String simpleFoodItemId,
+                Value<double> quantity = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodItemComponentsCompanion.insert(
+                id: id,
+                composedFoodItemId: composedFoodItemId,
+                simpleFoodItemId: simpleFoodItemId,
+                quantity: quantity,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodItemComponentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodItemComponentsTable,
+      FoodItemComponentRow,
+      $$FoodItemComponentsTableFilterComposer,
+      $$FoodItemComponentsTableOrderingComposer,
+      $$FoodItemComponentsTableAnnotationComposer,
+      $$FoodItemComponentsTableCreateCompanionBuilder,
+      $$FoodItemComponentsTableUpdateCompanionBuilder,
+      (
+        FoodItemComponentRow,
+        BaseReferences<
+          _$AppDatabase,
+          $FoodItemComponentsTable,
+          FoodItemComponentRow
+        >,
+      ),
+      FoodItemComponentRow,
+      PrefetchHooks Function()
+    >;
+typedef $$FoodBarcodeCacheTableCreateCompanionBuilder =
+    FoodBarcodeCacheCompanion Function({
+      required String id,
+      required String barcode,
+      Value<String?> productName,
+      Value<String?> brand,
+      Value<String?> ingredientsText,
+      Value<double?> calories,
+      Value<double?> carbs,
+      Value<double?> fat,
+      Value<double?> protein,
+      Value<double?> fiber,
+      Value<double?> sugar,
+      Value<double?> sodiumMg,
+      Value<String?> openFoodFactsId,
+      Value<String?> imageUrl,
+      Value<String?> rawResponse,
+      required int fetchedAt,
+      required int expiresAt,
+      Value<int> rowid,
+    });
+typedef $$FoodBarcodeCacheTableUpdateCompanionBuilder =
+    FoodBarcodeCacheCompanion Function({
+      Value<String> id,
+      Value<String> barcode,
+      Value<String?> productName,
+      Value<String?> brand,
+      Value<String?> ingredientsText,
+      Value<double?> calories,
+      Value<double?> carbs,
+      Value<double?> fat,
+      Value<double?> protein,
+      Value<double?> fiber,
+      Value<double?> sugar,
+      Value<double?> sodiumMg,
+      Value<String?> openFoodFactsId,
+      Value<String?> imageUrl,
+      Value<String?> rawResponse,
+      Value<int> fetchedAt,
+      Value<int> expiresAt,
+      Value<int> rowid,
+    });
+
+class $$FoodBarcodeCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodBarcodeCacheTable> {
+  $$FoodBarcodeCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get carbs => $composableBuilder(
+    column: $table.carbs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fat => $composableBuilder(
+    column: $table.fat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get protein => $composableBuilder(
+    column: $table.protein,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fiber => $composableBuilder(
+    column: $table.fiber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sugar => $composableBuilder(
+    column: $table.sugar,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get sodiumMg => $composableBuilder(
+    column: $table.sodiumMg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodBarcodeCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodBarcodeCacheTable> {
+  $$FoodBarcodeCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get calories => $composableBuilder(
+    column: $table.calories,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get carbs => $composableBuilder(
+    column: $table.carbs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fat => $composableBuilder(
+    column: $table.fat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get protein => $composableBuilder(
+    column: $table.protein,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fiber => $composableBuilder(
+    column: $table.fiber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get sugar => $composableBuilder(
+    column: $table.sugar,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get sodiumMg => $composableBuilder(
+    column: $table.sodiumMg,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodBarcodeCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodBarcodeCacheTable> {
+  $$FoodBarcodeCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get brand =>
+      $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<String> get ingredientsText => $composableBuilder(
+    column: $table.ingredientsText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<double> get carbs =>
+      $composableBuilder(column: $table.carbs, builder: (column) => column);
+
+  GeneratedColumn<double> get fat =>
+      $composableBuilder(column: $table.fat, builder: (column) => column);
+
+  GeneratedColumn<double> get protein =>
+      $composableBuilder(column: $table.protein, builder: (column) => column);
+
+  GeneratedColumn<double> get fiber =>
+      $composableBuilder(column: $table.fiber, builder: (column) => column);
+
+  GeneratedColumn<double> get sugar =>
+      $composableBuilder(column: $table.sugar, builder: (column) => column);
+
+  GeneratedColumn<double> get sodiumMg =>
+      $composableBuilder(column: $table.sodiumMg, builder: (column) => column);
+
+  GeneratedColumn<String> get openFoodFactsId => $composableBuilder(
+    column: $table.openFoodFactsId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+}
+
+class $$FoodBarcodeCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodBarcodeCacheTable,
+          FoodBarcodeCacheRow,
+          $$FoodBarcodeCacheTableFilterComposer,
+          $$FoodBarcodeCacheTableOrderingComposer,
+          $$FoodBarcodeCacheTableAnnotationComposer,
+          $$FoodBarcodeCacheTableCreateCompanionBuilder,
+          $$FoodBarcodeCacheTableUpdateCompanionBuilder,
+          (
+            FoodBarcodeCacheRow,
+            BaseReferences<
+              _$AppDatabase,
+              $FoodBarcodeCacheTable,
+              FoodBarcodeCacheRow
+            >,
+          ),
+          FoodBarcodeCacheRow,
+          PrefetchHooks Function()
+        > {
+  $$FoodBarcodeCacheTableTableManager(
+    _$AppDatabase db,
+    $FoodBarcodeCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodBarcodeCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodBarcodeCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodBarcodeCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> barcode = const Value.absent(),
+                Value<String?> productName = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> ingredientsText = const Value.absent(),
+                Value<double?> calories = const Value.absent(),
+                Value<double?> carbs = const Value.absent(),
+                Value<double?> fat = const Value.absent(),
+                Value<double?> protein = const Value.absent(),
+                Value<double?> fiber = const Value.absent(),
+                Value<double?> sugar = const Value.absent(),
+                Value<double?> sodiumMg = const Value.absent(),
+                Value<String?> openFoodFactsId = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<String?> rawResponse = const Value.absent(),
+                Value<int> fetchedAt = const Value.absent(),
+                Value<int> expiresAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodBarcodeCacheCompanion(
+                id: id,
+                barcode: barcode,
+                productName: productName,
+                brand: brand,
+                ingredientsText: ingredientsText,
+                calories: calories,
+                carbs: carbs,
+                fat: fat,
+                protein: protein,
+                fiber: fiber,
+                sugar: sugar,
+                sodiumMg: sodiumMg,
+                openFoodFactsId: openFoodFactsId,
+                imageUrl: imageUrl,
+                rawResponse: rawResponse,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String barcode,
+                Value<String?> productName = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> ingredientsText = const Value.absent(),
+                Value<double?> calories = const Value.absent(),
+                Value<double?> carbs = const Value.absent(),
+                Value<double?> fat = const Value.absent(),
+                Value<double?> protein = const Value.absent(),
+                Value<double?> fiber = const Value.absent(),
+                Value<double?> sugar = const Value.absent(),
+                Value<double?> sodiumMg = const Value.absent(),
+                Value<String?> openFoodFactsId = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<String?> rawResponse = const Value.absent(),
+                required int fetchedAt,
+                required int expiresAt,
+                Value<int> rowid = const Value.absent(),
+              }) => FoodBarcodeCacheCompanion.insert(
+                id: id,
+                barcode: barcode,
+                productName: productName,
+                brand: brand,
+                ingredientsText: ingredientsText,
+                calories: calories,
+                carbs: carbs,
+                fat: fat,
+                protein: protein,
+                fiber: fiber,
+                sugar: sugar,
+                sodiumMg: sodiumMg,
+                openFoodFactsId: openFoodFactsId,
+                imageUrl: imageUrl,
+                rawResponse: rawResponse,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodBarcodeCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodBarcodeCacheTable,
+      FoodBarcodeCacheRow,
+      $$FoodBarcodeCacheTableFilterComposer,
+      $$FoodBarcodeCacheTableOrderingComposer,
+      $$FoodBarcodeCacheTableAnnotationComposer,
+      $$FoodBarcodeCacheTableCreateCompanionBuilder,
+      $$FoodBarcodeCacheTableUpdateCompanionBuilder,
+      (
+        FoodBarcodeCacheRow,
+        BaseReferences<
+          _$AppDatabase,
+          $FoodBarcodeCacheTable,
+          FoodBarcodeCacheRow
+        >,
+      ),
+      FoodBarcodeCacheRow,
       PrefetchHooks Function()
     >;
 typedef $$FoodLogsTableCreateCompanionBuilder =
@@ -30642,6 +34528,572 @@ typedef $$GuestInvitesTableProcessedTableManager =
       GuestInviteRow,
       PrefetchHooks Function()
     >;
+typedef $$SupplementLabelPhotosTableCreateCompanionBuilder =
+    SupplementLabelPhotosCompanion Function({
+      required String id,
+      required String supplementId,
+      required String filePath,
+      required int capturedAt,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+typedef $$SupplementLabelPhotosTableUpdateCompanionBuilder =
+    SupplementLabelPhotosCompanion Function({
+      Value<String> id,
+      Value<String> supplementId,
+      Value<String> filePath,
+      Value<int> capturedAt,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+class $$SupplementLabelPhotosTableFilterComposer
+    extends Composer<_$AppDatabase, $SupplementLabelPhotosTable> {
+  $$SupplementLabelPhotosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get supplementId => $composableBuilder(
+    column: $table.supplementId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SupplementLabelPhotosTableOrderingComposer
+    extends Composer<_$AppDatabase, $SupplementLabelPhotosTable> {
+  $$SupplementLabelPhotosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get supplementId => $composableBuilder(
+    column: $table.supplementId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SupplementLabelPhotosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SupplementLabelPhotosTable> {
+  $$SupplementLabelPhotosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get supplementId => $composableBuilder(
+    column: $table.supplementId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  GeneratedColumn<int> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$SupplementLabelPhotosTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SupplementLabelPhotosTable,
+          SupplementLabelPhotoRow,
+          $$SupplementLabelPhotosTableFilterComposer,
+          $$SupplementLabelPhotosTableOrderingComposer,
+          $$SupplementLabelPhotosTableAnnotationComposer,
+          $$SupplementLabelPhotosTableCreateCompanionBuilder,
+          $$SupplementLabelPhotosTableUpdateCompanionBuilder,
+          (
+            SupplementLabelPhotoRow,
+            BaseReferences<
+              _$AppDatabase,
+              $SupplementLabelPhotosTable,
+              SupplementLabelPhotoRow
+            >,
+          ),
+          SupplementLabelPhotoRow,
+          PrefetchHooks Function()
+        > {
+  $$SupplementLabelPhotosTableTableManager(
+    _$AppDatabase db,
+    $SupplementLabelPhotosTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SupplementLabelPhotosTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SupplementLabelPhotosTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SupplementLabelPhotosTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> supplementId = const Value.absent(),
+                Value<String> filePath = const Value.absent(),
+                Value<int> capturedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SupplementLabelPhotosCompanion(
+                id: id,
+                supplementId: supplementId,
+                filePath: filePath,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String supplementId,
+                required String filePath,
+                required int capturedAt,
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SupplementLabelPhotosCompanion.insert(
+                id: id,
+                supplementId: supplementId,
+                filePath: filePath,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SupplementLabelPhotosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SupplementLabelPhotosTable,
+      SupplementLabelPhotoRow,
+      $$SupplementLabelPhotosTableFilterComposer,
+      $$SupplementLabelPhotosTableOrderingComposer,
+      $$SupplementLabelPhotosTableAnnotationComposer,
+      $$SupplementLabelPhotosTableCreateCompanionBuilder,
+      $$SupplementLabelPhotosTableUpdateCompanionBuilder,
+      (
+        SupplementLabelPhotoRow,
+        BaseReferences<
+          _$AppDatabase,
+          $SupplementLabelPhotosTable,
+          SupplementLabelPhotoRow
+        >,
+      ),
+      SupplementLabelPhotoRow,
+      PrefetchHooks Function()
+    >;
+typedef $$SupplementBarcodeCacheTableCreateCompanionBuilder =
+    SupplementBarcodeCacheCompanion Function({
+      required String id,
+      required String barcode,
+      Value<String?> productName,
+      Value<String?> brand,
+      Value<String?> servingSize,
+      Value<double?> servingsPerContainer,
+      Value<String?> ingredientsJson,
+      Value<String?> dsldId,
+      Value<String?> rawResponse,
+      required int fetchedAt,
+      required int expiresAt,
+      Value<int> rowid,
+    });
+typedef $$SupplementBarcodeCacheTableUpdateCompanionBuilder =
+    SupplementBarcodeCacheCompanion Function({
+      Value<String> id,
+      Value<String> barcode,
+      Value<String?> productName,
+      Value<String?> brand,
+      Value<String?> servingSize,
+      Value<double?> servingsPerContainer,
+      Value<String?> ingredientsJson,
+      Value<String?> dsldId,
+      Value<String?> rawResponse,
+      Value<int> fetchedAt,
+      Value<int> expiresAt,
+      Value<int> rowid,
+    });
+
+class $$SupplementBarcodeCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $SupplementBarcodeCacheTable> {
+  $$SupplementBarcodeCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get servingsPerContainer => $composableBuilder(
+    column: $table.servingsPerContainer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ingredientsJson => $composableBuilder(
+    column: $table.ingredientsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dsldId => $composableBuilder(
+    column: $table.dsldId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SupplementBarcodeCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $SupplementBarcodeCacheTable> {
+  $$SupplementBarcodeCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get servingsPerContainer => $composableBuilder(
+    column: $table.servingsPerContainer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ingredientsJson => $composableBuilder(
+    column: $table.ingredientsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dsldId => $composableBuilder(
+    column: $table.dsldId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SupplementBarcodeCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SupplementBarcodeCacheTable> {
+  $$SupplementBarcodeCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get brand =>
+      $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<String> get servingSize => $composableBuilder(
+    column: $table.servingSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get servingsPerContainer => $composableBuilder(
+    column: $table.servingsPerContainer,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ingredientsJson => $composableBuilder(
+    column: $table.ingredientsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dsldId =>
+      $composableBuilder(column: $table.dsldId, builder: (column) => column);
+
+  GeneratedColumn<String> get rawResponse => $composableBuilder(
+    column: $table.rawResponse,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+}
+
+class $$SupplementBarcodeCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SupplementBarcodeCacheTable,
+          SupplementBarcodeCacheRow,
+          $$SupplementBarcodeCacheTableFilterComposer,
+          $$SupplementBarcodeCacheTableOrderingComposer,
+          $$SupplementBarcodeCacheTableAnnotationComposer,
+          $$SupplementBarcodeCacheTableCreateCompanionBuilder,
+          $$SupplementBarcodeCacheTableUpdateCompanionBuilder,
+          (
+            SupplementBarcodeCacheRow,
+            BaseReferences<
+              _$AppDatabase,
+              $SupplementBarcodeCacheTable,
+              SupplementBarcodeCacheRow
+            >,
+          ),
+          SupplementBarcodeCacheRow,
+          PrefetchHooks Function()
+        > {
+  $$SupplementBarcodeCacheTableTableManager(
+    _$AppDatabase db,
+    $SupplementBarcodeCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SupplementBarcodeCacheTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SupplementBarcodeCacheTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SupplementBarcodeCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> barcode = const Value.absent(),
+                Value<String?> productName = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> servingSize = const Value.absent(),
+                Value<double?> servingsPerContainer = const Value.absent(),
+                Value<String?> ingredientsJson = const Value.absent(),
+                Value<String?> dsldId = const Value.absent(),
+                Value<String?> rawResponse = const Value.absent(),
+                Value<int> fetchedAt = const Value.absent(),
+                Value<int> expiresAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SupplementBarcodeCacheCompanion(
+                id: id,
+                barcode: barcode,
+                productName: productName,
+                brand: brand,
+                servingSize: servingSize,
+                servingsPerContainer: servingsPerContainer,
+                ingredientsJson: ingredientsJson,
+                dsldId: dsldId,
+                rawResponse: rawResponse,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String barcode,
+                Value<String?> productName = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> servingSize = const Value.absent(),
+                Value<double?> servingsPerContainer = const Value.absent(),
+                Value<String?> ingredientsJson = const Value.absent(),
+                Value<String?> dsldId = const Value.absent(),
+                Value<String?> rawResponse = const Value.absent(),
+                required int fetchedAt,
+                required int expiresAt,
+                Value<int> rowid = const Value.absent(),
+              }) => SupplementBarcodeCacheCompanion.insert(
+                id: id,
+                barcode: barcode,
+                productName: productName,
+                brand: brand,
+                servingSize: servingSize,
+                servingsPerContainer: servingsPerContainer,
+                ingredientsJson: ingredientsJson,
+                dsldId: dsldId,
+                rawResponse: rawResponse,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SupplementBarcodeCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SupplementBarcodeCacheTable,
+      SupplementBarcodeCacheRow,
+      $$SupplementBarcodeCacheTableFilterComposer,
+      $$SupplementBarcodeCacheTableOrderingComposer,
+      $$SupplementBarcodeCacheTableAnnotationComposer,
+      $$SupplementBarcodeCacheTableCreateCompanionBuilder,
+      $$SupplementBarcodeCacheTableUpdateCompanionBuilder,
+      (
+        SupplementBarcodeCacheRow,
+        BaseReferences<
+          _$AppDatabase,
+          $SupplementBarcodeCacheTable,
+          SupplementBarcodeCacheRow
+        >,
+      ),
+      SupplementBarcodeCacheRow,
+      PrefetchHooks Function()
+    >;
 typedef $$SyncConflictsTableCreateCompanionBuilder =
     SyncConflictsCompanion Function({
       required String id,
@@ -31896,6 +36348,10 @@ class $AppDatabaseManager {
       $$ActivityLogsTableTableManager(_db, _db.activityLogs);
   $$FoodItemsTableTableManager get foodItems =>
       $$FoodItemsTableTableManager(_db, _db.foodItems);
+  $$FoodItemComponentsTableTableManager get foodItemComponents =>
+      $$FoodItemComponentsTableTableManager(_db, _db.foodItemComponents);
+  $$FoodBarcodeCacheTableTableManager get foodBarcodeCache =>
+      $$FoodBarcodeCacheTableTableManager(_db, _db.foodBarcodeCache);
   $$FoodLogsTableTableManager get foodLogs =>
       $$FoodLogsTableTableManager(_db, _db.foodLogs);
   $$JournalEntriesTableTableManager get journalEntries =>
@@ -31908,6 +36364,13 @@ class $AppDatabaseManager {
       $$ProfilesTableTableManager(_db, _db.profiles);
   $$GuestInvitesTableTableManager get guestInvites =>
       $$GuestInvitesTableTableManager(_db, _db.guestInvites);
+  $$SupplementLabelPhotosTableTableManager get supplementLabelPhotos =>
+      $$SupplementLabelPhotosTableTableManager(_db, _db.supplementLabelPhotos);
+  $$SupplementBarcodeCacheTableTableManager get supplementBarcodeCache =>
+      $$SupplementBarcodeCacheTableTableManager(
+        _db,
+        _db.supplementBarcodeCache,
+      );
   $$SyncConflictsTableTableManager get syncConflicts =>
       $$SyncConflictsTableTableManager(_db, _db.syncConflicts);
   $$AnchorEventTimesTableTableManager get anchorEventTimes =>

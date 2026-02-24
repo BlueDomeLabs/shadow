@@ -95,13 +95,13 @@ void main() {
     });
 
     group('computed properties', () {
-      test('isComplex returns true for complex type', () {
-        final complex = foodItem.copyWith(type: FoodItemType.complex);
-        expect(complex.isComplex, isTrue);
+      test('isComposed returns true for composed type', () {
+        final composed = foodItem.copyWith(type: FoodItemType.composed);
+        expect(composed.isComposed, isTrue);
       });
 
-      test('isComplex returns false for simple type', () {
-        expect(foodItem.isComplex, isFalse);
+      test('isComposed returns false for simple type', () {
+        expect(foodItem.isComposed, isFalse);
       });
 
       test('isSimple returns true for simple type', () {

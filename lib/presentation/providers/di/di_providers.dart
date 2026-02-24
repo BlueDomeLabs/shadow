@@ -5,6 +5,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 // Services
+import 'package:shadow_app/core/services/anthropic_api_client.dart';
 import 'package:shadow_app/core/services/deep_link_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/notification_permission_service.dart';
@@ -15,11 +16,13 @@ import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
 import 'package:shadow_app/domain/repositories/user_settings_repository.dart';
+import 'package:shadow_app/domain/services/food_barcode_service.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/services/notification_schedule_service.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/services/security_service.dart';
+import 'package:shadow_app/domain/services/supplement_barcode_service.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
 // Use Cases - Activities
 import 'package:shadow_app/domain/usecases/activities/activities_usecases.dart';
@@ -312,6 +315,38 @@ SecurityService securityService(Ref ref) {
   throw UnimplementedError('Override securityServiceProvider in ProviderScope');
 }
 
+/// FoodBarcodeService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+FoodBarcodeService foodBarcodeService(Ref ref) {
+  throw UnimplementedError(
+    'Override foodBarcodeServiceProvider in ProviderScope',
+  );
+}
+
+/// SupplementBarcodeService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+SupplementBarcodeService supplementBarcodeService(Ref ref) {
+  throw UnimplementedError(
+    'Override supplementBarcodeServiceProvider in ProviderScope',
+  );
+}
+
+/// AnthropicApiClient provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+AnthropicApiClient anthropicApiClient(Ref ref) {
+  throw UnimplementedError(
+    'Override anthropicApiClientProvider in ProviderScope',
+  );
+}
+
+/// SupplementLabelPhotoRepository provider - override in ProviderScope.
+@Riverpod(keepAlive: true)
+SupplementLabelPhotoRepository supplementLabelPhotoRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override supplementLabelPhotoRepositoryProvider in ProviderScope',
+  );
+}
+
 // =============================================================================
 // USE CASES - SUPPLEMENTS (4)
 // =============================================================================
@@ -345,6 +380,23 @@ ArchiveSupplementUseCase archiveSupplementUseCase(Ref ref) =>
     ArchiveSupplementUseCase(
       ref.read(supplementRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// LookupSupplementBarcodeUseCase provider.
+@riverpod
+LookupSupplementBarcodeUseCase lookupSupplementBarcodeUseCase(Ref ref) =>
+    LookupSupplementBarcodeUseCase(ref.read(supplementBarcodeServiceProvider));
+
+/// ScanSupplementLabelUseCase provider.
+@riverpod
+ScanSupplementLabelUseCase scanSupplementLabelUseCase(Ref ref) =>
+    ScanSupplementLabelUseCase(ref.read(anthropicApiClientProvider));
+
+/// AddSupplementLabelPhotoUseCase provider.
+@riverpod
+AddSupplementLabelPhotoUseCase addSupplementLabelPhotoUseCase(Ref ref) =>
+    AddSupplementLabelPhotoUseCase(
+      ref.read(supplementLabelPhotoRepositoryProvider),
     );
 
 // =============================================================================
@@ -646,6 +698,16 @@ ArchiveFoodItemUseCase archiveFoodItemUseCase(Ref ref) =>
       ref.read(foodItemRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
     );
+
+/// LookupBarcodeUseCase provider.
+@riverpod
+LookupBarcodeUseCase lookupBarcodeUseCase(Ref ref) =>
+    LookupBarcodeUseCase(ref.read(foodBarcodeServiceProvider));
+
+/// ScanIngredientPhotoUseCase provider.
+@riverpod
+ScanIngredientPhotoUseCase scanIngredientPhotoUseCase(Ref ref) =>
+    ScanIngredientPhotoUseCase(ref.read(anthropicApiClientProvider));
 
 // =============================================================================
 // USE CASES - FOOD LOGS (4)

@@ -123,11 +123,22 @@ class _FoodTabState extends ConsumerState<FoodTab> {
           ..sort(
             (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
           );
-    final complex =
+    final composed =
         items
             .where(
               (i) =>
-                  i.type == FoodItemType.complex &&
+                  i.type == FoodItemType.composed &&
+                  (query.isEmpty || i.name.toLowerCase().contains(query)),
+            )
+            .toList()
+          ..sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+          );
+    final packaged =
+        items
+            .where(
+              (i) =>
+                  i.type == FoodItemType.packaged &&
                   (query.isEmpty || i.name.toLowerCase().contains(query)),
             )
             .toList()
@@ -135,7 +146,10 @@ class _FoodTabState extends ConsumerState<FoodTab> {
             (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
           );
 
-    if (simple.isEmpty && complex.isEmpty && _searchQuery.isNotEmpty) {
+    if (simple.isEmpty &&
+        composed.isEmpty &&
+        packaged.isEmpty &&
+        _searchQuery.isNotEmpty) {
       return Center(
         child: Text(
           'No items match "$_searchQuery"',
@@ -158,15 +172,26 @@ class _FoodTabState extends ConsumerState<FoodTab> {
           ...simple.map((item) => _buildFoodItemCard(context, item)),
           const SizedBox(height: 16),
         ],
-        if (complex.isNotEmpty) ...[
+        if (composed.isNotEmpty) ...[
           _buildSectionHeader(
             'Composed Dishes',
-            complex.length,
+            composed.length,
             Colors.orange,
             Icons.dinner_dining,
           ),
           const SizedBox(height: 8),
-          ...complex.map((item) => _buildFoodItemCard(context, item)),
+          ...composed.map((item) => _buildFoodItemCard(context, item)),
+          const SizedBox(height: 16),
+        ],
+        if (packaged.isNotEmpty) ...[
+          _buildSectionHeader(
+            'Packaged Foods',
+            packaged.length,
+            Colors.blue,
+            Icons.shopping_bag,
+          ),
+          const SizedBox(height: 8),
+          ...packaged.map((item) => _buildFoodItemCard(context, item)),
         ],
         const SizedBox(height: 80),
       ],
@@ -213,8 +238,16 @@ class _FoodTabState extends ConsumerState<FoodTab> {
   );
 
   Widget _buildFoodItemCard(BuildContext context, FoodItem item) {
-    final isComplex = item.type == FoodItemType.complex;
-    final color = isComplex ? Colors.orange : Colors.green;
+    final color = switch (item.type) {
+      FoodItemType.simple => Colors.green,
+      FoodItemType.composed => Colors.orange,
+      FoodItemType.packaged => Colors.blue,
+    };
+    final typeIcon = switch (item.type) {
+      FoodItemType.simple => Icons.restaurant,
+      FoodItemType.composed => Icons.dinner_dining,
+      FoodItemType.packaged => Icons.shopping_bag,
+    };
 
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
@@ -232,11 +265,7 @@ class _FoodTabState extends ConsumerState<FoodTab> {
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            isComplex ? Icons.dinner_dining : Icons.restaurant,
-            color: color,
-            size: 18,
-          ),
+          child: Icon(typeIcon, color: color, size: 18),
         ),
         title: Text(
           item.name,

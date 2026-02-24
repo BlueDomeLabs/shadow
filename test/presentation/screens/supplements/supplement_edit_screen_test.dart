@@ -24,15 +24,19 @@ void main() {
 
     /// Scrolls the form ListView to the very bottom (multiple drags).
     Future<void> scrollToBottom(WidgetTester tester) async {
-      // Form is very long now; scroll in steps
-      await tester.drag(find.byType(ListView), const Offset(0, -2000));
-      await tester.pumpAndSettle();
+      // Phase 15a extended the form with Source & Price and Label Photos sections
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(find.byType(ListView), const Offset(0, -2000));
+        await tester.pumpAndSettle();
+      }
     }
 
     /// Scrolls the form ListView back to the top.
     Future<void> scrollToTop(WidgetTester tester) async {
-      await tester.drag(find.byType(ListView), const Offset(0, 2000));
-      await tester.pumpAndSettle();
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(find.byType(ListView), const Offset(0, 2000));
+        await tester.pumpAndSettle();
+      }
     }
 
     Supplement createTestSupplement({
@@ -123,6 +127,8 @@ void main() {
         expect(find.text('Form'), findsOneWidget);
         expect(find.text('Dosage Amount'), findsOneWidget);
         expect(find.text('Dosage Unit'), findsOneWidget);
+        // Quantity Per Dose is below the import shortcuts — scroll to it
+        await scrollDown(tester);
         expect(find.text('Quantity Per Dose'), findsOneWidget);
       });
 
@@ -152,6 +158,8 @@ void main() {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
+        // Quantity Per Dose field is below import shortcuts — scroll to it
+        await scrollDown(tester);
         // Find the Quantity Per Dose field by looking for its value
         expect(find.text('1'), findsWidgets);
       });
@@ -393,6 +401,10 @@ void main() {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
+        // Phase 15a pushed the QPD field just beyond the test cacheExtent at scroll=0.
+        // Scroll a small amount so it is built and accessible.
+        await scrollDown(tester, by: 200);
+
         // Clear the default quantity per dose value
         await tester.enterText(
           find.descendant(
@@ -413,7 +425,10 @@ void main() {
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
+        // scrollToTop returns to scroll=0 where QPD is beyond cacheExtent;
+        // scroll back down slightly so the error text is within the built range.
         await scrollToTop(tester);
+        await scrollDown(tester, by: 200);
         expect(find.text('Quantity per dose is required'), findsOneWidget);
       });
 
@@ -563,11 +578,15 @@ void main() {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
-        // Open dosage unit dropdown
+        // Open dosage unit dropdown (mg is visible without scrolling)
         await tester.tap(find.text('mg').first);
         await tester.pumpAndSettle();
         await tester.tap(find.text('custom').last);
         await tester.pumpAndSettle();
+
+        // Phase 15a pushed Custom Unit field just below the test viewport;
+        // scroll down a bit to bring it into the visible area.
+        await scrollDown(tester, by: 200);
 
         expect(find.text('Custom Unit'), findsOneWidget);
         expect(find.text('e.g., billion CFU'), findsOneWidget);
@@ -605,7 +624,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Select custom unit
+        // Select custom unit (mg is visible without scrolling)
         await tester.tap(find.text('mg').first);
         await tester.pumpAndSettle();
         await tester.tap(find.text('custom').last);
@@ -619,7 +638,10 @@ void main() {
         await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
+        // scrollToTop returns to scroll=0 where the custom unit error is beyond
+        // the cacheExtent boundary; scroll slightly to bring the error into range.
         await scrollToTop(tester);
+        await scrollDown(tester, by: 200);
         expect(
           find.text('Custom unit is required when Dosage Unit is custom'),
           findsOneWidget,
@@ -636,6 +658,9 @@ void main() {
         await tester.pumpWidget(buildEditScreen(supplement));
         await tester.pumpAndSettle();
 
+        // Scroll to bring custom unit field into view (Phase 15a pushed it below viewport)
+        await scrollDown(tester);
+
         expect(find.text('Custom Unit'), findsOneWidget);
         expect(find.text('billion CFU'), findsOneWidget);
       });
@@ -644,11 +669,15 @@ void main() {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
 
-        // Select custom unit to show the field
+        // Select custom unit to show the field (mg is visible without scrolling)
         await tester.tap(find.text('mg').first);
         await tester.pumpAndSettle();
         await tester.tap(find.text('custom').last);
         await tester.pumpAndSettle();
+
+        // Phase 15a pushed Custom Unit field just below the test viewport;
+        // scroll down to bring it into view.
+        await scrollDown(tester, by: 200);
 
         final semanticsFinder = find.byWidgetPredicate(
           (widget) =>
@@ -1093,6 +1122,9 @@ void main() {
       ) async {
         await tester.pumpWidget(buildAddScreen());
         await tester.pumpAndSettle();
+
+        // Scroll to bring quantity per dose into view (Phase 15a pushed it below viewport)
+        await scrollDown(tester);
 
         final semanticsFinder = find.byWidgetPredicate(
           (widget) =>

@@ -113,9 +113,11 @@ class FoodItemListScreen extends ConsumerWidget {
     FoodItem foodItem,
   ) {
     final theme = Theme.of(context);
-    final typeLabel = foodItem.type == FoodItemType.simple
-        ? 'Simple'
-        : 'Composed';
+    final typeLabel = switch (foodItem.type) {
+      FoodItemType.simple => 'Simple',
+      FoodItemType.composed => 'Composed',
+      FoodItemType.packaged => 'Packaged',
+    };
 
     return Padding(
       key: ValueKey(foodItem.id),
@@ -283,7 +285,8 @@ class FoodItemListScreen extends ConsumerWidget {
 
   IconData _getTypeIcon(FoodItemType type) => switch (type) {
     FoodItemType.simple => Icons.restaurant,
-    FoodItemType.complex => Icons.menu_book,
+    FoodItemType.composed => Icons.menu_book,
+    FoodItemType.packaged => Icons.shopping_bag,
   };
 
   void _showSearch(BuildContext context) {

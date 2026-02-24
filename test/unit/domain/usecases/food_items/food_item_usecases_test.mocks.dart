@@ -10,11 +10,12 @@ import 'package:mockito/src/dummies.dart' as _i8;
 import 'package:shadow_app/core/errors/app_error.dart' as _i6;
 import 'package:shadow_app/core/types/result.dart' as _i4;
 import 'package:shadow_app/domain/entities/food_item.dart' as _i5;
+import 'package:shadow_app/domain/entities/food_item_component.dart' as _i9;
 import 'package:shadow_app/domain/enums/health_enums.dart' as _i7;
 import 'package:shadow_app/domain/repositories/food_item_repository.dart'
     as _i2;
 import 'package:shadow_app/domain/services/profile_authorization_service.dart'
-    as _i9;
+    as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -127,6 +128,62 @@ class MockFoodItemRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i5.FoodItem>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<List<_i9.FoodItemComponent>, _i6.AppError>>
+  getComponents(String? composedFoodItemId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getComponents, [composedFoodItemId]),
+            returnValue:
+                _i3.Future<
+                  _i4.Result<List<_i9.FoodItemComponent>, _i6.AppError>
+                >.value(
+                  _i8.dummyValue<
+                    _i4.Result<List<_i9.FoodItemComponent>, _i6.AppError>
+                  >(
+                    this,
+                    Invocation.method(#getComponents, [composedFoodItemId]),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<List<_i9.FoodItemComponent>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> replaceComponents(
+    String? composedFoodItemId,
+    List<_i9.FoodItemComponent>? components,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#replaceComponents, [
+              composedFoodItemId,
+              components,
+            ]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#replaceComponents, [
+                  composedFoodItemId,
+                  components,
+                ]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> deleteComponents(
+    String? composedFoodItemId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteComponents, [composedFoodItemId]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i8.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#deleteComponents, [composedFoodItemId]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 
   @override
   _i3.Future<_i4.Result<List<_i5.FoodItem>, _i6.AppError>> getAll({
@@ -266,7 +323,7 @@ class MockFoodItemRepository extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockProfileAuthorizationService extends _i1.Mock
-    implements _i9.ProfileAuthorizationService {
+    implements _i10.ProfileAuthorizationService {
   MockProfileAuthorizationService() {
     _i1.throwOnMissingStub(this);
   }
@@ -296,12 +353,12 @@ class MockProfileAuthorizationService extends _i1.Mock
           as _i3.Future<bool>);
 
   @override
-  _i3.Future<List<_i9.ProfileAccess>> getAccessibleProfiles() =>
+  _i3.Future<List<_i10.ProfileAccess>> getAccessibleProfiles() =>
       (super.noSuchMethod(
             Invocation.method(#getAccessibleProfiles, []),
-            returnValue: _i3.Future<List<_i9.ProfileAccess>>.value(
-              <_i9.ProfileAccess>[],
+            returnValue: _i3.Future<List<_i10.ProfileAccess>>.value(
+              <_i10.ProfileAccess>[],
             ),
           )
-          as _i3.Future<List<_i9.ProfileAccess>>);
+          as _i3.Future<List<_i10.ProfileAccess>>);
 }

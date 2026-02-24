@@ -33,6 +33,10 @@ _$SupplementImpl _$$SupplementImplFromJson(
   startDate: (json['startDate'] as num?)?.toInt(),
   endDate: (json['endDate'] as num?)?.toInt(),
   isArchived: json['isArchived'] as bool? ?? false,
+  source: json['source'] as String?,
+  pricePaid: (json['pricePaid'] as num?)?.toDouble(),
+  barcode: json['barcode'] as String?,
+  importSource: json['importSource'] as String?,
   syncMetadata: SyncMetadata.fromJson(
     json['syncMetadata'] as Map<String, dynamic>,
   ),
@@ -56,6 +60,10 @@ Map<String, dynamic> _$$SupplementImplToJson(_$SupplementImpl instance) =>
       'startDate': instance.startDate,
       'endDate': instance.endDate,
       'isArchived': instance.isArchived,
+      'source': instance.source,
+      'pricePaid': instance.pricePaid,
+      'barcode': instance.barcode,
+      'importSource': instance.importSource,
       'syncMetadata': instance.syncMetadata.toJson(),
     };
 

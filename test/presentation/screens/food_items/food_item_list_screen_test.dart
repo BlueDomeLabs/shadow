@@ -330,7 +330,7 @@ void main() {
         final complexItem = createTestFoodItem(
           id: 'complex-001',
           name: 'Chicken Salad',
-          type: FoodItemType.complex,
+          type: FoodItemType.composed,
         );
 
         await tester.pumpWidget(
@@ -354,7 +354,7 @@ void main() {
         final complexItem = createTestFoodItem(
           id: 'complex-001',
           name: 'Chicken Salad',
-          type: FoodItemType.complex,
+          type: FoodItemType.composed,
         );
 
         await tester.pumpWidget(

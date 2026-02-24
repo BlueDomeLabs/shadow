@@ -5,8 +5,10 @@ import 'package:shadow_app/core/repositories/base_repository.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
+import 'package:shadow_app/data/datasources/local/daos/food_item_component_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
+import 'package:shadow_app/domain/entities/food_item_component.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/food_item_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -18,9 +20,11 @@ import 'package:uuid/uuid.dart';
 class FoodItemRepositoryImpl extends BaseRepository<FoodItem>
     implements FoodItemRepository {
   final FoodItemDao _dao;
+  final FoodItemComponentDao _componentDao;
 
   FoodItemRepositoryImpl(
     this._dao,
+    this._componentDao,
     Uuid uuid,
     DeviceInfoService deviceInfoService,
   ) : super(uuid, deviceInfoService);
@@ -107,4 +111,19 @@ class FoodItemRepositoryImpl extends BaseRepository<FoodItem>
   }) =>
       // TODO: Implement category filtering when FoodItemCategory junction is available
       _dao.search(profileId, query, limit: limit);
+
+  @override
+  Future<Result<List<FoodItemComponent>, AppError>> getComponents(
+    String composedFoodItemId,
+  ) => _componentDao.getForComposedItem(composedFoodItemId);
+
+  @override
+  Future<Result<void, AppError>> replaceComponents(
+    String composedFoodItemId,
+    List<FoodItemComponent> components,
+  ) => _componentDao.replaceComponents(composedFoodItemId, components);
+
+  @override
+  Future<Result<void, AppError>> deleteComponents(String composedFoodItemId) =>
+      _componentDao.deleteForComposedItem(composedFoodItemId);
 }

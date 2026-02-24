@@ -33,6 +33,13 @@ class Supplement with _$Supplement implements Syncable {
     int? startDate,
     int? endDate,
     @Default(false) bool isArchived,
+
+    // Phase 15a — Supplement Extension fields
+    String? source, // Where obtained (URL, store, doctor name, etc.)
+    double? pricePaid, // Total price paid for the package/bottle
+    String? barcode, // UPC or EAN barcode for DSLD lookup
+    String? importSource, // "dsld", "claude_scan", or "manual"
+
     required SyncMetadata syncMetadata,
   }) = _Supplement;
 

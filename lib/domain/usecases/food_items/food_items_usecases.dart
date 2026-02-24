@@ -5,5 +5,7 @@ export 'archive_food_item_use_case.dart';
 export 'create_food_item_use_case.dart';
 export 'food_item_inputs.dart';
 export 'get_food_items_use_case.dart';
+export 'lookup_barcode_use_case.dart';
+export 'scan_ingredient_photo_use_case.dart';
 export 'search_food_items_use_case.dart';
 export 'update_food_item_use_case.dart';

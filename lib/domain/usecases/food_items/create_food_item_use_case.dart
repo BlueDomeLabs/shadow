@@ -5,6 +5,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
+import 'package:shadow_app/domain/entities/food_item_component.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/food_item_repository.dart';
@@ -37,13 +38,18 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
     final id = const Uuid().v4();
     final now = DateTime.now().millisecondsSinceEpoch;
 
+    // Derive simpleItemIds from components if components are provided
+    final componentIds = input.components.isNotEmpty
+        ? input.components.map((c) => c.simpleFoodItemId).toList()
+        : input.simpleItemIds;
+
     final foodItem = FoodItem(
       id: id,
       clientId: input.clientId,
       profileId: input.profileId,
       name: input.name,
       type: input.type,
-      simpleItemIds: input.simpleItemIds,
+      simpleItemIds: componentIds,
       servingSize: input.servingSize,
       calories: input.calories,
       carbsGrams: input.carbsGrams,
@@ -51,6 +57,13 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
       proteinGrams: input.proteinGrams,
       fiberGrams: input.fiberGrams,
       sugarGrams: input.sugarGrams,
+      sodiumMg: input.sodiumMg,
+      barcode: input.barcode,
+      brand: input.brand,
+      ingredientsText: input.ingredientsText,
+      openFoodFactsId: input.openFoodFactsId,
+      importSource: input.importSource,
+      imageUrl: input.imageUrl,
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
@@ -59,7 +72,27 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
     );
 
     // 4. Persist
-    return _repository.create(foodItem);
+    final createResult = await _repository.create(foodItem);
+    if (createResult.isFailure) return createResult;
+
+    // 5. Store components if provided (Phase 15a — composed items with quantity multipliers)
+    if (input.type == FoodItemType.composed && input.components.isNotEmpty) {
+      var sortOrder = 0;
+      final components = input.components
+          .map(
+            (c) => FoodItemComponent(
+              id: const Uuid().v4(),
+              composedFoodItemId: id,
+              simpleFoodItemId: c.simpleFoodItemId,
+              quantity: c.quantity,
+              sortOrder: sortOrder++,
+            ),
+          )
+          .toList();
+      await _repository.replaceComponents(id, components);
+    }
+
+    return createResult;
   }
 
   Future<ValidationError?> _validate(CreateFoodItemInput input) async {
@@ -73,20 +106,23 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
       ];
     }
 
-    // Complex items must have simple item IDs
-    if (input.type == FoodItemType.complex && input.simpleItemIds.isEmpty) {
+    // Composed items must have simple item IDs
+    if (input.type == FoodItemType.composed && input.simpleItemIds.isEmpty) {
       errors['simpleItemIds'] = [
-        'Complex items must include at least one simple item',
+        'Composed items must include at least one simple item',
       ];
     }
 
-    // Simple items should not have simple item IDs
+    // Simple and packaged items should not have simple item IDs
     if (input.type == FoodItemType.simple && input.simpleItemIds.isNotEmpty) {
       errors['simpleItemIds'] = ['Simple items cannot have component items'];
     }
+    if (input.type == FoodItemType.packaged && input.simpleItemIds.isNotEmpty) {
+      errors['simpleItemIds'] = ['Packaged items cannot have component items'];
+    }
 
-    // Verify simple item IDs exist and belong to profile (only for complex items)
-    if (input.type == FoodItemType.complex) {
+    // Verify simple item IDs exist and belong to profile (only for composed items)
+    if (input.type == FoodItemType.composed) {
       for (final itemId in input.simpleItemIds) {
         final result = await _repository.getById(itemId);
         if (result.isFailure) {
@@ -101,7 +137,7 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
           break;
         }
         // Prevent nesting complex items
-        if (item.isComplex) {
+        if (item.isComposed) {
           errors['simpleItemIds'] = ['Cannot nest complex items'];
           break;
         }

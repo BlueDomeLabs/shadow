@@ -516,7 +516,8 @@ enum MealType {
 
 enum FoodItemType {
   simple(0),
-  complex(1);
+  composed(1), // formerly 'complex' — integer value unchanged
+  packaged(2); // NEW in Phase 15a — manufactured product with barcode
 
   final int value;
   const FoodItemType(this.value);

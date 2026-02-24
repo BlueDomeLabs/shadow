@@ -31,4 +31,7 @@ class SecureStorageKeys {
 
   /// Legacy key (for migration from older versions).
   static const String googleDriveLegacyTokens = 'google_drive_macos_tokens';
+
+  /// Anthropic API key for Claude API calls (photo scanning use cases).
+  static const String anthropicApiKey = 'anthropic_api_key';
 }

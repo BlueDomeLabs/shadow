@@ -27,10 +27,10 @@ mixin _$FoodItem {
   String get name => throw _privateConstructorUsedError;
   FoodItemType get type => throw _privateConstructorUsedError;
   List<String> get simpleItemIds =>
-      throw _privateConstructorUsedError; // For complex items
+      throw _privateConstructorUsedError; // For composed items
   bool get isUserCreated => throw _privateConstructorUsedError;
   bool get isArchived =>
-      throw _privateConstructorUsedError; // Nutritional information (optional)
+      throw _privateConstructorUsedError; // Nutritional information (optional for all types)
   String? get servingSize =>
       throw _privateConstructorUsedError; // e.g., "1 cup", "100g"
   double? get calories =>
@@ -44,6 +44,21 @@ mixin _$FoodItem {
       throw _privateConstructorUsedError; // Fiber in grams
   double? get sugarGrams =>
       throw _privateConstructorUsedError; // Sugar in grams
+  double? get sodiumMg =>
+      throw _privateConstructorUsedError; // Sodium in milligrams — Phase 15a
+  // Packaged item fields (nullable, Packaged type only) — Phase 15a
+  String? get barcode =>
+      throw _privateConstructorUsedError; // UPC or EAN barcode number
+  String? get brand =>
+      throw _privateConstructorUsedError; // Manufacturer or brand name
+  String? get ingredientsText =>
+      throw _privateConstructorUsedError; // Raw ingredients list as printed on label
+  String? get openFoodFactsId =>
+      throw _privateConstructorUsedError; // Open Food Facts product identifier
+  String? get importSource =>
+      throw _privateConstructorUsedError; // "open_food_facts", "claude_scan", or "manual"
+  String? get imageUrl =>
+      throw _privateConstructorUsedError; // Product image URL from Open Food Facts
   SyncMetadata get syncMetadata => throw _privateConstructorUsedError;
 
   /// Serializes this FoodItem to a JSON map.
@@ -77,6 +92,13 @@ abstract class $FoodItemCopyWith<$Res> {
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
     SyncMetadata syncMetadata,
   });
 
@@ -113,6 +135,13 @@ class _$FoodItemCopyWithImpl<$Res, $Val extends FoodItem>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -177,6 +206,34 @@ class _$FoodItemCopyWithImpl<$Res, $Val extends FoodItem>
                 ? _value.sugarGrams
                 : sugarGrams // ignore: cast_nullable_to_non_nullable
                       as double?,
+            sodiumMg: freezed == sodiumMg
+                ? _value.sodiumMg
+                : sodiumMg // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            brand: freezed == brand
+                ? _value.brand
+                : brand // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ingredientsText: freezed == ingredientsText
+                ? _value.ingredientsText
+                : ingredientsText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            openFoodFactsId: freezed == openFoodFactsId
+                ? _value.openFoodFactsId
+                : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
             syncMetadata: null == syncMetadata
                 ? _value.syncMetadata
                 : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -222,6 +279,13 @@ abstract class _$$FoodItemImplCopyWith<$Res>
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
     SyncMetadata syncMetadata,
   });
 
@@ -258,6 +322,13 @@ class __$$FoodItemImplCopyWithImpl<$Res>
     Object? proteinGrams = freezed,
     Object? fiberGrams = freezed,
     Object? sugarGrams = freezed,
+    Object? sodiumMg = freezed,
+    Object? barcode = freezed,
+    Object? brand = freezed,
+    Object? ingredientsText = freezed,
+    Object? openFoodFactsId = freezed,
+    Object? importSource = freezed,
+    Object? imageUrl = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -322,6 +393,34 @@ class __$$FoodItemImplCopyWithImpl<$Res>
             ? _value.sugarGrams
             : sugarGrams // ignore: cast_nullable_to_non_nullable
                   as double?,
+        sodiumMg: freezed == sodiumMg
+            ? _value.sodiumMg
+            : sodiumMg // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        brand: freezed == brand
+            ? _value.brand
+            : brand // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ingredientsText: freezed == ingredientsText
+            ? _value.ingredientsText
+            : ingredientsText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        openFoodFactsId: freezed == openFoodFactsId
+            ? _value.openFoodFactsId
+            : openFoodFactsId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
         syncMetadata: null == syncMetadata
             ? _value.syncMetadata
             : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -351,6 +450,13 @@ class _$FoodItemImpl extends _FoodItem {
     this.proteinGrams,
     this.fiberGrams,
     this.sugarGrams,
+    this.sodiumMg,
+    this.barcode,
+    this.brand,
+    this.ingredientsText,
+    this.openFoodFactsId,
+    this.importSource,
+    this.imageUrl,
     required this.syncMetadata,
   }) : _simpleItemIds = simpleItemIds,
        super._();
@@ -378,14 +484,14 @@ class _$FoodItemImpl extends _FoodItem {
     return EqualUnmodifiableListView(_simpleItemIds);
   }
 
-  // For complex items
+  // For composed items
   @override
   @JsonKey()
   final bool isUserCreated;
   @override
   @JsonKey()
   final bool isArchived;
-  // Nutritional information (optional)
+  // Nutritional information (optional for all types)
   @override
   final String? servingSize;
   // e.g., "1 cup", "100g"
@@ -408,11 +514,33 @@ class _$FoodItemImpl extends _FoodItem {
   final double? sugarGrams;
   // Sugar in grams
   @override
+  final double? sodiumMg;
+  // Sodium in milligrams — Phase 15a
+  // Packaged item fields (nullable, Packaged type only) — Phase 15a
+  @override
+  final String? barcode;
+  // UPC or EAN barcode number
+  @override
+  final String? brand;
+  // Manufacturer or brand name
+  @override
+  final String? ingredientsText;
+  // Raw ingredients list as printed on label
+  @override
+  final String? openFoodFactsId;
+  // Open Food Facts product identifier
+  @override
+  final String? importSource;
+  // "open_food_facts", "claude_scan", or "manual"
+  @override
+  final String? imageUrl;
+  // Product image URL from Open Food Facts
+  @override
   final SyncMetadata syncMetadata;
 
   @override
   String toString() {
-    return 'FoodItem(id: $id, clientId: $clientId, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, isUserCreated: $isUserCreated, isArchived: $isArchived, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, syncMetadata: $syncMetadata)';
+    return 'FoodItem(id: $id, clientId: $clientId, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, isUserCreated: $isUserCreated, isArchived: $isArchived, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -449,13 +577,25 @@ class _$FoodItemImpl extends _FoodItem {
                 other.fiberGrams == fiberGrams) &&
             (identical(other.sugarGrams, sugarGrams) ||
                 other.sugarGrams == sugarGrams) &&
+            (identical(other.sodiumMg, sodiumMg) ||
+                other.sodiumMg == sodiumMg) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.brand, brand) || other.brand == brand) &&
+            (identical(other.ingredientsText, ingredientsText) ||
+                other.ingredientsText == ingredientsText) &&
+            (identical(other.openFoodFactsId, openFoodFactsId) ||
+                other.openFoodFactsId == openFoodFactsId) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
             (identical(other.syncMetadata, syncMetadata) ||
                 other.syncMetadata == syncMetadata));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     clientId,
@@ -472,8 +612,15 @@ class _$FoodItemImpl extends _FoodItem {
     proteinGrams,
     fiberGrams,
     sugarGrams,
+    sodiumMg,
+    barcode,
+    brand,
+    ingredientsText,
+    openFoodFactsId,
+    importSource,
+    imageUrl,
     syncMetadata,
-  );
+  ]);
 
   /// Create a copy of FoodItem
   /// with the given fields replaced by the non-null parameter values.
@@ -506,6 +653,13 @@ abstract class _FoodItem extends FoodItem {
     final double? proteinGrams,
     final double? fiberGrams,
     final double? sugarGrams,
+    final double? sodiumMg,
+    final String? barcode,
+    final String? brand,
+    final String? ingredientsText,
+    final String? openFoodFactsId,
+    final String? importSource,
+    final String? imageUrl,
     required final SyncMetadata syncMetadata,
   }) = _$FoodItemImpl;
   const _FoodItem._() : super._();
@@ -524,11 +678,11 @@ abstract class _FoodItem extends FoodItem {
   @override
   FoodItemType get type;
   @override
-  List<String> get simpleItemIds; // For complex items
+  List<String> get simpleItemIds; // For composed items
   @override
   bool get isUserCreated;
   @override
-  bool get isArchived; // Nutritional information (optional)
+  bool get isArchived; // Nutritional information (optional for all types)
   @override
   String? get servingSize; // e.g., "1 cup", "100g"
   @override
@@ -543,6 +697,21 @@ abstract class _FoodItem extends FoodItem {
   double? get fiberGrams; // Fiber in grams
   @override
   double? get sugarGrams; // Sugar in grams
+  @override
+  double? get sodiumMg; // Sodium in milligrams — Phase 15a
+  // Packaged item fields (nullable, Packaged type only) — Phase 15a
+  @override
+  String? get barcode; // UPC or EAN barcode number
+  @override
+  String? get brand; // Manufacturer or brand name
+  @override
+  String? get ingredientsText; // Raw ingredients list as printed on label
+  @override
+  String? get openFoodFactsId; // Open Food Facts product identifier
+  @override
+  String? get importSource; // "open_food_facts", "claude_scan", or "manual"
+  @override
+  String? get imageUrl; // Product image URL from Open Food Facts
   @override
   SyncMetadata get syncMetadata;
 

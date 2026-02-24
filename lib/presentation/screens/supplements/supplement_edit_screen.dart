@@ -1,14 +1,18 @@
 // lib/presentation/screens/supplements/supplement_edit_screen.dart
-// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 4.1 - Supplement Edit Screen
+// Implements 38_UI_FIELD_SPECIFICATIONS.md Section 4.1 + 60_SUPPLEMENT_EXTENSION.md
+// Updated in Phase 15a: Source & Price section, Label Photos section, import shortcuts
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart' as image_picker;
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
@@ -60,6 +64,13 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
 
   // Controllers - Notes
   late final TextEditingController _notesController;
+
+  // Controllers - Source & Price (Phase 15a)
+  late final TextEditingController _sourceController;
+  late final TextEditingController _pricePaidController;
+
+  // State - Label photos (Phase 15a)
+  final List<String> _labelPhotoPaths = [];
 
   // State - Dropdown values
   late SupplementForm _selectedForm;
@@ -126,6 +137,12 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
           : '2',
     );
     _notesController = TextEditingController(text: supplement?.notes ?? '');
+    _sourceController = TextEditingController(text: supplement?.source ?? '');
+    _pricePaidController = TextEditingController(
+      text: supplement?.pricePaid != null
+          ? supplement!.pricePaid!.toStringAsFixed(2)
+          : '',
+    );
 
     _selectedForm = supplement?.form ?? SupplementForm.capsule;
     _selectedDosageUnit = supplement?.dosageUnit ?? DosageUnit.mg;
@@ -160,6 +177,8 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     _ingredientController.addListener(_markDirty);
     _everyXDaysController.addListener(_markDirty);
     _notesController.addListener(_markDirty);
+    _sourceController.addListener(_markDirty);
+    _pricePaidController.addListener(_markDirty);
   }
 
   @override
@@ -173,6 +192,8 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     _ingredientController.dispose();
     _everyXDaysController.dispose();
     _notesController.dispose();
+    _sourceController.dispose();
+    _pricePaidController.dispose();
     super.dispose();
   }
 
@@ -220,7 +241,30 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 _buildSectionHeader(theme, 'Basic Information'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                // Import shortcut buttons (Phase 15a)
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: _scanBarcode,
+                      icon: const Icon(Icons.qr_code_scanner, size: 18),
+                      label: const Text('Scan Barcode'),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: _scanLabel,
+                      icon: const Icon(Icons.camera_alt, size: 18),
+                      label: const Text('Scan Label'),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Semantics(
                   label: 'Supplement name, required',
                   textField: true,
@@ -403,6 +447,16 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                _buildSectionHeader(theme, 'Source & Price'),
+                const SizedBox(height: 16),
+                _buildSourceAndPriceSection(theme),
+                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                _buildSectionHeader(theme, 'Label Photos'),
+                const SizedBox(height: 16),
+                _buildLabelPhotosSection(theme),
                 const SizedBox(height: 32),
                 Row(
                   children: [
@@ -808,6 +862,344 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     );
   }
 
+  // ---- Phase 15a: Source & Price section ----
+
+  Widget _buildSourceAndPriceSection(ThemeData theme) {
+    final pricePaid = double.tryParse(_pricePaidController.text.trim());
+    // Price per serving: requires pricePaid, quantityOnHand, quantityPerDose
+    // quantityOnHand is not in the supplement entity in this phase — calculate
+    // when the supplement has enough data. For now show when pricePaid is entered.
+    final qPerDose = int.tryParse(_quantityPerDoseController.text.trim());
+    final showPricePerServing =
+        pricePaid != null && qPerDose != null && qPerDose > 0;
+    // Use dosage quantity as a proxy for quantity on hand (1 unit = 1 bottle serving)
+    // Real price-per-serving calc needs quantity_on_hand which is not implemented yet
+    // Show placeholder calculation using pricePaid / quantity_per_dose for now
+    final pricePerServing = showPricePerServing ? pricePaid / qPerDose : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          label: 'Source, optional, where this supplement was obtained',
+          textField: true,
+          child: ExcludeSemantics(
+            child: ShadowTextField(
+              controller: _sourceController,
+              label: 'Source',
+              hintText: 'e.g., amazon.com, Whole Foods, Dr. Smith',
+              maxLength: ValidationRules.nameMaxLength,
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Semantics(
+          label: 'Price paid, optional, total price for the package',
+          textField: true,
+          child: ExcludeSemantics(
+            child: ShadowTextField.numeric(
+              controller: _pricePaidController,
+              label: 'Price Paid',
+              hintText: '0.00',
+              maxLength: 10,
+              textInputAction: TextInputAction.next,
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ),
+        if (pricePerServing != null) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text('Price Per Serving:', style: theme.textTheme.bodyMedium),
+              const SizedBox(width: 8),
+              Text(
+                '\$${pricePerServing.toStringAsFixed(2)}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ---- Phase 15a: Label Photos section ----
+
+  Widget _buildLabelPhotosSection(ThemeData theme) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (_labelPhotoPaths.isNotEmpty) ...[
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _labelPhotoPaths
+              .asMap()
+              .entries
+              .map(
+                (entry) => Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        entry.value,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.broken_image),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 16),
+                        tooltip: 'Remove photo',
+                        onPressed: () {
+                          setState(() {
+                            _labelPhotoPaths.removeAt(entry.key);
+                            _isDirty = true;
+                          });
+                        },
+                        style: IconButton.styleFrom(
+                          backgroundColor: theme.colorScheme.surface.withAlpha(
+                            180,
+                          ),
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(24, 24),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (_labelPhotoPaths.length < 3) ...[
+        Row(
+          children: [
+            OutlinedButton.icon(
+              onPressed: _takePhoto,
+              icon: const Icon(Icons.camera_alt, size: 18),
+              label: const Text('Take Photo'),
+            ),
+            const SizedBox(width: 12),
+            OutlinedButton.icon(
+              onPressed: _pickPhoto,
+              icon: const Icon(Icons.photo_library, size: 18),
+              label: const Text('Choose from Library'),
+            ),
+          ],
+        ),
+      ] else ...[
+        Text(
+          'Maximum 3 label photos per supplement',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    ],
+  );
+
+  Future<void> _takePhoto() async {
+    final picker = image_picker.ImagePicker();
+    try {
+      final photo = await picker.pickImage(
+        source: image_picker.ImageSource.camera,
+      );
+      if (photo != null && mounted) {
+        setState(() {
+          _labelPhotoPaths.add(photo.path);
+          _isDirty = true;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Camera not available on this device',
+        );
+      }
+    }
+  }
+
+  Future<void> _pickPhoto() async {
+    final picker = image_picker.ImagePicker();
+    try {
+      final photo = await picker.pickImage(
+        source: image_picker.ImageSource.gallery,
+      );
+      if (photo != null && mounted) {
+        setState(() {
+          _labelPhotoPaths.add(photo.path);
+          _isDirty = true;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Photo library not available',
+        );
+      }
+    }
+  }
+
+  // ---- Phase 15a: Barcode scan and label scan ----
+
+  Future<void> _scanBarcode() async {
+    final scanned = await _openBarcodeScanner();
+    if (scanned == null || !mounted) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final useCase = ref.read(lookupSupplementBarcodeUseCaseProvider);
+      final result = await useCase(
+        LookupSupplementBarcodeInput(barcode: scanned),
+      );
+
+      if (!mounted) return;
+
+      result.when(
+        success: (data) {
+          if (data == null) {
+            showAccessibleSnackBar(
+              context: context,
+              message: 'Product not found in NIH DSLD — enter details manually',
+            );
+            return;
+          }
+          setState(() {
+            if (data.productName != null) {
+              _nameController.text = data.productName!;
+            }
+            if (data.brand != null) _brandController.text = data.brand!;
+            if (data.servingSize != null) {
+              // Store in notes as a hint since supplement doesn't have servingSize field
+              if (_notesController.text.isEmpty) {
+                _notesController.text = 'Serving size: ${data.servingSize}';
+              }
+            }
+            _isDirty = true;
+          });
+          showAccessibleSnackBar(
+            context: context,
+            message: 'Product found — review and save',
+          );
+        },
+        failure: (error) => showAccessibleSnackBar(
+          context: context,
+          message: error.userMessage,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<String?> _openBarcodeScanner() => showDialog<String>(
+    context: context,
+    builder: (ctx) {
+      final controller = MobileScannerController();
+      return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        content: SizedBox(
+          width: 300,
+          height: 300,
+          child: MobileScanner(
+            controller: controller,
+            onDetect: (capture) {
+              final barcode = capture.barcodes.firstOrNull?.rawValue;
+              if (barcode != null) {
+                controller.dispose();
+                Navigator.of(ctx).pop(barcode);
+              }
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              controller.dispose();
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+
+  Future<void> _scanLabel() async {
+    final picker = image_picker.ImagePicker();
+    image_picker.XFile? photo;
+    try {
+      photo = await picker.pickImage(source: image_picker.ImageSource.camera);
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Camera not available on this device',
+        );
+      }
+      return;
+    }
+
+    if (photo == null || !mounted) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final bytes = await photo.readAsBytes();
+      final useCase = ref.read(scanSupplementLabelUseCaseProvider);
+      final result = await useCase(ScanSupplementLabelInput(imageBytes: bytes));
+
+      if (!mounted) return;
+
+      result.when(
+        success: (data) {
+          if (data == null) {
+            showAccessibleSnackBar(
+              context: context,
+              message: 'Could not extract data — enter details manually',
+            );
+            return;
+          }
+          setState(() {
+            if (data.productName != null) {
+              _nameController.text = data.productName!;
+            }
+            if (data.brand != null) _brandController.text = data.brand!;
+            _isDirty = true;
+          });
+          showAccessibleSnackBar(
+            context: context,
+            message: 'Label scanned — review extracted data',
+          );
+        },
+        failure: (error) => showAccessibleSnackBar(
+          context: context,
+          message: error.userMessage,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
   Future<void> _pickSpecificTime() async {
     final initialTime = _specificTimeMinutes != null
         ? TimeOfDay(
@@ -1154,6 +1546,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
       final startDateMs = _startDate?.millisecondsSinceEpoch;
       final endDateMs = _endDate?.millisecondsSinceEpoch;
 
+      final sourceTrimmed = _sourceController.text.trim();
+      final pricePaid = double.tryParse(_pricePaidController.text.trim());
+
       if (_isEditing) {
         await ref
             .read(supplementListProvider(widget.profileId).notifier)
@@ -1177,6 +1572,8 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 schedules: [schedule],
                 startDate: startDateMs,
                 endDate: endDateMs,
+                source: sourceTrimmed.isNotEmpty ? sourceTrimmed : null,
+                pricePaid: pricePaid,
               ),
             );
       } else {
@@ -1202,6 +1599,8 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 schedules: [schedule],
                 startDate: startDateMs,
                 endDate: endDateMs,
+                source: sourceTrimmed.isNotEmpty ? sourceTrimmed : null,
+                pricePaid: pricePaid,
               ),
             );
       }

@@ -38,6 +38,12 @@ class Supplements extends Table {
   BoolColumn get isArchived =>
       boolean().named('is_archived').withDefault(const Constant(false))();
 
+  // Phase 15a additions (60_SUPPLEMENT_EXTENSION.md)
+  TextColumn get source => text().nullable()();
+  RealColumn get pricePaid => real().named('price_paid').nullable()();
+  TextColumn get barcode => text().nullable()();
+  TextColumn get importSource => text().named('import_source').nullable()();
+
   // Sync metadata columns (required on all syncable entities)
   IntColumn get syncCreatedAt => integer().named('sync_created_at')();
   IntColumn get syncUpdatedAt =>

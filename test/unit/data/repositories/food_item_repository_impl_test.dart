@@ -6,18 +6,21 @@ import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/data/datasources/local/daos/food_item_component_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/data/repositories/food_item_repository_impl.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
+import 'package:shadow_app/domain/entities/food_item_component.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:uuid/uuid.dart';
 
-@GenerateMocks([FoodItemDao, DeviceInfoService])
+@GenerateMocks([FoodItemDao, FoodItemComponentDao, DeviceInfoService])
 import 'food_item_repository_impl_test.mocks.dart';
 
 void main() {
   provideDummy<Result<List<FoodItem>, AppError>>(const Success([]));
+  provideDummy<Result<List<FoodItemComponent>, AppError>>(const Success([]));
   provideDummy<Result<FoodItem, AppError>>(
     const Success(
       FoodItem(
@@ -37,6 +40,7 @@ void main() {
 
   group('FoodItemRepositoryImpl', () {
     late MockFoodItemDao mockDao;
+    late MockFoodItemComponentDao mockComponentDao;
     late MockDeviceInfoService mockDeviceInfoService;
     late Uuid uuid;
     late FoodItemRepositoryImpl repository;
@@ -64,9 +68,15 @@ void main() {
 
     setUp(() {
       mockDao = MockFoodItemDao();
+      mockComponentDao = MockFoodItemComponentDao();
       mockDeviceInfoService = MockDeviceInfoService();
       uuid = const Uuid();
-      repository = FoodItemRepositoryImpl(mockDao, uuid, mockDeviceInfoService);
+      repository = FoodItemRepositoryImpl(
+        mockDao,
+        mockComponentDao,
+        uuid,
+        mockDeviceInfoService,
+      );
 
       when(
         mockDeviceInfoService.getDeviceId(),
@@ -306,21 +316,21 @@ void main() {
         when(
           mockDao.getByProfile(
             testProfileId,
-            type: FoodItemType.complex,
+            type: FoodItemType.composed,
             includeArchived: true,
           ),
         ).thenAnswer((_) async => const Success([]));
 
         await repository.getByProfile(
           testProfileId,
-          type: FoodItemType.complex,
+          type: FoodItemType.composed,
           includeArchived: true,
         );
 
         verify(
           mockDao.getByProfile(
             testProfileId,
-            type: FoodItemType.complex,
+            type: FoodItemType.composed,
             includeArchived: true,
           ),
         ).called(1);
@@ -380,6 +390,78 @@ void main() {
 
         expect(result.isSuccess, isTrue);
         verify(mockDao.search(testProfileId, 'apple')).called(1);
+      });
+    });
+
+    group('getComponents', () {
+      test('getComponents_delegatesToComponentDao', () async {
+        const component = FoodItemComponent(
+          id: 'comp-001',
+          composedFoodItemId: 'food-001',
+          simpleFoodItemId: 'food-002',
+          quantity: 1.5,
+        );
+        when(
+          mockComponentDao.getForComposedItem('food-001'),
+        ).thenAnswer((_) async => const Success([component]));
+
+        final result = await repository.getComponents('food-001');
+
+        expect(result.isSuccess, isTrue);
+        expect(result.valueOrNull, [component]);
+        verify(mockComponentDao.getForComposedItem('food-001')).called(1);
+      });
+
+      test('getComponents_returnsFailureOnDaoError', () async {
+        when(mockComponentDao.getForComposedItem('food-001')).thenAnswer(
+          (_) async => Failure(
+            DatabaseError.queryFailed(
+              'food_item_components',
+              'db error',
+              StackTrace.empty,
+            ),
+          ),
+        );
+
+        final result = await repository.getComponents('food-001');
+
+        expect(result.isFailure, isTrue);
+      });
+    });
+
+    group('replaceComponents', () {
+      test('replaceComponents_delegatesToComponentDao', () async {
+        const component = FoodItemComponent(
+          id: 'comp-001',
+          composedFoodItemId: 'food-001',
+          simpleFoodItemId: 'food-002',
+          quantity: 2,
+        );
+        when(
+          mockComponentDao.replaceComponents('food-001', [component]),
+        ).thenAnswer((_) async => const Success(null));
+
+        final result = await repository.replaceComponents('food-001', [
+          component,
+        ]);
+
+        expect(result.isSuccess, isTrue);
+        verify(
+          mockComponentDao.replaceComponents('food-001', [component]),
+        ).called(1);
+      });
+    });
+
+    group('deleteComponents', () {
+      test('deleteComponents_delegatesToComponentDao', () async {
+        when(
+          mockComponentDao.deleteForComposedItem('food-001'),
+        ).thenAnswer((_) async => const Success(null));
+
+        final result = await repository.deleteComponents('food-001');
+
+        expect(result.isSuccess, isTrue);
+        verify(mockComponentDao.deleteForComposedItem('food-001')).called(1);
       });
     });
   });

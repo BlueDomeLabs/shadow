@@ -37,7 +37,16 @@ mixin _$Supplement {
   List<SupplementSchedule> get schedules => throw _privateConstructorUsedError;
   int? get startDate => throw _privateConstructorUsedError;
   int? get endDate => throw _privateConstructorUsedError;
-  bool get isArchived => throw _privateConstructorUsedError;
+  bool get isArchived =>
+      throw _privateConstructorUsedError; // Phase 15a — Supplement Extension fields
+  String? get source =>
+      throw _privateConstructorUsedError; // Where obtained (URL, store, doctor name, etc.)
+  double? get pricePaid =>
+      throw _privateConstructorUsedError; // Total price paid for the package/bottle
+  String? get barcode =>
+      throw _privateConstructorUsedError; // UPC or EAN barcode for DSLD lookup
+  String? get importSource =>
+      throw _privateConstructorUsedError; // "dsld", "claude_scan", or "manual"
   SyncMetadata get syncMetadata => throw _privateConstructorUsedError;
 
   /// Serializes this Supplement to a JSON map.
@@ -74,6 +83,10 @@ abstract class $SupplementCopyWith<$Res> {
     int? startDate,
     int? endDate,
     bool isArchived,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
     SyncMetadata syncMetadata,
   });
 
@@ -111,6 +124,10 @@ class _$SupplementCopyWithImpl<$Res, $Val extends Supplement>
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? isArchived = null,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -179,6 +196,22 @@ class _$SupplementCopyWithImpl<$Res, $Val extends Supplement>
                 ? _value.isArchived
                 : isArchived // ignore: cast_nullable_to_non_nullable
                       as bool,
+            source: freezed == source
+                ? _value.source
+                : source // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            pricePaid: freezed == pricePaid
+                ? _value.pricePaid
+                : pricePaid // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            barcode: freezed == barcode
+                ? _value.barcode
+                : barcode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            importSource: freezed == importSource
+                ? _value.importSource
+                : importSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
             syncMetadata: null == syncMetadata
                 ? _value.syncMetadata
                 : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -225,6 +258,10 @@ abstract class _$$SupplementImplCopyWith<$Res>
     int? startDate,
     int? endDate,
     bool isArchived,
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
     SyncMetadata syncMetadata,
   });
 
@@ -262,6 +299,10 @@ class __$$SupplementImplCopyWithImpl<$Res>
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? isArchived = null,
+    Object? source = freezed,
+    Object? pricePaid = freezed,
+    Object? barcode = freezed,
+    Object? importSource = freezed,
     Object? syncMetadata = null,
   }) {
     return _then(
@@ -330,6 +371,22 @@ class __$$SupplementImplCopyWithImpl<$Res>
             ? _value.isArchived
             : isArchived // ignore: cast_nullable_to_non_nullable
                   as bool,
+        source: freezed == source
+            ? _value.source
+            : source // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        pricePaid: freezed == pricePaid
+            ? _value.pricePaid
+            : pricePaid // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        barcode: freezed == barcode
+            ? _value.barcode
+            : barcode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        importSource: freezed == importSource
+            ? _value.importSource
+            : importSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
         syncMetadata: null == syncMetadata
             ? _value.syncMetadata
             : syncMetadata // ignore: cast_nullable_to_non_nullable
@@ -360,6 +417,10 @@ class _$SupplementImpl extends _Supplement {
     this.startDate,
     this.endDate,
     this.isArchived = false,
+    this.source,
+    this.pricePaid,
+    this.barcode,
+    this.importSource,
     required this.syncMetadata,
   }) : _ingredients = ingredients,
        _schedules = schedules,
@@ -417,12 +478,25 @@ class _$SupplementImpl extends _Supplement {
   @override
   @JsonKey()
   final bool isArchived;
+  // Phase 15a — Supplement Extension fields
+  @override
+  final String? source;
+  // Where obtained (URL, store, doctor name, etc.)
+  @override
+  final double? pricePaid;
+  // Total price paid for the package/bottle
+  @override
+  final String? barcode;
+  // UPC or EAN barcode for DSLD lookup
+  @override
+  final String? importSource;
+  // "dsld", "claude_scan", or "manual"
   @override
   final SyncMetadata syncMetadata;
 
   @override
   String toString() {
-    return 'Supplement(id: $id, clientId: $clientId, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived, syncMetadata: $syncMetadata)';
+    return 'Supplement(id: $id, clientId: $clientId, profileId: $profileId, name: $name, form: $form, customForm: $customForm, dosageQuantity: $dosageQuantity, dosageUnit: $dosageUnit, customDosageUnit: $customDosageUnit, brand: $brand, notes: $notes, ingredients: $ingredients, schedules: $schedules, startDate: $startDate, endDate: $endDate, isArchived: $isArchived, source: $source, pricePaid: $pricePaid, barcode: $barcode, importSource: $importSource, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -460,13 +534,19 @@ class _$SupplementImpl extends _Supplement {
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.isArchived, isArchived) ||
                 other.isArchived == isArchived) &&
+            (identical(other.source, source) || other.source == source) &&
+            (identical(other.pricePaid, pricePaid) ||
+                other.pricePaid == pricePaid) &&
+            (identical(other.barcode, barcode) || other.barcode == barcode) &&
+            (identical(other.importSource, importSource) ||
+                other.importSource == importSource) &&
             (identical(other.syncMetadata, syncMetadata) ||
                 other.syncMetadata == syncMetadata));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     clientId,
@@ -484,8 +564,12 @@ class _$SupplementImpl extends _Supplement {
     startDate,
     endDate,
     isArchived,
+    source,
+    pricePaid,
+    barcode,
+    importSource,
     syncMetadata,
-  );
+  ]);
 
   /// Create a copy of Supplement
   /// with the given fields replaced by the non-null parameter values.
@@ -519,6 +603,10 @@ abstract class _Supplement extends Supplement {
     final int? startDate,
     final int? endDate,
     final bool isArchived,
+    final String? source,
+    final double? pricePaid,
+    final String? barcode,
+    final String? importSource,
     required final SyncMetadata syncMetadata,
   }) = _$SupplementImpl;
   const _Supplement._() : super._();
@@ -557,7 +645,15 @@ abstract class _Supplement extends Supplement {
   @override
   int? get endDate;
   @override
-  bool get isArchived;
+  bool get isArchived; // Phase 15a — Supplement Extension fields
+  @override
+  String? get source; // Where obtained (URL, store, doctor name, etc.)
+  @override
+  double? get pricePaid; // Total price paid for the package/bottle
+  @override
+  String? get barcode; // UPC or EAN barcode for DSLD lookup
+  @override
+  String? get importSource; // "dsld", "claude_scan", or "manual"
   @override
   SyncMetadata get syncMetadata;
 

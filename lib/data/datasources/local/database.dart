@@ -18,6 +18,8 @@ import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/flare_up_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/fluids_entry_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/food_barcode_cache_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/food_item_component_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/guest_invite_dao.dart';
@@ -28,7 +30,9 @@ import 'package:shadow_app/data/datasources/local/daos/photo_area_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/photo_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/profile_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sleep_entry_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/supplement_barcode_cache_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/supplement_label_photo_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/user_settings_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
@@ -38,6 +42,8 @@ import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.da
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/flare_ups_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/fluids_entries_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/food_barcode_cache_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/food_item_components_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_items_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/guest_invites_table.dart';
@@ -48,6 +54,8 @@ import 'package:shadow_app/data/datasources/local/tables/photo_areas_table.dart'
 import 'package:shadow_app/data/datasources/local/tables/photo_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/profiles_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sleep_entries_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/supplement_barcode_cache_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/supplement_label_photos_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sync_conflicts_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/user_settings_table.dart';
@@ -81,12 +89,16 @@ part 'database.g.dart';
     Activities,
     ActivityLogs,
     FoodItems,
+    FoodItemComponents,
+    FoodBarcodeCache,
     FoodLogs,
     JournalEntries,
     PhotoAreas,
     PhotoEntries,
     Profiles,
     GuestInvites,
+    SupplementLabelPhotos,
+    SupplementBarcodeCache,
     SyncConflicts,
     AnchorEventTimes,
     NotificationCategorySettings,
@@ -103,12 +115,16 @@ part 'database.g.dart';
     ActivityDao,
     ActivityLogDao,
     FoodItemDao,
+    FoodItemComponentDao,
+    FoodBarcodeCacheDao,
     FoodLogDao,
     JournalEntryDao,
     PhotoAreaDao,
     PhotoEntryDao,
     ProfileDao,
     GuestInviteDao,
+    SupplementLabelPhotoDao,
+    SupplementBarcodeCacheDao,
     SyncConflictDao,
     AnchorEventTimeDao,
     NotificationCategorySettingsDao,
@@ -137,8 +153,11 @@ class AppDatabase extends _$AppDatabase {
   /// v11: Added guest_invites table (Phase 12a)
   /// v12: Added anchor_event_times and notification_category_settings tables (Phase 13a)
   /// v13: Added user_settings table (Phase 14)
+  /// v14: Food Database Extension + Supplement Extension (Phase 15a)
+  ///      Added food_item_components, food_barcode_cache, supplement_label_photos,
+  ///      supplement_barcode_cache tables. Added columns to food_items and supplements.
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   /// Migration strategy for schema changes.
   ///
@@ -189,6 +208,48 @@ class AppDatabase extends _$AppDatabase {
       // v13: Add user_settings table (Phase 14)
       if (from < 13) {
         await m.createTable(userSettingsTable);
+      }
+
+      // v14: Food Database Extension + Supplement Extension (Phase 15a)
+      if (from < 14) {
+        // Add new columns to food_items
+        await m.addColumn(foodItems, foodItems.sodiumMg);
+        await m.addColumn(foodItems, foodItems.barcode);
+        await m.addColumn(foodItems, foodItems.brand);
+        await m.addColumn(foodItems, foodItems.ingredientsText);
+        await m.addColumn(foodItems, foodItems.openFoodFactsId);
+        await m.addColumn(foodItems, foodItems.importSource);
+        await m.addColumn(foodItems, foodItems.imageUrl);
+        // Add new columns to supplements
+        await m.addColumn(supplements, supplements.source);
+        await m.addColumn(supplements, supplements.pricePaid);
+        await m.addColumn(supplements, supplements.barcode);
+        await m.addColumn(supplements, supplements.importSource);
+        // Create new tables
+        await m.createTable(foodItemComponents);
+        await m.createTable(foodBarcodeCache);
+        await m.createTable(supplementLabelPhotos);
+        await m.createTable(supplementBarcodeCache);
+        // Data migration: copy existing simpleItemIds JSON → food_item_components
+        // with quantity=1.0 for each existing composed item component.
+        // Uses raw SQL since Drift migration doesn't support complex read+insert.
+        await customStatement('''
+          INSERT INTO food_item_components (id, composed_food_item_id, simple_food_item_id, quantity, sort_order)
+          SELECT
+            lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' ||
+            substr(lower(hex(randomblob(2))),2) || '-' ||
+            substr('89ab',abs(random()) % 4 + 1, 1) ||
+            substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))) AS id,
+            fi.id AS composed_food_item_id,
+            json_each.value AS simple_food_item_id,
+            1.0 AS quantity,
+            (json_each.key) AS sort_order
+          FROM food_items fi, json_each(fi.simple_item_ids)
+          WHERE fi.type = 1
+            AND fi.simple_item_ids IS NOT NULL
+            AND fi.simple_item_ids != '[]'
+            AND fi.simple_item_ids != ''
+        ''');
       }
     },
     beforeOpen: (details) async {

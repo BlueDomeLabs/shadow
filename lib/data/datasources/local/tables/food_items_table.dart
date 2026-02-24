@@ -16,8 +16,9 @@ class FoodItems extends Table {
   TextColumn get clientId => text().named('client_id')();
   TextColumn get profileId => text().named('profile_id')();
   TextColumn get name => text()();
-  IntColumn get type =>
-      integer().withDefault(const Constant(0))(); // 0: simple, 1: complex
+  IntColumn get type => integer().withDefault(
+    const Constant(0),
+  )(); // 0: simple, 1: composed, 2: packaged
   TextColumn get simpleItemIds =>
       text().named('simple_item_ids').nullable()(); // Comma-separated IDs
   BoolColumn get isUserCreated =>
@@ -34,6 +35,17 @@ class FoodItems extends Table {
   RealColumn get proteinGrams => real().named('protein_grams').nullable()();
   RealColumn get fiberGrams => real().named('fiber_grams').nullable()();
   RealColumn get sugarGrams => real().named('sugar_grams').nullable()();
+
+  // Phase 15a additions (59a_FOOD_DATABASE_EXTENSION.md)
+  RealColumn get sodiumMg => real().named('sodium_mg').nullable()();
+  TextColumn get barcode => text().nullable()();
+  TextColumn get brand => text().nullable()();
+  TextColumn get ingredientsText =>
+      text().named('ingredients_text').nullable()();
+  TextColumn get openFoodFactsId =>
+      text().named('open_food_facts_id').nullable()();
+  TextColumn get importSource => text().named('import_source').nullable()();
+  TextColumn get imageUrl => text().named('image_url').nullable()();
 
   // Sync metadata columns (9 columns per 10_DATABASE_SCHEMA.md)
   IntColumn get syncCreatedAt => integer().named('sync_created_at')();

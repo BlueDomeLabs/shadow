@@ -5,6 +5,20 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 
 part 'food_item_inputs.freezed.dart';
 
+/// A single ingredient component for a Composed food item.
+///
+/// Stores a reference to a Simple food item and the quantity multiplier
+/// representing how many servings of that item are used in the dish.
+class FoodItemComponentInput {
+  final String simpleFoodItemId;
+  final double quantity;
+
+  const FoodItemComponentInput({
+    required this.simpleFoodItemId,
+    required this.quantity,
+  });
+}
+
 @freezed
 class CreateFoodItemInput with _$CreateFoodItemInput {
   const factory CreateFoodItemInput({
@@ -12,7 +26,8 @@ class CreateFoodItemInput with _$CreateFoodItemInput {
     required String clientId,
     required String name,
     @Default(FoodItemType.simple) FoodItemType type,
-    @Default([]) List<String> simpleItemIds, // For complex items
+    @Default([]) List<String> simpleItemIds,
+    @Default([]) List<FoodItemComponentInput> components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -20,6 +35,14 @@ class CreateFoodItemInput with _$CreateFoodItemInput {
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    // Phase 15a fields
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   }) = _CreateFoodItemInput;
 }
 
@@ -51,6 +74,7 @@ class UpdateFoodItemInput with _$UpdateFoodItemInput {
     String? name,
     FoodItemType? type,
     List<String>? simpleItemIds,
+    List<FoodItemComponentInput>? components,
     String? servingSize,
     double? calories,
     double? carbsGrams,
@@ -58,7 +82,22 @@ class UpdateFoodItemInput with _$UpdateFoodItemInput {
     double? proteinGrams,
     double? fiberGrams,
     double? sugarGrams,
+    // Phase 15a fields
+    double? sodiumMg,
+    String? barcode,
+    String? brand,
+    String? ingredientsText,
+    String? openFoodFactsId,
+    String? importSource,
+    String? imageUrl,
   }) = _UpdateFoodItemInput;
+}
+
+/// Input for LookupBarcodeUseCase.
+@freezed
+class LookupBarcodeInput with _$LookupBarcodeInput {
+  const factory LookupBarcodeInput({required String barcode}) =
+      _LookupBarcodeInput;
 }
 
 @freezed

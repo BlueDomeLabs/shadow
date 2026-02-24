@@ -4,6 +4,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
+import 'package:shadow_app/domain/entities/food_item_component.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/entity_repository.dart';
 
@@ -40,4 +41,20 @@ abstract class FoodItemRepository
     required List<String> excludeCategories,
     int limit = ValidationRules.defaultSearchLimit,
   });
+
+  // --- Component methods (Phase 15a) ---
+
+  /// Get all components for a composed food item, ordered by sort_order.
+  Future<Result<List<FoodItemComponent>, AppError>> getComponents(
+    String composedFoodItemId,
+  );
+
+  /// Replace all components for a composed food item atomically.
+  Future<Result<void, AppError>> replaceComponents(
+    String composedFoodItemId,
+    List<FoodItemComponent> components,
+  );
+
+  /// Delete all components for a composed food item.
+  Future<Result<void, AppError>> deleteComponents(String composedFoodItemId);
 }

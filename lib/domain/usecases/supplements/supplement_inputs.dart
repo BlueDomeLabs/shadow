@@ -36,6 +36,11 @@ class CreateSupplementInput with _$CreateSupplementInput {
     @Default([]) List<SupplementSchedule> schedules,
     int? startDate,
     int? endDate,
+    // Phase 15a fields
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   }) = _CreateSupplementInput;
 }
 
@@ -58,7 +63,19 @@ class UpdateSupplementInput with _$UpdateSupplementInput {
     int? startDate,
     int? endDate,
     bool? isArchived,
+    // Phase 15a fields
+    String? source,
+    double? pricePaid,
+    String? barcode,
+    String? importSource,
   }) = _UpdateSupplementInput;
+}
+
+/// Input for LookupSupplementBarcodeUseCase.
+@freezed
+class LookupSupplementBarcodeInput with _$LookupSupplementBarcodeInput {
+  const factory LookupSupplementBarcodeInput({required String barcode}) =
+      _LookupSupplementBarcodeInput;
 }
 
 /// Input for ArchiveSupplementUseCase.
