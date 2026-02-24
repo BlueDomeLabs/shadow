@@ -143,11 +143,11 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
   - [x] 13d. Platform integration: flutter_local_notifications wiring, permission requests, test notifications
   - [x] 13e. Settings screens: Notification Settings UI (per 58_SETTINGS_SCREENS.md) — 22 new tests
 - [x] **Phase 14: Settings Screens** — Units Settings, Security Settings (app lock, PIN, biometric, auto-lock), Settings hub screen, navigation wiring — schema v13, 22 new tests
-- **Phase 15a: Food Database Extension + Supplement Extension** — See 59a_FOOD_DATABASE_EXTENSION.md and 60_SUPPLEMENT_EXTENSION.md. Food: adds Packaged food type, quantity multipliers for Composed dishes, barcode cache table. Supplements: adds barcode scan (NIH DSLD), label photo scan (Claude API), source and price fields, label photo storage. Both specs implement together in a single v11→v12 migration. Implement before Phase 15b.
+- [x] **Phase 15a: Food Database Extension + Supplement Extension** — FoodItem entity + Packaged type + nutritional fields + barcode/label scan, FoodItemComponent for composed dishes, barcode cache DAOs, NIH DSLD + Open Food Facts service impls, AnthropicApiClient, SupplementLabelPhoto — schema v13, 2771 tests
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
 - **Phase 16: Health Platform Integration** — See 61_HEALTH_PLATFORM_INTEGRATION.md. Imports heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen from Apple HealthKit (iOS) and Google Health Connect (Android). Manual sync only. Data stored separately, displayed together in reports. Implement after Phase 15b.
 
-### Test Count: 2770 passing | Analyzer: clean | Schema: v13
+### Test Count: 2771 passing | Analyzer: clean | Schema: v13
 
 ---
 
