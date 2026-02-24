@@ -145,9 +145,13 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] **Phase 14: Settings Screens** — Units Settings, Security Settings (app lock, PIN, biometric, auto-lock), Settings hub screen, navigation wiring — schema v13, 22 new tests
 - [x] **Phase 15a: Food Database Extension + Supplement Extension** — FoodItem entity + Packaged type + nutritional fields + barcode/label scan, FoodItemComponent for composed dishes, barcode cache DAOs, NIH DSLD + Open Food Facts service impls, AnthropicApiClient, SupplementLabelPhoto — schema v13, 2771 tests
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
+  - [x] 15b-1. Data foundation: Diet/DietRule/DietException/FastingSession/DietViolation entities, tables, DAOs, repositories; violationFlag on FoodLog; schema v15 — 283 new tests
+  - [ ] 15b-2. Compliance engine: DietComplianceService, use cases (checkFoodLogCompliance, activateDiet, startFast, endFast, getDietDashboard, recordViolation), Riverpod providers
+  - [ ] 15b-3. Screens: DietListScreen, DietEditScreen, FastingTimerScreen, DietDashboardScreen, FoodLog integration with real-time violation alerts
+  - [ ] 15b-4. Integration tests: end-to-end compliance flow, barcode + photo scan flows
 - **Phase 16: Health Platform Integration** — See 61_HEALTH_PLATFORM_INTEGRATION.md. Imports heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen from Apple HealthKit (iOS) and Google Health Connect (Android). Manual sync only. Data stored separately, displayed together in reports. Implement after Phase 15b.
 
-### Test Count: 2771 passing | Analyzer: clean | Schema: v13
+### Test Count: 2904 passing | Analyzer: clean | Schema: v15
 
 ---
 
