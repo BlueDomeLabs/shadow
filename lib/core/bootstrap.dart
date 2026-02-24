@@ -29,6 +29,9 @@ import 'package:shadow_app/data/repositories/fluids_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/food_item_repository_impl.dart';
 import 'package:shadow_app/data/repositories/food_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/guest_invite_repository_impl.dart';
+import 'package:shadow_app/data/repositories/health_sync_settings_repository_impl.dart';
+import 'package:shadow_app/data/repositories/health_sync_status_repository_impl.dart';
+import 'package:shadow_app/data/repositories/imported_vital_repository_impl.dart';
 import 'package:shadow_app/data/repositories/intake_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/journal_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/notification_category_settings_repository_impl.dart';
@@ -176,7 +179,18 @@ Future<List<Override>> bootstrap() async {
     database.supplementLabelPhotoDao,
   );
 
-  // 5c. Create Phase 15b diet tracking repositories and services
+  // 5c. Create Phase 16a health platform repositories (local-only, no uuid/device)
+  final importedVitalRepo = ImportedVitalRepositoryImpl(
+    database.importedVitalDao,
+  );
+  final healthSyncSettingsRepo = HealthSyncSettingsRepositoryImpl(
+    database.healthSyncSettingsDao,
+  );
+  final healthSyncStatusRepo = HealthSyncStatusRepositoryImpl(
+    database.healthSyncStatusDao,
+  );
+
+  // 5d. Create Phase 15b diet tracking repositories and services
   final dietRepo = DietRepositoryImpl(
     database.dietDao,
     database.dietRuleDao,
@@ -303,6 +317,8 @@ Future<List<Override>> bootstrap() async {
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
         fromJson: Profile.fromJson,
       ),
+      // Phase 16b: ImportedVital sync adapter added when SyncFromHealthPlatformUseCase
+      // is implemented with health plugin integration.
     ],
     encryptionService: encryptionService,
     cloudProvider: googleDriveProvider,
@@ -392,5 +408,11 @@ Future<List<Override>> bootstrap() async {
     fastingRepositoryProvider.overrideWithValue(fastingRepo),
     dietViolationRepositoryProvider.overrideWithValue(dietViolationRepo),
     dietComplianceServiceProvider.overrideWithValue(dietComplianceService),
+    // Phase 16a health platform repositories
+    importedVitalRepositoryProvider.overrideWithValue(importedVitalRepo),
+    healthSyncSettingsRepositoryProvider.overrideWithValue(
+      healthSyncSettingsRepo,
+    ),
+    healthSyncStatusRepositoryProvider.overrideWithValue(healthSyncStatusRepo),
   ];
 }

@@ -771,6 +771,70 @@ final dietComplianceServiceProvider = Provider<DietComplianceService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DietComplianceServiceRef = ProviderRef<DietComplianceService>;
+String _$importedVitalRepositoryHash() =>
+    r'77f4019904d385d85f150895feea0d3d44ecd38d';
+
+/// ImportedVitalRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [importedVitalRepository].
+@ProviderFor(importedVitalRepository)
+final importedVitalRepositoryProvider =
+    Provider<ImportedVitalRepository>.internal(
+      importedVitalRepository,
+      name: r'importedVitalRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$importedVitalRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ImportedVitalRepositoryRef = ProviderRef<ImportedVitalRepository>;
+String _$healthSyncSettingsRepositoryHash() =>
+    r'd4d90a1b2d959255c09e2d2b1f81a401e7e0898b';
+
+/// HealthSyncSettingsRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [healthSyncSettingsRepository].
+@ProviderFor(healthSyncSettingsRepository)
+final healthSyncSettingsRepositoryProvider =
+    Provider<HealthSyncSettingsRepository>.internal(
+      healthSyncSettingsRepository,
+      name: r'healthSyncSettingsRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$healthSyncSettingsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HealthSyncSettingsRepositoryRef =
+    ProviderRef<HealthSyncSettingsRepository>;
+String _$healthSyncStatusRepositoryHash() =>
+    r'ee7cb1aeffe97061ea6d6de3b12e61a6bd80d13f';
+
+/// HealthSyncStatusRepository provider - override in ProviderScope with implementation.
+///
+/// Copied from [healthSyncStatusRepository].
+@ProviderFor(healthSyncStatusRepository)
+final healthSyncStatusRepositoryProvider =
+    Provider<HealthSyncStatusRepository>.internal(
+      healthSyncStatusRepository,
+      name: r'healthSyncStatusRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$healthSyncStatusRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HealthSyncStatusRepositoryRef = ProviderRef<HealthSyncStatusRepository>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -2621,5 +2685,71 @@ final getFastingHistoryUseCaseProvider =
 // ignore: unused_element
 typedef GetFastingHistoryUseCaseRef =
     AutoDisposeProviderRef<GetFastingHistoryUseCase>;
+String _$getImportedVitalsUseCaseHash() =>
+    r'e3e72e8a247865cf65c85da39ad3bbd85064693e';
+
+/// GetImportedVitalsUseCase provider.
+///
+/// Copied from [getImportedVitalsUseCase].
+@ProviderFor(getImportedVitalsUseCase)
+final getImportedVitalsUseCaseProvider =
+    AutoDisposeProvider<GetImportedVitalsUseCase>.internal(
+      getImportedVitalsUseCase,
+      name: r'getImportedVitalsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getImportedVitalsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetImportedVitalsUseCaseRef =
+    AutoDisposeProviderRef<GetImportedVitalsUseCase>;
+String _$getLastSyncStatusUseCaseHash() =>
+    r'c366ca0beaa64f8990a464c88083dd34bb741971';
+
+/// GetLastSyncStatusUseCase provider.
+///
+/// Copied from [getLastSyncStatusUseCase].
+@ProviderFor(getLastSyncStatusUseCase)
+final getLastSyncStatusUseCaseProvider =
+    AutoDisposeProvider<GetLastSyncStatusUseCase>.internal(
+      getLastSyncStatusUseCase,
+      name: r'getLastSyncStatusUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getLastSyncStatusUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetLastSyncStatusUseCaseRef =
+    AutoDisposeProviderRef<GetLastSyncStatusUseCase>;
+String _$updateHealthSyncSettingsUseCaseHash() =>
+    r'0d4767eaf64edf5cb00e555cf575f6c94cd593f5';
+
+/// UpdateHealthSyncSettingsUseCase provider.
+///
+/// Copied from [updateHealthSyncSettingsUseCase].
+@ProviderFor(updateHealthSyncSettingsUseCase)
+final updateHealthSyncSettingsUseCaseProvider =
+    AutoDisposeProvider<UpdateHealthSyncSettingsUseCase>.internal(
+      updateHealthSyncSettingsUseCase,
+      name: r'updateHealthSyncSettingsUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateHealthSyncSettingsUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateHealthSyncSettingsUseCaseRef =
+    AutoDisposeProviderRef<UpdateHealthSyncSettingsUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -51,6 +51,8 @@ import 'package:shadow_app/domain/usecases/guest_invites/list_guest_invites_use_
 import 'package:shadow_app/domain/usecases/guest_invites/remove_guest_device_use_case.dart';
 import 'package:shadow_app/domain/usecases/guest_invites/revoke_guest_invite_use_case.dart';
 import 'package:shadow_app/domain/usecases/guest_invites/validate_guest_token_use_case.dart';
+// Use Cases - Health Platform
+import 'package:shadow_app/domain/usecases/health/health_usecases.dart';
 // Use Cases - Intake Logs
 import 'package:shadow_app/domain/usecases/intake_logs/intake_logs_usecases.dart';
 // Use Cases - Journal Entries
@@ -379,6 +381,30 @@ DietViolationRepository dietViolationRepository(Ref ref) {
 DietComplianceService dietComplianceService(Ref ref) {
   throw UnimplementedError(
     'Override dietComplianceServiceProvider in ProviderScope',
+  );
+}
+
+/// ImportedVitalRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ImportedVitalRepository importedVitalRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override importedVitalRepositoryProvider in ProviderScope',
+  );
+}
+
+/// HealthSyncSettingsRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+HealthSyncSettingsRepository healthSyncSettingsRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override healthSyncSettingsRepositoryProvider in ProviderScope',
+  );
+}
+
+/// HealthSyncStatusRepository provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+HealthSyncStatusRepository healthSyncStatusRepository(Ref ref) {
+  throw UnimplementedError(
+    'Override healthSyncStatusRepositoryProvider in ProviderScope',
   );
 }
 
@@ -1080,5 +1106,33 @@ GetActiveFastUseCase getActiveFastUseCase(Ref ref) => GetActiveFastUseCase(
 GetFastingHistoryUseCase getFastingHistoryUseCase(Ref ref) =>
     GetFastingHistoryUseCase(
       ref.read(fastingRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+// =============================================================================
+// USE CASES - HEALTH PLATFORM (3)
+// =============================================================================
+
+/// GetImportedVitalsUseCase provider.
+@riverpod
+GetImportedVitalsUseCase getImportedVitalsUseCase(Ref ref) =>
+    GetImportedVitalsUseCase(
+      ref.read(importedVitalRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// GetLastSyncStatusUseCase provider.
+@riverpod
+GetLastSyncStatusUseCase getLastSyncStatusUseCase(Ref ref) =>
+    GetLastSyncStatusUseCase(
+      ref.read(healthSyncStatusRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// UpdateHealthSyncSettingsUseCase provider.
+@riverpod
+UpdateHealthSyncSettingsUseCase updateHealthSyncSettingsUseCase(Ref ref) =>
+    UpdateHealthSyncSettingsUseCase(
+      ref.read(healthSyncSettingsRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
     );

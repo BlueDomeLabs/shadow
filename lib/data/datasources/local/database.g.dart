@@ -29272,6 +29272,1862 @@ class DietViolationsCompanion extends UpdateCompanion<DietViolationRow> {
   }
 }
 
+class $ImportedVitalsTable extends ImportedVitals
+    with TableInfo<$ImportedVitalsTable, ImportedVitalRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportedVitalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataTypeMeta = const VerificationMeta(
+    'dataType',
+  );
+  @override
+  late final GeneratedColumn<int> dataType = GeneratedColumn<int>(
+    'data_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<double> value = GeneratedColumn<double>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recordedAtMeta = const VerificationMeta(
+    'recordedAt',
+  );
+  @override
+  late final GeneratedColumn<int> recordedAt = GeneratedColumn<int>(
+    'recorded_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourcePlatformMeta = const VerificationMeta(
+    'sourcePlatform',
+  );
+  @override
+  late final GeneratedColumn<int> sourcePlatform = GeneratedColumn<int>(
+    'source_platform',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceDeviceMeta = const VerificationMeta(
+    'sourceDevice',
+  );
+  @override
+  late final GeneratedColumn<String> sourceDevice = GeneratedColumn<String>(
+    'source_device',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importedAtMeta = const VerificationMeta(
+    'importedAt',
+  );
+  @override
+  late final GeneratedColumn<int> importedAt = GeneratedColumn<int>(
+    'imported_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    dataType,
+    value,
+    unit,
+    recordedAt,
+    sourcePlatform,
+    sourceDevice,
+    importedAt,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'imported_vitals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportedVitalRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('data_type')) {
+      context.handle(
+        _dataTypeMeta,
+        dataType.isAcceptableOrUnknown(data['data_type']!, _dataTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataTypeMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('recorded_at')) {
+      context.handle(
+        _recordedAtMeta,
+        recordedAt.isAcceptableOrUnknown(data['recorded_at']!, _recordedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordedAtMeta);
+    }
+    if (data.containsKey('source_platform')) {
+      context.handle(
+        _sourcePlatformMeta,
+        sourcePlatform.isAcceptableOrUnknown(
+          data['source_platform']!,
+          _sourcePlatformMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourcePlatformMeta);
+    }
+    if (data.containsKey('source_device')) {
+      context.handle(
+        _sourceDeviceMeta,
+        sourceDevice.isAcceptableOrUnknown(
+          data['source_device']!,
+          _sourceDeviceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('imported_at')) {
+      context.handle(
+        _importedAtMeta,
+        importedAt.isAcceptableOrUnknown(data['imported_at']!, _importedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importedAtMeta);
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportedVitalRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportedVitalRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      dataType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}data_type'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}value'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      recordedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}recorded_at'],
+      )!,
+      sourcePlatform: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_platform'],
+      )!,
+      sourceDevice: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_device'],
+      ),
+      importedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}imported_at'],
+      )!,
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $ImportedVitalsTable createAlias(String alias) {
+    return $ImportedVitalsTable(attachedDatabase, alias);
+  }
+}
+
+class ImportedVitalRow extends DataClass
+    implements Insertable<ImportedVitalRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int dataType;
+  final double value;
+  final String unit;
+  final int recordedAt;
+  final int sourcePlatform;
+  final String? sourceDevice;
+  final int importedAt;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const ImportedVitalRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.dataType,
+    required this.value,
+    required this.unit,
+    required this.recordedAt,
+    required this.sourcePlatform,
+    this.sourceDevice,
+    required this.importedAt,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['data_type'] = Variable<int>(dataType);
+    map['value'] = Variable<double>(value);
+    map['unit'] = Variable<String>(unit);
+    map['recorded_at'] = Variable<int>(recordedAt);
+    map['source_platform'] = Variable<int>(sourcePlatform);
+    if (!nullToAbsent || sourceDevice != null) {
+      map['source_device'] = Variable<String>(sourceDevice);
+    }
+    map['imported_at'] = Variable<int>(importedAt);
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  ImportedVitalsCompanion toCompanion(bool nullToAbsent) {
+    return ImportedVitalsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      dataType: Value(dataType),
+      value: Value(value),
+      unit: Value(unit),
+      recordedAt: Value(recordedAt),
+      sourcePlatform: Value(sourcePlatform),
+      sourceDevice: sourceDevice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceDevice),
+      importedAt: Value(importedAt),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory ImportedVitalRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportedVitalRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      dataType: serializer.fromJson<int>(json['dataType']),
+      value: serializer.fromJson<double>(json['value']),
+      unit: serializer.fromJson<String>(json['unit']),
+      recordedAt: serializer.fromJson<int>(json['recordedAt']),
+      sourcePlatform: serializer.fromJson<int>(json['sourcePlatform']),
+      sourceDevice: serializer.fromJson<String?>(json['sourceDevice']),
+      importedAt: serializer.fromJson<int>(json['importedAt']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'dataType': serializer.toJson<int>(dataType),
+      'value': serializer.toJson<double>(value),
+      'unit': serializer.toJson<String>(unit),
+      'recordedAt': serializer.toJson<int>(recordedAt),
+      'sourcePlatform': serializer.toJson<int>(sourcePlatform),
+      'sourceDevice': serializer.toJson<String?>(sourceDevice),
+      'importedAt': serializer.toJson<int>(importedAt),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  ImportedVitalRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? dataType,
+    double? value,
+    String? unit,
+    int? recordedAt,
+    int? sourcePlatform,
+    Value<String?> sourceDevice = const Value.absent(),
+    int? importedAt,
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => ImportedVitalRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    dataType: dataType ?? this.dataType,
+    value: value ?? this.value,
+    unit: unit ?? this.unit,
+    recordedAt: recordedAt ?? this.recordedAt,
+    sourcePlatform: sourcePlatform ?? this.sourcePlatform,
+    sourceDevice: sourceDevice.present ? sourceDevice.value : this.sourceDevice,
+    importedAt: importedAt ?? this.importedAt,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  ImportedVitalRow copyWithCompanion(ImportedVitalsCompanion data) {
+    return ImportedVitalRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      dataType: data.dataType.present ? data.dataType.value : this.dataType,
+      value: data.value.present ? data.value.value : this.value,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      recordedAt: data.recordedAt.present
+          ? data.recordedAt.value
+          : this.recordedAt,
+      sourcePlatform: data.sourcePlatform.present
+          ? data.sourcePlatform.value
+          : this.sourcePlatform,
+      sourceDevice: data.sourceDevice.present
+          ? data.sourceDevice.value
+          : this.sourceDevice,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportedVitalRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('dataType: $dataType, ')
+          ..write('value: $value, ')
+          ..write('unit: $unit, ')
+          ..write('recordedAt: $recordedAt, ')
+          ..write('sourcePlatform: $sourcePlatform, ')
+          ..write('sourceDevice: $sourceDevice, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    profileId,
+    dataType,
+    value,
+    unit,
+    recordedAt,
+    sourcePlatform,
+    sourceDevice,
+    importedAt,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportedVitalRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.dataType == this.dataType &&
+          other.value == this.value &&
+          other.unit == this.unit &&
+          other.recordedAt == this.recordedAt &&
+          other.sourcePlatform == this.sourcePlatform &&
+          other.sourceDevice == this.sourceDevice &&
+          other.importedAt == this.importedAt &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class ImportedVitalsCompanion extends UpdateCompanion<ImportedVitalRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> dataType;
+  final Value<double> value;
+  final Value<String> unit;
+  final Value<int> recordedAt;
+  final Value<int> sourcePlatform;
+  final Value<String?> sourceDevice;
+  final Value<int> importedAt;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const ImportedVitalsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.dataType = const Value.absent(),
+    this.value = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.recordedAt = const Value.absent(),
+    this.sourcePlatform = const Value.absent(),
+    this.sourceDevice = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportedVitalsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int dataType,
+    required double value,
+    required String unit,
+    required int recordedAt,
+    required int sourcePlatform,
+    this.sourceDevice = const Value.absent(),
+    required int importedAt,
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       dataType = Value(dataType),
+       value = Value(value),
+       unit = Value(unit),
+       recordedAt = Value(recordedAt),
+       sourcePlatform = Value(sourcePlatform),
+       importedAt = Value(importedAt),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<ImportedVitalRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? dataType,
+    Expression<double>? value,
+    Expression<String>? unit,
+    Expression<int>? recordedAt,
+    Expression<int>? sourcePlatform,
+    Expression<String>? sourceDevice,
+    Expression<int>? importedAt,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (dataType != null) 'data_type': dataType,
+      if (value != null) 'value': value,
+      if (unit != null) 'unit': unit,
+      if (recordedAt != null) 'recorded_at': recordedAt,
+      if (sourcePlatform != null) 'source_platform': sourcePlatform,
+      if (sourceDevice != null) 'source_device': sourceDevice,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportedVitalsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? dataType,
+    Value<double>? value,
+    Value<String>? unit,
+    Value<int>? recordedAt,
+    Value<int>? sourcePlatform,
+    Value<String?>? sourceDevice,
+    Value<int>? importedAt,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return ImportedVitalsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      dataType: dataType ?? this.dataType,
+      value: value ?? this.value,
+      unit: unit ?? this.unit,
+      recordedAt: recordedAt ?? this.recordedAt,
+      sourcePlatform: sourcePlatform ?? this.sourcePlatform,
+      sourceDevice: sourceDevice ?? this.sourceDevice,
+      importedAt: importedAt ?? this.importedAt,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (dataType.present) {
+      map['data_type'] = Variable<int>(dataType.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<double>(value.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (recordedAt.present) {
+      map['recorded_at'] = Variable<int>(recordedAt.value);
+    }
+    if (sourcePlatform.present) {
+      map['source_platform'] = Variable<int>(sourcePlatform.value);
+    }
+    if (sourceDevice.present) {
+      map['source_device'] = Variable<String>(sourceDevice.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<int>(importedAt.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportedVitalsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('dataType: $dataType, ')
+          ..write('value: $value, ')
+          ..write('unit: $unit, ')
+          ..write('recordedAt: $recordedAt, ')
+          ..write('sourcePlatform: $sourcePlatform, ')
+          ..write('sourceDevice: $sourceDevice, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HealthSyncSettingsTableTable extends HealthSyncSettingsTable
+    with TableInfo<$HealthSyncSettingsTableTable, HealthSyncSettingsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HealthSyncSettingsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledDataTypesMeta = const VerificationMeta(
+    'enabledDataTypes',
+  );
+  @override
+  late final GeneratedColumn<String> enabledDataTypes = GeneratedColumn<String>(
+    'enabled_data_types',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[0,1,2,3,4,5,6,7,8]'),
+  );
+  static const VerificationMeta _dateRangeDaysMeta = const VerificationMeta(
+    'dateRangeDays',
+  );
+  @override
+  late final GeneratedColumn<int> dateRangeDays = GeneratedColumn<int>(
+    'date_range_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(30),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    profileId,
+    enabledDataTypes,
+    dateRangeDays,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'health_sync_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HealthSyncSettingsRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('enabled_data_types')) {
+      context.handle(
+        _enabledDataTypesMeta,
+        enabledDataTypes.isAcceptableOrUnknown(
+          data['enabled_data_types']!,
+          _enabledDataTypesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('date_range_days')) {
+      context.handle(
+        _dateRangeDaysMeta,
+        dateRangeDays.isAcceptableOrUnknown(
+          data['date_range_days']!,
+          _dateRangeDaysMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HealthSyncSettingsRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HealthSyncSettingsRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      enabledDataTypes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}enabled_data_types'],
+      )!,
+      dateRangeDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}date_range_days'],
+      )!,
+    );
+  }
+
+  @override
+  $HealthSyncSettingsTableTable createAlias(String alias) {
+    return $HealthSyncSettingsTableTable(attachedDatabase, alias);
+  }
+}
+
+class HealthSyncSettingsRow extends DataClass
+    implements Insertable<HealthSyncSettingsRow> {
+  final String id;
+  final String profileId;
+  final String enabledDataTypes;
+  final int dateRangeDays;
+  const HealthSyncSettingsRow({
+    required this.id,
+    required this.profileId,
+    required this.enabledDataTypes,
+    required this.dateRangeDays,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['profile_id'] = Variable<String>(profileId);
+    map['enabled_data_types'] = Variable<String>(enabledDataTypes);
+    map['date_range_days'] = Variable<int>(dateRangeDays);
+    return map;
+  }
+
+  HealthSyncSettingsTableCompanion toCompanion(bool nullToAbsent) {
+    return HealthSyncSettingsTableCompanion(
+      id: Value(id),
+      profileId: Value(profileId),
+      enabledDataTypes: Value(enabledDataTypes),
+      dateRangeDays: Value(dateRangeDays),
+    );
+  }
+
+  factory HealthSyncSettingsRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HealthSyncSettingsRow(
+      id: serializer.fromJson<String>(json['id']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      enabledDataTypes: serializer.fromJson<String>(json['enabledDataTypes']),
+      dateRangeDays: serializer.fromJson<int>(json['dateRangeDays']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'profileId': serializer.toJson<String>(profileId),
+      'enabledDataTypes': serializer.toJson<String>(enabledDataTypes),
+      'dateRangeDays': serializer.toJson<int>(dateRangeDays),
+    };
+  }
+
+  HealthSyncSettingsRow copyWith({
+    String? id,
+    String? profileId,
+    String? enabledDataTypes,
+    int? dateRangeDays,
+  }) => HealthSyncSettingsRow(
+    id: id ?? this.id,
+    profileId: profileId ?? this.profileId,
+    enabledDataTypes: enabledDataTypes ?? this.enabledDataTypes,
+    dateRangeDays: dateRangeDays ?? this.dateRangeDays,
+  );
+  HealthSyncSettingsRow copyWithCompanion(
+    HealthSyncSettingsTableCompanion data,
+  ) {
+    return HealthSyncSettingsRow(
+      id: data.id.present ? data.id.value : this.id,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      enabledDataTypes: data.enabledDataTypes.present
+          ? data.enabledDataTypes.value
+          : this.enabledDataTypes,
+      dateRangeDays: data.dateRangeDays.present
+          ? data.dateRangeDays.value
+          : this.dateRangeDays,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSyncSettingsRow(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('enabledDataTypes: $enabledDataTypes, ')
+          ..write('dateRangeDays: $dateRangeDays')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, profileId, enabledDataTypes, dateRangeDays);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HealthSyncSettingsRow &&
+          other.id == this.id &&
+          other.profileId == this.profileId &&
+          other.enabledDataTypes == this.enabledDataTypes &&
+          other.dateRangeDays == this.dateRangeDays);
+}
+
+class HealthSyncSettingsTableCompanion
+    extends UpdateCompanion<HealthSyncSettingsRow> {
+  final Value<String> id;
+  final Value<String> profileId;
+  final Value<String> enabledDataTypes;
+  final Value<int> dateRangeDays;
+  final Value<int> rowid;
+  const HealthSyncSettingsTableCompanion({
+    this.id = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.enabledDataTypes = const Value.absent(),
+    this.dateRangeDays = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HealthSyncSettingsTableCompanion.insert({
+    required String id,
+    required String profileId,
+    this.enabledDataTypes = const Value.absent(),
+    this.dateRangeDays = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       profileId = Value(profileId);
+  static Insertable<HealthSyncSettingsRow> custom({
+    Expression<String>? id,
+    Expression<String>? profileId,
+    Expression<String>? enabledDataTypes,
+    Expression<int>? dateRangeDays,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (profileId != null) 'profile_id': profileId,
+      if (enabledDataTypes != null) 'enabled_data_types': enabledDataTypes,
+      if (dateRangeDays != null) 'date_range_days': dateRangeDays,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HealthSyncSettingsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? profileId,
+    Value<String>? enabledDataTypes,
+    Value<int>? dateRangeDays,
+    Value<int>? rowid,
+  }) {
+    return HealthSyncSettingsTableCompanion(
+      id: id ?? this.id,
+      profileId: profileId ?? this.profileId,
+      enabledDataTypes: enabledDataTypes ?? this.enabledDataTypes,
+      dateRangeDays: dateRangeDays ?? this.dateRangeDays,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (enabledDataTypes.present) {
+      map['enabled_data_types'] = Variable<String>(enabledDataTypes.value);
+    }
+    if (dateRangeDays.present) {
+      map['date_range_days'] = Variable<int>(dateRangeDays.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSyncSettingsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('enabledDataTypes: $enabledDataTypes, ')
+          ..write('dateRangeDays: $dateRangeDays, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HealthSyncStatusTableTable extends HealthSyncStatusTable
+    with TableInfo<$HealthSyncStatusTableTable, HealthSyncStatusRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HealthSyncStatusTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataTypeMeta = const VerificationMeta(
+    'dataType',
+  );
+  @override
+  late final GeneratedColumn<int> dataType = GeneratedColumn<int>(
+    'data_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> lastSyncedAt = GeneratedColumn<int>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _recordCountMeta = const VerificationMeta(
+    'recordCount',
+  );
+  @override
+  late final GeneratedColumn<int> recordCount = GeneratedColumn<int>(
+    'record_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    profileId,
+    dataType,
+    lastSyncedAt,
+    recordCount,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'health_sync_status';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HealthSyncStatusRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('data_type')) {
+      context.handle(
+        _dataTypeMeta,
+        dataType.isAcceptableOrUnknown(data['data_type']!, _dataTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataTypeMeta);
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('record_count')) {
+      context.handle(
+        _recordCountMeta,
+        recordCount.isAcceptableOrUnknown(
+          data['record_count']!,
+          _recordCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HealthSyncStatusRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HealthSyncStatusRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      dataType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}data_type'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_synced_at'],
+      ),
+      recordCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}record_count'],
+      )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+    );
+  }
+
+  @override
+  $HealthSyncStatusTableTable createAlias(String alias) {
+    return $HealthSyncStatusTableTable(attachedDatabase, alias);
+  }
+}
+
+class HealthSyncStatusRow extends DataClass
+    implements Insertable<HealthSyncStatusRow> {
+  final String id;
+  final String profileId;
+  final int dataType;
+  final int? lastSyncedAt;
+  final int recordCount;
+  final String? lastError;
+  const HealthSyncStatusRow({
+    required this.id,
+    required this.profileId,
+    required this.dataType,
+    this.lastSyncedAt,
+    required this.recordCount,
+    this.lastError,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['profile_id'] = Variable<String>(profileId);
+    map['data_type'] = Variable<int>(dataType);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<int>(lastSyncedAt);
+    }
+    map['record_count'] = Variable<int>(recordCount);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  HealthSyncStatusTableCompanion toCompanion(bool nullToAbsent) {
+    return HealthSyncStatusTableCompanion(
+      id: Value(id),
+      profileId: Value(profileId),
+      dataType: Value(dataType),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
+      recordCount: Value(recordCount),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory HealthSyncStatusRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HealthSyncStatusRow(
+      id: serializer.fromJson<String>(json['id']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      dataType: serializer.fromJson<int>(json['dataType']),
+      lastSyncedAt: serializer.fromJson<int?>(json['lastSyncedAt']),
+      recordCount: serializer.fromJson<int>(json['recordCount']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'profileId': serializer.toJson<String>(profileId),
+      'dataType': serializer.toJson<int>(dataType),
+      'lastSyncedAt': serializer.toJson<int?>(lastSyncedAt),
+      'recordCount': serializer.toJson<int>(recordCount),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  HealthSyncStatusRow copyWith({
+    String? id,
+    String? profileId,
+    int? dataType,
+    Value<int?> lastSyncedAt = const Value.absent(),
+    int? recordCount,
+    Value<String?> lastError = const Value.absent(),
+  }) => HealthSyncStatusRow(
+    id: id ?? this.id,
+    profileId: profileId ?? this.profileId,
+    dataType: dataType ?? this.dataType,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+    recordCount: recordCount ?? this.recordCount,
+    lastError: lastError.present ? lastError.value : this.lastError,
+  );
+  HealthSyncStatusRow copyWithCompanion(HealthSyncStatusTableCompanion data) {
+    return HealthSyncStatusRow(
+      id: data.id.present ? data.id.value : this.id,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      dataType: data.dataType.present ? data.dataType.value : this.dataType,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
+      recordCount: data.recordCount.present
+          ? data.recordCount.value
+          : this.recordCount,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSyncStatusRow(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('dataType: $dataType, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('recordCount: $recordCount, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    profileId,
+    dataType,
+    lastSyncedAt,
+    recordCount,
+    lastError,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HealthSyncStatusRow &&
+          other.id == this.id &&
+          other.profileId == this.profileId &&
+          other.dataType == this.dataType &&
+          other.lastSyncedAt == this.lastSyncedAt &&
+          other.recordCount == this.recordCount &&
+          other.lastError == this.lastError);
+}
+
+class HealthSyncStatusTableCompanion
+    extends UpdateCompanion<HealthSyncStatusRow> {
+  final Value<String> id;
+  final Value<String> profileId;
+  final Value<int> dataType;
+  final Value<int?> lastSyncedAt;
+  final Value<int> recordCount;
+  final Value<String?> lastError;
+  final Value<int> rowid;
+  const HealthSyncStatusTableCompanion({
+    this.id = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.dataType = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+    this.recordCount = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HealthSyncStatusTableCompanion.insert({
+    required String id,
+    required String profileId,
+    required int dataType,
+    this.lastSyncedAt = const Value.absent(),
+    this.recordCount = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       profileId = Value(profileId),
+       dataType = Value(dataType);
+  static Insertable<HealthSyncStatusRow> custom({
+    Expression<String>? id,
+    Expression<String>? profileId,
+    Expression<int>? dataType,
+    Expression<int>? lastSyncedAt,
+    Expression<int>? recordCount,
+    Expression<String>? lastError,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (profileId != null) 'profile_id': profileId,
+      if (dataType != null) 'data_type': dataType,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+      if (recordCount != null) 'record_count': recordCount,
+      if (lastError != null) 'last_error': lastError,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HealthSyncStatusTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? profileId,
+    Value<int>? dataType,
+    Value<int?>? lastSyncedAt,
+    Value<int>? recordCount,
+    Value<String?>? lastError,
+    Value<int>? rowid,
+  }) {
+    return HealthSyncStatusTableCompanion(
+      id: id ?? this.id,
+      profileId: profileId ?? this.profileId,
+      dataType: dataType ?? this.dataType,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      recordCount: recordCount ?? this.recordCount,
+      lastError: lastError ?? this.lastError,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (dataType.present) {
+      map['data_type'] = Variable<int>(dataType.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<int>(lastSyncedAt.value);
+    }
+    if (recordCount.present) {
+      map['record_count'] = Variable<int>(recordCount.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSyncStatusTableCompanion(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('dataType: $dataType, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('recordCount: $recordCount, ')
+          ..write('lastError: $lastError, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -29315,6 +31171,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $DietViolationsTable dietViolations = $DietViolationsTable(this);
+  late final $ImportedVitalsTable importedVitals = $ImportedVitalsTable(this);
+  late final $HealthSyncSettingsTableTable healthSyncSettingsTable =
+      $HealthSyncSettingsTableTable(this);
+  late final $HealthSyncStatusTableTable healthSyncStatusTable =
+      $HealthSyncStatusTableTable(this);
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -29373,6 +31234,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final DietViolationDao dietViolationDao = DietViolationDao(
     this as AppDatabase,
   );
+  late final ImportedVitalDao importedVitalDao = ImportedVitalDao(
+    this as AppDatabase,
+  );
+  late final HealthSyncSettingsDao healthSyncSettingsDao =
+      HealthSyncSettingsDao(this as AppDatabase);
+  late final HealthSyncStatusDao healthSyncStatusDao = HealthSyncStatusDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -29407,6 +31276,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dietExceptions,
     fastingSessions,
     dietViolations,
+    importedVitals,
+    healthSyncSettingsTable,
+    healthSyncStatusTable,
   ];
 }
 
@@ -42620,6 +44492,950 @@ typedef $$DietViolationsTableProcessedTableManager =
       DietViolationRow,
       PrefetchHooks Function()
     >;
+typedef $$ImportedVitalsTableCreateCompanionBuilder =
+    ImportedVitalsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int dataType,
+      required double value,
+      required String unit,
+      required int recordedAt,
+      required int sourcePlatform,
+      Value<String?> sourceDevice,
+      required int importedAt,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$ImportedVitalsTableUpdateCompanionBuilder =
+    ImportedVitalsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> dataType,
+      Value<double> value,
+      Value<String> unit,
+      Value<int> recordedAt,
+      Value<int> sourcePlatform,
+      Value<String?> sourceDevice,
+      Value<int> importedAt,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$ImportedVitalsTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportedVitalsTable> {
+  $$ImportedVitalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dataType => $composableBuilder(
+    column: $table.dataType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get recordedAt => $composableBuilder(
+    column: $table.recordedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourcePlatform => $composableBuilder(
+    column: $table.sourcePlatform,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceDevice => $composableBuilder(
+    column: $table.sourceDevice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ImportedVitalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportedVitalsTable> {
+  $$ImportedVitalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dataType => $composableBuilder(
+    column: $table.dataType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get recordedAt => $composableBuilder(
+    column: $table.recordedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourcePlatform => $composableBuilder(
+    column: $table.sourcePlatform,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceDevice => $composableBuilder(
+    column: $table.sourceDevice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportedVitalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportedVitalsTable> {
+  $$ImportedVitalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get dataType =>
+      $composableBuilder(column: $table.dataType, builder: (column) => column);
+
+  GeneratedColumn<double> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<int> get recordedAt => $composableBuilder(
+    column: $table.recordedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sourcePlatform => $composableBuilder(
+    column: $table.sourcePlatform,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceDevice => $composableBuilder(
+    column: $table.sourceDevice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$ImportedVitalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportedVitalsTable,
+          ImportedVitalRow,
+          $$ImportedVitalsTableFilterComposer,
+          $$ImportedVitalsTableOrderingComposer,
+          $$ImportedVitalsTableAnnotationComposer,
+          $$ImportedVitalsTableCreateCompanionBuilder,
+          $$ImportedVitalsTableUpdateCompanionBuilder,
+          (
+            ImportedVitalRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ImportedVitalsTable,
+              ImportedVitalRow
+            >,
+          ),
+          ImportedVitalRow,
+          PrefetchHooks Function()
+        > {
+  $$ImportedVitalsTableTableManager(
+    _$AppDatabase db,
+    $ImportedVitalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportedVitalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportedVitalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportedVitalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> dataType = const Value.absent(),
+                Value<double> value = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<int> recordedAt = const Value.absent(),
+                Value<int> sourcePlatform = const Value.absent(),
+                Value<String?> sourceDevice = const Value.absent(),
+                Value<int> importedAt = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportedVitalsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                dataType: dataType,
+                value: value,
+                unit: unit,
+                recordedAt: recordedAt,
+                sourcePlatform: sourcePlatform,
+                sourceDevice: sourceDevice,
+                importedAt: importedAt,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int dataType,
+                required double value,
+                required String unit,
+                required int recordedAt,
+                required int sourcePlatform,
+                Value<String?> sourceDevice = const Value.absent(),
+                required int importedAt,
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportedVitalsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                dataType: dataType,
+                value: value,
+                unit: unit,
+                recordedAt: recordedAt,
+                sourcePlatform: sourcePlatform,
+                sourceDevice: sourceDevice,
+                importedAt: importedAt,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ImportedVitalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportedVitalsTable,
+      ImportedVitalRow,
+      $$ImportedVitalsTableFilterComposer,
+      $$ImportedVitalsTableOrderingComposer,
+      $$ImportedVitalsTableAnnotationComposer,
+      $$ImportedVitalsTableCreateCompanionBuilder,
+      $$ImportedVitalsTableUpdateCompanionBuilder,
+      (
+        ImportedVitalRow,
+        BaseReferences<_$AppDatabase, $ImportedVitalsTable, ImportedVitalRow>,
+      ),
+      ImportedVitalRow,
+      PrefetchHooks Function()
+    >;
+typedef $$HealthSyncSettingsTableTableCreateCompanionBuilder =
+    HealthSyncSettingsTableCompanion Function({
+      required String id,
+      required String profileId,
+      Value<String> enabledDataTypes,
+      Value<int> dateRangeDays,
+      Value<int> rowid,
+    });
+typedef $$HealthSyncSettingsTableTableUpdateCompanionBuilder =
+    HealthSyncSettingsTableCompanion Function({
+      Value<String> id,
+      Value<String> profileId,
+      Value<String> enabledDataTypes,
+      Value<int> dateRangeDays,
+      Value<int> rowid,
+    });
+
+class $$HealthSyncSettingsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $HealthSyncSettingsTableTable> {
+  $$HealthSyncSettingsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get enabledDataTypes => $composableBuilder(
+    column: $table.enabledDataTypes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dateRangeDays => $composableBuilder(
+    column: $table.dateRangeDays,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HealthSyncSettingsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $HealthSyncSettingsTableTable> {
+  $$HealthSyncSettingsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get enabledDataTypes => $composableBuilder(
+    column: $table.enabledDataTypes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dateRangeDays => $composableBuilder(
+    column: $table.dateRangeDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HealthSyncSettingsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HealthSyncSettingsTableTable> {
+  $$HealthSyncSettingsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get enabledDataTypes => $composableBuilder(
+    column: $table.enabledDataTypes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get dateRangeDays => $composableBuilder(
+    column: $table.dateRangeDays,
+    builder: (column) => column,
+  );
+}
+
+class $$HealthSyncSettingsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HealthSyncSettingsTableTable,
+          HealthSyncSettingsRow,
+          $$HealthSyncSettingsTableTableFilterComposer,
+          $$HealthSyncSettingsTableTableOrderingComposer,
+          $$HealthSyncSettingsTableTableAnnotationComposer,
+          $$HealthSyncSettingsTableTableCreateCompanionBuilder,
+          $$HealthSyncSettingsTableTableUpdateCompanionBuilder,
+          (
+            HealthSyncSettingsRow,
+            BaseReferences<
+              _$AppDatabase,
+              $HealthSyncSettingsTableTable,
+              HealthSyncSettingsRow
+            >,
+          ),
+          HealthSyncSettingsRow,
+          PrefetchHooks Function()
+        > {
+  $$HealthSyncSettingsTableTableTableManager(
+    _$AppDatabase db,
+    $HealthSyncSettingsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HealthSyncSettingsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$HealthSyncSettingsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$HealthSyncSettingsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> enabledDataTypes = const Value.absent(),
+                Value<int> dateRangeDays = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HealthSyncSettingsTableCompanion(
+                id: id,
+                profileId: profileId,
+                enabledDataTypes: enabledDataTypes,
+                dateRangeDays: dateRangeDays,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String profileId,
+                Value<String> enabledDataTypes = const Value.absent(),
+                Value<int> dateRangeDays = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HealthSyncSettingsTableCompanion.insert(
+                id: id,
+                profileId: profileId,
+                enabledDataTypes: enabledDataTypes,
+                dateRangeDays: dateRangeDays,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HealthSyncSettingsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HealthSyncSettingsTableTable,
+      HealthSyncSettingsRow,
+      $$HealthSyncSettingsTableTableFilterComposer,
+      $$HealthSyncSettingsTableTableOrderingComposer,
+      $$HealthSyncSettingsTableTableAnnotationComposer,
+      $$HealthSyncSettingsTableTableCreateCompanionBuilder,
+      $$HealthSyncSettingsTableTableUpdateCompanionBuilder,
+      (
+        HealthSyncSettingsRow,
+        BaseReferences<
+          _$AppDatabase,
+          $HealthSyncSettingsTableTable,
+          HealthSyncSettingsRow
+        >,
+      ),
+      HealthSyncSettingsRow,
+      PrefetchHooks Function()
+    >;
+typedef $$HealthSyncStatusTableTableCreateCompanionBuilder =
+    HealthSyncStatusTableCompanion Function({
+      required String id,
+      required String profileId,
+      required int dataType,
+      Value<int?> lastSyncedAt,
+      Value<int> recordCount,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+typedef $$HealthSyncStatusTableTableUpdateCompanionBuilder =
+    HealthSyncStatusTableCompanion Function({
+      Value<String> id,
+      Value<String> profileId,
+      Value<int> dataType,
+      Value<int?> lastSyncedAt,
+      Value<int> recordCount,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+
+class $$HealthSyncStatusTableTableFilterComposer
+    extends Composer<_$AppDatabase, $HealthSyncStatusTableTable> {
+  $$HealthSyncStatusTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dataType => $composableBuilder(
+    column: $table.dataType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get recordCount => $composableBuilder(
+    column: $table.recordCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HealthSyncStatusTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $HealthSyncStatusTableTable> {
+  $$HealthSyncStatusTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dataType => $composableBuilder(
+    column: $table.dataType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get recordCount => $composableBuilder(
+    column: $table.recordCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HealthSyncStatusTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HealthSyncStatusTableTable> {
+  $$HealthSyncStatusTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get dataType =>
+      $composableBuilder(column: $table.dataType, builder: (column) => column);
+
+  GeneratedColumn<int> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get recordCount => $composableBuilder(
+    column: $table.recordCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$HealthSyncStatusTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HealthSyncStatusTableTable,
+          HealthSyncStatusRow,
+          $$HealthSyncStatusTableTableFilterComposer,
+          $$HealthSyncStatusTableTableOrderingComposer,
+          $$HealthSyncStatusTableTableAnnotationComposer,
+          $$HealthSyncStatusTableTableCreateCompanionBuilder,
+          $$HealthSyncStatusTableTableUpdateCompanionBuilder,
+          (
+            HealthSyncStatusRow,
+            BaseReferences<
+              _$AppDatabase,
+              $HealthSyncStatusTableTable,
+              HealthSyncStatusRow
+            >,
+          ),
+          HealthSyncStatusRow,
+          PrefetchHooks Function()
+        > {
+  $$HealthSyncStatusTableTableTableManager(
+    _$AppDatabase db,
+    $HealthSyncStatusTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HealthSyncStatusTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$HealthSyncStatusTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$HealthSyncStatusTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> dataType = const Value.absent(),
+                Value<int?> lastSyncedAt = const Value.absent(),
+                Value<int> recordCount = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HealthSyncStatusTableCompanion(
+                id: id,
+                profileId: profileId,
+                dataType: dataType,
+                lastSyncedAt: lastSyncedAt,
+                recordCount: recordCount,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String profileId,
+                required int dataType,
+                Value<int?> lastSyncedAt = const Value.absent(),
+                Value<int> recordCount = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HealthSyncStatusTableCompanion.insert(
+                id: id,
+                profileId: profileId,
+                dataType: dataType,
+                lastSyncedAt: lastSyncedAt,
+                recordCount: recordCount,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HealthSyncStatusTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HealthSyncStatusTableTable,
+      HealthSyncStatusRow,
+      $$HealthSyncStatusTableTableFilterComposer,
+      $$HealthSyncStatusTableTableOrderingComposer,
+      $$HealthSyncStatusTableTableAnnotationComposer,
+      $$HealthSyncStatusTableTableCreateCompanionBuilder,
+      $$HealthSyncStatusTableTableUpdateCompanionBuilder,
+      (
+        HealthSyncStatusRow,
+        BaseReferences<
+          _$AppDatabase,
+          $HealthSyncStatusTableTable,
+          HealthSyncStatusRow
+        >,
+      ),
+      HealthSyncStatusRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -42689,4 +45505,13 @@ class $AppDatabaseManager {
       $$FastingSessionsTableTableManager(_db, _db.fastingSessions);
   $$DietViolationsTableTableManager get dietViolations =>
       $$DietViolationsTableTableManager(_db, _db.dietViolations);
+  $$ImportedVitalsTableTableManager get importedVitals =>
+      $$ImportedVitalsTableTableManager(_db, _db.importedVitals);
+  $$HealthSyncSettingsTableTableTableManager get healthSyncSettingsTable =>
+      $$HealthSyncSettingsTableTableTableManager(
+        _db,
+        _db.healthSyncSettingsTable,
+      );
+  $$HealthSyncStatusTableTableTableManager get healthSyncStatusTable =>
+      $$HealthSyncStatusTableTableTableManager(_db, _db.healthSyncStatusTable);
 }

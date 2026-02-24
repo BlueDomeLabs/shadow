@@ -558,3 +558,55 @@ enum WakingFeeling {
     orElse: () => neutral,
   );
 }
+
+// === Health Platform Integration Enums (Phase 16) ===
+
+/// Health data types importable from Apple HealthKit and Google Health Connect.
+enum HealthDataType {
+  heartRate(0),
+  restingHeartRate(1),
+  weight(2),
+  bpSystolic(3),
+  bpDiastolic(4),
+  sleepDuration(5),
+  steps(6),
+  activeCalories(7),
+  bloodOxygen(8);
+
+  final int value;
+  const HealthDataType(this.value);
+
+  static HealthDataType fromValue(int value) => HealthDataType.values
+      .firstWhere((e) => e.value == value, orElse: () => heartRate);
+
+  /// Canonical unit string for display and storage.
+  String get canonicalUnit => switch (this) {
+    HealthDataType.heartRate => 'bpm',
+    HealthDataType.restingHeartRate => 'bpm',
+    HealthDataType.weight => 'kg',
+    HealthDataType.bpSystolic => 'mmHg',
+    HealthDataType.bpDiastolic => 'mmHg',
+    HealthDataType.sleepDuration => 'hours',
+    HealthDataType.steps => 'steps',
+    HealthDataType.activeCalories => 'kcal',
+    HealthDataType.bloodOxygen => '%',
+  };
+}
+
+/// Source platform for imported health data.
+enum HealthSourcePlatform {
+  appleHealth(0),
+  googleHealthConnect(1);
+
+  final int value;
+  const HealthSourcePlatform(this.value);
+
+  static HealthSourcePlatform fromValue(int value) => HealthSourcePlatform
+      .values
+      .firstWhere((e) => e.value == value, orElse: () => appleHealth);
+
+  String get displayName => switch (this) {
+    HealthSourcePlatform.appleHealth => 'Apple Health',
+    HealthSourcePlatform.googleHealthConnect => 'Google Health Connect',
+  };
+}

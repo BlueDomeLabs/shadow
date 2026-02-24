@@ -28,6 +28,9 @@ import 'package:shadow_app/data/datasources/local/daos/food_item_component_dao.d
 import 'package:shadow_app/data/datasources/local/daos/food_item_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/food_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/guest_invite_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/health_sync_settings_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/health_sync_status_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/imported_vital_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/intake_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/journal_entry_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/notification_category_settings_dao.dart';
@@ -57,6 +60,9 @@ import 'package:shadow_app/data/datasources/local/tables/food_item_components_ta
 import 'package:shadow_app/data/datasources/local/tables/food_items_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/food_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/guest_invites_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/health_sync_settings_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/health_sync_status_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/imported_vitals_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/intake_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/journal_entries_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/notification_category_settings_table.dart';
@@ -118,6 +124,9 @@ part 'database.g.dart';
     DietExceptions,
     FastingSessions,
     DietViolations,
+    ImportedVitals,
+    HealthSyncSettingsTable,
+    HealthSyncStatusTable,
   ],
   daos: [
     SupplementDao,
@@ -149,6 +158,9 @@ part 'database.g.dart';
     DietExceptionDao,
     FastingSessionDao,
     DietViolationDao,
+    ImportedVitalDao,
+    HealthSyncSettingsDao,
+    HealthSyncStatusDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -179,8 +191,10 @@ class AppDatabase extends _$AppDatabase {
   /// v15: Diet Tracking data foundation (Phase 15b-1)
   ///      Added diets, diet_rules, diet_exceptions, fasting_sessions,
   ///      diet_violations tables. Added violation_flag column to food_logs.
+  /// v16: Health Platform Integration data foundation (Phase 16a)
+  ///      Added imported_vitals, health_sync_settings, health_sync_status tables.
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   /// Migration strategy for schema changes.
   ///
@@ -285,6 +299,13 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(dietExceptions);
         await m.createTable(fastingSessions);
         await m.createTable(dietViolations);
+      }
+
+      // v16: Health Platform Integration data foundation (Phase 16a)
+      if (from < 16) {
+        await m.createTable(importedVitals);
+        await m.createTable(healthSyncSettingsTable);
+        await m.createTable(healthSyncStatusTable);
       }
     },
     beforeOpen: (details) async {
