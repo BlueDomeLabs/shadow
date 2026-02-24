@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
+import 'package:shadow_app/domain/entities/diet.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
+import 'package:shadow_app/domain/usecases/diet/diet_types.dart';
+import 'package:shadow_app/domain/usecases/diet/get_active_diet_use_case.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/food_logs/food_log_list_provider.dart';
 import 'package:shadow_app/presentation/screens/food_logs/food_log_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
@@ -48,6 +53,9 @@ void main() {
         foodLogListProvider(
           testProfileId,
         ).overrideWith(() => _MockFoodLogList([])),
+        getActiveDietUseCaseProvider.overrideWithValue(
+          _FakeGetActiveDietUseCase(),
+        ),
       ],
       child: const MaterialApp(home: FoodLogScreen(profileId: testProfileId)),
     );
@@ -573,6 +581,9 @@ void main() {
               foodLogListProvider(
                 testProfileId,
               ).overrideWith(_ErrorOnLogFoodLogList.new),
+              getActiveDietUseCaseProvider.overrideWithValue(
+                _FakeGetActiveDietUseCase(),
+              ),
             ],
             child: const MaterialApp(
               home: FoodLogScreen(profileId: testProfileId),
@@ -730,6 +741,14 @@ class _MockFoodLogList extends FoodLogList {
   Future<void> delete(DeleteFoodLogInput input) async {
     // Success - no-op for testing
   }
+}
+
+/// Fake GetActiveDietUseCase — returns null (no active diet) so compliance
+/// check is skipped in tests.
+class _FakeGetActiveDietUseCase implements GetActiveDietUseCase {
+  @override
+  Future<Result<Diet?, AppError>> call(GetActiveDietInput input) async =>
+      const Success(null);
 }
 
 /// Mock notifier that simulates a failure on log.

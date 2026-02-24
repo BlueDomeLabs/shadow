@@ -5,10 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
+import 'package:shadow_app/domain/entities/diet_rule.dart';
+import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
+import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
+import 'package:shadow_app/domain/usecases/diet/diets_usecases.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/food_logs/food_log_list_provider.dart';
+import 'package:shadow_app/presentation/screens/diet/diet_violation_dialog.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -542,6 +548,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
       final timestamp = _selectedDateTime.millisecondsSinceEpoch;
 
       if (_isEditing) {
+        // Editing an existing log — skip compliance check
         await ref
             .read(foodLogListProvider(widget.profileId).notifier)
             .updateLog(
@@ -554,30 +561,17 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
                 notes: _notesController.text.trim(),
               ),
             );
-      } else {
-        await ref
-            .read(foodLogListProvider(widget.profileId).notifier)
-            .log(
-              LogFoodInput(
-                profileId: widget.profileId,
-                clientId: const Uuid().v4(),
-                timestamp: timestamp,
-                mealType: _selectedMealType,
-                foodItemIds: _foodItemIds,
-                adHocItems: _adHocItems,
-                notes: _notesController.text.trim(),
-              ),
-            );
-      }
 
-      if (mounted) {
-        showAccessibleSnackBar(
-          context: context,
-          message: _isEditing
-              ? 'Food log updated successfully'
-              : 'Food log created successfully',
-        );
-        Navigator.of(context).pop();
+        if (mounted) {
+          showAccessibleSnackBar(
+            context: context,
+            message: 'Food log updated successfully',
+          );
+          Navigator.of(context).pop();
+        }
+      } else {
+        // New log — run compliance check first
+        await _saveWithComplianceCheck(timestamp);
       }
     } on AppError catch (e) {
       if (mounted) {
@@ -594,6 +588,204 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
       if (mounted) {
         setState(() => _isSaving = false);
       }
+    }
+  }
+
+  /// Checks diet compliance before saving a new food log entry.
+  ///
+  /// Per 59_DIET_TRACKING.md:
+  /// 1. Get the active diet (if any)
+  /// 2. If no diet — save directly
+  /// 3. If diet exists — build a synthetic FoodItem from ad-hoc items and run check
+  /// 4. If compliant — save directly
+  /// 5. If violations — show DietViolationDialog
+  ///    - "Log Anyway": save food log, record violations with wasOverridden=true
+  ///    - "Cancel": record violations with wasOverridden=false, do not save
+  Future<void> _saveWithComplianceCheck(int timestamp) async {
+    // Step 1: Get active diet
+    final getActiveDiet = ref.read(getActiveDietUseCaseProvider);
+    final activeDietResult = await getActiveDiet(
+      GetActiveDietInput(profileId: widget.profileId),
+    );
+
+    final activeDiet = activeDietResult.when(
+      success: (diet) => diet,
+      failure: (_) => null,
+    );
+
+    if (activeDiet == null || _adHocItems.isEmpty) {
+      // No active diet or nothing to check — save directly
+      await _saveFoodLog(timestamp, violatedRules: [], wasOverridden: false);
+      return;
+    }
+
+    // Step 2: Build synthetic FoodItem from ad-hoc items for compliance check
+    final adHocText = _adHocItems.join(', ');
+    final syntheticFood = FoodItem(
+      id: 'adhoc',
+      clientId: 'adhoc',
+      profileId: widget.profileId,
+      name: adHocText,
+      ingredientsText: adHocText,
+      syncMetadata: SyncMetadata.empty(),
+    );
+
+    // Step 3: Run compliance check
+    final checkCompliance = ref.read(checkComplianceUseCaseProvider);
+    final checkResult = await checkCompliance(
+      CheckComplianceInput(
+        profileId: widget.profileId,
+        dietId: activeDiet.id,
+        foodItem: syntheticFood,
+        logTimeEpoch: timestamp,
+      ),
+    );
+
+    final complianceResult = checkResult.when(
+      success: (result) => result,
+      failure: (_) => null,
+    );
+
+    if (complianceResult == null || complianceResult.isCompliant) {
+      // Compliant — save directly
+      await _saveFoodLog(timestamp, violatedRules: [], wasOverridden: false);
+      return;
+    }
+
+    // Step 4: Show violation dialog before saving
+    if (!mounted) return;
+
+    final choice = await showDietViolationDialog(
+      context: context,
+      foodName: adHocText,
+      violatedRules: complianceResult.violatedRules,
+      complianceImpact: complianceResult.complianceImpact,
+    );
+
+    if (!mounted) return;
+
+    if (choice == DietViolationChoice.logAnyway) {
+      // Save food log, then record violations with wasOverridden=true
+      await _saveFoodLog(
+        timestamp,
+        violatedRules: complianceResult.violatedRules,
+        wasOverridden: true,
+        dietId: activeDiet.id,
+        foodName: adHocText,
+      );
+    } else {
+      // User cancelled — record violations with wasOverridden=false, don't save
+      await _recordViolations(
+        dietId: activeDiet.id,
+        foodName: adHocText,
+        violatedRules: complianceResult.violatedRules,
+        wasOverridden: false,
+        timestamp: timestamp,
+        foodLogId: null,
+      );
+
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: 'Food not logged');
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  /// Saves the food log entry and optionally records violations.
+  Future<void> _saveFoodLog(
+    int timestamp, {
+    required List<DietRule> violatedRules,
+    required bool wasOverridden,
+    String? dietId,
+    String? foodName,
+  }) async {
+    final foodLogId = const Uuid().v4();
+    // Use the provider notifier so this is testable via foodLogListProvider mock.
+    await ref
+        .read(foodLogListProvider(widget.profileId).notifier)
+        .log(
+          LogFoodInput(
+            profileId: widget.profileId,
+            clientId: foodLogId,
+            timestamp: timestamp,
+            mealType: _selectedMealType,
+            foodItemIds: _foodItemIds,
+            adHocItems: _adHocItems,
+            notes: _notesController.text.trim(),
+          ),
+        );
+
+    // Record violations if any
+    if (wasOverridden &&
+        violatedRules.isNotEmpty &&
+        dietId != null &&
+        foodName != null) {
+      await _recordViolations(
+        dietId: dietId,
+        foodName: foodName,
+        violatedRules: violatedRules,
+        wasOverridden: true,
+        timestamp: timestamp,
+        foodLogId: foodLogId,
+      );
+    }
+
+    if (mounted) {
+      showAccessibleSnackBar(
+        context: context,
+        message: 'Food log created successfully',
+      );
+      Navigator.of(context).pop();
+    }
+  }
+
+  /// Records diet violations via RecordViolationUseCase.
+  Future<void> _recordViolations({
+    required String dietId,
+    required String foodName,
+    required List<DietRule> violatedRules,
+    required bool wasOverridden,
+    required int timestamp,
+    required String? foodLogId,
+  }) async {
+    final recordViolation = ref.read(recordViolationUseCaseProvider);
+
+    for (final rule in violatedRules) {
+      await recordViolation(
+        RecordViolationInput(
+          profileId: widget.profileId,
+          clientId: const Uuid().v4(),
+          dietId: dietId,
+          ruleId: rule.id,
+          foodName: foodName,
+          ruleDescription: _ruleDescription(rule),
+          wasOverridden: wasOverridden,
+          timestamp: timestamp,
+          foodLogId: foodLogId,
+        ),
+      );
+    }
+  }
+
+  /// Human-readable description for a violated diet rule.
+  String _ruleDescription(DietRule rule) {
+    switch (rule.ruleType) {
+      case DietRuleType.excludeIngredient:
+        return 'Contains ${rule.targetIngredient ?? "excluded ingredient"}';
+      case DietRuleType.excludeCategory:
+        return 'Contains ${rule.targetCategory ?? "excluded category"}';
+      case DietRuleType.eatingWindowStart:
+        return 'Outside eating window (too early)';
+      case DietRuleType.eatingWindowEnd:
+        return 'Outside eating window (too late)';
+      case DietRuleType.noEatingBefore:
+        return 'Eating before allowed time';
+      case DietRuleType.noEatingAfter:
+        return 'Eating after allowed time';
+      case DietRuleType.fastingHours:
+        return 'Currently in fasting period';
+      default:
+        return 'Violates ${rule.ruleType.name} rule';
     }
   }
 }
