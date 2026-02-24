@@ -147,11 +147,11 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
   - [x] 15b-1. Data foundation: Diet/DietRule/DietException/FastingSession/DietViolation entities, tables, DAOs, repositories; violationFlag on FoodLog; schema v15 — 283 new tests
   - [x] 15b-2. Compliance engine: DietComplianceService, use cases (checkFoodLogCompliance, activateDiet, startFast, endFast, getDietDashboard, recordViolation), Riverpod providers — 75 new tests
-  - [ ] 15b-3. Screens: DietListScreen, DietEditScreen, FastingTimerScreen, DietDashboardScreen, FoodLog integration with real-time violation alerts
+  - [x] 15b-3. Screens: DietListScreen, DietEditScreen, FastingTimerScreen, DietDashboardScreen, FoodLog integration with real-time violation alerts — 62 new tests
   - [ ] 15b-4. Integration tests: end-to-end compliance flow, barcode + photo scan flows
 - **Phase 16: Health Platform Integration** — See 61_HEALTH_PLATFORM_INTEGRATION.md. Imports heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen from Apple HealthKit (iOS) and Google Health Connect (Android). Manual sync only. Data stored separately, displayed together in reports. Implement after Phase 15b.
 
-### Test Count: 2979 passing | Analyzer: clean | Schema: v15
+### Test Count: 3034 passing | Analyzer: clean | Schema: v15
 
 ---
 
