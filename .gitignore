@@ -47,3 +47,4 @@ app.*.map.json
 # OAuth credentials - NEVER commit
 client_secret*.json
 *.env
+scripts/.last_sync_hash
