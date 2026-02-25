@@ -1,8 +1,9 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: Phase 15b-4 complete (2026-02-24)
+# Last Updated: Spec Review Pass complete (2026-02-24)
+# NOTE: This file will be superseded by a Google Doc once the Drive Docs API is enabled.
 
-This document gives Claude.ai high-level visibility into the Shadow codebase. It is updated at the end of every phase before reporting to Reid.
+This document gives Claude.ai high-level visibility into the Shadow codebase. It is updated at the end of every phase and after spec review passes.
 
 ---
 
@@ -17,7 +18,7 @@ This document gives Claude.ai high-level visibility into the Shadow codebase. It
 | **Last Completed Phase** | Phase 15b-4: Diet tracking integration tests (25 new tests) |
 | **Next Awaiting Approval** | Phase 16b: SyncFromHealthPlatformUseCase + iOS/Android platform config |
 | **Analyzer Status** | Clean (0 issues) |
-| **Open Decisions** | None currently open |
+| **Open Decisions** | 2 open — see Section 7 (Spec Review) |
 
 ---
 
@@ -44,7 +45,7 @@ This document gives Claude.ai high-level visibility into the Shadow codebase. It
 | sleep_entries | initial | Sleep sessions |
 | activities | initial | Activity catalog |
 | activity_logs | initial | Activity sessions |
-| food_items | initial | Food item catalog (with barcode/nutrition fields added v14) |
+| food_items | initial | Food item catalog (barcode/nutrition fields added v14) |
 | food_item_components | v14 | Components for composed dishes |
 | food_barcode_cache | v14 | Cached barcode lookups (Open Food Facts) |
 | food_logs | initial | Food consumption log |
@@ -61,7 +62,7 @@ This document gives Claude.ai high-level visibility into the Shadow codebase. It
 | user_settings | v13 | App-wide settings (units, security, etc.) |
 | diets | v15 | Diet plans |
 | diet_rules | v15 | Rules within a diet (exclusions, windows, macros) |
-| diet_exceptions | v15 | Per-date exceptions to diet rules |
+| diet_exceptions | v15 | Per-rule exceptions to diet rules |
 | fasting_sessions | v15 | Fasting window tracking |
 | diet_violations | v15 | Recorded compliance violations |
 | imported_vitals | v16 | Vitals imported from Apple Health / Google Health Connect |
@@ -160,11 +161,12 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 | Phase 13d: Platform integration | flutter_local_notifications wiring, permissions | 2817 |
 | Phase 13e: Settings screens | Notification Settings UI (22 tests) | 2839 |
 | Phase 14: Settings screens | Units, Security (PIN/biometric/auto-lock), Settings hub, schema v13 (22 tests) | 2861 |
-| Phase 15a: Food + Supplement extensions | FoodItem nutrition fields, FoodItemComponent, barcode cache, NIH DSLD + Open Food Facts, AnthropicApiClient, SupplementLabelPhoto, schema v14 (2771 total) | 2771 |
+| Phase 15a: Food + Supplement extensions | FoodItem nutrition fields, FoodItemComponent, barcode cache, NIH DSLD + Open Food Facts, AnthropicApiClient, SupplementLabelPhoto, schema v14 | 2771 |
+| Phase 15b: Diet Tracking | Screens, use cases, compliance service, fasting timer, violation dialog | 2817 |
 | Phase 15b-4: Diet tracking integration | End-to-end compliance flow, violation alerts in FoodLogScreen (25 tests) | 2817 |
 | Phase 16a: Health platform data | ImportedVital + HealthSyncSettings entities, DAOs, repos, 3 use cases, schema v16 (83 tests) | 3142 |
 
-**Note:** Phase 15b (Diet Tracking screens and core use cases) was implemented between 15a and 15b-4 — the test count jump reflects that work plus earlier phases.
+**Note:** Phase 15b (Diet Tracking screens and core use cases) was implemented between 15a and 15b-4 — the test count jump reflects that work.
 
 ---
 
@@ -175,11 +177,13 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | # | Area | What Spec Says | What Code Does | Reason | DECISIONS.md |
 |---|------|---------------|----------------|--------|--------------|
 | 1 | BBT/Vitals quick-entry | Capture multiple vitals (BBT, BP, HR, weight) | Captures BBT only | No storage entities for BP/HR/weight exist yet; those require Phase 16 vitals import | Decision 1 |
-| 2 | Database migrations | Single sequential versioning | Profiles = v10, food/supplement extensions = v11 (not v14) | Separate parallel dev streams; merge required bumping only as needed | Decision 2 |
+| 2 | Database migrations | Single sequential versioning | Profiles = v10, food/supplement extensions = v14 (not re-numbered on merge) | Separate parallel dev streams; merge required bumping only as needed | Decision 2 |
 | 3 | Guest invite one-device limit | Spec implies flexible device management | Hard limit: one active device per invite | Security decision — prevents token sharing | Decision 3 |
 | 4 | Archive/unarchive | All entities support archive | Only Supplements, Conditions, Food Items support archive | Other entities use soft-delete via syncMetadata instead | Decision 4 |
 | 5 | Anchor Event dropdown | UI spec uses "Evening" as a label | Code uses enum definition without "Evening" variant | Code definitions take precedence; "Evening" was removed from enum | Decision 5 |
-| 6 | Google OAuth | Spec implied proxy server for client_secret | client_secret embedded in app | No proxy server infrastructure; acceptable for private beta | Decision 6 |
+| 6 | Google OAuth client_secret | Spec implied proxy server | client_secret embedded in app | No proxy server infrastructure; acceptable for private beta | Decision 6 |
+| 7 | DietRule / DietException entities | Must have clientId, profileId, syncMetadata | Neither field present on either entity | Sub-entities of Diet — synced and deleted as part of parent. Same rationale as food_item_categories exemption | New (spec review) |
+| 8 | UserSettings / HealthSyncSettings entities | Must have clientId, syncMetadata | Both fields absent | Local-only configuration tables; never synced to Google Drive | New (spec review) |
 
 ---
 
@@ -204,7 +208,6 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | Phase 16b: SyncFromHealthPlatformUseCase | Awaiting Reid approval | Phase 16a (done) |
 | Phase 16c: iOS HealthKit plugin | Not started | Phase 16b |
 | Phase 16d: Android Health Connect plugin | Not started | Phase 16b |
-| Diet Tracking UI screens (15b main) | Complete — see note | — |
 | Reports / Charts screens | Not in any current phase plan | All data layers |
 | FoodItemCategory junction table | No phase assigned | — |
 
@@ -261,3 +264,109 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | `json_serializable` | ^6.7.1 | JSON serialization codegen |
 | `drift_dev` | ^2.14.1 | Drift ORM codegen (table accessors, DAOs, migrations) |
 | `riverpod_generator` | ^2.3.9 | `@riverpod` provider codegen |
+
+---
+
+## 7. SPEC REVIEW REPORT — Phases 1–15b + 16a
+
+**Completed:** 2026-02-24. Read-only pass — no code changes made.
+**Result:** 19 discrepancies found across 7 spec documents.
+
+**Legend:**
+- STALE — spec needs updating, code is correct
+- MISSING — feature built but spec has no entry
+- DECISION — needs Reid to decide before action is taken
+
+---
+
+### 7.1 10_DATABASE_SCHEMA.md
+
+**STALE** — Schema version header says v11; code is at v16. Update header and add v12–v16 migration history blocks.
+
+**STALE** — Supplements table (Section 4.1) missing 5 Phase 15a columns: `custom_dosage_unit`, `source`, `price_paid`, `barcode`, `import_source`.
+
+**STALE** — Food items table (Section 5.1) missing 7 Phase 15a columns: `sodium_mg`, `barcode`, `brand`, `ingredients_text`, `open_food_facts_id`, `import_source`, `image_url`. Also: spec calls type 1 "complex" but code and 59a spec say "composed" and add type 2 "packaged".
+
+**STALE** — Food logs table (Section 5.2) missing `violation_flag` column added in v15.
+
+**STALE** — Diet violations schema in spec is completely wrong. Spec has `food_log_id NOT NULL`, `rule_type`, `severity`, `message`. Code has `food_log_id NULLABLE`, `rule_id`, `food_name`, `rule_description`, `was_overridden`. Code is correct per 59_DIET_TRACKING.md.
+
+**MISSING** — No table definitions for `diet_rules` or `diet_exceptions` anywhere in spec. Both are fully implemented.
+
+**MISSING** — 11 implemented tables have no spec section: `guest_invites` (v11), `anchor_event_times` (v12), `notification_category_settings` (v12), `user_settings` (v13), `food_item_components` (v14), `food_barcode_cache` (v14), `supplement_label_photos` (v14), `supplement_barcode_cache` (v14), `imported_vitals` (v16), `health_sync_settings` (v16), `health_sync_status` (v16).
+
+**STALE** — Spec describes 7 tables never built: `user_accounts`, `profile_access`, `device_registrations`, `documents`, `condition_categories`, `bowel_urine_logs` (deprecated, replaced by fluids_entries), `notification_schedules` (replaced by anchor_event_times + notification_category_settings in Phase 13).
+
+**STALE** — `imported_vitals` schema shown in 61_HEALTH_PLATFORM_INTEGRATION.md uses TEXT for `data_type`, `recorded_at`, `source_platform` and ISO8601 timestamps. Code correctly uses INTEGER (enum values and epoch ms per coding standards).
+
+---
+
+### 7.2 22_API_CONTRACTS.md
+
+**CONFIRMED CORRECT** — All core enums (health_enums.dart) verified against Section 3.3. Every value and integer assignment matches exactly.
+
+**CONFIRMED CORRECT** — Result type, AppError subclasses, and ValidationRules constants all match spec exactly.
+
+**MISSING** — No entity contracts for any Phase 13–16 entities: AnchorEventTime, NotificationCategorySettings, ScheduledNotification, UserSettings, FoodItemComponent, SupplementLabelPhoto, Diet, DietRule, DietException, FastingSession, DietViolation, ImportedVital, HealthSyncSettings, HealthSyncStatus. Implementations are correct — spec stubs are missing.
+
+---
+
+### 7.3 38_UI_FIELD_SPECIFICATIONS.md
+
+**STALE** — Section 5.2 (Add/Edit Food Item) shows Type field as "Simple/Composed" only. Phase 15a added a third type: Packaged.
+
+**MISSING** — No field specs for Phase 15a–16a screens: barcode scan flows, supplement scan flows, diet selection/builder/fasting/compliance screens, health platform sync settings.
+
+---
+
+### 7.4 56_GUEST_PROFILE_ACCESS.md
+
+**STALE** — Status says "PLANNED — Not yet implemented". Phase 12 (a, b, c, d) is complete.
+
+---
+
+### 7.5 57_NOTIFICATION_SYSTEM.md and 58_SETTINGS_SCREENS.md
+
+**STALE** — Both status fields say "PLANNED — Not yet implemented". Phase 13 and Phase 14 are complete.
+
+**DECISION REQUIRED (1 of 2)** — Custom anchor events: 58_SETTINGS_SCREENS.md describes "Custom 1, Custom 2, Custom 3" user-defined anchor events. 57_NOTIFICATION_SYSTEM.md and the code only support the 5 fixed events (Wake, Breakfast, Lunch, Dinner, Bedtime). The two spec documents disagree. Should custom anchor events be built, or should the mention be removed from the Settings spec?
+
+---
+
+### 7.6 59_DIET_TRACKING.md and 59a_FOOD_DATABASE_EXTENSION.md
+
+**STALE** — Both status fields say "PLANNED — Not yet implemented". Phase 15a and Phase 15b are complete.
+
+**DECISION REQUIRED (2 of 2)** — Preset diet list: the Diet spec lists "Carnivore" and "DASH" as preset diets. The code's DietPresetType enum does not include either. The code has additional intermittent fasting variants not in the spec (pescatarian, ketoStrict, lowCarb, zone, if168, if186, if204, omad, fiveTwoDiet). Should Carnivore and DASH be added, or is the code's preset list the authoritative one?
+
+---
+
+### 7.7 60_SUPPLEMENT_EXTENSION.md
+
+**STALE** — Status says "PLANNED — Not yet implemented". Phase 15a supplement extension is complete.
+
+---
+
+### 7.8 61_HEALTH_PLATFORM_INTEGRATION.md
+
+**STALE** — Status says "PLANNED — Not yet implemented". Phase 16a (data foundation) is complete. Correct status: PARTIAL — Phase 16a done, Phase 16b–16d pending.
+
+---
+
+### 7.9 Coding Standards Deviations Found
+
+**DietRule and DietException** — Missing `clientId`, `profileId`, `syncMetadata`. Intentional: sub-entities of Diet, synced and deleted as part of parent. Should be added to Sync Metadata Exemptions section of 10_DATABASE_SCHEMA.md.
+
+**UserSettings and HealthSyncSettings** — Missing `clientId` and `syncMetadata`. Intentional: local-only configuration tables, never synced to Google Drive. Should be added to exemptions section.
+
+**AnchorEventTime** — Missing `clientId` and `profileId`. Intentional: global app configuration, not profile-specific, local-only. Should be added to exemptions section.
+
+---
+
+### 7.10 Two Open Decisions for Reid
+
+**DECISION 1 — Custom anchor events:**
+58_SETTINGS_SCREENS.md describes custom anchor events ("Pre-workout", etc.). 57_NOTIFICATION_SYSTEM.md and the code only support 5 fixed events. Which spec is correct? Should custom events be built or dropped?
+
+**DECISION 2 — Missing preset diets:**
+The Diet spec lists Carnivore and DASH. The code enum does not include them. The code has more fasting protocol variants instead. Should Carnivore and DASH be added, or is the code's enum intentionally different?
