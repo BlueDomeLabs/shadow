@@ -1,9 +1,13 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: Spec Review Pass complete (2026-02-24)
-# NOTE: This file will be superseded by a Google Doc once the Drive Docs API is enabled.
+# Last Updated: Full converged spec review + Stop hook setup (2026-02-24)
+#
+# PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
+# This .md file is the source of truth committed to git.
+# A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 
-This document gives Claude.ai high-level visibility into the Shadow codebase. It is updated at the end of every phase and after spec review passes.
+This document gives Claude.ai high-level visibility into the Shadow codebase.
+It is updated at the end of every phase and after spec review passes.
 
 ---
 
@@ -18,7 +22,7 @@ This document gives Claude.ai high-level visibility into the Shadow codebase. It
 | **Last Completed Phase** | Phase 15b-4: Diet tracking integration tests (25 new tests) |
 | **Next Awaiting Approval** | Phase 16b: SyncFromHealthPlatformUseCase + iOS/Android platform config |
 | **Analyzer Status** | Clean (0 issues) |
-| **Open Decisions** | 2 open — see Section 7 (Spec Review) |
+| **Open Decisions** | 4 open — see Section 7 (Spec Review) |
 
 ---
 
@@ -57,9 +61,9 @@ This document gives Claude.ai high-level visibility into the Shadow codebase. It
 | supplement_label_photos | v14 | Supplement label scan photos |
 | supplement_barcode_cache | v14 | Cached supplement barcode lookups (NIH DSLD) |
 | sync_conflicts | v8 | Unresolved cloud sync conflicts |
-| anchor_event_times | v12 | Notification anchor event times (wake, sleep, etc.) |
+| anchor_event_times | v12 | Notification anchor event times |
 | notification_category_settings | v12 | Per-category notification config |
-| user_settings | v13 | App-wide settings (units, security, etc.) |
+| user_settings | v13 | App-wide settings (units, security) |
 | diets | v15 | Diet plans |
 | diet_rules | v15 | Rules within a diet (exclusions, windows, macros) |
 | diet_exceptions | v15 | Per-rule exceptions to diet rules |
@@ -143,7 +147,7 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 | Phase 1: Google Drive | Authentication, file operations (86 unit tests) | ~1056 |
 | Phase 2: Upload | Encrypt + push dirty records (29 tests) | ~1085 |
 | Phase 3: Download | Pull + decrypt + merge (15 tests) | ~1100 |
-| Phase 4: Conflict handling | Detection, resolution, bidirectional sync, settings screen (2192 total) | 2192 |
+| Phase 4: Conflict handling | Detection, resolution, bidirectional sync, settings screen | 2192 |
 | Phase 5: SupplementEditScreen | Custom dosage unit, ingredients, full schedule section (79 tests) | 2271 |
 | Phase 6: ConditionListScreen | Brought to reference test level (24 tests) | 2295 |
 | Phase 7: FoodListScreen | Brought to reference test level (26 tests) | 2321 |
@@ -174,16 +178,17 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 
 These are places where the code intentionally differs from specs. Cross-referenced with DECISIONS.md entries.
 
-| # | Area | What Spec Says | What Code Does | Reason | DECISIONS.md |
-|---|------|---------------|----------------|--------|--------------|
-| 1 | BBT/Vitals quick-entry | Capture multiple vitals (BBT, BP, HR, weight) | Captures BBT only | No storage entities for BP/HR/weight exist yet; those require Phase 16 vitals import | Decision 1 |
-| 2 | Database migrations | Single sequential versioning | Profiles = v10, food/supplement extensions = v14 (not re-numbered on merge) | Separate parallel dev streams; merge required bumping only as needed | Decision 2 |
-| 3 | Guest invite one-device limit | Spec implies flexible device management | Hard limit: one active device per invite | Security decision — prevents token sharing | Decision 3 |
-| 4 | Archive/unarchive | All entities support archive | Only Supplements, Conditions, Food Items support archive | Other entities use soft-delete via syncMetadata instead | Decision 4 |
-| 5 | Anchor Event dropdown | UI spec uses "Evening" as a label | Code uses enum definition without "Evening" variant | Code definitions take precedence; "Evening" was removed from enum | Decision 5 |
-| 6 | Google OAuth client_secret | Spec implied proxy server | client_secret embedded in app | No proxy server infrastructure; acceptable for private beta | Decision 6 |
-| 7 | DietRule / DietException entities | Must have clientId, profileId, syncMetadata | Neither field present on either entity | Sub-entities of Diet — synced and deleted as part of parent. Same rationale as food_item_categories exemption | New (spec review) |
-| 8 | UserSettings / HealthSyncSettings entities | Must have clientId, syncMetadata | Both fields absent | Local-only configuration tables; never synced to Google Drive | New (spec review) |
+| # | Area | What Spec Says | What Code Does | Reason |
+|---|------|---------------|----------------|--------|
+| 1 | BBT/Vitals quick-entry | Capture multiple vitals (BBT, BP, HR, weight) | Captures BBT only | No storage entities for BP/HR/weight yet; Phase 16 covers them |
+| 2 | Database migrations | Single sequential versioning | Profiles = v10, food/supplement = v14 (not re-numbered) | Parallel dev streams; bumped only as needed |
+| 3 | Guest invite one-device limit | Implied flexible device management | Hard limit: one active device per invite | Security — prevents token sharing |
+| 4 | Archive/unarchive | All entities support archive | Only Supplements, Conditions, Food Items | Others use soft-delete via syncMetadata |
+| 5 | Anchor Event dropdown | UI spec uses "Evening" label | No "Evening" enum variant | Code definitions take precedence |
+| 6 | Google OAuth client_secret | Implied proxy server | client_secret embedded in app | No proxy infrastructure; acceptable for private beta |
+| 7 | DietRule / DietException entities | Must have clientId, profileId, syncMetadata | Neither field present | Sub-entities of Diet — synced/deleted with parent |
+| 8 | UserSettings / HealthSyncSettings | Must have clientId, syncMetadata | Both fields absent | Local-only config tables; never synced to Drive |
+| 9 | GuestInvite entity | Must have clientId, syncMetadata per standard | Both absent | Ephemeral access token — not independently synced; matches spec Section 18.1 intentionally |
 
 ---
 
@@ -194,9 +199,9 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | File | TODO | Impact |
 |------|------|--------|
 | `food_item_repository_impl.dart` | Category filtering not implemented (awaits FoodItemCategory junction table) | Food list cannot filter by category |
-| `supplement_list_screen.dart` | IntakeLogScreen navigation not wired (supplement pre-selection not supported) | Tap on supplement doesn't open intake log with that supplement pre-filled |
+| `supplement_list_screen.dart` | IntakeLogScreen navigation not wired | Tap on supplement doesn't open intake log with pre-filled supplement |
 | `supplement_list_screen.dart` | Filter switches not wired to provider state | Active/archived filter UI exists but does nothing |
-| `food_item_list_screen.dart` | SearchFoodItemsUseCase not wired (no search delegate) | Search icon shown but search does nothing |
+| `food_item_list_screen.dart` | SearchFoodItemsUseCase not wired | Search icon shown but search does nothing |
 | `sleep_entry_list_screen.dart` | Date range filter not implemented | No date filtering on sleep history |
 | `condition_edit_screen.dart` | Camera/photo picker not integrated | Condition photo capture is a placeholder |
 | `condition_edit_screen.dart` | Update use case not called (create-only) | Editing a condition always creates a new record |
@@ -210,6 +215,7 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | Phase 16d: Android Health Connect plugin | Not started | Phase 16b |
 | Reports / Charts screens | Not in any current phase plan | All data layers |
 | FoodItemCategory junction table | No phase assigned | — |
+| Quiet hours notification queuing | Defined in 22_API_CONTRACTS.md Section 12.4; never implemented | — |
 
 ---
 
@@ -267,106 +273,228 @@ These are places where the code intentionally differs from specs. Cross-referenc
 
 ---
 
-## 7. SPEC REVIEW REPORT — Phases 1–15b + 16a
+## 7. ARCHITECT BRIEFING SYNC INFRASTRUCTURE
 
-**Completed:** 2026-02-24. Read-only pass — no code changes made.
-**Result:** 19 discrepancies found across 7 spec documents.
+The Architect Briefing is maintained in two places:
 
-**Legend:**
-- STALE — spec needs updating, code is correct
-- MISSING — feature built but spec has no entry
-- DECISION — needs Reid to decide before action is taken
+| Location | Purpose | How Updated |
+|----------|---------|-------------|
+| `ARCHITECT_BRIEFING.md` (this file) | Source of truth, committed to git | Manually by Claude Code at end of each phase/review |
+| Google Doc ID `1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w` | Claude.ai reads this directly via Drive MCP | Automatically by Stop hook; also updated via MCP during session |
+
+### Stop Hook
+
+A Claude Code Stop hook fires at the end of every session and pushes ARCHITECT_BRIEFING.md to the Google Doc if the file was modified.
+
+**Hook entry in `~/.claude/settings.json`:**
+```json
+"hooks": {
+  "Stop": [{ "matcher": "", "hooks": [{ "type": "command",
+    "command": "/Users/reidbarcus/Development/Shadow/scripts/sync_briefing.sh" }] }]
+}
+```
+
+**Scripts:**
+- `scripts/sync_briefing.sh` — Bash wrapper: checks git diff, calls Python script, logs result
+- `scripts/push_briefing_to_gdrive.py` — Python: refreshes OAuth token from `~/.config/google-drive-mcp/`, calls Google Docs API `batchUpdate` to replace doc content
+
+**Log file:** `scripts/sync_briefing.log`
+
+**OAuth credentials used:** `~/.config/google-drive-mcp/tokens.json` + `~/.config/gcp-oauth.keys.json` (same credentials as the Google Drive MCP — no separate auth setup needed)
 
 ---
 
-### 7.1 10_DATABASE_SCHEMA.md
+## 8. SPEC REVIEW — FULL CONVERGED REPORT (Phases 1–16a)
 
-**STALE** — Schema version header says v11; code is at v16. Update header and add v12–v16 migration history blocks.
+**Completed:** 2026-02-24. Iterative read-only pass across all spec documents.
+**Total findings: 48** (4 DECISION REQUIRED, 9 MISSING, 35 STALE)
+**Convergence:** Three passes — Pass 2 found 17 new items, Pass 3 found 3 more. Final pass found zero new items.
 
-**STALE** — Supplements table (Section 4.1) missing 5 Phase 15a columns: `custom_dosage_unit`, `source`, `price_paid`, `barcode`, `import_source`.
+Legend: **STALE** = spec needs updating, code is correct. **MISSING** = feature built but spec has no entry (or planned but unbuilt). **DECISION** = product call needed from Reid.
 
-**STALE** — Food items table (Section 5.1) missing 7 Phase 15a columns: `sodium_mg`, `barcode`, `brand`, `ingredients_text`, `open_food_facts_id`, `import_source`, `image_url`. Also: spec calls type 1 "complex" but code and 59a spec say "composed" and add type 2 "packaged".
+---
 
-**STALE** — Food logs table (Section 5.2) missing `violation_flag` column added in v15.
+### 8.1 10_DATABASE_SCHEMA.md
 
-**STALE** — Diet violations schema in spec is completely wrong. Spec has `food_log_id NOT NULL`, `rule_type`, `severity`, `message`. Code has `food_log_id NULLABLE`, `rule_id`, `food_name`, `rule_description`, `was_overridden`. Code is correct per 59_DIET_TRACKING.md.
-
-**MISSING** — No table definitions for `diet_rules` or `diet_exceptions` anywhere in spec. Both are fully implemented.
+**MISSING** — `diet_rules` and `diet_exceptions` tables have no definition section. Both are fully implemented (v15). DietRule intentionally omits clientId/syncMetadata (sub-entity exemption — needs adding to Section 2.7).
 
 **MISSING** — 11 implemented tables have no spec section: `guest_invites` (v11), `anchor_event_times` (v12), `notification_category_settings` (v12), `user_settings` (v13), `food_item_components` (v14), `food_barcode_cache` (v14), `supplement_label_photos` (v14), `supplement_barcode_cache` (v14), `imported_vitals` (v16), `health_sync_settings` (v16), `health_sync_status` (v16).
 
-**STALE** — Spec describes 7 tables never built: `user_accounts`, `profile_access`, `device_registrations`, `documents`, `condition_categories`, `bowel_urine_logs` (deprecated, replaced by fluids_entries), `notification_schedules` (replaced by anchor_event_times + notification_category_settings in Phase 13).
+**MISSING** — Intelligence system tables defined in spec (v6→v7) never built: `patterns`, `trigger_correlations`, `health_insights`, `predictive_alerts`, `ml_models`, `prediction_feedback`. Future phase. Spec should mark "Not yet implemented."
 
-**STALE** — `imported_vitals` schema shown in 61_HEALTH_PLATFORM_INTEGRATION.md uses TEXT for `data_type`, `recorded_at`, `source_platform` and ISO8601 timestamps. Code correctly uses INTEGER (enum values and epoch ms per coding standards).
+**MISSING** — HIPAA and wearable tables defined in spec (v6→v7) never built: `hipaa_authorizations`, `profile_access_logs`, `wearable_connections`, `imported_data_log`, `fhir_exports`. Future phase.
 
----
+**STALE** — Schema version header says v11; code is at v16. Migration blocks v12–v16 missing from spec entirely.
 
-### 7.2 22_API_CONTRACTS.md
+**STALE** — Supplements table (Section 4.1) missing 5 Phase 15a columns: `custom_dosage_unit`, `source`, `price_paid`, `barcode`, `import_source`.
 
-**CONFIRMED CORRECT** — All core enums (health_enums.dart) verified against Section 3.3. Every value and integer assignment matches exactly.
+**STALE** — Food items table (Section 5.1) missing 7 Phase 15a columns: `sodium_mg`, `barcode`, `brand`, `ingredients_text`, `open_food_facts_id`, `import_source`, `image_url`. Also: type enum shows simple/complex; code has simple/composed/packaged.
 
-**CONFIRMED CORRECT** — Result type, AppError subclasses, and ValidationRules constants all match spec exactly.
+**STALE** — Food logs table (Section 5.2) missing `violation_flag` column added in v15.
 
-**MISSING** — No entity contracts for any Phase 13–16 entities: AnchorEventTime, NotificationCategorySettings, ScheduledNotification, UserSettings, FoodItemComponent, SupplementLabelPhoto, Diet, DietRule, DietException, FastingSession, DietViolation, ImportedVital, HealthSyncSettings, HealthSyncStatus. Implementations are correct — spec stubs are missing.
+**STALE** — Diet violations table schema in spec is completely wrong. Spec: `food_log_id NOT NULL`, `rule_type`, `severity`, `message`. Code: `food_log_id NULLABLE`, `rule_id`, `food_name`, `rule_description`, `was_overridden`. Code is correct per 59_DIET_TRACKING.md.
 
----
+**STALE** — `imported_vitals` schema stub in 61_HEALTH_PLATFORM_INTEGRATION.md uses TEXT types and ISO8601 strings. Code correctly uses INTEGER (enum values and epoch ms). Stub needs full replacement.
 
-### 7.3 38_UI_FIELD_SPECIFICATIONS.md
-
-**STALE** — Section 5.2 (Add/Edit Food Item) shows Type field as "Simple/Composed" only. Phase 15a added a third type: Packaged.
-
-**MISSING** — No field specs for Phase 15a–16a screens: barcode scan flows, supplement scan flows, diet selection/builder/fasting/compliance screens, health platform sync settings.
+**STALE** — Spec defines 7 tables never built; mark as "not yet implemented": `user_accounts`, `profile_access`, `device_registrations`, `documents`, `condition_categories`, `bowel_urine_logs` (deprecated, replaced by `fluids_entries`), `notification_schedules` (replaced by `anchor_event_times` + `notification_category_settings` in Phase 13).
 
 ---
 
-### 7.4 56_GUEST_PROFILE_ACCESS.md
+### 8.2 22_API_CONTRACTS.md
 
-**STALE** — Status says "PLANNED — Not yet implemented". Phase 12 (a, b, c, d) is complete.
+**MISSING** — No entity contracts for Phase 13–16 entities: AnchorEventTime, NotificationCategorySettings, ScheduledNotification, UserSettings, FoodItemComponent, SupplementLabelPhoto, Diet, DietRule, DietException, FastingSession, DietViolation, ImportedVital, HealthSyncSettings, HealthSyncStatus.
 
----
+**MISSING** — Section 12.4 defines `QueuedNotification` and `QuietHoursQueueService` for quiet hours notification queuing. No implementation exists anywhere in the codebase. Either deferred or dropped.
 
-### 7.5 57_NOTIFICATION_SYSTEM.md and 58_SETTINGS_SCREENS.md
+**STALE** — Section 8 (Notification Schedule Contracts) defines `NotificationSchedule` entity and `NotificationScheduleRepository` using the old pre-Phase 13 design. Entire section is obsolete — replaced by Phase 13's AnchorEventTime + NotificationCategorySettings + ScheduledNotification (non-persisted value object).
 
-**STALE** — Both status fields say "PLANNED — Not yet implemented". Phase 13 and Phase 14 are complete.
+**STALE** — Section 10.11 (FoodItem): `FoodItemType` shows only `simple(0)/complex(1)`. Code has `simple(0)/composed(1)/packaged(2)`. Also missing all Phase 15a fields: `sodiumMg`, `barcode`, `brand`, `ingredientsText`, `openFoodFactsId`, `importSource`, `imageUrl`.
 
-**DECISION REQUIRED (1 of 2)** — Custom anchor events: 58_SETTINGS_SCREENS.md describes "Custom 1, Custom 2, Custom 3" user-defined anchor events. 57_NOTIFICATION_SYSTEM.md and the code only support the 5 fixed events (Wake, Breakfast, Lunch, Dinner, Bedtime). The two spec documents disagree. Should custom anchor events be built, or should the mention be removed from the Settings spec?
+**STALE** — Section 10.12 (FoodLog): missing `violationFlag` field added in Phase 15b.
 
----
+**STALE** — Section 4.5.2: `CreateSupplementInput` class definition omits `customDosageUnit` but the example implementation code in the same section uses `input.customDosageUnit`. Field exists in code. Internal inconsistency in the spec's own example.
 
-### 7.6 59_DIET_TRACKING.md and 59a_FOOD_DATABASE_EXTENSION.md
+**STALE** — `GuestInvite` entity (Section 18.1) missing `clientId` and `syncMetadata`. Code matches spec — both intentionally omit these. Neither is in the exemptions list in 10_DATABASE_SCHEMA.md Section 2.7. Should be added.
 
-**STALE** — Both status fields say "PLANNED — Not yet implemented". Phase 15a and Phase 15b are complete.
+**STALE** — Nine spec clarification items from `53_SPEC_CLARIFICATIONS.md` (filed 2026-02-09) remain `AWAITING_CLARIFICATION`. All have clear recommended resolutions that don't require Reid's input: ActivityLog field defaults, IntakeLog table definition, Syncable declarations, ActivityRepository archive methods, CreateConditionInput triggers, DatabaseError id param, FoodItem serving_size storage type, Freezed annotation style, and 10 minor getter/method additions.
 
-**DECISION REQUIRED (2 of 2)** — Preset diet list: the Diet spec lists "Carnivore" and "DASH" as preset diets. The code's DietPresetType enum does not include either. The code has additional intermittent fasting variants not in the spec (pescatarian, ketoStrict, lowCarb, zone, if168, if186, if204, omad, fiveTwoDiet). Should Carnivore and DASH be added, or is the code's preset list the authoritative one?
+**STALE** — Section 12.3: `complianceImpactPercent` typed as `double` in spec formula; code uses `int` for `complianceImpact`. Minor type mismatch; functionally equivalent.
 
----
-
-### 7.7 60_SUPPLEMENT_EXTENSION.md
-
-**STALE** — Status says "PLANNED — Not yet implemented". Phase 15a supplement extension is complete.
+**CONFIRMED CORRECT** — All core enums in Section 3.3 match code exactly. Result type, AppError subclasses, ValidationRules all match spec exactly.
 
 ---
 
-### 7.8 61_HEALTH_PLATFORM_INTEGRATION.md
+### 8.3 38_UI_FIELD_SPECIFICATIONS.md
 
-**STALE** — Status says "PLANNED — Not yet implemented". Phase 16a (data foundation) is complete. Correct status: PARTIAL — Phase 16a done, Phase 16b–16d pending.
+**DECISION REQUIRED (1 of 4)** — Section 7.1 Sleep Entry: Waking Feeling shows 4 options (Groggy/Neutral/Rested/Energized). Code `WakingFeeling` enum has 3: `unrested(0)/neutral(1)/rested(2)`. "Energized" is absent. Add the fourth value or drop it?
+
+**DECISION REQUIRED (2 of 4)** — Section 7.1 Sleep Entry: Three fields exist in UI spec but have no database columns: "Time to Fall Asleep," "Times Awakened," "Time Awake During Night." Were these intentionally deferred or should they be built?
+
+**MISSING** — No field specs for Phase 15a–16a screens: barcode scan flows (food and supplement), diet selection, custom diet builder, fasting timer, compliance dashboard, health platform sync settings.
+
+**MISSING** — Section 6.1 Fluids: "Urgency | Slider | 1-5 scale" for urine exists in spec but no column in `fluids_entries` table or entity. Never implemented.
+
+**STALE** — Section 5.2 (Add/Edit Food Item): Type field shows Simple/Composed only. Phase 15a added Packaged as a third type.
+
+**STALE** — Section 6.1 Fluids: Urine Color list shows 6 options. Code `UrineCondition` enum has 8 (also includes `brown(5)` and `red(6)`). Spec missing two options.
+
+**STALE** — Section 12.1 (Notification Preferences): Describes the old pre-Phase 13 toggle-based notification system with quiet hours. Replaced entirely by Phase 13's anchor events and category scheduling. Section is obsolete.
+
+**STALE** — Section 13.1 (Units Settings): Shows a single Metric/Imperial toggle. Phase 14 implemented individual toggles per unit type (weight, food weight, fluids, temperature, energy, macros).
+
+**STALE** — Section 13.4 (Security Settings): Lock Timeout shows 4 options; code and `58_SETTINGS_SCREENS.md` both have 5 (adds "1 hour"). Also: Lock Method shown as single dropdown; code uses separate boolean fields.
+
+**STALE** — Sections 15.1/15.2 (Supplement Timing): Still references "Morning" and "Evening" as anchor event options. Code has: wake, breakfast, lunch, dinner, bed — no Morning or Evening. Known deviation #5 from DECISIONS.md.
 
 ---
 
-### 7.9 Coding Standards Deviations Found
+### 8.4 56_GUEST_PROFILE_ACCESS.md
 
-**DietRule and DietException** — Missing `clientId`, `profileId`, `syncMetadata`. Intentional: sub-entities of Diet, synced and deleted as part of parent. Should be added to Sync Metadata Exemptions section of 10_DATABASE_SCHEMA.md.
-
-**UserSettings and HealthSyncSettings** — Missing `clientId` and `syncMetadata`. Intentional: local-only configuration tables, never synced to Google Drive. Should be added to exemptions section.
-
-**AnchorEventTime** — Missing `clientId` and `profileId`. Intentional: global app configuration, not profile-specific, local-only. Should be added to exemptions section.
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 12 (a, b, c, d) is complete.
 
 ---
 
-### 7.10 Two Open Decisions for Reid
+### 8.5 57_NOTIFICATION_SYSTEM.md
 
-**DECISION 1 — Custom anchor events:**
-58_SETTINGS_SCREENS.md describes custom anchor events ("Pre-workout", etc.). 57_NOTIFICATION_SYSTEM.md and the code only support 5 fixed events. Which spec is correct? Should custom events be built or dropped?
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 13 (a through e) is complete.
 
-**DECISION 2 — Missing preset diets:**
-The Diet spec lists Carnivore and DASH. The code enum does not include them. The code has more fasting protocol variants instead. Should Carnivore and DASH be added, or is the code's enum intentionally different?
+---
+
+### 8.6 58_SETTINGS_SCREENS.md
+
+**DECISION REQUIRED (3 of 4)** — Section 1: Lists anchor events as "Wake, Breakfast, Lunch, Dinner, Bedtime, Custom 1, Custom 2, Custom 3." Code and `57_NOTIFICATION_SYSTEM.md` only support 5 fixed events. Should custom anchor events be built or dropped?
+
+**DECISION REQUIRED (4 of 4)** — PIN length: `58_SETTINGS_SCREENS.md` says "6-digit PIN" in the setup flow. `38_UI_FIELD_SPECIFICATIONS.md` says "4-6 digits." Two spec docs contradict each other. Which is authoritative?
+
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 14 is complete.
+
+---
+
+### 8.7 59_DIET_TRACKING.md
+
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 15b is complete.
+
+**STALE** — Screen 5 Violation Alert: spec says title is "Diet Rule Violation." Code's `DietViolationDialog` uses "Diet Alert."
+
+**STALE** — Screen 1 preset diet list includes Carnivore and DASH. Neither is in the `DietPresetType` enum or in `41_DIET_SYSTEM.md` (canonical source with 20 presets). The 59 spec's UI list needs to match 41.
+
+---
+
+### 8.8 59a_FOOD_DATABASE_EXTENSION.md
+
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 15a is complete.
+
+---
+
+### 8.9 60_SUPPLEMENT_EXTENSION.md
+
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 15a supplement extension is complete.
+
+---
+
+### 8.10 61_HEALTH_PLATFORM_INTEGRATION.md
+
+**STALE** — Status says "PLANNED — Not yet implemented." Phase 16a complete. Correct status: PARTIAL — Phase 16a done, Phase 16b–16d pending.
+
+**STALE** — Data Storage section shows `imported_vitals` with TEXT types and ISO8601 timestamps. Code uses INTEGER throughout. Entire table definition needs replacement.
+
+---
+
+### 8.11 35_QR_DEVICE_PAIRING.md
+
+**STALE** — Entire document describes a multi-device sync pairing system (QR codes + Diffie-Hellman key exchange) that was never implemented and was superseded by the Guest Profile Access system (`56_GUEST_PROFILE_ACCESS.md`). Should be marked "SUPERSEDED by 56_GUEST_PROFILE_ACCESS.md" or archived.
+
+---
+
+### 8.12 53_SPEC_CLARIFICATIONS.md
+
+**STALE** — 9 items filed 2026-02-09 remain `AWAITING_CLARIFICATION` with no resolution action. All have recommended resolutions that don't require Reid's input. Should be marked RESOLVED and closed.
+
+---
+
+### 8.13 Other Documents (confirmed correct)
+
+- `37_NOTIFICATIONS.md` — Notification type enum confirmed matches code exactly. PASS.
+- `41_DIET_SYSTEM.md` — Authoritative preset diet list (20 values) confirmed matches `DietPresetType` enum exactly. PASS.
+- `02_CODING_STANDARDS.md` — Architecture patterns correct throughout. PASS.
+
+---
+
+### 8.14 Coding Standards Deviations — Entities Needing Exemption Documentation
+
+All intentional. All need adding to `10_DATABASE_SCHEMA.md` Section 2.7 (Sync Metadata Exemptions).
+
+| Entity | Missing Fields | Reason |
+|--------|---------------|--------|
+| `GuestInvite` | clientId, syncMetadata | Ephemeral access token; not independently synced |
+| `DietRule` | clientId, profileId, syncMetadata | Sub-entity of Diet; synced/deleted with parent |
+| `DietException` | clientId, profileId, syncMetadata | Same as DietRule |
+| `AnchorEventTime` | clientId, profileId | Global app config; not profile-specific; local-only |
+| `NotificationCategorySettings` | clientId, profileId, syncMetadata | Global app config; local-only |
+| `UserSettings` | clientId, profileId, syncMetadata | Device-local preferences; never synced |
+| `HealthSyncSettings` | clientId, syncMetadata | Device-local health sync config |
+| `HealthSyncStatus` | clientId, profileId, syncMetadata | Device-local tracking state |
+
+---
+
+### 8.15 Summary Count
+
+| Category | Count |
+|----------|-------|
+| DECISION REQUIRED | 4 |
+| MISSING | 9 |
+| STALE | 35 |
+| PASS (confirmed correct) | 5 areas |
+| **Total findings** | **48** |
+
+---
+
+### 8.16 The 4 Open Decisions
+
+**Decision 1** — Sleep "Waking Feeling": 3 options (Unrested/Neutral/Rested) in code vs 4 (adding Energized) in spec. Add Energized or drop it?
+
+**Decision 2** — Sleep missing fields: "Time to Fall Asleep," "Times Awakened," "Time Awake During Night" are in the UI spec but have no database columns. Intentionally deferred or should they be built?
+
+**Decision 3** — Custom anchor events: `58_SETTINGS_SCREENS.md` describes Custom 1/2/3 user-defined anchor events. Code and `57_NOTIFICATION_SYSTEM.md` support only 5 fixed events. Build custom events or drop from spec?
+
+**Decision 4** — PIN length: `58_SETTINGS_SCREENS.md` says 6 digits; `38_UI_FIELD_SPECIFICATIONS.md` says 4-6 digits. Which is correct?
