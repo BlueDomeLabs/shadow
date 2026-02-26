@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-26
-# Briefing Version: 20260226-006
+# Briefing Version: 20260226-007
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -21,6 +21,21 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Infrastructure: Google Drive Sync Retired
+
+All 6 tasks from the team communication protocol update are complete:
+
+1. **Stop hook removed** from `~/.claude/settings.json` — the hook that ran the sync script at the end of every session is gone
+2. **Retirement comments added** to both `scripts/sync_briefing.sh` and `scripts/push_briefing_to_gdrive.py` — both scripts clearly marked as retired 2026-02-26
+3. **ARCHITECT_BRIEFING.md header updated** — Google Doc URL removed, new PRIMARY block reads: "GitHub repository — BlueDomeLabs/shadow is the single source of truth. Claude.ai reads this file via GitHub Project integration. Claude Code updates and pushes this file at end of every session."
+4. **Committed** with exact message: "Retire Google Drive sync — GitHub is now sole briefing source"
+5. **Pushed to GitHub** — `main` branch is up to date at commit `4c90f79`
+6. **Reporting back** — all tasks confirmed complete
+
+The Google Drive sync infrastructure is fully retired. From now on, Claude Code pushes ARCHITECT_BRIEFING.md to GitHub at the end of each session, and Claude.ai reads it from there.
 
 ---
 
