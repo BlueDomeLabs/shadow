@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- HealthKit read-only access per 61_HEALTH_PLATFORM_INTEGRATION.md §iOS -->
+	<!-- Shadow never writes to Apple Health. Background delivery is disabled. -->
+	<key>com.apple.developer.healthkit</key>
+	<true/>
+	<key>com.apple.developer.healthkit.background-delivery</key>
+	<false/>
+</dict>
+</plist>

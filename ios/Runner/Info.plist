@@ -58,6 +58,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- HealthKit privacy strings per 61_HEALTH_PLATFORM_INTEGRATION.md §iOS -->
+	<!-- Shadow reads health data for manual import only. Never writes to Apple Health. -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>Shadow reads health data to import your vitals and activity into your health journal.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Shadow requests HealthKit access but never writes to Apple Health.</string>
 	<!-- Background modes for flutter_local_notifications per 57_NOTIFICATION_SYSTEM.md §11.1 -->
 	<key>UIBackgroundModes</key>
 	<array>

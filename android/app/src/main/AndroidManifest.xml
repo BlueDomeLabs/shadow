@@ -1,4 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Health Connect read permissions per 61_HEALTH_PLATFORM_INTEGRATION.md §Android -->
+    <!-- Shadow requests read-only access — never writes to Health Connect. -->
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE"/>
+    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION"/>
     <!-- Notification permissions per 57_NOTIFICATION_SYSTEM.md §11.1 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
@@ -36,6 +46,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="shadow" android:host="invite"/>
+            </intent-filter>
+            <!-- Health Connect permission rationale screen per 61_HEALTH_PLATFORM_INTEGRATION.md §Android -->
+            <!-- Required by Health Connect — opens when user taps "See all data" in Health Connect UI. -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
+            </intent-filter>
+        </activity>
+        <!-- Health Connect availability check per health plugin documentation -->
+        <activity android:name="androidx.health.connect.client.PermissionController"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"/>
             </intent-filter>
         </activity>
         <!-- flutter_local_notifications receivers per 57_NOTIFICATION_SYSTEM.md §11.1 -->

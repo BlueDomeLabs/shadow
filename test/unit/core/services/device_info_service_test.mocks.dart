@@ -215,6 +215,17 @@ class MockIosDeviceInfo extends _i1.Mock implements _i3.IosDeviceInfo {
           as String);
 
   @override
+  String get modelName =>
+      (super.noSuchMethod(
+            Invocation.getter(#modelName),
+            returnValue: _i11.dummyValue<String>(
+              this,
+              Invocation.getter(#modelName),
+            ),
+          )
+          as String);
+
+  @override
   String get localizedModel =>
       (super.noSuchMethod(
             Invocation.getter(#localizedModel),
@@ -234,12 +245,37 @@ class MockIosDeviceInfo extends _i1.Mock implements _i3.IosDeviceInfo {
           as bool);
 
   @override
+  int get physicalRamSize =>
+      (super.noSuchMethod(Invocation.getter(#physicalRamSize), returnValue: 0)
+          as int);
+
+  @override
+  int get availableRamSize =>
+      (super.noSuchMethod(Invocation.getter(#availableRamSize), returnValue: 0)
+          as int);
+
+  @override
+  bool get isiOSAppOnMac =>
+      (super.noSuchMethod(Invocation.getter(#isiOSAppOnMac), returnValue: false)
+          as bool);
+
+  @override
   _i3.IosUtsname get utsname =>
       (super.noSuchMethod(
             Invocation.getter(#utsname),
             returnValue: _FakeIosUtsname_7(this, Invocation.getter(#utsname)),
           )
           as _i3.IosUtsname);
+
+  @override
+  int get freeDiskSize =>
+      (super.noSuchMethod(Invocation.getter(#freeDiskSize), returnValue: 0)
+          as int);
+
+  @override
+  int get totalDiskSize =>
+      (super.noSuchMethod(Invocation.getter(#totalDiskSize), returnValue: 0)
+          as int);
 
   @override
   Map<String, dynamic> get data =>
@@ -407,6 +443,17 @@ class MockAndroidDeviceInfo extends _i1.Mock implements _i2.AndroidDeviceInfo {
           as String);
 
   @override
+  String get name =>
+      (super.noSuchMethod(
+            Invocation.getter(#name),
+            returnValue: _i11.dummyValue<String>(
+              this,
+              Invocation.getter(#name),
+            ),
+          )
+          as String);
+
+  @override
   List<String> get supported32BitAbis =>
       (super.noSuchMethod(
             Invocation.getter(#supported32BitAbis),
@@ -461,6 +508,16 @@ class MockAndroidDeviceInfo extends _i1.Mock implements _i2.AndroidDeviceInfo {
           as bool);
 
   @override
+  int get freeDiskSize =>
+      (super.noSuchMethod(Invocation.getter(#freeDiskSize), returnValue: 0)
+          as int);
+
+  @override
+  int get totalDiskSize =>
+      (super.noSuchMethod(Invocation.getter(#totalDiskSize), returnValue: 0)
+          as int);
+
+  @override
   List<String> get systemFeatures =>
       (super.noSuchMethod(
             Invocation.getter(#systemFeatures),
@@ -469,23 +526,22 @@ class MockAndroidDeviceInfo extends _i1.Mock implements _i2.AndroidDeviceInfo {
           as List<String>);
 
   @override
-  String get serialNumber =>
-      (super.noSuchMethod(
-            Invocation.getter(#serialNumber),
-            returnValue: _i11.dummyValue<String>(
-              this,
-              Invocation.getter(#serialNumber),
-            ),
-          )
-          as String);
-
-  @override
   bool get isLowRamDevice =>
       (super.noSuchMethod(
             Invocation.getter(#isLowRamDevice),
             returnValue: false,
           )
           as bool);
+
+  @override
+  int get physicalRamSize =>
+      (super.noSuchMethod(Invocation.getter(#physicalRamSize), returnValue: 0)
+          as int);
+
+  @override
+  int get availableRamSize =>
+      (super.noSuchMethod(Invocation.getter(#availableRamSize), returnValue: 0)
+          as int);
 
   @override
   Map<String, dynamic> get data =>
@@ -552,6 +608,17 @@ class MockMacOsDeviceInfo extends _i1.Mock implements _i6.MacOsDeviceInfo {
             returnValue: _i11.dummyValue<String>(
               this,
               Invocation.getter(#model),
+            ),
+          )
+          as String);
+
+  @override
+  String get modelName =>
+      (super.noSuchMethod(
+            Invocation.getter(#modelName),
+            returnValue: _i11.dummyValue<String>(
+              this,
+              Invocation.getter(#modelName),
             ),
           )
           as String);

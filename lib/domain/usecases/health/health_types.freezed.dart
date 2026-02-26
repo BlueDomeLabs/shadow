@@ -602,3 +602,420 @@ abstract class _UpdateHealthSyncSettingsInput
   >
   get copyWith => throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$SyncFromHealthPlatformInput {
+  String get profileId => throw _privateConstructorUsedError;
+
+  /// Create a copy of SyncFromHealthPlatformInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SyncFromHealthPlatformInputCopyWith<SyncFromHealthPlatformInput>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SyncFromHealthPlatformInputCopyWith<$Res> {
+  factory $SyncFromHealthPlatformInputCopyWith(
+    SyncFromHealthPlatformInput value,
+    $Res Function(SyncFromHealthPlatformInput) then,
+  ) =
+      _$SyncFromHealthPlatformInputCopyWithImpl<
+        $Res,
+        SyncFromHealthPlatformInput
+      >;
+  @useResult
+  $Res call({String profileId});
+}
+
+/// @nodoc
+class _$SyncFromHealthPlatformInputCopyWithImpl<
+  $Res,
+  $Val extends SyncFromHealthPlatformInput
+>
+    implements $SyncFromHealthPlatformInputCopyWith<$Res> {
+  _$SyncFromHealthPlatformInputCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SyncFromHealthPlatformInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? profileId = null}) {
+    return _then(
+      _value.copyWith(
+            profileId: null == profileId
+                ? _value.profileId
+                : profileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$SyncFromHealthPlatformInputImplCopyWith<$Res>
+    implements $SyncFromHealthPlatformInputCopyWith<$Res> {
+  factory _$$SyncFromHealthPlatformInputImplCopyWith(
+    _$SyncFromHealthPlatformInputImpl value,
+    $Res Function(_$SyncFromHealthPlatformInputImpl) then,
+  ) = __$$SyncFromHealthPlatformInputImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String profileId});
+}
+
+/// @nodoc
+class __$$SyncFromHealthPlatformInputImplCopyWithImpl<$Res>
+    extends
+        _$SyncFromHealthPlatformInputCopyWithImpl<
+          $Res,
+          _$SyncFromHealthPlatformInputImpl
+        >
+    implements _$$SyncFromHealthPlatformInputImplCopyWith<$Res> {
+  __$$SyncFromHealthPlatformInputImplCopyWithImpl(
+    _$SyncFromHealthPlatformInputImpl _value,
+    $Res Function(_$SyncFromHealthPlatformInputImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of SyncFromHealthPlatformInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? profileId = null}) {
+    return _then(
+      _$SyncFromHealthPlatformInputImpl(
+        profileId: null == profileId
+            ? _value.profileId
+            : profileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SyncFromHealthPlatformInputImpl
+    implements _SyncFromHealthPlatformInput {
+  const _$SyncFromHealthPlatformInputImpl({required this.profileId});
+
+  @override
+  final String profileId;
+
+  @override
+  String toString() {
+    return 'SyncFromHealthPlatformInput(profileId: $profileId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SyncFromHealthPlatformInputImpl &&
+            (identical(other.profileId, profileId) ||
+                other.profileId == profileId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, profileId);
+
+  /// Create a copy of SyncFromHealthPlatformInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SyncFromHealthPlatformInputImplCopyWith<_$SyncFromHealthPlatformInputImpl>
+  get copyWith =>
+      __$$SyncFromHealthPlatformInputImplCopyWithImpl<
+        _$SyncFromHealthPlatformInputImpl
+      >(this, _$identity);
+}
+
+abstract class _SyncFromHealthPlatformInput
+    implements SyncFromHealthPlatformInput {
+  const factory _SyncFromHealthPlatformInput({
+    required final String profileId,
+  }) = _$SyncFromHealthPlatformInputImpl;
+
+  @override
+  String get profileId;
+
+  /// Create a copy of SyncFromHealthPlatformInput
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SyncFromHealthPlatformInputImplCopyWith<_$SyncFromHealthPlatformInputImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$SyncFromHealthPlatformResult {
+  /// Number of records imported per data type.
+  /// Only contains entries for data types that were successfully read.
+  Map<HealthDataType, int> get importedCountByType =>
+      throw _privateConstructorUsedError;
+
+  /// Data types the user denied permission for.
+  /// Denied types are skipped — the sync continues for granted types.
+  List<HealthDataType> get deniedTypes => throw _privateConstructorUsedError;
+
+  /// True if the health platform is not available on this device.
+  /// On Android: Health Connect is not installed.
+  /// On iOS: always false (HealthKit is always available).
+  bool get platformUnavailable => throw _privateConstructorUsedError;
+
+  /// Create a copy of SyncFromHealthPlatformResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SyncFromHealthPlatformResultCopyWith<SyncFromHealthPlatformResult>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SyncFromHealthPlatformResultCopyWith<$Res> {
+  factory $SyncFromHealthPlatformResultCopyWith(
+    SyncFromHealthPlatformResult value,
+    $Res Function(SyncFromHealthPlatformResult) then,
+  ) =
+      _$SyncFromHealthPlatformResultCopyWithImpl<
+        $Res,
+        SyncFromHealthPlatformResult
+      >;
+  @useResult
+  $Res call({
+    Map<HealthDataType, int> importedCountByType,
+    List<HealthDataType> deniedTypes,
+    bool platformUnavailable,
+  });
+}
+
+/// @nodoc
+class _$SyncFromHealthPlatformResultCopyWithImpl<
+  $Res,
+  $Val extends SyncFromHealthPlatformResult
+>
+    implements $SyncFromHealthPlatformResultCopyWith<$Res> {
+  _$SyncFromHealthPlatformResultCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SyncFromHealthPlatformResult
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? importedCountByType = null,
+    Object? deniedTypes = null,
+    Object? platformUnavailable = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            importedCountByType: null == importedCountByType
+                ? _value.importedCountByType
+                : importedCountByType // ignore: cast_nullable_to_non_nullable
+                      as Map<HealthDataType, int>,
+            deniedTypes: null == deniedTypes
+                ? _value.deniedTypes
+                : deniedTypes // ignore: cast_nullable_to_non_nullable
+                      as List<HealthDataType>,
+            platformUnavailable: null == platformUnavailable
+                ? _value.platformUnavailable
+                : platformUnavailable // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$SyncFromHealthPlatformResultImplCopyWith<$Res>
+    implements $SyncFromHealthPlatformResultCopyWith<$Res> {
+  factory _$$SyncFromHealthPlatformResultImplCopyWith(
+    _$SyncFromHealthPlatformResultImpl value,
+    $Res Function(_$SyncFromHealthPlatformResultImpl) then,
+  ) = __$$SyncFromHealthPlatformResultImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    Map<HealthDataType, int> importedCountByType,
+    List<HealthDataType> deniedTypes,
+    bool platformUnavailable,
+  });
+}
+
+/// @nodoc
+class __$$SyncFromHealthPlatformResultImplCopyWithImpl<$Res>
+    extends
+        _$SyncFromHealthPlatformResultCopyWithImpl<
+          $Res,
+          _$SyncFromHealthPlatformResultImpl
+        >
+    implements _$$SyncFromHealthPlatformResultImplCopyWith<$Res> {
+  __$$SyncFromHealthPlatformResultImplCopyWithImpl(
+    _$SyncFromHealthPlatformResultImpl _value,
+    $Res Function(_$SyncFromHealthPlatformResultImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of SyncFromHealthPlatformResult
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? importedCountByType = null,
+    Object? deniedTypes = null,
+    Object? platformUnavailable = null,
+  }) {
+    return _then(
+      _$SyncFromHealthPlatformResultImpl(
+        importedCountByType: null == importedCountByType
+            ? _value._importedCountByType
+            : importedCountByType // ignore: cast_nullable_to_non_nullable
+                  as Map<HealthDataType, int>,
+        deniedTypes: null == deniedTypes
+            ? _value._deniedTypes
+            : deniedTypes // ignore: cast_nullable_to_non_nullable
+                  as List<HealthDataType>,
+        platformUnavailable: null == platformUnavailable
+            ? _value.platformUnavailable
+            : platformUnavailable // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SyncFromHealthPlatformResultImpl extends _SyncFromHealthPlatformResult {
+  const _$SyncFromHealthPlatformResultImpl({
+    final Map<HealthDataType, int> importedCountByType = const {},
+    final List<HealthDataType> deniedTypes = const [],
+    this.platformUnavailable = false,
+  }) : _importedCountByType = importedCountByType,
+       _deniedTypes = deniedTypes,
+       super._();
+
+  /// Number of records imported per data type.
+  /// Only contains entries for data types that were successfully read.
+  final Map<HealthDataType, int> _importedCountByType;
+
+  /// Number of records imported per data type.
+  /// Only contains entries for data types that were successfully read.
+  @override
+  @JsonKey()
+  Map<HealthDataType, int> get importedCountByType {
+    if (_importedCountByType is EqualUnmodifiableMapView)
+      return _importedCountByType;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_importedCountByType);
+  }
+
+  /// Data types the user denied permission for.
+  /// Denied types are skipped — the sync continues for granted types.
+  final List<HealthDataType> _deniedTypes;
+
+  /// Data types the user denied permission for.
+  /// Denied types are skipped — the sync continues for granted types.
+  @override
+  @JsonKey()
+  List<HealthDataType> get deniedTypes {
+    if (_deniedTypes is EqualUnmodifiableListView) return _deniedTypes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_deniedTypes);
+  }
+
+  /// True if the health platform is not available on this device.
+  /// On Android: Health Connect is not installed.
+  /// On iOS: always false (HealthKit is always available).
+  @override
+  @JsonKey()
+  final bool platformUnavailable;
+
+  @override
+  String toString() {
+    return 'SyncFromHealthPlatformResult(importedCountByType: $importedCountByType, deniedTypes: $deniedTypes, platformUnavailable: $platformUnavailable)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SyncFromHealthPlatformResultImpl &&
+            const DeepCollectionEquality().equals(
+              other._importedCountByType,
+              _importedCountByType,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._deniedTypes,
+              _deniedTypes,
+            ) &&
+            (identical(other.platformUnavailable, platformUnavailable) ||
+                other.platformUnavailable == platformUnavailable));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_importedCountByType),
+    const DeepCollectionEquality().hash(_deniedTypes),
+    platformUnavailable,
+  );
+
+  /// Create a copy of SyncFromHealthPlatformResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SyncFromHealthPlatformResultImplCopyWith<
+    _$SyncFromHealthPlatformResultImpl
+  >
+  get copyWith =>
+      __$$SyncFromHealthPlatformResultImplCopyWithImpl<
+        _$SyncFromHealthPlatformResultImpl
+      >(this, _$identity);
+}
+
+abstract class _SyncFromHealthPlatformResult
+    extends SyncFromHealthPlatformResult {
+  const factory _SyncFromHealthPlatformResult({
+    final Map<HealthDataType, int> importedCountByType,
+    final List<HealthDataType> deniedTypes,
+    final bool platformUnavailable,
+  }) = _$SyncFromHealthPlatformResultImpl;
+  const _SyncFromHealthPlatformResult._() : super._();
+
+  /// Number of records imported per data type.
+  /// Only contains entries for data types that were successfully read.
+  @override
+  Map<HealthDataType, int> get importedCountByType;
+
+  /// Data types the user denied permission for.
+  /// Denied types are skipped — the sync continues for granted types.
+  @override
+  List<HealthDataType> get deniedTypes;
+
+  /// True if the health platform is not available on this device.
+  /// On Android: Health Connect is not installed.
+  /// On iOS: always false (HealthKit is always available).
+  @override
+  bool get platformUnavailable;
+
+  /// Create a copy of SyncFromHealthPlatformResult
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SyncFromHealthPlatformResultImplCopyWith<
+    _$SyncFromHealthPlatformResultImpl
+  >
+  get copyWith => throw _privateConstructorUsedError;
+}
