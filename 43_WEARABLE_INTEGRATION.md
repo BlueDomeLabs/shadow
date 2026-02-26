@@ -1,5 +1,11 @@
 # 43. Wearable & Health Platform Integration Specification
 
+> 🚧 **PARTIALLY IMPLEMENTED — Phase 4 in progress**
+>
+> **Built (Phase 16):** Apple HealthKit (iOS) and Google Health Connect (Android) import for heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen. Manual sync only. Data stored in `imported_vitals` table.
+>
+> **Not yet built:** Apple Watch companion app, Fitbit / Garmin / Oura / WHOOP APIs, Google Fit integration, FHIR R4 export. Do not implement these without explicit phase planning.
+
 ## Document Purpose
 
 This document provides complete specifications for Phase 4 Health Data Integration:

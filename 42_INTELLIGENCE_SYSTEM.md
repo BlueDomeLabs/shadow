@@ -1,5 +1,11 @@
 # 42. Intelligence System Specification
 
+> 🚧 **NOT YET IMPLEMENTED — Planned for Phase 3**
+>
+> This is a complete specification for future Intelligence System features. Nothing in this document has been built. The database tables referenced here (patterns, trigger_correlations, health_insights, predictive_alerts, ml_models, prediction_feedback) are defined in the schema spec but do not exist in the live database.
+>
+> Do not implement anything from this document without explicit phase planning and Reid's approval.
+
 ## Document Purpose
 
 This document provides complete specifications for Phase 3 Intelligence features:

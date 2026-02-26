@@ -17,6 +17,30 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-26: Welcome Screen "Join Existing Account" — wire deep link scanner
+
+**What:** The "Join Existing Account" button on WelcomeScreen will launch the QR code scanner (the guest invite flow built in Phase 12c). The "Coming soon" snackbar is removed.
+
+**Why:** Phase 12c built the complete deep link handler and guest mode activation. The Welcome screen button was never wired to it.
+
+**Alternatives:** Keep "coming soon" indefinitely. Rejected — the infrastructure is complete and the path should be accessible to users.
+
+**Impact:** Phase 18c implements the wiring. No new use cases or schema changes required.
+
+---
+
+### 2026-02-26: Flare-Ups button — build FlareUpListScreen and Report Flare-Up flow
+
+**What:** Build FlareUpListScreen showing all flare-ups for the current profile. Wire the "Flare-Ups" button on the Conditions tab to navigate to it. Build a Report Flare-Up modal using the existing LogFlareUpUseCase.
+
+**Why:** The FlareUp entity, repository, and all use cases are fully implemented. Users have no way to access or report flare-ups through the UI. This is core health tracking functionality.
+
+**Alternatives:** None — this is a missing screen for implemented functionality.
+
+**Impact:** Phase 18b implements the screens. No schema changes required.
+
+---
+
 ### 2026-02-25: Phase 16b — HealthPlatformService as abstract port (domain layer)
 
 **What:** The health plugin (`health: ^13.3.1`) is never imported directly by domain-layer code. Instead, a `HealthPlatformService` abstract interface lives in the domain layer, and the `health` plugin is only wired in the data layer implementation. The `SyncFromHealthPlatformUseCase` depends only on this abstract port.

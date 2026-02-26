@@ -13,7 +13,7 @@
 # Last Action:   Retired Google Drive sync — GitHub is now sole briefing source
 # Next Action:   Phase 17c (Food Log food-items stub wiring), AnchorEventName enum expansion, or product decisions
 # Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
-#                3 product decisions still pending Reid: "Join Existing Account", Flare-Ups button
+#                Phase 18a complete — Phase 18b next (FlareUpListScreen + Report Flare-Up flow)
 # Tests:         3,210 passing (confirmed this session)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
@@ -21,6 +21,25 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Phase 18a: Spec Banners + Decision Entries (Tasks 3–6)
+
+Documentation-only. No code changes. Four files updated and pushed.
+
+**42_INTELLIGENCE_SYSTEM.md** — Added "NOT YET IMPLEMENTED — Planned for Phase 3" banner as first content after the title. Clarifies that the referenced database tables (patterns, trigger_correlations, health_insights, etc.) do not exist in the live database.
+
+**43_WEARABLE_INTEGRATION.md** — Added "PARTIALLY IMPLEMENTED — Phase 4 in progress" banner. Documents what Phase 16 built (HealthKit + Health Connect import, `imported_vitals` table) and what is not yet built (Apple Watch, Fitbit/Garmin/Oura/WHOOP, Google Fit, FHIR R4 export).
+
+**DECISIONS.md** — Added two new entries at the top of the decisions list:
+- "Join Existing Account" — wire Phase 12c deep link scanner (Phase 18c)
+- Flare-Ups button — build FlareUpListScreen + Report Flare-Up modal (Phase 18b)
+
+**ARCHITECT_BRIEFING.md** — Three targeted updates:
+- Handoff header Open Items: removed resolved "Join Existing Account" / Flare-Ups decisions; added "Phase 18a complete — Phase 18b next"
+- Deferred table: both rows updated from "Product decision pending" to "DECIDED: BUILD — Phase 18b/18c"
+- This session log entry added
 
 ---
 
@@ -690,8 +709,8 @@ These are places where the code intentionally differs from specs. Cross-referenc
 |---------|--------|-----------|
 | AnchorEventName enum expansion (5→8) | PENDING — breaking schema change; Decision 3 from DECISIONS.md 2026-02-25; needs dedicated phase | — |
 | Food Log food-items search wiring | Deferred — no food search library screen exists yet | Food library screen (unbuilt) |
-| Welcome Screen "Join Existing Account" | Product decision pending from Reid (wire deep link scanner vs keep "coming soon") | Phase 12c deep link handler (done) |
-| Flare-Ups button on Conditions Tab | Product decision pending from Reid (build FlareUpListScreen?) | — |
+| Welcome Screen "Join Existing Account" | DECIDED: BUILD — Phase 18c | Phase 12c deep link handler (done) |
+| Flare-Ups button on Conditions Tab | DECIDED: BUILD — Phase 18b | — |
 | Reports / Charts screens | Not in any current phase plan | All data layers |
 | FoodItemCategory junction table | No phase assigned | — |
 | Quiet hours notification queuing | Defined in 22_API_CONTRACTS.md Section 12.4; never implemented | — |
