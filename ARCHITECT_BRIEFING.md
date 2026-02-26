@@ -9,18 +9,38 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 17b complete — awaiting direction from Reid for next phase
-# Last Action:   Retired Google Drive sync — GitHub is now sole briefing source
-# Next Action:   Phase 17c (Food Log food-items stub wiring), AnchorEventName enum expansion, or product decisions
+# Status:        Phase 18b complete
+# Last Action:   FlareUpListScreen + ReportFlareUpScreen + Conditions tab wired
+# Next Action:   Phase 18c — wire Welcome Screen "Join Existing Account" deep link scanner
 # Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
-#                Phase 18a complete — Phase 18b next (FlareUpListScreen + Report Flare-Up flow)
-# Tests:         3,210 passing (confirmed this session)
+# Tests:         3,251 passing (41 new in Phase 18b)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Phase 18b: FlareUpListScreen + ReportFlareUpScreen
+
+**Commit:** `1fb5609`
+
+**What was built:**
+- `FlareUpListScreen` — full list UI: severity badges (green/amber/red by 1-3/4-6/7-10), ONGOING chip for open flare-ups, condition name lookup via `conditionListProvider`, empty/loading/error states, pull-to-refresh, FAB opens new Report sheet, tapping a card opens Edit sheet
+- `ReportFlareUpScreen` — modal bottom sheet for both new and edit modes. New mode: condition dropdown (`initialValue` uncontrolled), start/end datetime pickers, severity slider (1–10), triggers comma-separated field, notes field. Edit mode: condition, startDate, endDate shown as read-only (constraint from `UpdateFlareUpInput`); only severity/triggers/notes editable. Save routes to `notifier.log()` (new) or `notifier.updateFlareUp()` (edit).
+- `ConditionsTab` — wired Flare-Ups button to `Navigator.push(FlareUpListScreen)` (was "Coming soon" snackbar).
+
+**Tests:** 41 new (16 FlareUpListScreen + 21 ReportFlareUpScreen + 4 ConditionsTab) → **3,251 total**
+
+**Test fixes noted:**
+- `DropdownButtonFormField` uses `initialValue:` (not deprecated `value:`); form validation works correctly via `FormField._value` initialized from `initialValue`
+- Save button at y=652 is off-screen in 600px test viewport → `ensureVisible` before `tap`
+- Epoch `1736899200000` = Jan 15, 2025 midnight UTC → MST renders Jan 14; switched to noon UTC (`1736942400000`) to fix date tests
+- `Duration(days: 999)` creates pending timer → replaced with `Completer<void>().future`
+
+**Next:** Phase 18c — wire Welcome Screen "Join Existing Account" button to deep link scanner (see DECISIONS.md 2026-02-26)
 
 ---
 
