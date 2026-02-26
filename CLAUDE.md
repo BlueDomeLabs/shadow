@@ -152,6 +152,11 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - **Phase 16: Health Platform Integration** — See 61_HEALTH_PLATFORM_INTEGRATION.md. Imports heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen from Apple HealthKit (iOS) and Google Health Connect (Android). Manual sync only. Data stored separately, displayed together in reports. Implement after Phase 15b.
   - [x] 16a. Data foundation: ImportedVital entity, HealthSyncSettings, HealthSyncStatus, tables, DAOs, repositories, 4 use cases, schema v16 — 83 new tests
 
+### Spec Cleanup (2026-02-25) — COMPLETE
+- [x] Full spec review (48 findings) applied across 12 spec files — spec-only, no code changes
+- [x] 4 decisions resolved: WakingFeeling 3 options; sleep fields pending impl; anchor events expanding to 8 (Decision 3 needs code phase — breaking enum change); PIN 6 digits fixed
+- **PENDING CODE WORK from Decision 3:** AnchorEventName enum must expand from 5→8 values (add morning(2), afternoon(4), evening(6), rename bed→bedtime(7)). This is a breaking enum change requiring a schema migration. Must be planned as a dedicated sub-phase before any notification system changes. See DECISIONS.md 2026-02-25.
+
 ### Test Count: 3142 passing | Analyzer: clean | Schema: v16
 
 ---
