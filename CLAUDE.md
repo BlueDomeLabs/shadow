@@ -159,7 +159,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 - [x] 4 decisions resolved: WakingFeeling 3 options; sleep fields pending impl; anchor events expanding to 8 (Decision 3 needs code phase — breaking enum change); PIN 6 digits fixed
 - **PENDING CODE WORK from Decision 3:** AnchorEventName enum must expand from 5→8 values (add morning(2), afternoon(4), evening(6), rename bed→bedtime(7)). This is a breaking enum change requiring a schema migration. Must be planned as a dedicated sub-phase before any notification system changes. See DECISIONS.md 2026-02-25.
 
-### Test Count: 3181 passing | Analyzer: clean | Schema: v16
+### Test Count: 3210 passing | Analyzer: clean | Schema: v16
 
 ---
 

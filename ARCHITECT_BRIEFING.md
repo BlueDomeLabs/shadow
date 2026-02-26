@@ -1,24 +1,63 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: [auto-stamped on push by push_briefing_to_gdrive.py]
-# Briefing Version: 20260226-001
+# Briefing Version: 20260226-002
 #
 # PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
 # This .md file is the source of truth committed to git.
 # A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 17a complete — read-only code audit, 18 findings documented
-# Last Action:   Phase 17a exhaustive code audit across all lib/ and test/ files
-# Next Action:   Reid to review 5 product decisions; 5 clear fixes ready to implement
-# Open Items:    5 product decisions pending Reid's direction (see Phase 17a section)
-# Tests:         3,181 passing (unchanged)
+# Status:        Phase 17b complete — 11 fixes implemented (A1-A2, B1-B2, C1-C4, D1-D3)
+# Last Action:   Phase 17b: bug fixes, UI wiring, deferred decision implementations
+# Next Action:   Phase 17c (Food Log food-items stub wiring) or AnchorEventName enum expansion
+# Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
+#                3 product decisions still pending Reid (items 12, 13 from Phase 17a)
+# Tests:         3,210 passing (+29 from Phase 17b)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Phase 17b: Bug Fixes, UI Wiring, Decision Implementations
+
+All 11 Phase 17b items implemented and committed (commit `8bbee89`). 29 new tests; 3,210 total passing; analyzer clean. Schema unchanged (v16).
+
+**Items fixed (per Phase 17a audit):**
+
+**HIGH — Data Loss Bugs (2 fixed)**
+- **A1: Condition edit screen silent data loss** — `updateConditionUseCase` was never called in edit mode. Tapping Save discarded all edits. Now properly wired; condition updates persist.
+- **A2: Food item search filter silently ignored** — `searchExcludingCategories()` ignored its `excludeCategories` parameter. Now correctly filters using case-insensitive category matching.
+
+**MEDIUM — Behavior Bugs (2 fixed)**
+- **B1: Condition log edit creates duplicate** — Edit path called `log()` (create) instead of an update use case. Created `UpdateConditionLogUseCase` and wired it to the edit path.
+- **B2: Fluids screen hardcoded fl oz** — Water unit was hardcoded regardless of Settings. Now reads `fluidUnit` from `UserSettings`.
+
+**MEDIUM — Unconnected UI (4 fixed, 1 deferred)**
+- **C1: Supplement Log button was "Coming soon"** — Wired Log Intake button to `SupplementLogScreen`.
+- **C2: Supplement filter switches did nothing** — Filter chips now properly control visible supplements.
+- **C3: Food item search was "Coming soon"** — Wired search field to `SearchFoodItemsUseCase`.
+- **C4: Sleep entry date range filter did nothing** — Date range filter now filters sleep entries.
+- **C5: Food log food items stub** — Intentionally deferred (food search library screen not yet built). Not in Phase 17b scope.
+
+**LOW — Deferred Decisions (3 resolved)**
+- **D1: Urgency slider decision** — Reid decided: hide the slider. Removed from fluids entry screen. (No schema change needed.)
+- **D2: Manage Permissions decision** — Reid decided: implement URL launch now. Wired to native health settings URL on iOS/Android.
+- **D3: Auto Sync / WiFi Only / Frequency decision** — Reid decided: manual sync only, remove stubs. Three stub rows removed from Cloud Sync Settings screen.
+
+**Tests added (29):**
+- 5 unit tests for `UpdateConditionUseCase` (A1)
+- 5 unit tests for `UpdateConditionLogUseCase` (B1)
+- 3 repository tests for `searchExcludingCategories` category filtering (A2)
+
+**Remaining open items from Phase 17a:**
+- C5: Food Log food items stub — deferred (no food search library screen exists yet)
+- D4/D5: Welcome Screen "Join Existing Account" and Flare-Ups button — product decisions still needed from Reid
+- AnchorEventName enum 5→8 values (Decision 3 from DECISIONS.md 2026-02-25) — breaking schema change, needs dedicated phase
 
 ---
 
@@ -540,13 +579,13 @@ All intentional. All need adding to `10_DATABASE_SCHEMA.md` Section 2.7 (Sync Me
 | Field | Value |
 |-------|-------|
 | **Schema Version** | v16 |
-| **Test Count** | 3,160 passing |
+| **Test Count** | 3,210 passing |
 | **Flutter SDK** | ^3.10.4 |
 | **Dart SDK** | ^3.10.4 |
-| **Last Completed Phase** | Phase 16b: health plugin + SyncFromHealthPlatformUseCase (2026-02-25) |
-| **Next** | Phase 16c: HealthPlatformServiceImpl + Health Sync Settings UI |
+| **Last Completed Phase** | Phase 17b: bug fixes, UI wiring, decision implementations (2026-02-26) |
+| **Next** | Phase 17c (Food Log food-items stub) or AnchorEventName enum expansion |
 | **Analyzer Status** | Clean (0 issues) |
-| **Open Decisions** | 0 — all resolved 2026-02-25 |
+| **Open Decisions** | AnchorEventName enum 5→8 values (Decision 3 — breaking change, needs planning) |
 
 ---
 
@@ -570,24 +609,23 @@ These are places where the code intentionally differs from specs. Cross-referenc
 
 ## [2026-02-24 21:30 MST (estimated)] — Known Gaps and Tech Debt
 
-### Code TODOs (active in source)
+### Code TODOs (active in source) — Updated after Phase 17b
 
 | File | TODO | Impact |
 |------|------|--------|
-| `food_item_repository_impl.dart` | Category filtering not implemented (awaits FoodItemCategory junction table) | Food list cannot filter by category |
-| `supplement_list_screen.dart` | IntakeLogScreen navigation not wired | Tap on supplement doesn't open intake log with pre-filled supplement |
-| `supplement_list_screen.dart` | Filter switches not wired to provider state | Active/archived filter UI exists but does nothing |
-| `food_item_list_screen.dart` | SearchFoodItemsUseCase not wired | Search icon shown but search does nothing |
-| `sleep_entry_list_screen.dart` | Date range filter not implemented | No date filtering on sleep history |
+| `food_item_repository_impl.dart` | FoodItemCategory junction table filtering not implemented (separate from search-exclusion; Phase 17b fixed search exclusion) | Food list category filtering not yet done |
+| `supplement_list_screen.dart` | Log Intake navigation not wired to pre-fill supplement in intake log (Phase 17b wired the Log button to SupplementLogScreen for manual entry; pre-fill for existing IntakeLogs is separate) | Minor UX gap only |
 | `condition_edit_screen.dart` | Camera/photo picker not integrated | Condition photo capture is a placeholder |
-| `condition_edit_screen.dart` | Update use case not called (create-only) | Editing a condition always creates a new record |
+| `food_log_screen.dart` | Food Items section is a non-interactive stub | User cannot search food library from food log entry screen |
 
 ### Deferred / Not Yet Started
 
 | Feature | Status | Depends On |
 |---------|--------|-----------|
-| Phase 16c: HealthPlatformServiceImpl | Not started — needs concrete impl of HealthPlatformService wiring health plugin | Phase 16b (done) |
-| Phase 16c: Health Sync Settings UI | Not started — HealthSyncSettingsScreen per spec | Phase 16b (done) |
+| AnchorEventName enum expansion (5→8) | PENDING — breaking schema change; Decision 3 from DECISIONS.md 2026-02-25; needs dedicated phase | — |
+| Food Log food-items search wiring | Deferred — no food search library screen exists yet | Food library screen (unbuilt) |
+| Welcome Screen "Join Existing Account" | Product decision pending from Reid (wire deep link scanner vs keep "coming soon") | Phase 12c deep link handler (done) |
+| Flare-Ups button on Conditions Tab | Product decision pending from Reid (build FlareUpListScreen?) | — |
 | Reports / Charts screens | Not in any current phase plan | All data layers |
 | FoodItemCategory junction table | No phase assigned | — |
 | Quiet hours notification queuing | Defined in 22_API_CONTRACTS.md Section 12.4; never implemented | — |
@@ -793,5 +831,8 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 | Phase 15b-4: Diet tracking integration | End-to-end compliance flow, violation alerts in FoodLogScreen (25 tests) | 2817 |
 | Phase 16a: Health platform data | ImportedVital + HealthSyncSettings entities, DAOs, repos, 3 use cases, schema v16 (83 tests) | 3142 |
 | Phase 16b: health plugin + SyncFromHealthPlatformUseCase | health ^13.3.1, iOS/Android platform config, HealthPlatformService abstract port, sync orchestration use case (18 tests) | 3160 |
+| Phase 16c: HealthPlatformServiceImpl + HealthSyncSettingsScreen | Concrete health plugin adapter, sleep/BP/oxygen unit conversions, 4-section settings UI, DI wiring (39 tests) | 3181 |
+| Phase 17a: Code audit (read-only) | Exhaustive audit of all lib/ and test/ files; 18 findings documented; 5 product decisions presented to Reid | 3181 |
+| Phase 17b: Bug fixes + UI wiring + decisions | A1-A2 data bugs, B1-B2 behavior bugs, C1-C4 UI wiring, D1-D3 deferred decisions (29 tests) | 3210 |
 
 **Note:** Phase 15b (Diet Tracking screens and core use cases) was implemented between 15a and 15b-4 — the test count jump reflects that work.
