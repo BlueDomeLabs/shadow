@@ -1109,22 +1109,22 @@ All data entry and viewing screens require an active profile. If accessed withou
 
 - Clean Architecture pattern
 - Repository pattern for data access
-- Provider pattern for state management
-- Dependency injection with GetIt
+- Riverpod for state management (code generation via @riverpod annotation)
+- Dependency injection via Riverpod providers (not GetIt)
 
 ### 16.3 Database
 
-- SQLite with SQLCipher
-- No ORM (raw SQL with models)
-- Soft delete (deletedAt column)
-- Version tracking for sync
+- SQLite with SQLCipher (AES-256 encryption)
+- Drift ORM for type-safe queries and code generation
+- Soft delete via sync_deleted_at column
+- Version tracking for sync via sync_version column
 
 ### 16.4 Cloud
 
 - Google Drive API v3
 - OAuth 2.0 with PKCE
 - drive.file scope only
-- Server-side OAuth proxy for secrets
+- client_secret embedded in app (acceptable for private beta; server-side proxy planned for production)
 
 ---
 
@@ -1135,135 +1135,39 @@ All data entry and viewing screens require an active profile. If accessed withou
 | Package | Purpose | Version |
 |---------|---------|---------|
 | flutter | UI framework | SDK |
-| provider | State management | ^6.0.0 |
-| get_it | Dependency injection | ^7.0.0 |
-| sqflite | SQLite database | ^2.0.0 |
-| google_sign_in | Google OAuth | ^6.0.0 |
-| googleapis | Google APIs | ^11.0.0 |
-| flutter_secure_storage | Secure storage | ^8.0.0 |
-| uuid | ID generation | ^3.0.0 |
-| intl | Internationalization | ^0.18.0 |
-
-### 17.2 UI Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| cached_network_image | Image caching |
-| image_picker | Photo capture |
-| pdf | PDF generation |
-| share_plus | Sharing functionality |
-| flutter_local_notifications | Local push notifications |
-| timezone | Timezone-aware scheduling |
-
-### 17.3 Security Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| crypto | Cryptographic functions |
-| encrypt | AES encryption |
-| pointycastle | Encryption algorithms |
+| riverpod / flutter_riverpod / riverpod_annotation | State management + DI | ^2.x |
+| drift / drift_flutter | Type-safe SQLite ORM | ^2.14.1 |
+| sqlcipher_flutter_libs | AES-256 database encryption | ^0.x |
+| freezed_annotation / json_annotation | Immutable entity codegen | ^2.4.1 / ^4.8.1 |
+| flutter_secure_storage | Keychain/Keystore token storage | ^9.x |
+| google_sign_in / googleapis | Google OAuth + Drive API | ^6.x / ^11.x |
+| uuid | UUID generation | ^4.x |
+| intl | Internationalization | ^0.20.x |
+| health | Apple HealthKit / Google Health Connect | ^13.3.1 |
+| flutter_local_notifications | Local push notifications | ^18.x |
+| timezone | Timezone-aware scheduling | ^0.10.x |
+| image_picker | Photo capture | ^1.x |
 
 ---
 
 ## 18. Future Roadmap
 
-### Phase 1: Core Features (Complete)
-- Health condition tracking
-- Supplement management
-- Food logging
-- Activity tracking
-- Sleep monitoring
-- Photo documentation
-- Local storage with encryption
-- Google Drive sync
+### Phase 1: Core Features — COMPLETE
+All basic tracking entities, repositories, use cases, and screens. Local encrypted database. Multi-profile support. Cloud sync (Google Drive). Notification system (25 types, anchor events). Diet tracking with compliance. Food database extension (barcode scanning, Open Food Facts). Supplement extension (NIH DSLD). Guest profile access (QR code invite system). Settings screens (units, security, health sync).
 
-### Phase 2: Enhanced Features (Current)
-- Report generation
-- Multi-profile support
-- Counselor workflows
-- Advanced scheduling
-- Fluids tracking (water intake, menstruation, BBT, customizable "other")
-- Notification system with reminders
-- Diet type tracking
-- Earth tone visual rebrand
-- Client ID for database merging support
+### Phase 2: In Progress
+- AnchorEventName enum expansion (5→8 values, schema migration)
+- FlareUpListScreen and Report Flare-Up flow
+- Welcome Screen "Join Existing Account" deep link wiring
 
-### Phase 3: Intelligence (Fully Specified)
+### Phase 3: Intelligence System — Fully Specified, Not Yet Built
+See 42_INTELLIGENCE_SYSTEM.md. Pattern detection, trigger correlation, health insights, predictive alerts. All processing on-device. Requires 14-60 days of data minimum.
 
-See [42_INTELLIGENCE_SYSTEM.md](42_INTELLIGENCE_SYSTEM.md) for complete specification.
+### Phase 4: Health Data Integration — Specified, Partially Built
+See 43_WEARABLE_INTEGRATION.md. Apple HealthKit (Phase 16 complete for import). Google Health Connect (Phase 16 complete for import). Wearable devices (Apple Watch, Fitbit, Garmin, Oura, WHOOP) — not yet built. FHIR R4 export — not yet built.
 
-**Pattern Detection**:
-- Temporal patterns (day-of-week, time-of-day, monthly trends)
-- Cyclical patterns (menstrual cycles, flare/remission cycles)
-- Sequential patterns (trigger → outcome relationships)
-- Cluster patterns (co-occurring symptoms)
-- Dosage patterns (supplement effectiveness by dose)
-
-**Trigger Correlation**:
-- Relative risk calculation with 95% confidence intervals
-- Positive correlations (triggers that increase symptom likelihood)
-- Negative correlations (factors that decrease symptoms)
-- Dose-response analysis for quantifiable triggers
-- Multiple time windows (6h, 12h, 24h, 48h, 72h)
-
-**Health Insights**:
-- Daily summary insights
-- Pattern-based insights (newly detected patterns)
-- Trigger insights (significant correlations)
-- Progress insights (improvement/decline tracking)
-- Compliance insights (supplement/diet adherence)
-- Anomaly alerts (unusual readings)
-- Milestone celebrations (streaks, goals)
-- Weekly recommendations
-
-**Predictive Alerts**:
-- Flare-up prediction (Random Forest model, 24-72 hour warning)
-- Menstrual cycle prediction (period start, ovulation timing)
-- Trigger exposure warnings (pre-consumption alerts)
-- Missed supplement prediction (pattern-based reminders)
-
-**Technical Requirements**:
-- All processing on-device (no external data transmission)
-- TensorFlow Lite for ML models (<2MB total)
-- Minimum 14 days data for pattern detection
-- Minimum 5 historical flares for prediction models
-- Statistical significance (p < 0.05) for all correlations
-
-### Phase 4: Health Data Integration (Fully Specified)
-
-See [43_WEARABLE_INTEGRATION.md](43_WEARABLE_INTEGRATION.md) for complete specification.
-
-**Wearable Device Integration**:
-- Apple Watch (watchOS companion app)
-- Fitbit (Web API integration)
-- Garmin (Connect IQ + Health API)
-- Oura Ring (Cloud API)
-- WHOOP (API integration)
-- Generic Bluetooth LE devices
-
-**Apple Health Integration**:
-- Read: steps, heart rate, sleep, workouts, body measurements
-- Write: supplement intake, food logs, sleep entries
-- Background sync with HealthKit
-- Privacy: User controls exactly which data types sync
-
-**Google Fit Integration**:
-- Read: steps, heart rate, sleep, workouts, nutrition
-- Write: supplement logs, activity sessions
-- REST API with OAuth 2.0
-- Android-first with cross-platform support
-
-**Data Export (FHIR R4)**:
-- Patient resource from profile
-- Observation resources for conditions, vitals
-- MedicationStatement for supplements
-- NutritionOrder for diet data
-- Export to JSON bundle for portability
-
-### Phase 5: Platform Expansion (Future)
-- Windows desktop app
-- Linux desktop app
-- Web application
+### Phase 5: Platform Expansion — Future
+Windows, Linux, and web versions.
 
 ---
 

@@ -4,6 +4,12 @@
 **Last Updated:** January 31, 2026
 **Purpose:** Complete specification for device pairing, QR codes, and multi-device sync
 
+> ⚠️ **SUPERSEDED DOCUMENT**
+>
+> This document describes a multi-device sync pairing system (QR codes + Diffie-Hellman key exchange) that was never implemented and has been replaced by the Guest Profile Access system.
+> Active spec: See 56_GUEST_PROFILE_ACCESS.md — this is the implemented and complete system.
+> This document is retained for historical reference only. Do not implement anything from this document.
+
 > ⚠️ **SUPERSEDED — 2026-02-25**
 >
 > This document described a multi-device sync pairing system using QR codes and Diffie-Hellman key exchange that was **never implemented**. The QR code use case was replaced by the Guest Profile Access system (`56_GUEST_PROFILE_ACCESS.md`), which serves a different purpose: allowing a guest device to access a single host profile via a token-based invite, rather than pairing devices for full sync.
