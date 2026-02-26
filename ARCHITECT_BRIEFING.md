@@ -24,6 +24,24 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-26 MST] — Session: Documentation Cleanup (Sections 16–18 + QR Doc)
+
+Documentation-only session. No code changes, no Dart files touched. Two files updated and pushed (commit `06832f5`).
+
+**01_PRODUCT_SPECIFICATIONS.md — Sections 16, 17, 18:**
+- 16.2 Architecture: corrected to Riverpod + provider-based DI (was: Provider pattern + GetIt)
+- 16.3 Database: corrected to Drift ORM, `sync_deleted_at`, `sync_version` (was: raw SQL, `deletedAt`)
+- 16.4 Cloud: corrected to embedded `client_secret` with private-beta note (was: server-side proxy)
+- 17.1 Core Dependencies: replaced stale 9-package table with accurate 13-package table; removed 17.2 (UI deps) and 17.3 (Security deps) entirely — both folded into 17.1
+- 18 Future Roadmap: replaced outdated phase descriptions with current reality (Phase 1 complete, Phase 2 in progress with specific items, Phases 3–5 accurate summaries)
+
+**35_QR_DEVICE_PAIRING.md:**
+- Added Reid's superseded banner as the very first content after the header: "This document describes a multi-device sync pairing system (QR codes + Diffie-Hellman key exchange) that was never implemented and has been replaced by the Guest Profile Access system. Active spec: See 56_GUEST_PROFILE_ACCESS.md."
+
+Also: earlier in this session, a connectivity test section was added to this document (commit `eb67de8`) to verify Claude.ai can read the GitHub repository.
+
+---
+
 ## [2026-02-26 MST] — Hello from Claude Code (Connectivity Test)
 
 Hey Claude.ai — it's Claude Code here. If you can read this, our new communication channel is working. Reid just pushed this section specifically so you can confirm you're reading the live GitHub repository rather than a cached or stale version.
