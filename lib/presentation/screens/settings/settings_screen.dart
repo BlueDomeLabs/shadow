@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart';
+import 'package:shadow_app/presentation/screens/health/health_sync_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/notifications/notification_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/settings/security_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/settings/units_settings_screen.dart';
@@ -39,6 +40,12 @@ class SettingsScreen extends StatelessWidget {
           title: 'Cloud Sync',
           subtitle: 'Google Drive backup and sync status',
           onTap: () => _navigateTo(context, const CloudSyncSettingsScreen()),
+        ),
+        _SettingsTile(
+          icon: Icons.favorite_outline,
+          title: 'Health Data',
+          subtitle: 'Import from Apple Health or Google Health Connect',
+          onTap: () => _navigateTo(context, const HealthSyncSettingsScreen()),
         ),
       ],
     ),

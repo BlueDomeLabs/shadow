@@ -13,6 +13,7 @@ import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Repositories
+import 'package:shadow_app/domain/repositories/health_platform_service.dart';
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
 import 'package:shadow_app/domain/repositories/user_settings_repository.dart';
@@ -405,6 +406,14 @@ HealthSyncSettingsRepository healthSyncSettingsRepository(Ref ref) {
 HealthSyncStatusRepository healthSyncStatusRepository(Ref ref) {
   throw UnimplementedError(
     'Override healthSyncStatusRepositoryProvider in ProviderScope',
+  );
+}
+
+/// HealthPlatformService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+HealthPlatformService healthPlatformService(Ref ref) {
+  throw UnimplementedError(
+    'Override healthPlatformServiceProvider in ProviderScope',
   );
 }
 
@@ -1134,5 +1143,16 @@ GetLastSyncStatusUseCase getLastSyncStatusUseCase(Ref ref) =>
 UpdateHealthSyncSettingsUseCase updateHealthSyncSettingsUseCase(Ref ref) =>
     UpdateHealthSyncSettingsUseCase(
       ref.read(healthSyncSettingsRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
+/// SyncFromHealthPlatformUseCase provider.
+@riverpod
+SyncFromHealthPlatformUseCase syncFromHealthPlatformUseCase(Ref ref) =>
+    SyncFromHealthPlatformUseCase(
+      ref.read(healthPlatformServiceProvider),
+      ref.read(healthSyncSettingsRepositoryProvider),
+      ref.read(healthSyncStatusRepositoryProvider),
+      ref.read(importedVitalRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
     );

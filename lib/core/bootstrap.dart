@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:health/health.dart' as hp;
 import 'package:http/http.dart' as http;
 import 'package:shadow_app/core/services/anthropic_api_client.dart';
 import 'package:shadow_app/core/services/deep_link_service.dart';
@@ -44,6 +45,7 @@ import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
 import 'package:shadow_app/data/services/diet_compliance_service_impl.dart';
 import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
+import 'package:shadow_app/data/services/health_platform_service_impl.dart';
 import 'package:shadow_app/data/services/supplement_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/entities.dart';
@@ -189,6 +191,9 @@ Future<List<Override>> bootstrap() async {
   final healthSyncStatusRepo = HealthSyncStatusRepositoryImpl(
     database.healthSyncStatusDao,
   );
+
+  // 5c-ii. Create Phase 16c HealthPlatformServiceImpl
+  final healthPlatformService = HealthPlatformServiceImpl(hp.Health());
 
   // 5d. Create Phase 15b diet tracking repositories and services
   final dietRepo = DietRepositoryImpl(
@@ -414,5 +419,7 @@ Future<List<Override>> bootstrap() async {
       healthSyncSettingsRepo,
     ),
     healthSyncStatusRepositoryProvider.overrideWithValue(healthSyncStatusRepo),
+    // Phase 16c health platform service
+    healthPlatformServiceProvider.overrideWithValue(healthPlatformService),
   ];
 }

@@ -835,6 +835,26 @@ final healthSyncStatusRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef HealthSyncStatusRepositoryRef = ProviderRef<HealthSyncStatusRepository>;
+String _$healthPlatformServiceHash() =>
+    r'3e4a99d8f55f0f5dc0cc2b7e2aeaf75b7163b609';
+
+/// HealthPlatformService provider - override in ProviderScope with implementation.
+///
+/// Copied from [healthPlatformService].
+@ProviderFor(healthPlatformService)
+final healthPlatformServiceProvider = Provider<HealthPlatformService>.internal(
+  healthPlatformService,
+  name: r'healthPlatformServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$healthPlatformServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HealthPlatformServiceRef = ProviderRef<HealthPlatformService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 
@@ -2751,5 +2771,27 @@ final updateHealthSyncSettingsUseCaseProvider =
 // ignore: unused_element
 typedef UpdateHealthSyncSettingsUseCaseRef =
     AutoDisposeProviderRef<UpdateHealthSyncSettingsUseCase>;
+String _$syncFromHealthPlatformUseCaseHash() =>
+    r'681c121efd7a631f7e764c30b7778b2aae42b052';
+
+/// SyncFromHealthPlatformUseCase provider.
+///
+/// Copied from [syncFromHealthPlatformUseCase].
+@ProviderFor(syncFromHealthPlatformUseCase)
+final syncFromHealthPlatformUseCaseProvider =
+    AutoDisposeProvider<SyncFromHealthPlatformUseCase>.internal(
+      syncFromHealthPlatformUseCase,
+      name: r'syncFromHealthPlatformUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$syncFromHealthPlatformUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SyncFromHealthPlatformUseCaseRef =
+    AutoDisposeProviderRef<SyncFromHealthPlatformUseCase>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 16b: health plugin + iOS/Android config + SyncFromHealthPlatformUseCase",
-  "timestamp": "2026-02-25T21:00:00Z",
+  "task": "Phase 16c: HealthPlatformServiceImpl + HealthSyncSettingsScreen",
+  "timestamp": "2026-02-25T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3160,
+  "testCount": 3181,
   "schemaVersion": 16,
-  "notes": "Phase 16b complete. Next: Phase 16c — Health Platform Settings UI screen (HealthSyncSettingsScreen per 61_HEALTH_PLATFORM_INTEGRATION.md). See CLAUDE.md PLAN for task list. The HealthPlatformService abstract port (lib/domain/repositories/health_platform_service.dart) still needs a concrete implementation wiring to the health plugin — that may be 16c or 16d."
+  "notes": "Phase 16c complete. 3 items delivered: (1) HealthPlatformServiceImpl in lib/data/services/health_platform_service_impl.dart — concrete health plugin adapter, only file that imports health package, injects hp.Health for testability; (2) HealthSyncSettingsScreen in lib/presentation/screens/health/health_sync_settings_screen.dart — 4-section settings screen wired into Settings hub; (3) 39 new tests — 14 unit tests for the impl (Mockito mock of hp.Health), 24 widget tests for the screen, 1 settings hub tile test. All tests passing, analyzer clean, schema unchanged (v16). Next: Phase 16d integration testing per 61_HEALTH_PLATFORM_INTEGRATION.md — full end-to-end sync flow, manual test on device with real health data."
 }

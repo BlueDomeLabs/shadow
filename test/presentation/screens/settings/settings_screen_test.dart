@@ -35,5 +35,10 @@ void main() {
       await tester.pumpWidget(_buildScreen());
       expect(find.text('Cloud Sync'), findsOneWidget);
     });
+
+    testWidgets('shows Health Data tile', (tester) async {
+      await tester.pumpWidget(_buildScreen());
+      expect(find.text('Health Data'), findsOneWidget);
+    });
   });
 }
