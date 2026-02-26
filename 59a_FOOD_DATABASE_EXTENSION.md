@@ -1,5 +1,5 @@
 # 59a — Food Database Extension (Three Item Types)
-**Status:** PLANNED — Not yet implemented
+**Status:** COMPLETE — Phase 15a implemented (2026-02-24)
 **Target Phase:** Phase 15 pre-work (implement before 59_DIET_TRACKING.md)
 **Created:** 2026-02-22
 **Depends on:** Existing food_items table (schema v9)

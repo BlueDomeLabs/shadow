@@ -11,7 +11,9 @@
 #   1  — upload failed (see stderr)
 #   2  — briefing file not found
 
+import datetime
 import json
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -122,6 +124,16 @@ def main() -> int:
         return 2
 
     new_content = BRIEFING_FILE.read_text(encoding="utf-8")
+
+    # Replace the "# Last Updated:" line with the current local timestamp
+    timestamp = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    new_content = re.sub(
+        r"^# Last Updated:.*$",
+        f"# Last Updated: {timestamp}",
+        new_content,
+        count=1,
+        flags=re.MULTILINE,
+    )
 
     try:
         access_token = refresh_access_token()

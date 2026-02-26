@@ -123,6 +123,57 @@ Each entry has:
 
 ---
 
+### 2026-02-25: WakingFeeling enum — drop "Energized", keep 3 options
+
+**What:** The WakingFeeling enum stays at 3 values: Unrested, Neutral, Rested. The "Energized" option that appeared in an earlier version of 38_UI_FIELD_SPECIFICATIONS.md is dropped permanently.
+
+**Why:** The code has always had 3 values (unrested/neutral/rested). "Energized" was in the spec but never implemented. The 3-option set covers the meaningful range for sleep quality assessment without over-engineering.
+
+**Impact:** 38_UI_FIELD_SPECIFICATIONS.md Section 7.1 updated to show 3 options. No code change needed — code is already correct.
+
+---
+
+### 2026-02-25: Build the 3 missing sleep fields — decided, pending future phase
+
+**What:** Three UI fields shown in the sleep entry spec have no backing database columns: "Time to Fall Asleep," "Times Awakened," and "Time Awake During Night." Reid has decided these should be built, not dropped.
+
+**Why:** These are standard sleep quality metrics used in clinical sleep assessments. Capturing them would make the sleep log significantly more useful for health analysis.
+
+**Alternatives:** Dropping them permanently (simpler). Rejected — these are valuable data points worth the schema work.
+
+**Impact:** Requires a future schema migration adding columns to sleep_entries, new entity fields, and UI updates to the sleep entry screen. This is a breaking change — logged as DECIDED/PENDING IMPLEMENTATION. A dedicated sleep enhancement phase must be planned before this is built. Do not add the fields in an unplanned phase.
+
+---
+
+### 2026-02-25: Expand AnchorEventType to 8 fixed named events
+
+**What:** The AnchorEventName enum expands from 5 to 8 values. The new ordered list is: wake(0), breakfast(1), morning(2), lunch(3), afternoon(4), dinner(5), evening(6), bedtime(7). The old "bed" value is renamed to "bedtime." Three new events are added: morning, afternoon, evening. No custom/user-defined anchor events will be supported.
+
+**Why:** The notification system (Phase 13) uses anchor events as trigger points for all health data reminders. The 5-event set was too sparse — it left no good trigger point for mid-morning supplements, afternoon check-ins, or evening routines. The 8-event set covers the full waking day without requiring custom slots.
+
+**Critical impact — breaking enum change:** Existing anchor_event_times rows in the database use integer values 0–4 (wake/breakfast/lunch/dinner/bed). The new enum inserts 3 new values at positions 2, 4, and 6, pushing existing values up. This requires a schema migration to remap existing rows:
+- Old bed(4) → New bedtime(7): any row with value=4 must be updated to value=7
+- Old lunch(2) → New lunch(3): rows with value=2 must be updated to value=3
+- Old dinner(3) → New dinner(5): rows with value=3 must be updated to value=5
+- wake(0) and breakfast(1) are unchanged.
+This migration must run as part of the next schema version bump. Do not deploy the new enum without the migration.
+
+**Alternatives:** Custom anchor events (rejected — adds complexity with little benefit; 8 named events are sufficient). Appending new values at the end (rejected — "morning" and "afternoon" should appear between existing events in display order).
+
+**Impact:** 57_NOTIFICATION_SYSTEM.md, 58_SETTINGS_SCREENS.md, and 38_UI_FIELD_SPECIFICATIONS.md Sections 15.1/15.2 updated to reflect 8 events. Spec Deviation #5 (no "Evening" variant) is retired. Code changes (enum + migration + any UI using the enum) are planned for the next implementation phase.
+
+---
+
+### 2026-02-25: 6-digit PIN is fixed — 58_SETTINGS_SCREENS.md is authoritative
+
+**What:** The PIN for app lock is exactly 6 digits. No minimum, no range. 58_SETTINGS_SCREENS.md is the authoritative spec. The "4-6 digits" wording in 38_UI_FIELD_SPECIFICATIONS.md Section 13.4 was incorrect and has been updated to say "6 digits."
+
+**Why:** A fixed 6-digit PIN is simpler to implement, easier to communicate to users ("set a 6-digit PIN"), and consistent with iOS/Android standard app lock patterns.
+
+**Impact:** 38_UI_FIELD_SPECIFICATIONS.md Section 13.4 updated. No code change needed — the existing security implementation already enforces 6 digits.
+
+---
+
 ### 2026-02-14: Committed working code and deleted broken code from previous instance
 
 **What:** A previous Claude instance had done extensive work (54 files) but never committed any of it and left 6 files in a broken state. We committed the 54 working files and deleted the 6 broken ones.

@@ -11191,6 +11191,13 @@ class PreLogComplianceCheckUseCase
 
 ## 8. Notification Schedule Contracts
 
+> **OBSOLETE — 2026-02-25:** This entire section describes the pre-Phase 13 notification design (`NotificationSchedule` entity stored in a `notification_schedules` database table). This design was never implemented. Phase 13 replaced it with:
+> - `AnchorEventTime` entity — configures clock times for 8 named anchor events
+> - `NotificationCategorySettings` entity — per-category scheduling mode and config
+> - `ScheduledNotification` — non-persisted value object computed fresh at scheduling time
+>
+> See `57_NOTIFICATION_SYSTEM.md` for the actual Phase 13 implementation spec. The entity and repository definitions below are retained for historical reference only. Do not implement them.
+
 ### 8.1 NotificationSchedule Entity
 
 ```dart
@@ -12163,29 +12170,38 @@ abstract class IntakeLogRepository implements EntityRepository<IntakeLog, String
 ### 10.11 FoodItem Entity (P0 - Food)
 
 ```dart
+// Updated Phase 15a — see 59a_FOOD_DATABASE_EXTENSION.md
+// FoodItemType is now defined in health_enums.dart (canonical source)
 enum FoodItemType {
-  simple(0),
-  complex(1);
+  simple(0),    // Single whole food or ingredient
+  composed(1),  // Recipe made from Simple items (formerly 'complex' — integer value unchanged)
+  packaged(2);  // Manufactured product with barcode (NEW in Phase 15a)
 
   final int value;
   const FoodItemType(this.value);
+
+  static FoodItemType fromValue(int value) => FoodItemType.values.firstWhere(
+    (e) => e.value == value,
+    orElse: () => simple,
+  );
 }
 
-@freezed
-class FoodItem with _$FoodItem {
+@Freezed(toJson: true, fromJson: true)
+class FoodItem with _$FoodItem implements Syncable {
   const FoodItem._();
 
+  @JsonSerializable(explicitToJson: true)
   const factory FoodItem({
     required String id,
     required String clientId,
     required String profileId,
     required String name,
     @Default(FoodItemType.simple) FoodItemType type,
-    @Default([]) List<String> simpleItemIds,  // For complex items
+    @Default([]) List<String> simpleItemIds,  // For composed items
     @Default(true) bool isUserCreated,
     @Default(false) bool isArchived,
 
-    // Nutritional information (optional)
+    // Nutritional information (optional for all types)
     String? servingSize,             // e.g., "1 cup", "100g"
     double? calories,                // kcal per serving
     double? carbsGrams,              // Carbohydrates in grams
@@ -12194,15 +12210,26 @@ class FoodItem with _$FoodItem {
     double? fiberGrams,              // Fiber in grams
     double? sugarGrams,              // Sugar in grams
 
+    // Phase 15a additions (59a_FOOD_DATABASE_EXTENSION.md)
+    double? sodiumMg,                // Sodium in milligrams per serving (all types)
+    String? barcode,                 // UPC or EAN barcode number (Packaged type)
+    String? brand,                   // Manufacturer or brand name (Packaged type)
+    String? ingredientsText,         // Raw ingredients list as printed on label (Packaged type)
+    String? openFoodFactsId,         // Open Food Facts product identifier (Packaged type)
+    String? importSource,            // Origin: "open_food_facts", "claude_scan", "manual"
+    String? imageUrl,                // Product image URL from Open Food Facts (Packaged type)
+
     required SyncMetadata syncMetadata,
   }) = _FoodItem;
 
   factory FoodItem.fromJson(Map<String, dynamic> json) =>
       _$FoodItemFromJson(json);
 
-  bool get isComplex => type == FoodItemType.complex;
+  bool get isComposed => type == FoodItemType.composed;
   bool get isSimple => type == FoodItemType.simple;
+  bool get isPackaged => type == FoodItemType.packaged;
   bool get hasNutritionalInfo => calories != null || carbsGrams != null;
+  bool get isActive => !isArchived && syncMetadata.syncDeletedAt == null;
 }
 
 abstract class FoodItemRepository implements EntityRepository<FoodItem, String> {
@@ -12260,6 +12287,7 @@ class FoodLog with _$FoodLog {
     @Default([]) List<String> foodItemIds,  // Comma-separated in DB
     @Default([]) List<String> adHocItems,   // Comma-separated in DB - quick entry items
     String? notes,
+    @Default(false) bool violationFlag,     // Phase 15b: true = logged despite diet violation
     required SyncMetadata syncMetadata,
   }) = _FoodLog;
 
@@ -13176,6 +13204,8 @@ double calculateImpact(String profileId, String dietId, FoodItem food) {
 ```
 
 ### 12.4 Quiet Hours Queuing Behavior
+
+> **DROPPED — 2026-02-25:** `QueuedNotification` and `QuietHoursQueueService` are dropped from the implementation plan. Device-level notification controls (iOS Do Not Disturb, Android notification channels) make application-level quiet hours queuing redundant. No implementation is planned. The `QueuedNotification` DTO and `QuietHoursQueueService` below are retained for historical reference only.
 
 **When `holdUntilEnd` is selected:**
 

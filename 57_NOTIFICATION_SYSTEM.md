@@ -1,7 +1,8 @@
 # 57 — Notification System
-**Status:** PLANNED — Not yet implemented
+**Status:** COMPLETE — Phase 13 (a through e) implemented
 **Target Phase:** Phase 13
 **Created:** 2026-02-22
+**Completed:** 2026-02-24
 
 ---
 
@@ -18,7 +19,7 @@ Each reporting category can be independently enabled or disabled, and each uses 
 Every notification category uses one of two scheduling modes. The user selects the mode per category in Notification Settings.
 
 ### Mode 1 — Anchor Events
-The notification fires when a named daily event occurs (Wake, Breakfast, Lunch, Dinner, Bedtime). The user configures a clock time for each anchor event. Assigning a category to multiple anchor events produces one notification per assigned event per day.
+The notification fires when a named daily event occurs. There are 8 anchor events: Wake, Breakfast, Morning, Lunch, Afternoon, Dinner, Evening, Bedtime. The user configures a clock time for each anchor event. Assigning a category to multiple anchor events produces one notification per assigned event per day.
 
 **Best for:** Supplements, Food/Meals, BBT/Vitals, Condition Check-ins — things that naturally tie to daily events.
 
@@ -46,15 +47,20 @@ The notification fires on a repeating interval or at specific clock times set by
 
 The user configures a clock time for each named anchor event in Notification Settings. These times are used by all categories running in Mode 1.
 
-| Anchor Event | Default Time | Example Use |
-|---|---|---|
-| Wake | 7:00 AM | BBT/vitals, morning supplements |
-| Breakfast | 8:00 AM | Food log, breakfast supplements |
-| Lunch | 12:00 PM | Food log, midday supplements |
-| Dinner | 6:00 PM | Food log, evening supplements |
-| Bedtime | 10:00 PM | Evening supplements, journal |
+| Anchor Event | Enum Value | Default Time | Example Use |
+|---|---|---|---|
+| Wake | wake(0) | 7:00 AM | BBT/vitals, morning supplements |
+| Breakfast | breakfast(1) | 8:00 AM | Food log, breakfast supplements |
+| Morning | morning(2) | 10:00 AM | Mid-morning supplements, fluids check-in |
+| Lunch | lunch(3) | 12:00 PM | Food log, midday supplements |
+| Afternoon | afternoon(4) | 3:00 PM | Afternoon supplements, condition check-in |
+| Dinner | dinner(5) | 6:00 PM | Food log, dinner supplements |
+| Evening | evening(6) | 8:00 PM | Evening supplements, journal |
+| Bedtime | bedtime(7) | 10:00 PM | Bedtime supplements, sleep prep |
 
 Each anchor event can be enabled or disabled. Disabled anchor events are skipped for all categories using Mode 1. The user sets the time for each via a time picker.
+
+> **Implementation note (2026-02-25):** Expanding from 5 to 8 anchor events is a breaking enum change. Existing `anchor_event_times` database rows store integer values 0–4. The migration must remap: lunch 2→3, dinner 3→5, bed 4→7 before inserting new rows for morning(2), afternoon(4), evening(6). See DECISIONS.md 2026-02-25 entry for the full migration requirement.
 
 ---
 

@@ -1,8 +1,9 @@
 # 61 — Health Platform Integration (HealthKit & Health Connect)
-**Status:** PLANNED — Not yet implemented
+**Status:** PARTIAL — Phase 16a (data foundation) complete; Phase 16b–16d pending Reid approval
 **Target Phase:** Phase 16
 **Created:** 2026-02-22
 **Depends on:** Phase 13 (Notification System complete), Phase 15b (Diet Tracking complete)
+**Phase 16a completed:** 2026-02-24 (ImportedVital + HealthSyncSettings entities, DAOs, repos, 3 use cases, schema v16, 83 tests)
 
 ---
 
@@ -38,24 +39,43 @@ Sync is manual — the user taps a "Sync from Health" button. No background sync
 All imported health platform data is stored in a single `imported_vitals` table. Records are read-only — Shadow never modifies or deletes imported data after it is written. Re-syncing adds new records but does not overwrite existing ones.
 
 ```sql
+-- Actual implemented schema (schema v16). Per 02_CODING_STANDARDS.md:
+--   - All timestamps are INTEGER (epoch ms), never ISO8601 strings
+--   - All enums are INTEGER (stored as enum.value), never TEXT strings
+--   - All tables include client_id and full sync metadata columns
 CREATE TABLE imported_vitals (
-  id TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY,                 -- UUID v4
+  client_id TEXT NOT NULL,             -- Client identifier for database merging
   profile_id TEXT NOT NULL,
-  data_type TEXT NOT NULL,        -- heart_rate, resting_heart_rate, weight, bp_systolic,
-                                  --   bp_diastolic, sleep_start, sleep_end, steps,
-                                  --   active_calories, blood_oxygen
-  value REAL NOT NULL,            -- numeric value in canonical unit
-  unit TEXT NOT NULL,             -- canonical unit string (bpm, kg, mmHg, hours, steps, kcal, %)
-  recorded_at TEXT NOT NULL,      -- ISO8601 timestamp from the source device
-  source_platform TEXT NOT NULL,  -- "apple_health" or "google_health_connect"
-  source_device TEXT,             -- device name if available (e.g. "Apple Watch Series 9")
-  imported_at TEXT NOT NULL,      -- when Shadow imported this record
-  FOREIGN KEY (profile_id) REFERENCES profiles(id)
+  data_type INTEGER NOT NULL,          -- HealthDataType enum value (0-8)
+  value REAL NOT NULL,                 -- numeric value in canonical unit
+  unit TEXT NOT NULL,                  -- canonical unit string (bpm, kg, mmHg, hours, steps, kcal, %)
+  recorded_at INTEGER NOT NULL,        -- epoch ms from the source device (NOT ISO8601)
+  source_platform INTEGER NOT NULL,    -- HealthSourcePlatform enum value (0=appleHealth, 1=googleHealthConnect)
+  source_device TEXT,                  -- device name if available (e.g. "Apple Watch Series 9")
+  imported_at INTEGER NOT NULL,        -- epoch ms when Shadow imported this record (NOT ISO8601)
+  -- Sync metadata columns (standard on all syncable entities)
+  sync_created_at INTEGER NOT NULL,
+  sync_updated_at INTEGER,
+  sync_deleted_at INTEGER,
+  sync_last_synced_at INTEGER,
+  sync_status INTEGER DEFAULT 0,
+  sync_version INTEGER DEFAULT 1,
+  sync_device_id TEXT,
+  sync_is_dirty INTEGER DEFAULT 1,
+  conflict_data TEXT,
+  FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_imported_vitals_profile ON imported_vitals(profile_id);
-CREATE INDEX idx_imported_vitals_type_date ON imported_vitals(data_type, recorded_at);
+CREATE INDEX idx_imported_vitals_profile ON imported_vitals(profile_id, data_type);
+CREATE INDEX idx_imported_vitals_type_date ON imported_vitals(data_type, recorded_at DESC);
+CREATE INDEX idx_imported_vitals_sync ON imported_vitals(sync_is_dirty, sync_status)
+  WHERE sync_deleted_at IS NULL;
 ```
+
+**HealthDataType enum values:** heartRate(0), restingHeartRate(1), weight(2), bpSystolic(3), bpDiastolic(4), sleepDuration(5), steps(6), activeCalories(7), bloodOxygen(8)
+
+**HealthSourcePlatform enum values:** appleHealth(0), googleHealthConnect(1)
 
 ### Canonical Units
 All values stored in canonical units regardless of device or user unit preferences. Conversion to display units happens at render time per the Units Settings (spec 58).

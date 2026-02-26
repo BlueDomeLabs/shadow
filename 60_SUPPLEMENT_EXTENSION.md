@@ -1,5 +1,5 @@
 # 60 — Supplement Extension (Import Methods, Source, and Price)
-**Status:** PLANNED — Not yet implemented
+**Status:** COMPLETE — Phase 15a implemented (2026-02-24)
 **Target Phase:** Phase 15a pre-work (implement alongside or just before 59a_FOOD_DATABASE_EXTENSION.md)
 **Created:** 2026-02-22
 **Depends on:** Existing supplements table and Supplement Edit Screen (Phase 5)

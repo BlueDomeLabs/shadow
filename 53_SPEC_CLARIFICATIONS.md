@@ -162,8 +162,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 2. Update use case section and implementation to use `required` (matches entity section)
 
 **Blocking:** None (implementation uses @Default which is reasonable for optional list fields)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec entity section to `@Default([])` — empty lists are a reasonable default for activity logs created without pre-selected activities.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Update spec entity section to use `@Default([]) List<String>` for `activityIds` and `adHocActivities`. Code is correct. Spec entity section needs updating to match.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md Section 10.15 (ActivityLog entity definition)
 
 ---
 
@@ -174,8 +175,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** Section 13.12 defines the intake_logs table with columns that don't match the IntakeLog entity from Section 10.10. The entity has `scheduledTime`, `status`, `actualTime`, `reason`, `note`, `snoozeDurationMinutes` but the table section has outdated/mismatched column definitions from an earlier spec version.
 
 **Blocking:** None (implementation matches entity, not table section)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update Section 13.12 to match the IntakeLog entity definition in Section 10.10. The table columns should be: id, client_id, profile_id, supplement_id, scheduled_time (INTEGER), actual_time (INTEGER), status (INTEGER), reason (TEXT), note (TEXT), snooze_duration_minutes (INTEGER), plus all sync metadata columns.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Update Section 13.12 to match the IntakeLog entity definition in Section 10.10. Columns: id, client_id, profile_id, supplement_id, scheduled_time (INTEGER), actual_time (INTEGER), status (INTEGER), reason (TEXT), note (TEXT), snooze_duration_minutes (INTEGER), plus all sync metadata columns. Code is correct.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md Section 13.12
 
 ---
 
@@ -186,8 +188,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The spec declares `implements Syncable` on only 7 of 14 entities (Activity, ActivityLog, FlareUp, JournalEntry, PhotoArea, PhotoEntry, SleepEntry) but not on the other 7 (Supplement, FluidsEntry, Condition, ConditionLog, FoodItem, FoodLog, IntakeLog). All 14 entities have `required SyncMetadata syncMetadata` and should implement the Syncable interface for compile-time guarantees.
 
 **Blocking:** None (implementation now has `implements Syncable` on all 14 entities per P1-2 fix)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec to add `implements Syncable` to all 14 entity class declarations for consistency.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** All 14 entities in the implementation declare `implements Syncable`. Spec should be updated to match. Code is correct.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md Sections 10.x entity declarations
 
 ---
 
@@ -198,8 +201,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The implementation has `archive(String id)` and `unarchive(String id)` methods on ActivityRepository that are not in the spec. The Activity entity has an `isArchived` field, so these methods are functionally reasonable and follow the same pattern as SupplementRepository's archive/unarchive.
 
 **Blocking:** None (implementation is reasonable, spec should be updated to match)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec to include archive/unarchive methods on ActivityRepository (and any other repository for entities with `isArchived` fields).
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Code correctly has archive/unarchive on ActivityRepository. Spec should be updated to include these methods and any other repository for entities with isArchived fields.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md ActivityRepository section
 
 ---
 
@@ -210,8 +214,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The implementation's `CreateConditionInput` includes `@Default([]) List<String> triggers` which is not in the spec's CreateConditionInput. However, the Condition entity (Section 10.8) does have a `triggers` field, so allowing triggers at creation time is functionally correct.
 
 **Blocking:** None (implementation is a reasonable addition)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec CreateConditionInput to include `@Default([]) List<String> triggers`.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Code correctly includes `@Default([]) List<String> triggers` in CreateConditionInput. Spec should be updated to match.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md CreateConditionInput definition
 
 ---
 
@@ -222,8 +227,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The implementation's `DatabaseError.updateFailed` and `DatabaseError.deleteFailed` factories accept an extra `String id` parameter not in the spec. This provides better debugging information (knowing which entity ID failed).
 
 **Blocking:** None (implementation is better for debugging)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec to include the `id` parameter in `updateFailed(String table, String id, Object error, StackTrace stack)` and `deleteFailed(String table, String id, Object error, StackTrace stack)`.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Code correctly includes an `id` parameter in updateFailed and deleteFailed for better error context. Spec should be updated to include this parameter.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md Section 2 DatabaseError factories
 
 ---
 
@@ -234,8 +240,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The FoodItem entity has `String? servingSize` but the table implementation stores it as two columns: `serving_size REAL` + `serving_size_unit TEXT`. The DAO performs string-based conversion between entity and table. The spec table definition has `serving_size TEXT`.
 
 **Blocking:** None (implementation works but parsing is fragile — see P7-2)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Keep the structured REAL+TEXT table format (better for querying/sorting) and update the spec table definition. Also improve the DAO parsing to handle edge cases like "100g" (no space). Alternatively, revert to single TEXT column to match entity type.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Keep the structured REAL (serving_size) + TEXT (serving_unit) table format — better for querying and sorting by serving size. The spec table definition should be updated to show two columns instead of one TEXT column.
+**Spec Updated:** Yes — noted for 22_API_CONTRACTS.md food_items table definition section
 
 ---
 
@@ -246,8 +253,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 **Issue:** The spec uses `@freezed` (lowercase) for all entity annotations, but the implementation uses `@Freezed(toJson: true, fromJson: true)` with `@JsonSerializable(explicitToJson: true)`. The implementation pattern is more explicit and correct for nested objects (SyncMetadata, List<SupplementIngredient>, etc.) ensuring proper JSON serialization of nested fields.
 
 **Blocking:** None (implementation pattern is superior)
-**Status:** AWAITING_CLARIFICATION
-**Recommended:** Update spec to use `@Freezed(toJson: true, fromJson: true)` + `@JsonSerializable(explicitToJson: true)` pattern across all entity definitions.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** Code correctly uses `@Freezed(toJson: true, fromJson: true)` + `@JsonSerializable(explicitToJson: true)` for all entities. Spec should be updated to use this pattern throughout all entity definitions.
+**Spec Updated:** Yes — noted for all 22_API_CONTRACTS.md entity sections
 
 ---
 
@@ -269,8 +277,9 @@ When a Claude instance encounters an ambiguity in the specifications, it documen
 - **P11-3:** JournalEntry getMoodDistribution counts in Dart instead of SQL GROUP BY. Functional, performance optimization deferred.
 
 **Blocking:** None
-**Status:** DOCUMENTED
-**Recommended:** Update spec to include extra computed getters and methods where noted. No code changes needed.
+**Status:** RESOLVED — 2026-02-25
+**Resolution:** All 10 items in this batch are code-is-correct cases. The spec should be updated to include the extra computed getters, extra repository methods, and minor implementation differences noted above. No code changes needed.
+**Spec Updated:** Yes — noted across multiple 22_API_CONTRACTS.md sections
 
 ---
 

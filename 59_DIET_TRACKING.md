@@ -1,7 +1,8 @@
 # 59 — Diet Tracking
-**Status:** PLANNED — Not yet implemented
+**Status:** COMPLETE — Phase 15b implemented
 **Target Phase:** Phase 15
 **Created:** 2026-02-22
+**Completed:** 2026-02-24
 
 ---
 
@@ -71,20 +72,31 @@ Entry point for diet tracking. Shows the user's current active diet and allows s
 - **No Diet** option — turns off diet tracking while keeping historical data
 
 ### Preset Diets Available
-| Diet | Description |
-|---|---|
-| Ketogenic | Very low carb (<20g net carbs/day), high fat |
-| Paleo | Whole foods, no grains/legumes/dairy |
-| Vegan | No animal products |
-| Vegetarian | No meat, allows dairy and eggs |
-| Mediterranean | Emphasis on fish, olive oil, vegetables, whole grains |
-| Gluten-Free | No gluten-containing foods |
-| Dairy-Free | No dairy products |
-| Low-FODMAP | Excludes high-FODMAP foods for IBS management |
-| Carnivore | Animal products only |
-| Whole30 | 30-day elimination diet |
-| AIP (Autoimmune Protocol) | Elimination diet for autoimmune conditions |
-| DASH | Dietary Approaches to Stop Hypertension |
+
+> **Canonical source:** `41_DIET_SYSTEM.md` Section 2.2 and the `DietPresetType` enum in `22_API_CONTRACTS.md` Section 3.3. The list below matches the 20 implemented enum values. "Carnivore" and "DASH" were removed; intermittent fasting variants and Zone were added.
+
+| Diet | DietPresetType enum | Description |
+|---|---|---|
+| Vegan | vegan | No animal products |
+| Vegetarian | vegetarian | No meat, allows dairy and eggs |
+| Pescatarian | pescatarian | No meat, allows fish/dairy/eggs |
+| Paleo | paleo | No grains, legumes, dairy, processed foods |
+| Ketogenic | keto | <20g net carbs, 70-75% fat |
+| Strict Keto | ketoStrict | <20g total carbs, 75% fat |
+| Low Carb | lowCarb | <100g carbs daily |
+| Mediterranean | mediterranean | Emphasis on fish, olive oil, vegetables |
+| Whole30 | whole30 | 30-day elimination diet |
+| AIP (Autoimmune Protocol) | aip | Paleo + no nightshades, eggs, nuts, seeds |
+| Low-FODMAP | lowFodmap | Excludes high-FODMAP foods for IBS management |
+| Gluten-Free | glutenFree | No gluten-containing grains |
+| Dairy-Free | dairyFree | No dairy products |
+| Intermittent Fasting 16:8 | if168 | 16hr fast, 8hr eating window |
+| Intermittent Fasting 18:6 | if186 | 18hr fast, 6hr eating window |
+| Intermittent Fasting 20:4 | if204 | 20hr fast, 4hr eating window |
+| One Meal A Day | omad | 23hr fast, 1hr eating window |
+| 5:2 Diet | fiveTwoDiet | 5 normal days, 2 fasting days (<500 cal) |
+| Zone Diet | zone | 40% carb, 30% protein, 30% fat |
+| Custom | custom | User-defined rules |
 
 ### Selecting a Preset Diet
 - Tap diet → detail screen showing full rules and excluded foods
@@ -237,7 +249,7 @@ Shown in real-time when a food add would violate an active diet rule. Appears be
 - Applies to all three input methods: manual, barcode scan, photo scan
 
 ### Layout
-- Alert title: "Diet Rule Violation"
+- Alert title: "Diet Alert" (implemented as `DietViolationDialog` — spec originally said "Diet Rule Violation" but code uses "Diet Alert")
 - Plain-English explanation: "This food contains [ingredient]. Your current diet excludes [rule]."
 - The specific rule(s) violated
 - The food item being added

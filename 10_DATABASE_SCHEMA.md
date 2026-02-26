@@ -1,9 +1,11 @@
 # Shadow Database Schema
 
-**Version:** 1.7
-**Last Updated:** 2026-02-21
+**Version:** 1.8
+**Last Updated:** 2026-02-25
 **Database:** SQLCipher (Encrypted SQLite)
-**Current Schema Version:** 11
+**Current Schema Version:** 16
+
+> **Note:** Spec versions 1.0–1.7 tracked schema v1–v11. Schema versions v12–v16 were added during Phases 13–16a and are documented in the migration history (Section 14) and in `lib/data/datasources/local/database.dart` comments. The spec document is now updated to reflect v16.
 
 ---
 
@@ -317,12 +319,30 @@ The following tables are **exempt** from standard sync metadata columns and do N
 
 **Note:** `ml_models` and `prediction_feedback` tables DO have sync metadata columns and are syncable. They were previously listed here in error but are standard syncable tables.
 
+**Domain entities also exempt from standard sync fields (2026-02-25):**
+
+The following domain entities intentionally omit some or all of `clientId`, `profileId`, and `syncMetadata`. All are implemented and tested. Documented here as the authoritative exemption record.
+
+| Entity | Missing Fields | Reason |
+|--------|---------------|--------|
+| `GuestInvite` | clientId, syncMetadata | Ephemeral access token; not independently synced to Drive |
+| `DietRule` | clientId, profileId, syncMetadata | Sub-entity of Diet; synced and hard-deleted as part of parent Diet |
+| `DietException` | clientId, profileId, syncMetadata | Same as DietRule |
+| `AnchorEventTime` | clientId, profileId | Global app configuration; not profile-specific; local-only |
+| `NotificationCategorySettings` | clientId, profileId, syncMetadata | Global app configuration; local-only |
+| `UserSettings` | clientId, profileId, syncMetadata | Device-local preferences; never synced to Google Drive |
+| `HealthSyncSettings` | clientId, syncMetadata | Device-local health platform sync configuration |
+| `HealthSyncStatus` | clientId, profileId, syncMetadata | Device-local import tracking state |
+
 **Rationale:**
 - **Security tables** (`refresh_token_usage`, `pairing_sessions`): Security artifacts must not leave the device
 - **Audit tables** (`profile_access_logs`): Immutable compliance records, write-once
 - **Export tables** (`fhir_exports`): Records of what was exported from this device
 - **Import tables** (`imported_data_log`): Deduplication for imports to this device
 - **Junction tables** (`food_item_categories`): Follows parent entity sync via CASCADE delete
+- **Sub-entities** (`DietRule`, `DietException`): Lifecycle fully controlled by parent; no independent sync needed
+- **Device-local config** (`AnchorEventTime`, `NotificationCategorySettings`, `UserSettings`, `HealthSyncSettings`, `HealthSyncStatus`): Per-device settings that should not sync across devices
+- **Ephemeral tokens** (`GuestInvite`): Access tokens managed outside normal sync; stored in Drive separately
 
 **Code Review Requirement:** Any new table without sync metadata MUST be added to this list with justification.
 
@@ -330,7 +350,11 @@ The following tables are **exempt** from standard sync metadata columns and do N
 
 ## 3. User & Access Control Tables
 
+> **Note — Not yet implemented (2026-02-25):** `user_accounts`, `profile_access`, and `device_registrations` tables below are defined for future multi-user/multi-device support but have not been built. The current app uses the `profiles` table (Section 3.2, schema v10) for profile management without a separate user account layer.
+
 ### 3.1 user_accounts
+
+> **Status: NOT YET IMPLEMENTED** — planned for a future phase.
 
 Stores user authentication and account information.
 
@@ -403,6 +427,8 @@ CREATE INDEX idx_profiles_owner ON profiles(owner_id);
 
 ### 3.3 profile_access
 
+> **Status: NOT YET IMPLEMENTED** — planned for a future multi-user phase.
+
 Manages shared access to profiles for multi-user scenarios.
 
 ```sql
@@ -440,6 +466,8 @@ CREATE INDEX idx_profile_access_client ON profile_access(client_id);
 ```
 
 ### 3.4 device_registrations
+
+> **Status: NOT YET IMPLEMENTED** — planned for a future multi-device phase.
 
 Tracks devices registered for multi-device access control.
 
@@ -505,6 +533,13 @@ CREATE TABLE supplements (
   start_date INTEGER,              -- Epoch ms - When to start taking (null = immediately)
   end_date INTEGER,                -- Epoch ms - When to stop taking (null = ongoing)
   is_archived INTEGER DEFAULT 0,   -- 0: active, 1: archived (temporarily stopped)
+
+  -- Phase 15a additions (60_SUPPLEMENT_EXTENSION.md, schema v14)
+  custom_dosage_unit TEXT,         -- Custom unit label when dosage_unit=8 (custom)
+  source TEXT,                     -- Where obtained: URL, store name, doctor name, etc.
+  price_paid REAL,                 -- Total price paid for package/bottle
+  barcode TEXT,                    -- UPC or EAN barcode for NIH DSLD lookup
+  import_source TEXT,              -- Origin: "dsld", "claude_scan", or "manual"
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -575,7 +610,7 @@ CREATE INDEX idx_intake_logs_sync ON intake_logs(sync_is_dirty, sync_status)
 
 ### 5.1 food_items
 
-Reusable food items (simple or complex).
+Reusable food items. Three types: Simple (single ingredient), Composed (recipe from Simple items), Packaged (manufactured product with barcode). See `59a_FOOD_DATABASE_EXTENSION.md` for full type definitions.
 
 ```sql
 CREATE TABLE food_items (
@@ -583,12 +618,12 @@ CREATE TABLE food_items (
   client_id TEXT NOT NULL,         -- Client identifier for database merging support
   profile_id TEXT NOT NULL,
   name TEXT NOT NULL,
-  type INTEGER NOT NULL,           -- 0: simple, 1: complex
-  simple_item_ids TEXT,            -- Comma-separated IDs (for complex items)
+  type INTEGER NOT NULL,           -- FoodItemType: 0=simple, 1=composed, 2=packaged
+  simple_item_ids TEXT,            -- Comma-separated IDs (for composed items)
   is_user_created INTEGER NOT NULL DEFAULT 1,
   is_archived INTEGER DEFAULT 0,   -- 0: active, 1: archived (e.g., during elimination diet)
 
-  -- Nutritional information (optional)
+  -- Nutritional information (optional for all types)
   serving_size REAL,               -- Numeric serving size value
   serving_unit TEXT,               -- Unit of serving (e.g., "cup", "g")
   calories REAL,                   -- kcal per serving
@@ -597,6 +632,15 @@ CREATE TABLE food_items (
   protein_grams REAL,              -- Protein in grams
   fiber_grams REAL,                -- Fiber in grams
   sugar_grams REAL,                -- Sugar in grams
+
+  -- Phase 15a additions (59a_FOOD_DATABASE_EXTENSION.md, schema v14)
+  sodium_mg REAL,                  -- Sodium in milligrams per serving (all types)
+  barcode TEXT,                    -- UPC or EAN barcode number (Packaged type)
+  brand TEXT,                      -- Manufacturer or brand name (Packaged type)
+  ingredients_text TEXT,           -- Raw ingredients list as printed on label (Packaged type)
+  open_food_facts_id TEXT,         -- Open Food Facts product identifier (Packaged type)
+  import_source TEXT,              -- Origin: "open_food_facts", "claude_scan", "manual" (Packaged)
+  image_url TEXT,                  -- Product image URL from Open Food Facts (Packaged type)
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -633,6 +677,7 @@ CREATE TABLE food_logs (
   food_item_ids TEXT NOT NULL,     -- Comma-separated IDs
   ad_hoc_items TEXT NOT NULL,      -- Comma-separated names
   notes TEXT,
+  violation_flag INTEGER DEFAULT 0, -- Phase 15b: 1 = logged despite diet violation (was_overridden=true)
 
   -- Sync metadata
   sync_created_at INTEGER NOT NULL,
@@ -1117,6 +1162,8 @@ CREATE INDEX idx_fluids_bbt ON fluids_entries(profile_id, bbt_recorded_time DESC
 
 ### 10.2 bowel_urine_logs
 
+> **Status: DEPRECATED — Not implemented.** This table was superseded by `fluids_entries` (Section 10.1), which covers all fluid tracking including bowel and urine in a single consolidated table. Do not implement `bowel_urine_logs`.
+
 Simplified bowel/urine logs.
 
 ```sql
@@ -1231,7 +1278,11 @@ CREATE INDEX idx_photo_entries_sync ON photo_entries(sync_is_dirty, sync_status)
 
 ## 12. Notification Schedules Table
 
+> **Status: REPLACED — Not implemented as described here.** The `notification_schedules` table design in this section was the original Phase 13 plan. The actual Phase 13 implementation uses two separate tables instead: `anchor_event_times` (configures clock times for named anchor events) and `notification_category_settings` (per-category scheduling config). See `lib/data/datasources/local/tables/` for the actual implementations. This section is retained for historical reference only.
+
 ### 12.1 notification_schedules
+
+> **HISTORICAL — See note above. Not the implemented design.**
 
 Notification reminder configurations per profile.
 
@@ -1507,16 +1558,20 @@ CREATE TABLE food_item_categories (
   FOREIGN KEY (food_item_id) REFERENCES food_items(id) ON DELETE CASCADE
 );
 
+-- NOTE: The diet_violations schema below reflects the ACTUAL implemented schema (Phase 15b,
+-- schema v15), which differs from the original design above. The columns food_log_id,
+-- rule_type, severity, and message were replaced with the fields below.
+-- See 59_DIET_TRACKING.md and the Drift table in lib/data/datasources/local/tables/diet_violations_table.dart.
 CREATE TABLE diet_violations (
   id TEXT PRIMARY KEY,
   client_id TEXT NOT NULL,
   profile_id TEXT NOT NULL,
   diet_id TEXT NOT NULL,
-  food_log_id TEXT NOT NULL,
-  rule_id TEXT,
-  rule_type INTEGER NOT NULL,
-  severity INTEGER NOT NULL,
-  message TEXT NOT NULL,
+  rule_id TEXT NOT NULL,           -- FK to diet_rules
+  food_log_id TEXT,                -- Nullable: null when user cancelled (wasOverridden=false)
+  food_name TEXT NOT NULL,         -- Human-readable name of the food that triggered the violation
+  rule_description TEXT NOT NULL,  -- Plain-English description of the violated rule
+  was_overridden INTEGER DEFAULT 0, -- 1 = user chose "Add Anyway"; 0 = user cancelled
   timestamp INTEGER NOT NULL,
   sync_created_at INTEGER NOT NULL,
   sync_updated_at INTEGER,
@@ -1528,8 +1583,7 @@ CREATE TABLE diet_violations (
   sync_is_dirty INTEGER DEFAULT 1,
   conflict_data TEXT,
   FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
-  FOREIGN KEY (diet_id) REFERENCES diets(id) ON DELETE CASCADE,
-  FOREIGN KEY (food_log_id) REFERENCES food_logs(id) ON DELETE CASCADE
+  FOREIGN KEY (diet_id) REFERENCES diets(id) ON DELETE CASCADE
 );
 
 -- Food items nutritional columns
@@ -2548,6 +2602,57 @@ class SyncConflicts extends Table {
 
 ---
 
+## 16. Tables Added in Schema v12–v16 (Phases 13–16a)
+
+The following tables were added after this spec document was last formally updated (v1.7, schema v11). They are fully implemented and tested. Full Drift table definitions are in `lib/data/datasources/local/tables/`.
+
+### anchor_event_times (schema v12 — Phase 13a)
+Stores the 8 named anchor event times (wake, breakfast, morning, lunch, afternoon, dinner, evening, bedtime) with user-configurable clock times and enable/disable state. One row per anchor event per device. Local-only — not synced to Google Drive. See `57_NOTIFICATION_SYSTEM.md`.
+
+### notification_category_settings (schema v12 — Phase 13a)
+Stores per-category notification scheduling config: scheduling mode (anchorEvents/interval/specificTimes), assigned anchor events (JSON array of AnchorEventName values), interval config, specific times list, and expiry duration. 8 rows (one per NotificationCategory). Local-only. See `57_NOTIFICATION_SYSTEM.md`.
+
+### user_settings (schema v13 — Phase 14)
+Singleton row (id='singleton') storing app-wide unit preferences (WeightUnit, FoodWeightUnit, FluidUnit, TemperatureUnit, EnergyUnit, MacroDisplay) and security settings (appLockEnabled, biometricEnabled, AutoLockDuration, hideInAppSwitcher, allowBiometricBypassPin). Local-only — not synced to Google Drive. See `58_SETTINGS_SCREENS.md`.
+
+### food_item_components (schema v14 — Phase 15a)
+Stores components of Composed food items. Each row links a Composed FoodItem to one of its Simple component items with a quantity multiplier. Columns: id, clientId, profileId, composedItemId (FK → food_items), componentItemId (FK → food_items), quantity (REAL, default 1.0) + full sync metadata. See `59a_FOOD_DATABASE_EXTENSION.md`.
+
+### food_barcode_cache (schema v14 — Phase 15a)
+Cache for Open Food Facts barcode lookups. Key: barcode (TEXT). Stores product name, brand, nutritional data as JSON, and cachedAt timestamp. 30-day expiry. Avoids repeat network calls for the same barcode. Local-only.
+
+### supplement_label_photos (schema v14 — Phase 15a)
+Stores references to supplement label photos (for visual documentation). Each row links to a supplement via supplementId, stores a local file path and optional importSource. Up to 3 photos per supplement. See `60_SUPPLEMENT_EXTENSION.md`.
+
+### supplement_barcode_cache (schema v14 — Phase 15a)
+Cache for NIH DSLD supplement barcode lookups. Same structure as food_barcode_cache but for supplement products. Local-only.
+
+### diets (schema v15 — Phase 15b-1)
+Diet plan entity. Columns: id, clientId, profileId, name, description, startDate, endDate, isActive, presetType (DietPresetType enum) + full sync metadata. One profile can have many diets but only one active at a time. See `59_DIET_TRACKING.md`.
+
+### diet_rules (schema v15 — Phase 15b-1)
+Individual compliance rule within a Diet. Columns: id, dietId (FK → diets), ruleType (DietRuleType enum), targetFoodItemId, targetCategory, targetIngredient, minValue, maxValue, unit, frequency, timeValue (minutes from midnight for time-based rules), sortOrder. No clientId/profileId/syncMetadata — sub-entity of Diet; synced/deleted with parent. See Section 2.7 for exemption rationale.
+
+### diet_exceptions (schema v15 — Phase 15b-1)
+Exception to a DietRule (e.g. "No dairy — EXCEPT hard aged cheeses"). Columns: id, ruleId (FK → diet_rules), description (free text), sortOrder. No clientId/profileId/syncMetadata — same exemption rationale as diet_rules.
+
+### fasting_sessions (schema v15 — Phase 15b-1)
+Active and historical fasting window sessions. Columns: id, clientId, profileId, dietId (FK), startTime (epoch ms), endTime (epoch ms, null if active), targetHours, isActive + full sync metadata. See `59_DIET_TRACKING.md`.
+
+### diet_violations (schema v15 — Phase 15b-1)
+Records each diet compliance check failure. See corrected schema in Section 14 (v4→v5 migration). Columns: id, clientId, profileId, dietId, ruleId, foodLogId (nullable), foodName, ruleDescription, wasOverridden (boolean), timestamp + full sync metadata.
+
+### imported_vitals (schema v16 — Phase 16a)
+Health measurements imported from Apple HealthKit or Google Health Connect. See Section 16 of `61_HEALTH_PLATFORM_INTEGRATION.md` for full corrected schema. All timestamps are epoch ms (INTEGER), all enums are INTEGER values. Local-only by design — read-only after import.
+
+### health_sync_settings (schema v16 — Phase 16a)
+Per-profile health platform sync preferences. Columns: id (= profileId), profileId, enabledDataTypes (JSON array of HealthDataType int values), dateRangeDays (default 30). Local-only — not synced to Drive.
+
+### health_sync_status (schema v16 — Phase 16a)
+Per-(profile, dataType) import tracking. Columns: id (composite "profileId_dataTypeValue"), profileId, dataType (HealthDataType enum), lastSyncedAt (epoch ms, null = never), recordCount, lastError. Local-only.
+
+---
+
 ## Document Control
 
 | Version | Date | Changes |
@@ -2560,3 +2665,4 @@ class SyncConflicts extends Table {
 | 1.5 | 2026-02-01 | Added Section 15: Security tables (refresh_token_usage, pairing_sessions) |
 | 1.6 | 2026-02-01 | Added Section 2.7 Sync Metadata Exemptions (7 tables); Fixed V7→6 rollback column names; Corrected table count to 42 |
 | 1.7 | 2026-02-21 | Phase 4a spec: Fixed Section 2.4 typo (sync_status = 3 for conflict, not 2); Replaced old in-place conflict resolution process with dual-storage architecture (sync_conflicts table + conflict_data column); Added Section 17 sync_conflicts table (schema, Drift definition, indexes, migration note); Updated table count to 43; Added merge resolution strategy definition |
+| 1.8 | 2026-02-25 | Updated Current Schema Version to v16; Added Section 2.7 domain entity exemptions (8 entities); Marked user_accounts/profile_access/device_registrations as NOT YET IMPLEMENTED; Marked bowel_urine_logs as DEPRECATED; Marked notification_schedules as REPLACED; Added Phase 15a columns to supplements (custom_dosage_unit, source, price_paid, barcode, import_source) and food_items (sodium_mg, barcode, brand, ingredients_text, open_food_facts_id, import_source, image_url); Updated food_items type enum (simple/composed/packaged); Added violation_flag to food_logs; Corrected diet_violations schema; Added Section 16 documenting all 14 new tables from schema v12–v16 |

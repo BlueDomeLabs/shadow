@@ -1,7 +1,8 @@
 # 58 — Settings Screens
-**Status:** PLANNED — Not yet implemented
+**Status:** COMPLETE — Phase 14 implemented
 **Target Phase:** Phase 14
 **Created:** 2026-02-22
+**Completed:** 2026-02-24
 
 ---
 
@@ -27,12 +28,13 @@ Settings are accessible from the main navigation. The Settings section contains:
 Configure anchor event times and enable/disable notification prompts per reporting category.
 
 ### Section 1: Anchor Event Times
-A list of all anchor events with their configured times. Each row shows:
-- Event name (Wake, Breakfast, Lunch, Dinner, Bedtime, Custom 1, Custom 2, Custom 3)
+A list of all 8 anchor events with their configured times. Each row shows:
+- Event name (Wake, Breakfast, Morning, Lunch, Afternoon, Dinner, Evening, Bedtime)
 - Configured time (e.g. "7:00 AM")
 - Enable/disable toggle
 - Tap to edit time via time picker
-- Custom events: editable name field + time picker + enable/disable toggle
+
+No custom/user-defined anchor events. The 8 named events are fixed. See DECISIONS.md 2026-02-25 for the rationale and the enum migration requirement.
 
 ### Section 2: Notification Categories
 A list of all reporting categories. Each row shows:

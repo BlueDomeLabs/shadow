@@ -173,9 +173,19 @@ No input fields - handled by native OAuth sheets.
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
 | Food Name | Text | Yes | Min 2 chars | - | "e.g., Grilled Chicken" | 200 |
-| Type | Segment | Yes | Simple/Composed | Simple | - | - |
+| Type | Segment | Yes | Simple/Composed/Packaged | Simple | - | - |
 | Ingredients | Multi-select | Conditional | Required if Composed | [] | "Select ingredients..." | - |
+| Barcode | Text + Scan Button | Conditional | Packaged type only | - | "Scan or enter barcode" | - |
+| Brand | Text | Conditional | Packaged type only | - | "e.g., KIND" | 200 |
+| Ingredients Text | Text Area | Conditional | Packaged type only — raw label text | - | "Ingredients as listed on label" | 5000 |
 | Notes | Text Area | No | - | - | "Notes about this food" | 1000 |
+
+**Type definitions (Phase 15a):**
+- **Simple** — Single whole food or ingredient. User-created.
+- **Composed** — Recipe made from Simple items already in the library. Nutritional values auto-calculated, read-only.
+- **Packaged** — Manufactured product with barcode and manufacturer's ingredients list. Data sourced from Open Food Facts, photo scan, or manual entry.
+
+See `59a_FOOD_DATABASE_EXTENSION.md` for full type specifications and nutritional auto-aggregation rules.
 
 ---
 
@@ -215,7 +225,7 @@ No input fields - handled by native OAuth sheets.
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
 | Had Urination | Toggle | No | - | No | - | - |
-| Color | Dropdown | Conditional | Clear/Light Yellow/Yellow/Dark Yellow/Amber/Custom | - | "Select color" | - |
+| Color | Dropdown | Conditional | Clear/Light Yellow/Yellow/Dark Yellow/Amber/Brown/Red/Custom | - | "Select color" | - |
 | Custom Color | Text | Conditional | Only if Custom | - | "Describe" | 100 |
 | Size | Dropdown | Conditional | Small/Medium/Large | Medium | - | - |
 | Urgency | Slider | Conditional | 1-5 scale | 3 | - | - |
@@ -266,6 +276,9 @@ No input fields - handled by native OAuth sheets.
 | Times Awakened | Number | No | 0-20, integer | 0 | "Number of times" | 2 |
 | Time Awake During Night | Dropdown | No | None/A few min/15 min/30 min/1 hour/1+ hours | None | - | - |
 
+> **Status: DECIDED — PENDING IMPLEMENTATION (2026-02-25)**
+> Time to Fall Asleep, Times Awakened, and Time Awake During Night have no backing database columns in the current schema. These fields are decided to be built in a future sleep enhancement phase. They must NOT be wired to the UI until the schema migration adding the corresponding columns to `sleep_entries` is implemented. See DECISIONS.md 2026-02-25 entry for full details.
+
 #### Sleep Breakdown Section (Optional)
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
@@ -278,7 +291,7 @@ No input fields - handled by native OAuth sheets.
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
-| Waking Feeling | Segment | No | Groggy/Neutral/Rested/Energized | Neutral | - | - |
+| Waking Feeling | Segment | No | Unrested/Neutral/Rested | Neutral | - | - |
 | Dream Type | Dropdown | No | No Dreams/Vague/Vivid/Nightmares | No Dreams | - | - |
 | Notes | Text Area | No | - | - | "Any notes about your sleep" | 1000 |
 
@@ -399,21 +412,38 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 
 ## 12. Notification Settings Screen
 
-### 12.1 Notification Preferences
+> **Updated for Phase 13 (2026-02-25):** The original simple toggle design below was replaced by the Phase 13 implementation. The actual notification settings screen uses anchor events and category scheduling. See `57_NOTIFICATION_SYSTEM.md` and `58_SETTINGS_SCREENS.md` for the authoritative spec.
 
-| Field | Type | Required | Validation | Default | Placeholder | Max Length |
-|-------|------|----------|------------|---------|-------------|------------|
-| Enable All Notifications | Toggle | No | - | Yes | - | - |
-| Supplement Reminders | Toggle | No | - | Yes | - | - |
-| Meal Reminders | Toggle | No | - | No | - | - |
-| Water Reminders | Toggle | No | - | No | - | - |
-| Sleep Reminders | Toggle | No | - | No | - | - |
-| Fluids Reminders | Toggle | No | - | No | - | - |
-| Condition Check-ins | Toggle | No | - | No | - | - |
-| Photo Reminders | Toggle | No | - | No | - | - |
-| Quiet Hours Start | Time Picker | No | - | 10:00 PM | - | - |
-| Quiet Hours End | Time Picker | No | - | 7:00 AM | - | - |
-| Respect System DND | Toggle | No | - | Yes | - | - |
+### 12.1 Notification Settings — Phase 13 Implementation
+
+The Notification Settings screen has three sections:
+
+**Section 1 — Anchor Event Times**
+Configures clock times for each of the 8 named anchor events.
+
+| Field | Type | Per Event | Default |
+|-------|------|-----------|---------|
+| Event name | Display | Wake/Breakfast/Morning/Lunch/Afternoon/Dinner/Evening/Bedtime | — |
+| Time | Time Picker | Yes | Wake=7am, Breakfast=8am, Morning=10am, Lunch=12pm, Afternoon=3pm, Dinner=6pm, Evening=8pm, Bedtime=10pm |
+| Enabled | Toggle | Yes | All enabled |
+
+**Section 2 — Notification Categories**
+One row per category, each with master enable/disable toggle and scheduling mode config.
+
+| Category | Default Mode | Default Enabled |
+|----------|-------------|-----------------|
+| Supplements | Anchor Events | Yes |
+| Food / Meals | Anchor Events | No |
+| Fluids | Anchor Events | No |
+| Photos | Anchor Events | No |
+| Journal Entries | Anchor Events | No |
+| Activities | Anchor Events | No |
+| Condition Check-ins | Anchor Events | No |
+| BBT / Vitals | Anchor Events | No |
+
+**Section 3 — General**
+- Notification expiry: How long after scheduled time a notification remains actionable. Options: 30 min / 60 min / 2 hours / Until dismissed. Default: 60 min.
+- Permission status: Current iOS/Android notification permission. Shows "Open System Settings" button if denied.
 
 ---
 
@@ -421,12 +451,16 @@ Head, Face, Neck, Chest, Back, Stomach, Arms, Hands, Legs, Feet, Joints, Interna
 
 ### 13.1 Units Settings Screen
 
-| Field | Type | Required | Validation | Default | Placeholder | Max Length |
-|-------|------|----------|------------|---------|-------------|------------|
-| Measurement System | Segment | Yes | Metric/Imperial | Based on locale | - | - |
-| Temperature | Segment | Yes | °C/°F | Based on locale | - | - |
-| Volume | Segment | Yes | mL, L / fl oz, gal | Based on system | - | - |
-| Weight | Segment | Yes | g, kg / oz, lb | Based on system | - | - |
+> **Updated for Phase 14 (2026-02-25):** The original single Metric/Imperial toggle was replaced by individual toggles per measurement type. The authoritative spec is `58_SETTINGS_SCREENS.md`. Raw data is always stored in canonical units; conversion happens at display time.
+
+| Field | Type | Options | Default | Canonical Storage Unit |
+|-------|------|---------|---------|----------------------|
+| Body weight | Toggle | kg / lbs | kg | grams |
+| Food weight | Toggle | grams / ounces | grams | grams |
+| Fluids | Toggle | mL / fl oz | mL | millilitres |
+| Temperature | Toggle | °C / °F | °C | Celsius |
+| Energy | Toggle | Calories (kcal) / Kilojoules (kJ) | kcal | kilocalories |
+| Macro display | Toggle | Grams / % of daily target | Grams | grams |
 
 ### 13.2 Cloud Sync Setup Screen
 
@@ -533,11 +567,14 @@ All other elements (App Bar, toggles, frequency) remain the same as the not-auth
 
 | Field | Type | Required | Validation | Default | Placeholder | Max Length |
 |-------|------|----------|------------|---------|-------------|------------|
-| App Lock | Toggle | No | - | No | - | - |
-| Lock Method | Dropdown | Conditional | Biometric/PIN/Both | Biometric | - | - |
-| PIN | Secure Text | Conditional | 4-6 digits | - | "Enter PIN" | 6 |
-| Lock Timeout | Dropdown | Conditional | Immediately/1 min/5 min/15 min | Immediately | - | - |
-| Show in Recent Apps | Toggle | No | - | Yes | - | - |
+| App Lock | Toggle | No | - | Off | - | - |
+| Biometric authentication | Toggle | Conditional (App Lock ON) | On/Off | Off | - | - |
+| PIN / Passcode | Action | Conditional (App Lock ON) | 6 digits exactly | - | "Set PIN" / "Change PIN" / "Remove PIN" | 6 |
+| Allow biometric bypass of PIN | Toggle | Conditional (both biometric and PIN enabled) | On/Off | Off | - | - |
+| Lock Timeout | Dropdown | Conditional (App Lock ON) | Immediately/1 min/5 min/15 min/1 hour | 5 min | - | - |
+| Hide in app switcher | Toggle | Conditional (App Lock ON) | On/Off | On when App Lock enabled | - | - |
+
+> **Implementation note (Phase 14):** The UserSettings entity uses separate boolean fields (appLockEnabled, biometricEnabled, allowBiometricBypassPin, hideInAppSwitcher) and an AutoLockDuration enum — not a single "Lock Method" dropdown. The PIN hash is stored in flutter_secure_storage, not in the database. See `58_SETTINGS_SCREENS.md` for full security settings spec.
 
 ---
 
@@ -656,14 +693,14 @@ This section specifies the exact field dependencies for supplement scheduling ba
 
 #### When timingType = "withEvent"
 ```
-anchorEvent:     REQUIRED (Breakfast/Lunch/Dinner/Morning/Evening/Bedtime)
+anchorEvent:     REQUIRED (Wake/Breakfast/Morning/Lunch/Afternoon/Dinner/Evening/Bedtime)
 offsetMinutes:   OPTIONAL (defaults to 0, field hidden in UI)
 specificTimeMinutes: IGNORED (not applicable)
 ```
 
 #### When timingType = "beforeEvent" or "afterEvent"
 ```
-anchorEvent:     REQUIRED (Breakfast/Lunch/Dinner/Morning/Evening/Bedtime)
+anchorEvent:     REQUIRED (Wake/Breakfast/Morning/Lunch/Afternoon/Dinner/Evening/Bedtime)
 offsetMinutes:   REQUIRED (5-120 minutes, step of 5)
 specificTimeMinutes: IGNORED (not applicable)
 ```
