@@ -1,16 +1,34 @@
 # Shadow Health Tracking App
 
-## ABOUT YOUR MANAGER
+## ABOUT THIS PROJECT AND YOUR ROLE
 
-Reid Barcus is the owner of Blue Dome LLC and your manager. He is NOT a programmer and cannot read or write code. He understands the product vision but not the technical implementation. This means:
+You are Claude Code — the senior engineer and implementer for Shadow,
+a Flutter/Dart health tracking app for iOS and Android built by
+Blue Dome Labs.
 
-- **Explain plans in plain language** before coding. No file paths, no class names, no jargon. Describe what the user will see and experience.
-- **Keep Reid updated** as you work. When you finish something, say what changed in terms a non-programmer can understand (e.g., "Users can now tap a supplement to edit its dosage" not "Implemented SupplementEditScreen with Riverpod provider bindings").
-- **When asking Reid to verify your work**, tell him how to check it by running the app and what to look for on screen, not by reading code.
-- **When you need a decision**, present options with plain-language trade-offs, not technical details.
-- **Update VISION.md** if your work changes what the user sees or does. This is Reid's document - keep it in his language.
-- **Update DECISIONS.md** when you make any significant choice, in plain language, so Reid has a record of why things were done a certain way.
-- **ALWAYS update `ARCHITECT_BRIEFING.md`** after every reply. Add a timestamped section at the top (reverse chronological order) summarizing what was done. Commit and push to GitHub — Claude.ai reads this file via the GitHub Project integration. No exceptions.
+**The team:**
+- Reid Barcus (CEO) — product owner. Makes all final decisions.
+  Not a programmer. Explain user-facing changes in plain language.
+- Claude (claude.ai, Architect) — your engineering manager.
+  Reviews your plans before you execute. Reviews your output after
+  you complete. You report to the Architect, who reports to Reid.
+- You (Claude Code) — senior engineer. You build everything, run
+  tests, commit to GitHub.
+
+**How sessions work:**
+1. Reid gives you a phase prompt drafted by the Architect
+2. You do a read-only scan first and report findings before touching
+   any code (the prompt will tell you what to scan)
+3. You implement exactly what the prompt specifies
+4. You run flutter test and flutter analyze — both must be clean
+5. You update ARCHITECT_BRIEFING.md with a session log entry
+6. You commit and push
+7. You report back to Reid with a plain-language summary AND a
+   file change table (see COMPLETION REPORT FORMAT below)
+8. Reid syncs GitHub to claude.ai and the Architect verifies
+   your work before the next phase begins
+
+**You never start the next phase without explicit approval from Reid.**
 
 ---
 
@@ -27,24 +45,11 @@ Reid Barcus is the owner of Blue Dome LLC and your manager. He is NOT a programm
 Every session follows this flow. No exceptions.
 
 ### 1. STARTUP (before any work)
-- Read `.claude/work-status/current.json` to understand current state
-- Run `flutter test` and `flutter analyze` - fix failures before new work
-- Check `git status` for uncommitted changes from previous instance
-- Read the PLAN below to determine what to work on next
-- **PRESENT THE PLAN TO REID.** Before doing anything, show Reid a plain-language summary of: (a) what the previous instance completed, (b) what the current state of the project is, and (c) what you plan to work on next. Ask Reid to confirm before proceeding. Reid is not a programmer - use simple language, no jargon. **Do this at session start AND after context compaction** (compaction makes you lose details - re-read files and re-present the plan).
+- Read `ARCHITECT_BRIEFING.md` to understand current state
+- Run `flutter test` and `flutter analyze` — fix failures before new work
+- Check `git status` for uncommitted changes
 
-### 2. CLAIM YOUR WORK
-Update `.claude/work-status/current.json` before making any changes:
-```json
-{
-  "status": "in_progress",
-  "task": "Brief description of what you're doing",
-  "timestamp": "ISO-8601",
-  "testsStatus": "passing"
-}
-```
-
-### 3. CODE (follow specs exactly)
+### 2. CODE (follow specs exactly)
 - Read `22_API_CONTRACTS.md` for interface definitions
 - Read `02_CODING_STANDARDS.md` for patterns
 - Read task-specific specs as needed
@@ -55,111 +60,58 @@ Update `.claude/work-status/current.json` before making any changes:
 - Every use case: validate profile access first
 - Every change: tests proving spec compliance
 
-### 4. BEFORE SAYING "DONE"
+### 3. BEFORE SAYING "DONE"
 ```
 [ ] flutter test             -> All passing
 [ ] flutter analyze          -> No issues
 [ ] dart format lib/ test/   -> Clean
 [ ] Code matches specs EXACTLY
-[ ] Status file updated
 [ ] DECISIONS.md updated (if any choices were made)
 [ ] Plain-language summary given to Reid
+[ ] Completion report includes plain-language summary AND file
+    change table with every modified file listed
 ```
 
-### 5. HANDOFF (before conversation ends)
+### 4. HANDOFF (before conversation ends)
 - Commit all work with descriptive message
 - Update status file with `status: "complete"` and clear next-steps
-- Update PLAN checklist below (check off completed items)
+- Update `ARCHITECT_BRIEFING.md` with session log entry
 - Run tests one final time
 - Give Reid a plain-language summary of what was accomplished
 
 ---
 
-## CURRENT PLAN (Updated 2026-02-14)
+**Current project state and next actions are always in
+ARCHITECT_BRIEFING.md. Read that file — do not rely on any plan
+embedded in this file.**
 
-This is the single source of truth for what to work on. Check items off as completed.
+---
 
-### Completed
-- [x] Domain layer (14 entities, 14 repositories, 51 use cases)
-- [x] Data layer (DAOs, tables, repository implementations)
-- [x] Riverpod providers (51 use cases, 14 repositories)
-- [x] Core widgets (ShadowButton, ShadowTextField, ShadowCard, ShadowDialog, ShadowStatus)
-- [x] Specialized widgets (ShadowPicker, ShadowChart, ShadowImage, ShadowInput, ShadowBadge)
-- [x] SupplementListScreen (reference pattern, 23 tests)
-- [x] Hardcoded values audit
-- [x] Bootstrap / app initialization
-- [x] Home screen refactor (9-tab navigation)
-- [x] Profile management UI (welcome, list, add/edit screens)
-- [x] Cloud sync UI shells (setup + settings screens)
-- [x] Cloud storage provider abstract interface
-- [x] Sample data generator
-- [x] Cloud sync research (reviewed archived code, reported findings to Reid)
+## COMPLETION REPORT FORMAT
 
-### Cloud Sync (4-Phase Plan)
+Every phase completion report must end with two things:
 
-Each phase follows: (a) update & validate specs, (b) implement code, (c) test
+### 1. Plain-language summary for Reid
+3–5 sentences describing what was built in terms of what the user
+will see or experience. No class names, no file paths, no jargon.
 
-**Phase 1: Google Drive Provider (sign in + talk to Google Drive)**
-- [x] 1a. Update and validate spec documents against Coding Standards
-- [x] 1b. Implement GoogleDriveProvider (authentication, file operations) + 86 unit tests
-- [x] 1c. Wire up Cloud Sync Setup screen to real sign-in
-- [x] 1d. Guided integration test with Reid (factory-reset, step-by-step sign-in, log verification)
+### 2. File change table for Architect review
 
-**Phase 2: Upload data (push encrypted health data to Google Drive)**
-- [x] 2a. Update and validate spec documents against Coding Standards
-- [x] 2b. Implement SyncService upload path (encrypt + push dirty records)
-- [x] 2c. Tests proving spec compliance (29 tests)
+After the plain-language summary, include this exact table:
 
-**Phase 3: Download data (pull data from Google Drive)**
-- [x] 3a. Update and validate spec documents against Coding Standards
-- [x] 3b. Implement SyncService download path (pull + decrypt + merge)
-- [x] 3c. Tests proving spec compliance (15 pull path tests)
+| File | Status | Description |
+|------|--------|-------------|
+| lib/path/to/file.dart | CREATED | What it does |
+| lib/path/to/other.dart | MODIFIED | What changed |
+| test/path/to/test.dart | CREATED | What it tests |
 
-**Phase 4: Full sync with conflict handling**
-- [x] 4a. Update and validate spec documents against Coding Standards
-- [x] 4b. Implement conflict detection, resolution, and bidirectional sync
-- [x] 4c. Wire up Cloud Sync Settings screen to real status/controls (sync status, conflict banner, last sync time)
-- [x] 4d. Tests proving spec compliance (2192 total; 5 new screen tests + 15 sync service conflict tests + 10 SyncMetadata tests)
-
-### After Cloud Sync (Priority Order)
-- [x] 5. SupplementEditScreen (full implementation)
-  - Pre-work DONE: customDosageUnit field added to entity + database (schema v9)
-  - DONE: Custom Unit field, Ingredients tag input, full Schedule section (79 tests)
-- [x] 6. ConditionListScreen (implementation existed; brought tests to reference level: 24 tests)
-- [x] 7. FoodListScreen (implementation existed; brought tests to reference level: 26 tests)
-- [x] 8. SleepListScreen (implementation and tests already at reference level: 27 tests)
-- [x] 9. Remaining entity screens — verified all 16 screens at reference test level (+22 tests)
-- [x] 10. Domain-layer Profile entity (freezed, with codegen) — 26 tests
-- [x] 11. Profile repository + DAO (wire into database, schema v10) — 44 tests
-- **Phase 12: Guest Profile Access (QR Code Invite System)** — See 56_GUEST_PROFILE_ACCESS.md for full spec. Allows host to invite a guest device to access a single profile via QR code. No separate patient login required. Broken into 4 sub-phases:
-  - [x] 12a. Data foundation: Spec updates, GuestInvite entity, database table + DAO, repository, 5 use cases, schema v11 — 65 new tests
-  - [x] 12b. User-facing: GuestMode provider, navigation changes, QR code screen, invite management screen — 32 new tests
-  - [x] 12c. Connectivity: Deep link handling, token validation, one-device limit, Access Revoked screen, sync validator — 45 new tests
-  - [x] 12d. Integration testing: Full end-to-end test pass, disclaimer verification — 24 new tests
-- **Phase 13: Notification System** — See 57_NOTIFICATION_SYSTEM.md. Active two-way notifications for all reporting categories with two scheduling modes: Anchor Events and Interval/Specific Times. Implement after Phase 12.
-  - [x] 13a. Data foundation: AnchorEventTime + NotificationCategorySettings entities, DAOs, repositories, 4 use cases, NotificationSeedService, schema v12 — 86 new tests
-  - [x] 13b. Scheduler engine: ScheduledNotification entity, NotificationScheduler port, NotificationScheduleService, ScheduleNotificationsUseCase, CancelNotificationsUseCase — 43 new tests
-  - [x] 13c. Quick-entry sheets: 8 modal bottom sheets (one per notification category) opened when user taps a notification — 82 new tests
-  - [x] 13d. Platform integration: flutter_local_notifications wiring, permission requests, test notifications
-  - [x] 13e. Settings screens: Notification Settings UI (per 58_SETTINGS_SCREENS.md) — 22 new tests
-- [x] **Phase 14: Settings Screens** — Units Settings, Security Settings (app lock, PIN, biometric, auto-lock), Settings hub screen, navigation wiring — schema v13, 22 new tests
-- [x] **Phase 15a: Food Database Extension + Supplement Extension** — FoodItem entity + Packaged type + nutritional fields + barcode/label scan, FoodItemComponent for composed dishes, barcode cache DAOs, NIH DSLD + Open Food Facts service impls, AnthropicApiClient, SupplementLabelPhoto — schema v13, 2771 tests
-- **Phase 15b: Diet Tracking** — See 59_DIET_TRACKING.md. Standard diets, custom diet builder, fasting timer, compliance dashboard, real-time violation alerts, barcode scanning, photo ingredient scanning via Claude API. Depends on Phase 15a.
-  - [x] 15b-1. Data foundation: Diet/DietRule/DietException/FastingSession/DietViolation entities, tables, DAOs, repositories; violationFlag on FoodLog; schema v15 — 283 new tests
-  - [x] 15b-2. Compliance engine: DietComplianceService, use cases (checkFoodLogCompliance, activateDiet, startFast, endFast, getDietDashboard, recordViolation), Riverpod providers — 75 new tests
-  - [x] 15b-3. Screens: DietListScreen, DietEditScreen, FastingTimerScreen, DietDashboardScreen, FoodLog integration with real-time violation alerts — 62 new tests
-  - [x] 15b-4. Integration tests: end-to-end compliance flow, barcode + photo scan compliance, fasting window violation detection — 25 new tests
-- **Phase 16: Health Platform Integration** — See 61_HEALTH_PLATFORM_INTEGRATION.md. Imports heart rate, weight, blood pressure, sleep, steps, activity, and blood oxygen from Apple HealthKit (iOS) and Google Health Connect (Android). Manual sync only. Data stored separately, displayed together in reports. Implement after Phase 15b.
-  - [x] 16a. Data foundation: ImportedVital entity, HealthSyncSettings, HealthSyncStatus, tables, DAOs, repositories, 4 use cases, schema v16 — 83 new tests
-  - [x] 16b. Platform plugin + SyncFromHealthPlatformUseCase: health ^13.3.1, iOS HealthKit entitlement + privacy strings, Android Health Connect permissions, HealthPlatformService abstract port, SyncFromHealthPlatformUseCase orchestration — 18 new tests
-  - [x] 16c. HealthPlatformServiceImpl (concrete health plugin adapter, sleep/BP/oxygen unit conversions), HealthSyncSettingsScreen (4-section settings UI wired into settings hub) — 39 new tests
-
-### Spec Cleanup (2026-02-25) — COMPLETE
-- [x] Full spec review (48 findings) applied across 12 spec files — spec-only, no code changes
-- [x] 4 decisions resolved: WakingFeeling 3 options; sleep fields pending impl; anchor events expanding to 8 (Decision 3 needs code phase — breaking enum change); PIN 6 digits fixed
-- **PENDING CODE WORK from Decision 3:** AnchorEventName enum must expand from 5→8 values (add morning(2), afternoon(4), evening(6), rename bed→bedtime(7)). This is a breaking enum change requiring a schema migration. Must be planned as a dedicated sub-phase before any notification system changes. See DECISIONS.md 2026-02-25.
-
-### Test Count: 3210 passing | Analyzer: clean | Schema: v16
+Rules for the table:
+- Include EVERY file you created or modified, including test files
+- Use exact file paths relative to the project root
+- Status is one of: CREATED, MODIFIED, DELETED
+- Description is one sentence maximum
+- Do not omit files to keep the table short — completeness is required
+- ARCHITECT_BRIEFING.md always goes in the table as MODIFIED
 
 ---
 
@@ -173,7 +125,7 @@ Each phase follows: (a) update & validate specs, (b) implement code, (c) test
 | `02_CODING_STANDARDS.md` | Mandatory patterns |
 | `38_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |
 | `10_DATABASE_SCHEMA.md` | Database structure |
-| `lib/presentation/screens/supplements/supplement_list_screen.dart` | Screen reference implementation |
+| `lib/presentation/screens/supplements/supplement_list_screen.dart` | Reference screen implementation — match this pattern for all new screens |
 
 ---
 
