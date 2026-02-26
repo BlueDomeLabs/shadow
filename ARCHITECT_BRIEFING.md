@@ -1,15 +1,15 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: [auto-stamped on push by push_briefing_to_gdrive.py]
-# Briefing Version: 20260225-003
+# Briefing Version: 20260225-004
 #
 # PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
 # This .md file is the source of truth committed to git.
 # A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Parts 3–6 complete — 4 decisions recorded, 48 spec findings resolved
-# Last Action:   Full spec cleanup pass: 12 spec files updated, all findings closed
+# Status:        Session complete — spec cleanup confirmed, briefing now synced to Drive
+# Last Action:   Added evening session entry to briefing; committed and pushed
 # Next Action:   Await Reid go-ahead for Phase 16b (SyncFromHealthPlatformUseCase)
 # Open Items:    0 decisions open; 0 spec findings unresolved; 1 pending (Phase 16b approval)
 # Tests:         3,142 passing
@@ -19,6 +19,36 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-25 19:00 MST] — Session Status: Spec Cleanup Complete, Awaiting Phase 16b
+
+**Session note:** This entry was added after a rate-limit interruption delayed the briefing sync. The last successful Google Drive push was Briefing Version 20260225-004 (this morning). No work was lost — everything is committed and pushed to GitHub. This entry ensures Claude.ai has a current status report.
+
+**What was completed today (2026-02-25):**
+
+All 4 decisions confirmed by Reid and recorded in DECISIONS.md. All 48 spec findings from the converged spec review were applied across 12 spec documents. Zero source code changes — this was a documentation-only session.
+
+**Decisions resolved:**
+1. WakingFeeling — 3 options only (Unrested/Neutral/Rested). Energized dropped. Spec updated, code already correct.
+2. Sleep missing fields (Time to Fall Asleep, Times Awakened, Time Awake During Night) — DECIDED: build in a future sleep enhancement phase. Schema migration required. Do not build without a planned phase.
+3. Anchor events — expand from 5 to 8 named events: wake(0), breakfast(1), morning(2), lunch(3), afternoon(4), dinner(5), evening(6), bedtime(7). **This is a breaking enum change requiring a schema migration** — code changes are pending a dedicated implementation phase. Specs updated. Deviation #5 retired.
+4. PIN length — 6 digits fixed. 58_SETTINGS_SCREENS.md is authoritative. Spec updated.
+
+**Spec files changed (12 total):**
+DECISIONS.md, 10_DATABASE_SCHEMA.md, 22_API_CONTRACTS.md, 38_UI_FIELD_SPECIFICATIONS.md, 56_GUEST_PROFILE_ACCESS.md, 57_NOTIFICATION_SYSTEM.md, 58_SETTINGS_SCREENS.md, 59_DIET_TRACKING.md, 59a_FOOD_DATABASE_EXTENSION.md, 60_SUPPLEMENT_EXTENSION.md, 61_HEALTH_PLATFORM_INTEGRATION.md, 35_QR_DEVICE_PAIRING.md, 53_SPEC_CLARIFICATIONS.md
+
+**Current project state:**
+- Tests: 3,142 passing
+- Analyzer: Clean (0 issues)
+- Schema: v16
+- Open decisions: 0
+- Unresolved spec findings: 0
+- Source code: Unchanged from Phase 16a completion
+- Last commit: 6e7e94c (handoff update)
+
+**Next:** Awaiting Reid go-ahead for Phase 16b — SyncFromHealthPlatformUseCase + iOS/Android platform plugin configuration. Do not begin without explicit approval.
 
 ---
 
