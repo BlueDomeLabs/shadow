@@ -17,6 +17,30 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-25: Phase 16b — HealthPlatformService as abstract port (domain layer)
+
+**What:** The health plugin (`health: ^13.3.1`) is never imported directly by domain-layer code. Instead, a `HealthPlatformService` abstract interface lives in the domain layer, and the `health` plugin is only wired in the data layer implementation. The `SyncFromHealthPlatformUseCase` depends only on this abstract port.
+
+**Why:** This is the same pattern used for `NotificationScheduler`. It keeps the domain layer fully testable without a real device — all use case tests run with mock implementations. Platform-specific code (HealthKit vs Health Connect) stays in one place.
+
+**Alternatives considered:** Importing the plugin directly in the use case (simpler but untestable and would break domain layer purity).
+
+**Impact:** A concrete `HealthPlatformServiceImpl` still needs to be written (Phase 16c or later). Until then, the use case is fully tested but no real data flows from the device.
+
+---
+
+### 2026-02-25: device_info_plus upgraded from ^10.1.0 to ^12.3.0
+
+**What:** The `device_info_plus` package was upgraded from `^10.1.0` to `^12.3.0` to satisfy the `health >=13.2.0` dependency requirement.
+
+**Why:** `health >=13.2.0` requires `device_info_plus ^12.1.0`. The existing version constraint (`^10.1.0`) was incompatible, blocking `flutter pub get`. The APIs used by Shadow (`identifierForVendor`, `androidInfo.id`, `systemGUID`, `computerName`) are all stable and unchanged between v10 and v12.
+
+**Alternatives considered:** Pinning to an older health package version — rejected because the latest stable (13.3.1) should be used.
+
+**Impact:** No code changes needed beyond the pubspec version bump. All 3,160 tests still pass.
+
+---
+
 ### 2026-02-23: BBT/Vitals quick-entry sheet captures BBT only — no BP, heart rate, or weight
 
 **What:** The BBT/Vitals quick-entry sheet captures basal body temperature (BBT) and optional notes only. It does not include fields for blood pressure, heart rate, or weight.

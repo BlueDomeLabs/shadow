@@ -1,8 +1,9 @@
 {
-  "status": "in_progress",
+  "status": "complete",
   "task": "Phase 16b: health plugin + iOS/Android config + SyncFromHealthPlatformUseCase",
-  "timestamp": "2026-02-25T20:00:00Z",
+  "timestamp": "2026-02-25T21:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3142,
-  "schemaVersion": 16
+  "testCount": 3160,
+  "schemaVersion": 16,
+  "notes": "Phase 16b complete. Next: Phase 16c — Health Platform Settings UI screen (HealthSyncSettingsScreen per 61_HEALTH_PLATFORM_INTEGRATION.md). See CLAUDE.md PLAN for task list. The HealthPlatformService abstract port (lib/domain/repositories/health_platform_service.dart) still needs a concrete implementation wiring to the health plugin — that may be 16c or 16d."
 }

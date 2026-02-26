@@ -8,17 +8,48 @@
 # A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Session complete — spec cleanup confirmed, briefing now synced to Drive
-# Last Action:   Added evening session entry to briefing; committed and pushed
-# Next Action:   Await Reid go-ahead for Phase 16b (SyncFromHealthPlatformUseCase)
-# Open Items:    0 decisions open; 0 spec findings unresolved; 1 pending (Phase 16b approval)
-# Tests:         3,142 passing
+# Status:        Phase 16b complete — committed, tests passing, analyzer clean
+# Last Action:   Implemented SyncFromHealthPlatformUseCase + platform config
+# Next Action:   Phase 16c — concrete HealthPlatformServiceImpl wiring health plugin to domain port; then Health Sync Settings UI screen
+# Open Items:    0 decisions open; 0 spec findings unresolved
+# Tests:         3,160 passing
 # Schema:        v16
 # Analyzer:      Clean
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-25 21:00 MST] — Phase 16b Complete: health plugin + SyncFromHealthPlatformUseCase
+
+**What was completed:**
+
+Phase 16b is done and committed (commit `51b2385`). 18 new tests; 3,160 total passing; analyzer clean.
+
+**Changes made:**
+
+- `pubspec.yaml`: Added `health: ^13.3.1` (Apple HealthKit / Google Health Connect Flutter plugin). Also upgraded `device_info_plus` from `^10.1.0` to `^12.3.0` (required by health >=13.2.0 — stable APIs unchanged).
+- **iOS platform config**: New `ios/Runner/Runner.entitlements` file with `com.apple.developer.healthkit` entitlement (background delivery disabled). `project.pbxproj` updated to wire entitlements into all 3 build configurations. `Info.plist` updated with `NSHealthShareUsageDescription` and `NSHealthUpdateUsageDescription` privacy strings.
+- **Android platform config**: 8 Health Connect READ permissions added to `AndroidManifest.xml` (`READ_HEART_RATE`, `READ_RESTING_HEART_RATE`, `READ_WEIGHT`, `READ_BLOOD_PRESSURE`, `READ_SLEEP`, `READ_STEPS`, `READ_ACTIVE_CALORIES_BURNED`, `READ_OXYGEN_SATURATION`). Permission rationale intent filter and HealthConnectClient activity added.
+- **`HealthPlatformService`** (NEW — `lib/domain/repositories/health_platform_service.dart`): Abstract domain port. The `health` plugin is never imported in domain layer. Same pattern as `NotificationScheduler`. Exposes: `currentPlatform`, `isAvailable()`, `requestPermissions()`, `readRecords()`.
+- **`SyncFromHealthPlatformUseCase`** (NEW): Full orchestration — auth → availability → load settings → request permissions → incremental import per granted type → upsert sync status. Platform read failures per type are non-fatal (logs 0, continues). `importBatch` failures are propagated.
+- **`SyncFromHealthPlatformInput` / `SyncFromHealthPlatformResult`**: New freezed types added to `health_types.dart`. Result includes `importedCountByType`, `deniedTypes`, `platformUnavailable`, and `totalImported` computed getter.
+
+**Decisions recorded in DECISIONS.md:**
+1. HealthPlatformService as abstract port (domain layer) — keeps use case testable without a real device.
+2. device_info_plus upgrade to ^12.3.0 — required by health plugin, no code changes needed.
+
+**What is NOT yet done (Phase 16c):**
+- No concrete `HealthPlatformServiceImpl` yet — the abstract port exists but nothing wires the actual `health` plugin to it. Real data won't flow from HealthKit/Health Connect until this is built.
+- Health Sync Settings UI screen (HealthSyncSettingsScreen).
+
+**Current project state:**
+- Tests: 3,160 passing
+- Analyzer: Clean (0 issues)
+- Schema: v16
+- Open decisions: 0
 
 ---
 
@@ -340,11 +371,11 @@ All intentional. All need adding to `10_DATABASE_SCHEMA.md` Section 2.7 (Sync Me
 | Field | Value |
 |-------|-------|
 | **Schema Version** | v16 |
-| **Test Count** | 3,142 passing |
+| **Test Count** | 3,160 passing |
 | **Flutter SDK** | ^3.10.4 |
 | **Dart SDK** | ^3.10.4 |
-| **Last Completed Phase** | Spec cleanup + decision resolution (Parts 3–6, 2026-02-25) |
-| **Next Awaiting Approval** | Phase 16b: SyncFromHealthPlatformUseCase + iOS/Android platform config |
+| **Last Completed Phase** | Phase 16b: health plugin + SyncFromHealthPlatformUseCase (2026-02-25) |
+| **Next** | Phase 16c: HealthPlatformServiceImpl + Health Sync Settings UI |
 | **Analyzer Status** | Clean (0 issues) |
 | **Open Decisions** | 0 — all resolved 2026-02-25 |
 
@@ -386,9 +417,8 @@ These are places where the code intentionally differs from specs. Cross-referenc
 
 | Feature | Status | Depends On |
 |---------|--------|-----------|
-| Phase 16b: SyncFromHealthPlatformUseCase | Awaiting Reid approval | Phase 16a (done) |
-| Phase 16c: iOS HealthKit plugin | Not started | Phase 16b |
-| Phase 16d: Android Health Connect plugin | Not started | Phase 16b |
+| Phase 16c: HealthPlatformServiceImpl | Not started — needs concrete impl of HealthPlatformService wiring health plugin | Phase 16b (done) |
+| Phase 16c: Health Sync Settings UI | Not started — HealthSyncSettingsScreen per spec | Phase 16b (done) |
 | Reports / Charts screens | Not in any current phase plan | All data layers |
 | FoodItemCategory junction table | No phase assigned | — |
 | Quiet hours notification queuing | Defined in 22_API_CONTRACTS.md Section 12.4; never implemented | — |
@@ -421,7 +451,8 @@ These are places where the code intentionally differs from specs. Cross-referenc
 | `logger` | ^2.0.2 | Structured logging with log levels |
 | `equatable` | ^2.0.5 | Value equality mixin (used for non-freezed types) |
 | `collection` | ^1.18.0 | ListEquality and other collection utilities |
-| `device_info_plus` | ^10.1.0 | Device ID and platform metadata for sync device tracking |
+| `device_info_plus` | ^12.3.0 | Device ID and platform metadata for sync device tracking |
+| `health` | ^13.3.1 | Apple HealthKit (iOS) and Google Health Connect (Android) data import |
 | `google_sign_in` | ^6.1.6 | Google OAuth 2.0 sign-in flow |
 | `googleapis` | ^12.0.0 | Google Drive REST API client (files.create, files.list, etc.) |
 | `googleapis_auth` | ^1.4.1 | Google API authentication helpers |
@@ -517,7 +548,7 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 | **Food Items** | create, get, update, archive, search, lookupBarcode, scanIngredientPhoto |
 | **Food Logs** | log, get, update, delete |
 | **Guest Invites** | create, list, revoke, removeDevice, validateToken |
-| **Health** | getImportedVitals, updateHealthSyncSettings, getLastSyncStatus |
+| **Health** | getImportedVitals, updateHealthSyncSettings, getLastSyncStatus, syncFromHealthPlatform |
 | **Intake Logs** | get, markTaken, markSkipped, markSnoozed |
 | **Journal** | create, get, update, delete, search |
 | **Notifications** | schedule, cancel, getSettings, updateSettings, getAnchorEventTimes, updateAnchorEventTime |
@@ -592,5 +623,6 @@ All entities except ScheduledNotification and SyncMetadata use freezed with `id`
 | Phase 15b: Diet Tracking | Screens, use cases, compliance service, fasting timer, violation dialog | 2817 |
 | Phase 15b-4: Diet tracking integration | End-to-end compliance flow, violation alerts in FoodLogScreen (25 tests) | 2817 |
 | Phase 16a: Health platform data | ImportedVital + HealthSyncSettings entities, DAOs, repos, 3 use cases, schema v16 (83 tests) | 3142 |
+| Phase 16b: health plugin + SyncFromHealthPlatformUseCase | health ^13.3.1, iOS/Android platform config, HealthPlatformService abstract port, sync orchestration use case (18 tests) | 3160 |
 
 **Note:** Phase 15b (Diet Tracking screens and core use cases) was implemented between 15a and 15b-4 — the test count jump reflects that work.
