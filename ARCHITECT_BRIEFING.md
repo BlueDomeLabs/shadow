@@ -1,25 +1,42 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: [auto-stamped on push by push_briefing_to_gdrive.py]
-# Briefing Version: 20260226-002
+# Last Updated: 2026-02-26
+# Briefing Version: 20260226-006
 #
-# PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
-# This .md file is the source of truth committed to git.
-# A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
+# PRIMARY: GitHub repository — BlueDomeLabs/shadow
+# ARCHITECT_BRIEFING.md is the single source of truth.
+# Claude.ai reads this file via GitHub Project integration.
+# Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 17b complete — 11 fixes implemented (A1-A2, B1-B2, C1-C4, D1-D3)
-# Last Action:   Phase 17b: bug fixes, UI wiring, deferred decision implementations
-# Next Action:   Phase 17c (Food Log food-items stub wiring) or AnchorEventName enum expansion
+# Status:        Phase 17b complete — awaiting direction from Reid for next phase
+# Last Action:   Retired Google Drive sync — GitHub is now sole briefing source
+# Next Action:   Phase 17c (Food Log food-items stub wiring), AnchorEventName enum expansion, or product decisions
 # Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
-#                3 product decisions still pending Reid (items 12, 13 from Phase 17a)
-# Tests:         3,210 passing (+29 from Phase 17b)
+#                3 product decisions still pending Reid: "Join Existing Account", Flare-Ups button
+# Tests:         3,210 passing (confirmed this session)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Session: Housekeeping / Awaiting Direction
+
+No code changes. Phase 17b was already committed and pushed at session start. This session resolved a queue of stale background test tasks that had accumulated from the previous session:
+
+- Multiple background runs reported 4 failures ("filter button opens bottom sheet", "renders sync settings section", etc.) — all were runs against pre-Phase-17b code
+- Confirmed via JSON reporter: current codebase passes 3,210 tests with 0 failures
+- The one intermittent flakiness observed (supplement filter button test failing in full suite but passing in isolation) was a one-off timing issue — subsequent full suite runs all passed
+- Analyzer: clean. No uncommitted changes.
+
+**Awaiting Reid's direction** for next work. Options on the table:
+1. AnchorEventName enum expansion (5→8 values, Decision 3 — breaking schema change, needs dedicated phase)
+2. Phase 17c: wire Food Log food-items stub to real database
+3. Product decisions: "Join Existing Account" button behavior, Flare-Ups button on Conditions tab
 
 ---
 

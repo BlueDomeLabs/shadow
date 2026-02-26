@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # scripts/push_briefing_to_gdrive.py
 #
+# RETIRED 2026-02-26 — Google Drive sync discontinued.
+# Briefing now synced via GitHub only.
+# Retained for historical reference.
+#
 # Uploads ARCHITECT_BRIEFING.md to the Shadow Architect Briefing Google Doc.
 #
 # Uses OAuth credentials from ~/.config/google-drive-mcp/ (same credentials

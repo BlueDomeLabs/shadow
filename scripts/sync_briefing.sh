@@ -1,6 +1,10 @@
 #!/bin/bash
 # scripts/sync_briefing.sh
 #
+# RETIRED 2026-02-26 — Google Drive sync discontinued.
+# Briefing now synced via GitHub only.
+# Retained for historical reference.
+#
 # Stop hook: pushes ARCHITECT_BRIEFING.md to Google Drive whenever its
 # content has changed since the last successful upload.
 #
