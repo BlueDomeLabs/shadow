@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 17b: Bug Fixes + UI Wiring + Decision Implementations — 11 items (A1-A2, B1-B2, C1-C4, D1-D3)",
-  "timestamp": "2026-02-26T04:00:00Z",
+  "task": "Phase 18b: FlareUpListScreen, ReportFlareUpScreen, wire Conditions tab Flare-Ups button",
+  "timestamp": "2026-02-26T12:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3210,
+  "testCount": 3251,
   "schemaVersion": 16,
-  "notes": "Phase 17b complete. A1: fixed condition edit data loss (wired updateConditionUseCase). A2: fixed food search category exclusion filtering (case-insensitive contains). B1: created UpdateConditionLogUseCase + wired to condition log edit mode. B2: wired FluidUnit from UserSettings in fluids entry screen. C1: created SupplementLogScreen + wired Log Intake button. C2: wired filter switches in supplement list screen. C3: wired food item search to SearchFoodItemsUseCase. C4: wired sleep entry date range filter. D1: hid urgency slider in fluids entry screen. D2: wired Manage Permissions to url_launcher. D3: removed Auto Sync/WiFi Only/Sync Frequency stub rows. 29 new tests added (total 3210). Next: Plan Phase 17c or confirm Phase 18 (AnchorEventName enum expansion — breaking enum change from Decision 3 per DECISIONS.md 2026-02-25)."
+  "notes": "Phase 18b complete. Created FlareUpListScreen (list with severity badges, ONGOING chip, condition name lookup, empty/loading/error states, FAB + card tap navigation). Created ReportFlareUpScreen (new + edit modes; edit mode makes condition/startDate/endDate read-only per UpdateFlareUpInput constraint). Wired Conditions tab Flare-Ups button to navigate to FlareUpListScreen. 41 new tests added (16 FlareUpListScreen + 21 ReportFlareUpScreen + 4 ConditionsTab). 3251 total passing. Next: Phase 18c — wire Welcome Screen Join Existing Account deep link scanner (see DECISIONS.md 2026-02-26)."
 }

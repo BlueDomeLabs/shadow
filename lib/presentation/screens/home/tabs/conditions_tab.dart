@@ -8,6 +8,7 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/conditions/condition_inputs.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
 import 'package:shadow_app/presentation/screens/conditions/condition_edit_screen.dart';
+import 'package:shadow_app/presentation/screens/conditions/flare_up_list_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 /// Conditions tab showing conditions with expansion details.
@@ -36,13 +37,11 @@ class ConditionsTab extends ConsumerWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // Navigate to flare-up list (stub — uses condition list)
-                  showAccessibleSnackBar(
-                    context: context,
-                    message: 'Flare-up list coming soon',
-                  );
-                },
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => FlareUpListScreen(profileId: profileId),
+                  ),
+                ),
                 icon: const Icon(Icons.warning_amber),
                 label: const Text('Flare-Ups'),
                 style: ElevatedButton.styleFrom(
