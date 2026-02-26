@@ -1,17 +1,17 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: [auto-stamped on push by push_briefing_to_gdrive.py]
-# Briefing Version: 20260225-006
+# Briefing Version: 20260226-001
 #
 # PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
 # This .md file is the source of truth committed to git.
 # A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 16d deferred — physical device testing pending Apple Watch access
-# Last Action:   Documented Phase 16d test checklist; no code changes
-# Next Action:   Phase 17 — [Reid to decide next phase]
-# Open Items:    0 decisions open; 0 spec findings unresolved
+# Status:        Phase 17a complete — read-only code audit, 18 findings documented
+# Last Action:   Phase 17a exhaustive code audit across all lib/ and test/ files
+# Next Action:   Reid to review 5 product decisions; 5 clear fixes ready to implement
+# Open Items:    5 product decisions pending Reid's direction (see Phase 17a section)
 # Tests:         3,181 passing (unchanged)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
@@ -19,6 +19,143 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Phase 17a: Exhaustive Code Audit (Read-Only)
+
+A full audit of all `lib/` and `test/` source files was performed. No code changes were made.
+
+**Audit scope:** TODO/FIXME/HACK comments, UnimplementedError stubs, placeholder patterns, empty returns, dead navigation handlers, deferred work comments, and 12 specific known-gap files.
+
+**Key finding:** The `UnimplementedError` throws in `di_providers.dart` (all ~36 providers) are **intentional DI architecture** — all are overridden in `bootstrap.dart`. These are NOT bugs.
+
+### Findings by Category
+
+**HIGH SEVERITY — Data Loss Bugs (2)**
+
+1. **Condition Edit Screen — edit mode saves nothing**
+   - The `_isEditing` code path in `condition_edit_screen.dart` is empty. Tapping "Save" shows a success message but does not call any update use case. All edits are silently discarded.
+   - Fix: wire up `updateConditionUseCase` in the edit path (mirrors the create path).
+
+2. **Food Item Repository — search filter silently ignored**
+   - `searchExcludingCategories()` in `food_item_repository_impl.dart` ignores the `excludeCategories` parameter and runs an unfiltered search. Any screen using this method returns wrong results.
+   - Fix: pass the filter parameter into the DAO query.
+
+**MEDIUM SEVERITY — Behavior Bugs (3)**
+
+3. **Condition Log Edit — creates a duplicate instead of updating**
+   - The condition log screen's edit path calls `log()` (create) rather than an update use case. Editing any condition log creates a second entry with the same condition ID.
+   - Fix: implement and wire up an update path.
+
+4. **Fluids Screen — water unit hardcoded to fl oz**
+   - The fluids entry screen hardcodes "fl oz" regardless of what unit the user selected in Settings.
+   - Fix: read from `UserSettings.fluidUnit`.
+
+5. **Urgency Slider — input not persisted**
+   - The fluids screen shows a "Urine Urgency" slider, but `FluidsEntry` has no urgency field. The value is captured but never saved.
+   - Decision needed: add a `urineUrgency` field to the database (schema change), or hide the slider.
+
+**MEDIUM SEVERITY — Unconnected UI (5)**
+
+6. **Supplement List Screen — Log button shows "Coming soon"**
+   - Tapping "Log" on a supplement shows a snackbar. Log entry screen exists (`supplement_log_screen.dart`) but is not wired to this button.
+
+7. **Supplement List Screen — Filter toggles are non-functional**
+   - Filter chips are hardcoded to `value: true` and `onChanged` is empty. Filters visually appear active but do nothing.
+
+8. **Food Item List Screen — Search shows "Coming soon"**
+   - The search icon taps show a snackbar. The search functionality is not wired.
+
+9. **Sleep Entry List Screen — Date range filter row is non-functional**
+   - The date range filter row has an empty `onTap` handler.
+
+10. **Food Log Screen — Food Items section is a non-interactive stub**
+    - The food items section in the food log entry screen is a placeholder. It renders but cannot be interacted with. No food library search screen exists yet.
+
+**LOW SEVERITY — Intentionally Deferred Features (5)**
+
+11. **Health Sync Settings — "Manage Permissions" does nothing**
+    - The tile has an empty `onTap`. Platform permission settings launch is a future phase task.
+    - Decision needed: defer permanently, or schedule platform URL launch implementation.
+
+12. **Welcome Screen — "Join Existing Account" shows "Coming soon"**
+    - This is the QR code entry point for guest devices. Phase 12c implemented the deep link handler, but the Welcome screen button was never wired to it.
+    - Decision needed: wire the deep link scanner, or keep the "coming soon" snackbar.
+
+13. **Conditions Tab — "Flare-Ups" button shows "Coming soon"**
+    - A `FlareUpListScreen` is referenced but not built.
+    - Decision needed: is a Flare-Up list screen planned?
+
+14. **Cloud Sync Settings — Auto sync / WiFi only / Frequency all show "Coming soon"**
+    - Three settings rows in `cloud_sync_settings_screen.dart` are stubs. These were deferred during Cloud Sync implementation.
+    - Decision needed: schedule for implementation or mark as out-of-scope.
+
+15. **Reports Tab — Entire screen is a placeholder**
+    - `reports_tab.dart` is a stub. "Generate New Report" shows a "Coming Soon" dialog. PDF health reports were never implemented.
+    - This is expected — reports are not yet planned.
+
+**LOW SEVERITY — Photo Infrastructure Not Wired (3)**
+
+16. **Condition Edit Screen — Camera button is a TODO stub**
+    - `image_picker` is already a dependency (Phase 15a). The button exists but calls nothing.
+
+17. **Condition Log Screen — "Add photos" does nothing**
+    - `onPressed` is empty with a NOTE comment.
+
+18. **Bowel/Urine Screen — "Add photo" is a stub**
+    - Comment: "Photo infrastructure not built yet — stub button."
+
+### Summary
+
+| Severity | Count | Action |
+|----------|-------|--------|
+| HIGH — data loss bugs | 2 | Fix immediately (no product decision needed) |
+| MEDIUM — behavior bugs | 2 | Fix (no product decision needed) |
+| MEDIUM — unconnected UI | 5 | Fix (no product decision needed) |
+| MEDIUM — needs decision | 1 | Urgency slider (add DB field or hide?) |
+| LOW — deferred features | 4 | Needs product decision from Reid |
+| LOW — photo stubs | 3 | Phase 15a infra exists; schedule wiring |
+
+### 5 Product Decisions Needed from Reid
+
+1. **Urgency slider** — add `urineUrgency` database field (schema change) or hide the slider?
+2. **"Manage Permissions"** on Health Data screen — defer permanently or schedule URL launch?
+3. **"Join Existing Account"** — wire the Phase 12c deep link scanner, or keep "coming soon"?
+4. **Flare-Ups button** — is a FlareUpListScreen planned?
+5. **Cloud Sync auto/WiFi/frequency** — schedule implementation or mark out-of-scope?
+
+### 5 Clear Fixes (No Decision Needed from Reid)
+
+1. Condition edit screen — wire `updateConditionUseCase` to fix silent data loss
+2. Food item repository — pass `excludeCategories` parameter to DAO query
+3. Condition log edit — implement update path to prevent duplicate creation
+4. Fluids screen — read fluid unit from `UserSettings` instead of hardcoding fl oz
+5. Food log — replace non-interactive food items stub with real search navigation
+
+---
+
+## [2026-02-26 MST] — Phase 16c Complete: HealthPlatformServiceImpl + HealthSyncSettingsScreen
+
+**What was completed:**
+
+Phase 16c is done and committed (commits `d7c6167`, `d6abfa7`). 39 new tests; 3,181 total passing; analyzer clean. Schema unchanged (v16).
+
+**Changes made:**
+
+- **`HealthPlatformServiceImpl`** (NEW — `lib/data/services/health_platform_service_impl.dart`): Concrete adapter for the `health` plugin. This is the only file in the codebase that imports `package:health/health.dart`. Injected `hp.Health` instance for testability. Handles: iOS vs Android platform detection, `isAvailable()` (false on macOS/other), `requestPermissions()` with per-type `hasPermissions()` check, `readRecords()` with sleep/BP/oxygen unit conversions. Sleep: converts `dateTo - dateFrom` duration to hours. Returns `Result<T, AppError>` for all fallible operations.
+- **`HealthSyncSettingsScreen`** (NEW — `lib/presentation/screens/health/health_sync_settings_screen.dart`): 4-section settings screen wired into Settings hub. Sections: (1) Platform status row showing Apple Health / Google Health Connect + available status; (2) Sync controls — "Sync from Health" button, last synced timestamp, sync result message, Manage Permissions row; (3) Date range segmented button (30/60/90 days); (4) Per-data-type toggles for all 9 health data types.
+- **DI wiring**: `healthPlatformServiceProvider` in `di_providers.dart` overridden in `bootstrap.dart` with `HealthPlatformServiceImpl`. Settings hub updated with Health Data tile.
+
+**Tests added (39):**
+- 14 unit tests for `HealthPlatformServiceImpl` (Mockito mock of `hp.Health`)
+- 24 widget tests for `HealthSyncSettingsScreen`
+- 1 settings hub tile test
+
+**Current project state:**
+- Tests: 3,181 passing
+- Analyzer: Clean
+- Schema: v16
 
 ---
 
