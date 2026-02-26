@@ -16,21 +16,42 @@ import 'package:shadow_app/presentation/widgets/widgets.dart';
 ///
 /// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 7 exactly.
 /// Uses [SleepEntryList] provider for state management.
-class SleepEntryListScreen extends ConsumerWidget {
+class SleepEntryListScreen extends ConsumerStatefulWidget {
   final String profileId;
 
   const SleepEntryListScreen({super.key, required this.profileId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SleepEntryListScreen> createState() =>
+      _SleepEntryListScreenState();
+}
+
+class _SleepEntryListScreenState extends ConsumerState<SleepEntryListScreen> {
+  DateTimeRange? _dateFilter;
+
+  String get profileId => widget.profileId;
+
+  @override
+  Widget build(BuildContext context) {
     final sleepEntriesAsync = ref.watch(sleepEntryListProvider(profileId));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sleep Log'),
         actions: [
+          if (_dateFilter != null)
+            IconButton(
+              icon: const Icon(Icons.filter_alt_off),
+              onPressed: () => setState(() => _dateFilter = null),
+              tooltip: 'Clear date filter',
+            ),
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(
+              Icons.filter_list,
+              color: _dateFilter != null
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+            ),
             onPressed: () => _showFilterOptions(context),
             tooltip: 'Filter sleep entries',
           ),
@@ -61,12 +82,23 @@ class SleepEntryListScreen extends ConsumerWidget {
     WidgetRef ref,
     List<SleepEntry> entries,
   ) {
-    if (entries.isEmpty) {
+    // Apply date range filter if set
+    final filtered = _dateFilter == null
+        ? entries
+        : entries.where((e) {
+            final entryDate = DateTime.fromMillisecondsSinceEpoch(e.bedTime);
+            return !entryDate.isBefore(_dateFilter!.start) &&
+                !entryDate.isAfter(
+                  _dateFilter!.end.add(const Duration(days: 1)),
+                );
+          }).toList();
+
+    if (filtered.isEmpty) {
       return _buildEmptyState(context);
     }
 
     // Sort by bed time, most recent first
-    final sortedEntries = List<SleepEntry>.from(entries)
+    final sortedEntries = List<SleepEntry>.from(filtered)
       ..sort((a, b) => b.bedTime.compareTo(a.bedTime));
 
     return RefreshIndicator(
@@ -305,7 +337,10 @@ class SleepEntryListScreen extends ConsumerWidget {
   void _showFilterOptions(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => const _FilterBottomSheet(),
+      builder: (sheetContext) => _FilterBottomSheet(
+        initialRange: _dateFilter,
+        onApply: (range) => setState(() => _dateFilter = range),
+      ),
     );
   }
 
@@ -378,13 +413,33 @@ class SleepEntryListScreen extends ConsumerWidget {
   }
 }
 
-/// Bottom sheet for filtering sleep entries.
-class _FilterBottomSheet extends StatelessWidget {
-  const _FilterBottomSheet();
+/// Bottom sheet for filtering sleep entries by date range.
+class _FilterBottomSheet extends StatefulWidget {
+  final DateTimeRange? initialRange;
+  final void Function(DateTimeRange?) onApply;
+
+  const _FilterBottomSheet({required this.initialRange, required this.onApply});
+
+  @override
+  State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<_FilterBottomSheet> {
+  DateTimeRange? _selectedRange;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedRange = widget.initialRange;
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final label = _selectedRange == null
+        ? 'All dates'
+        : '${DateFormatters.shortDate(_selectedRange!.start)} – '
+              '${DateFormatters.shortDate(_selectedRange!.end)}';
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -397,11 +452,26 @@ class _FilterBottomSheet extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.date_range),
             title: const Text('Date range'),
+            subtitle: Text(label),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Implement date range filter
+            onTap: () async {
+              final now = DateTime.now();
+              final range = await showDateRangePicker(
+                context: context,
+                firstDate: DateTime(2020),
+                lastDate: now,
+                initialDateRange: _selectedRange,
+              );
+              if (range != null) {
+                setState(() => _selectedRange = range);
+              }
             },
           ),
+          if (_selectedRange != null)
+            TextButton(
+              onPressed: () => setState(() => _selectedRange = null),
+              child: const Text('Clear filter'),
+            ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -412,7 +482,10 @@ class _FilterBottomSheet extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               FilledButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  widget.onApply(_selectedRange);
+                  Navigator.pop(context);
+                },
                 child: const Text('Apply'),
               ),
             ],

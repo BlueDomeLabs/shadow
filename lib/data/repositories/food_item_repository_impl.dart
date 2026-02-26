@@ -108,9 +108,28 @@ class FoodItemRepositoryImpl extends BaseRepository<FoodItem>
     String query, {
     required List<String> excludeCategories,
     int limit = ValidationRules.defaultSearchLimit,
-  }) =>
-      // TODO: Implement category filtering when FoodItemCategory junction is available
-      _dao.search(profileId, query, limit: limit);
+  }) async {
+    // Fetch from DAO then filter in-memory. FoodItem has no category column;
+    // we approximate by matching excluded category keywords against name,
+    // brand, and ingredientsText (case-insensitive).
+    final result = await _dao.search(profileId, query, limit: limit);
+    if (result.isFailure || excludeCategories.isEmpty) return result;
+
+    final lowerExcluded = excludeCategories
+        .map((c) => c.toLowerCase())
+        .toList();
+
+    final filtered = result.valueOrNull!.where((item) {
+      final searchable = [
+        item.name,
+        item.brand ?? '',
+        item.ingredientsText ?? '',
+      ].join(' ').toLowerCase();
+      return !lowerExcluded.any(searchable.contains);
+    }).toList();
+
+    return Success(filtered);
+  }
 
   @override
   Future<Result<List<FoodItemComponent>, AppError>> getComponents(

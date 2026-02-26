@@ -391,6 +391,70 @@ void main() {
         expect(result.isSuccess, isTrue);
         verify(mockDao.search(testProfileId, 'apple')).called(1);
       });
+
+      test(
+        'searchExcludingCategories_filtersOutItemsMatchingExcludedCategory',
+        () async {
+          // 'Whole Milk' contains 'milk' which appears in the excluded list
+          final milkItem = createTestFoodItem(
+            id: 'food-milk',
+            name: 'Whole Milk',
+          );
+          final appleItem = createTestFoodItem(id: 'food-apple', name: 'Apple');
+          when(
+            mockDao.search(testProfileId, 'food'),
+          ).thenAnswer((_) async => Success([milkItem, appleItem]));
+
+          final result = await repository.searchExcludingCategories(
+            testProfileId,
+            'food',
+            excludeCategories: ['milk'],
+          );
+
+          expect(result.isSuccess, isTrue);
+          // Milk item filtered out; apple item kept
+          expect(result.valueOrNull?.length, 1);
+          expect(result.valueOrNull?.first.id, 'food-apple');
+        },
+      );
+
+      test(
+        'searchExcludingCategories_withEmptyExcludedCategories_returnsAllItems',
+        () async {
+          final items = [
+            createTestFoodItem(id: 'food-1', name: 'Milk'),
+            createTestFoodItem(id: 'food-2', name: 'Cheese'),
+          ];
+          when(
+            mockDao.search(testProfileId, 'dairy'),
+          ).thenAnswer((_) async => Success(items));
+
+          final result = await repository.searchExcludingCategories(
+            testProfileId,
+            'dairy',
+            excludeCategories: [],
+          );
+
+          expect(result.isSuccess, isTrue);
+          expect(result.valueOrNull?.length, 2);
+        },
+      );
+
+      test('searchExcludingCategories_isCaseInsensitive', () async {
+        final dairyItem = createTestFoodItem(name: 'Dairy Cream');
+        when(
+          mockDao.search(testProfileId, 'cream'),
+        ).thenAnswer((_) async => Success([dairyItem]));
+
+        final result = await repository.searchExcludingCategories(
+          testProfileId,
+          'cream',
+          excludeCategories: ['DAIRY'],
+        );
+
+        expect(result.isSuccess, isTrue);
+        expect(result.valueOrNull, isEmpty);
+      });
     });
 
     group('getComponents', () {

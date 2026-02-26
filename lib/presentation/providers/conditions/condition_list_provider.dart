@@ -59,6 +59,31 @@ class ConditionList extends _$ConditionList {
     );
   }
 
+  /// Updates an existing condition.
+  Future<void> updateCondition(UpdateConditionInput input) async {
+    _log.debug('Updating condition: ${input.id}');
+
+    // Defense-in-depth: Provider-level auth check
+    final authService = ref.read(profileAuthorizationServiceProvider);
+    if (!await authService.canWrite(input.profileId)) {
+      throw AuthError.profileAccessDenied(input.profileId);
+    }
+
+    final useCase = ref.read(updateConditionUseCaseProvider);
+    final result = await useCase(input);
+
+    result.when(
+      success: (_) {
+        _log.info('Condition updated successfully');
+        ref.invalidateSelf();
+      },
+      failure: (error) {
+        _log.error('Update failed: ${error.message}');
+        throw error;
+      },
+    );
+  }
+
   /// Archives or unarchives a condition.
   Future<void> archive(ArchiveConditionInput input) async {
     _log.debug(

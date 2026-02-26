@@ -50,15 +50,7 @@ void main() {
       expect(find.text('Not configured'), findsOneWidget);
     });
 
-    testWidgets('renders sync settings section', (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-
-      expect(find.text('Sync Settings'), findsOneWidget);
-      expect(find.text('Auto Sync'), findsOneWidget);
-      expect(find.text('WiFi Only'), findsOneWidget);
-      expect(find.text('Sync Frequency'), findsOneWidget);
-    });
+    // D3 — Auto Sync / WiFi Only / Sync Frequency removed: Shadow uses manual sync.
 
     testWidgets('renders setup button when not authenticated', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -74,20 +66,6 @@ void main() {
       expect(find.text('Device Info'), findsOneWidget);
       expect(find.text('Sync Provider'), findsOneWidget);
       expect(find.text('Last Sync'), findsOneWidget);
-    });
-
-    testWidgets('tapping Auto Sync shows Coming Soon', (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-
-      // Tap the switch for Auto Sync
-      final switches = find.byType(Switch);
-      expect(switches, findsWidgets);
-
-      await tester.tap(switches.first);
-      await tester.pumpAndSettle();
-
-      expect(find.text('Coming Soon'), findsOneWidget);
     });
 
     testWidgets('shows connected state when authenticated', (tester) async {

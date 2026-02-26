@@ -66,8 +66,7 @@ class _CloudSyncSettingsScreenState
           // Sync status card
           _buildStatusCard(context, theme, authState),
           const SizedBox(height: 16),
-          // Sync settings section
-          _buildSettingsSection(context, theme),
+          // Shadow uses manual sync — auto-sync settings are out of scope.
           // Sync Now button (only shown when authenticated)
           if (authState.isAuthenticated) ...[
             const SizedBox(height: 16),
@@ -215,61 +214,6 @@ class _CloudSyncSettingsScreenState
     ),
   );
 
-  Widget _buildSettingsSection(BuildContext context, ThemeData theme) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Sync Settings',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          _buildSettingToggle(
-            title: 'Auto Sync',
-            subtitle: 'Automatically sync data in the background',
-            value: false,
-            onChanged: (_) => _showComingSoon(context),
-          ),
-          const Divider(),
-          _buildSettingToggle(
-            title: 'WiFi Only',
-            subtitle: 'Only sync when connected to WiFi',
-            value: true,
-            onChanged: (_) => _showComingSoon(context),
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Sync Frequency'),
-            subtitle: Text(
-              'Every 30 minutes',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
-            onTap: () => _showComingSoon(context),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _buildSettingToggle({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) => SwitchListTile(
-    contentPadding: EdgeInsets.zero,
-    title: Text(title),
-    subtitle: Text(subtitle),
-    value: value,
-    onChanged: onChanged,
-  );
-
   Widget _buildDeviceInfoSection(
     BuildContext context,
     ThemeData theme,
@@ -392,23 +336,5 @@ class _CloudSyncSettingsScreenState
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
-  }
-
-  void _showComingSoon(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Coming Soon'),
-        content: const Text(
-          'Cloud sync settings will be available once a sync provider is configured.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 }

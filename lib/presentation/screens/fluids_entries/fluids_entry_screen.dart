@@ -7,9 +7,12 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
+import 'package:shadow_app/domain/entities/user_settings.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
+import 'package:shadow_app/domain/enums/settings_enums.dart';
 import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecases.dart';
 import 'package:shadow_app/presentation/providers/fluids_entries/fluids_entry_list_provider.dart';
+import 'package:shadow_app/presentation/providers/settings/user_settings_provider.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -49,8 +52,9 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   // Water Intake
   late final TextEditingController _waterAmountController;
   late final TextEditingController _waterNotesController;
-  // NOTE: Defaults to fl oz (US default) until user preferences system is built.
+  // Initialized from UserSettings.fluidUnit; user may override via dropdown.
   bool _useMetricWater = false; // false = fl oz, true = mL
+  bool _waterUnitInitialized = false;
 
   // Bowel Movement
   bool _hadBowelMovement = false;
@@ -63,8 +67,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   UrineCondition? _urineCondition;
   late final TextEditingController _urineCustomColorController;
   MovementSize _urineSize = MovementSize.medium;
-  double _urineUrgency = 3;
-
   // Menstruation
   MenstruationFlow _menstruationFlow = MenstruationFlow.none;
 
@@ -126,9 +128,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     _urineCondition = entry?.urineCondition;
     _urineCustomColorController = TextEditingController();
     _urineSize = entry?.urineSize ?? MovementSize.medium;
-    // NOTE: Urgency UI shown per spec but not persisted — FluidsEntry has no urgency field.
-    _urineUrgency = 3;
-
     // Menstruation
     _menstruationFlow = entry?.menstruationFlow ?? MenstruationFlow.none;
 
@@ -186,6 +185,30 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Initialize water unit from UserSettings on first load.
+    ref.listen<AsyncValue<UserSettings>>(userSettingsNotifierProvider, (
+      _,
+      next,
+    ) {
+      if (!_waterUnitInitialized) {
+        next.whenData((settings) {
+          if (mounted) {
+            setState(() {
+              _useMetricWater = settings.fluidUnit == FluidUnit.ml;
+              _waterUnitInitialized = true;
+            });
+          }
+        });
+      }
+    });
+    // Also read synchronously in case settings are already loaded.
+    if (!_waterUnitInitialized) {
+      ref.read(userSettingsNotifierProvider).whenData((settings) {
+        _useMetricWater = settings.fluidUnit == FluidUnit.ml;
+        _waterUnitInitialized = true;
+      });
+    }
 
     return PopScope(
       canPop: !_isDirty,
@@ -267,8 +290,8 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                   ],
                   const SizedBox(height: 16),
                   _buildUrineSizeDropdown(theme),
-                  const SizedBox(height: 16),
-                  _buildUrineUrgencySlider(theme),
+                  // Urgency slider deferred: FluidsEntry has no urgency field.
+                  // Hiding until DB support is added in a future phase.
                 ],
                 const SizedBox(height: 24),
 
@@ -625,7 +648,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
               _urineCondition = null;
               _urineCustomColorController.clear();
               _urineSize = MovementSize.medium;
-              _urineUrgency = 3;
             }
           });
         },
@@ -695,29 +717,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
         },
       ),
     ),
-  );
-
-  Widget _buildUrineUrgencySlider(ThemeData theme) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Urgency: ${_urineUrgency.round()}',
-        style: theme.textTheme.bodyMedium,
-      ),
-      Slider(
-        value: _urineUrgency,
-        min: 1,
-        max: 5,
-        divisions: 4,
-        label: _urineUrgency.round().toString(),
-        onChanged: (value) {
-          setState(() {
-            _urineUrgency = value;
-            _isDirty = true;
-          });
-        },
-      ),
-    ],
   );
 
   // === Menstruation Section ===

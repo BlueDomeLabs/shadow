@@ -542,8 +542,26 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
       final startTimeframe = _timeframeLabelToEpoch(_selectedStartTimeframe!);
 
       if (_isEditing) {
-        // TODO: Implement update when provider supports it
-        // Provider does not currently have an update method
+        await ref
+            .read(conditionListProvider(widget.profileId).notifier)
+            .updateCondition(
+              UpdateConditionInput(
+                id: widget.condition!.id,
+                profileId: widget.profileId,
+                name: _nameController.text.trim(),
+                category: _selectedCategory,
+                bodyLocations: _selectedBodyLocations,
+                description: _descriptionController.text.trim().isNotEmpty
+                    ? _descriptionController.text.trim()
+                    : null,
+                startTimeframe: startTimeframe,
+                status: _selectedStatus,
+                endDate: _selectedStatus == ConditionStatus.resolved
+                    ? (widget.condition!.endDate ??
+                          DateTime.now().millisecondsSinceEpoch)
+                    : null,
+              ),
+            );
       } else {
         await ref
             .read(conditionListProvider(widget.profileId).notifier)

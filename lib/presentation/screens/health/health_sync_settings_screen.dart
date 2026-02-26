@@ -2,6 +2,8 @@
 // Phase 16c — Health Platform sync settings screen
 // Per 61_HEALTH_PLATFORM_INTEGRATION.md Settings Screen Addition section
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/domain/entities/health_sync_status.dart';
@@ -11,6 +13,7 @@ import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/health/health_sync_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Human-readable label for each health data type.
 String _dataTypeLabel(HealthDataType type) => switch (type) {
@@ -309,11 +312,24 @@ class _ManagePermissionsRow extends StatelessWidget {
     title: const Text('Manage Permissions'),
     subtitle: const Text('Open platform health settings'),
     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-    onTap: () {
-      // Opens the platform's health permission settings.
-      // Platform URL launch integration is planned for a future phase.
-    },
+    onTap: () => _openHealthSettings(context),
   );
+
+  Future<void> _openHealthSettings(BuildContext context) async {
+    // iOS: Apple Health app; Android: Google Health Connect app
+    final uri = Platform.isIOS
+        ? Uri.parse('x-apple-health://')
+        : Uri.parse('android-app://com.google.android.apps.healthdata');
+
+    final launched = await launchUrl(uri);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open health settings on this device'),
+        ),
+      );
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

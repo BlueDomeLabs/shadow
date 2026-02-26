@@ -1156,6 +1156,28 @@ final archiveConditionUseCaseProvider =
 // ignore: unused_element
 typedef ArchiveConditionUseCaseRef =
     AutoDisposeProviderRef<ArchiveConditionUseCase>;
+String _$updateConditionUseCaseHash() =>
+    r'ae8a6c099e921efdb4214841ad0851cef50b0f53';
+
+/// UpdateConditionUseCase provider.
+///
+/// Copied from [updateConditionUseCase].
+@ProviderFor(updateConditionUseCase)
+final updateConditionUseCaseProvider =
+    AutoDisposeProvider<UpdateConditionUseCase>.internal(
+      updateConditionUseCase,
+      name: r'updateConditionUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateConditionUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateConditionUseCaseRef =
+    AutoDisposeProviderRef<UpdateConditionUseCase>;
 String _$getConditionLogsUseCaseHash() =>
     r'61f328f7af5e5075c71be40c3eaf441565fb4806';
 
@@ -1199,6 +1221,28 @@ final logConditionUseCaseProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef LogConditionUseCaseRef = AutoDisposeProviderRef<LogConditionUseCase>;
+String _$updateConditionLogUseCaseHash() =>
+    r'72dab9f258d1c592aec188738a89178b7832b40e';
+
+/// UpdateConditionLogUseCase provider.
+///
+/// Copied from [updateConditionLogUseCase].
+@ProviderFor(updateConditionLogUseCase)
+final updateConditionLogUseCaseProvider =
+    AutoDisposeProvider<UpdateConditionLogUseCase>.internal(
+      updateConditionLogUseCase,
+      name: r'updateConditionLogUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateConditionLogUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateConditionLogUseCaseRef =
+    AutoDisposeProviderRef<UpdateConditionLogUseCase>;
 String _$getFlareUpsUseCaseHash() =>
     r'4eab03cd31434c31466cc134044624c65bd1d76e';
 

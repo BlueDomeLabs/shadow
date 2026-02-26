@@ -14,6 +14,7 @@ import 'package:shadow_app/domain/usecases/conditions/archive_condition_use_case
 import 'package:shadow_app/domain/usecases/conditions/condition_inputs.dart';
 import 'package:shadow_app/domain/usecases/conditions/create_condition_use_case.dart';
 import 'package:shadow_app/domain/usecases/conditions/get_conditions_use_case.dart';
+import 'package:shadow_app/domain/usecases/conditions/update_condition_use_case.dart';
 
 @GenerateMocks([ConditionRepository, ProfileAuthorizationService])
 import 'condition_usecases_test.mocks.dart';
@@ -398,5 +399,121 @@ void main() {
         expect(result.errorOrNull, isA<AuthError>());
       },
     );
+  });
+
+  group('UpdateConditionUseCase', () {
+    late MockConditionRepository mockRepository;
+    late MockProfileAuthorizationService mockAuthService;
+    late UpdateConditionUseCase useCase;
+
+    setUp(() {
+      mockRepository = MockConditionRepository();
+      mockAuthService = MockProfileAuthorizationService();
+      useCase = UpdateConditionUseCase(mockRepository, mockAuthService);
+    });
+
+    test('call_whenAuthorizedAndValid_updatesCondition', () async {
+      final existing = createTestCondition();
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(
+        mockRepository.update(any),
+      ).thenAnswer((_) async => Success(existing));
+
+      final result = await useCase(
+        const UpdateConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          name: 'Updated Name',
+        ),
+      );
+
+      expect(result.isSuccess, isTrue);
+      verify(mockRepository.update(any)).called(1);
+    });
+
+    test('call_whenUnauthorized_returnsAuthError', () async {
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => false);
+
+      final result = await useCase(
+        const UpdateConditionInput(id: 'cond-001', profileId: testProfileId),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<AuthError>());
+      verifyNever(mockRepository.getById(any));
+    });
+
+    test('call_whenConditionBelongsToOtherProfile_returnsAuthError', () async {
+      final existing = createTestCondition(profileId: 'other-profile');
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+
+      final result = await useCase(
+        const UpdateConditionInput(id: 'cond-001', profileId: testProfileId),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<AuthError>());
+      verifyNever(mockRepository.update(any));
+    });
+
+    test('call_withEmptyName_returnsValidationError', () async {
+      final existing = createTestCondition();
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+
+      final result = await useCase(
+        const UpdateConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          name: '',
+        ),
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull, isA<ValidationError>());
+    });
+
+    test('call_mergesOnlyProvidedFields', () async {
+      final existing = createTestCondition(name: 'Original');
+      Condition? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as Condition;
+        return Success(captured!);
+      });
+
+      await useCase(
+        const UpdateConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          name: 'New Name',
+          // category not provided — should keep existing
+        ),
+      );
+
+      expect(captured?.name, 'New Name');
+      expect(captured?.category, 'skin');
+    });
   });
 }

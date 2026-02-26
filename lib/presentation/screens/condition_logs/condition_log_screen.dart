@@ -564,30 +564,43 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
           ? _selectedTriggers.join(',')
           : null;
 
-      // NOTE: Provider only has log() (create). Editing creates a new entry with same conditionId.
-      await ref
-          .read(
-            conditionLogListProvider(
-              widget.profileId,
-              widget.condition.id,
-            ).notifier,
-          )
-          .log(
-            LogConditionInput(
-              profileId: widget.profileId,
-              clientId: _isEditing
-                  ? widget.conditionLog!.clientId
-                  : const Uuid().v4(),
-              conditionId: widget.condition.id,
-              timestamp: _selectedDateTime.millisecondsSinceEpoch,
-              severity: _severity.round(),
-              notes: _notesController.text.trim().isNotEmpty
-                  ? _notesController.text.trim()
-                  : null,
-              isFlare: _isFlare,
-              triggers: triggersString,
-            ),
-          );
+      final notifier = ref.read(
+        conditionLogListProvider(
+          widget.profileId,
+          widget.condition.id,
+        ).notifier,
+      );
+
+      if (_isEditing) {
+        await notifier.updateLog(
+          UpdateConditionLogInput(
+            id: widget.conditionLog!.id,
+            profileId: widget.profileId,
+            timestamp: _selectedDateTime.millisecondsSinceEpoch,
+            severity: _severity.round(),
+            notes: _notesController.text.trim().isNotEmpty
+                ? _notesController.text.trim()
+                : null,
+            isFlare: _isFlare,
+            triggers: triggersString,
+          ),
+        );
+      } else {
+        await notifier.log(
+          LogConditionInput(
+            profileId: widget.profileId,
+            clientId: const Uuid().v4(),
+            conditionId: widget.condition.id,
+            timestamp: _selectedDateTime.millisecondsSinceEpoch,
+            severity: _severity.round(),
+            notes: _notesController.text.trim().isNotEmpty
+                ? _notesController.text.trim()
+                : null,
+            isFlare: _isFlare,
+            triggers: triggersString,
+          ),
+        );
+      }
 
       if (mounted) {
         showAccessibleSnackBar(

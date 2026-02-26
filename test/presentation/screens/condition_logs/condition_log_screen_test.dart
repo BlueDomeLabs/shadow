@@ -831,6 +831,11 @@ class _MockConditionLogList extends ConditionLogList {
   Future<void> log(LogConditionInput input) async {
     // Success - no-op for testing
   }
+
+  @override
+  Future<void> updateLog(UpdateConditionLogInput input) async {
+    // Success - no-op for testing
+  }
 }
 
 /// Mock notifier that simulates a failure on log.

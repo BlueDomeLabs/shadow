@@ -43,3 +43,19 @@ class ArchiveConditionInput with _$ArchiveConditionInput {
     required bool archive, // true = archive, false = unarchive
   }) = _ArchiveConditionInput;
 }
+
+/// Input for UpdateConditionUseCase.
+@freezed
+class UpdateConditionInput with _$UpdateConditionInput {
+  const factory UpdateConditionInput({
+    required String id,
+    required String profileId,
+    String? name,
+    String? category,
+    List<String>? bodyLocations,
+    String? description,
+    int? startTimeframe, // Epoch ms
+    int? endDate, // Epoch ms
+    ConditionStatus? status,
+  }) = _UpdateConditionInput;
+}

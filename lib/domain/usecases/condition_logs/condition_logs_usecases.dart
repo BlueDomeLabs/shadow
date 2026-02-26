@@ -4,3 +4,4 @@
 export 'condition_log_inputs.dart';
 export 'get_condition_logs_use_case.dart';
 export 'log_condition_use_case.dart';
+export 'update_condition_log_use_case.dart';

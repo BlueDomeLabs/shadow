@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 17a: Exhaustive Code Audit (Read-Only)",
-  "timestamp": "2026-02-26T00:00:00Z",
+  "task": "Phase 17b: Bug Fixes + UI Wiring + Decision Implementations — 11 items (A1-A2, B1-B2, C1-C4, D1-D3)",
+  "timestamp": "2026-02-26T04:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3181,
+  "testCount": 3210,
   "schemaVersion": 16,
-  "notes": "Phase 17a complete. Read-only audit of all lib/ and test/ files. 18 actionable findings documented in ARCHITECT_BRIEFING.md and Google Doc. No code changes made. 5 product decisions pending from Reid: (1) urgency slider DB field or hide, (2) Manage Permissions defer or schedule, (3) Join Existing Account wire or keep coming-soon, (4) Flare-Ups list planned?, (5) cloud sync auto/WiFi/frequency in or out of scope. 5 clear fixes ready to implement without decisions: condition edit data loss, food item repo filter bug, condition log duplicate, fluids unit hardcode, food log stub. Next: Reid reviews audit findings, approves fixes and/or resolves decisions."
+  "notes": "Phase 17b complete. A1: fixed condition edit data loss (wired updateConditionUseCase). A2: fixed food search category exclusion filtering (case-insensitive contains). B1: created UpdateConditionLogUseCase + wired to condition log edit mode. B2: wired FluidUnit from UserSettings in fluids entry screen. C1: created SupplementLogScreen + wired Log Intake button. C2: wired filter switches in supplement list screen. C3: wired food item search to SearchFoodItemsUseCase. C4: wired sleep entry date range filter. D1: hid urgency slider in fluids entry screen. D2: wired Manage Permissions to url_launcher. D3: removed Auto Sync/WiFi Only/Sync Frequency stub rows. 29 new tests added (total 3210). Next: Plan Phase 17c or confirm Phase 18 (AnchorEventName enum expansion — breaking enum change from Decision 3 per DECISIONS.md 2026-02-25)."
 }

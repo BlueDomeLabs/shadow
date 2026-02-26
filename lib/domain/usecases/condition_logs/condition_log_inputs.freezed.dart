@@ -660,3 +660,292 @@ abstract class _LogConditionInput implements LogConditionInput {
   _$$LogConditionInputImplCopyWith<_$LogConditionInputImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$UpdateConditionLogInput {
+  String get id => throw _privateConstructorUsedError;
+  String get profileId => throw _privateConstructorUsedError;
+  int? get timestamp => throw _privateConstructorUsedError; // Epoch ms
+  int? get severity => throw _privateConstructorUsedError; // 1-10 scale
+  String? get notes => throw _privateConstructorUsedError;
+  bool? get isFlare => throw _privateConstructorUsedError;
+  String? get triggers => throw _privateConstructorUsedError;
+
+  /// Create a copy of UpdateConditionLogInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $UpdateConditionLogInputCopyWith<UpdateConditionLogInput> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UpdateConditionLogInputCopyWith<$Res> {
+  factory $UpdateConditionLogInputCopyWith(
+    UpdateConditionLogInput value,
+    $Res Function(UpdateConditionLogInput) then,
+  ) = _$UpdateConditionLogInputCopyWithImpl<$Res, UpdateConditionLogInput>;
+  @useResult
+  $Res call({
+    String id,
+    String profileId,
+    int? timestamp,
+    int? severity,
+    String? notes,
+    bool? isFlare,
+    String? triggers,
+  });
+}
+
+/// @nodoc
+class _$UpdateConditionLogInputCopyWithImpl<
+  $Res,
+  $Val extends UpdateConditionLogInput
+>
+    implements $UpdateConditionLogInputCopyWith<$Res> {
+  _$UpdateConditionLogInputCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of UpdateConditionLogInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? timestamp = freezed,
+    Object? severity = freezed,
+    Object? notes = freezed,
+    Object? isFlare = freezed,
+    Object? triggers = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            profileId: null == profileId
+                ? _value.profileId
+                : profileId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            timestamp: freezed == timestamp
+                ? _value.timestamp
+                : timestamp // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            severity: freezed == severity
+                ? _value.severity
+                : severity // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isFlare: freezed == isFlare
+                ? _value.isFlare
+                : isFlare // ignore: cast_nullable_to_non_nullable
+                      as bool?,
+            triggers: freezed == triggers
+                ? _value.triggers
+                : triggers // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$UpdateConditionLogInputImplCopyWith<$Res>
+    implements $UpdateConditionLogInputCopyWith<$Res> {
+  factory _$$UpdateConditionLogInputImplCopyWith(
+    _$UpdateConditionLogInputImpl value,
+    $Res Function(_$UpdateConditionLogInputImpl) then,
+  ) = __$$UpdateConditionLogInputImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String id,
+    String profileId,
+    int? timestamp,
+    int? severity,
+    String? notes,
+    bool? isFlare,
+    String? triggers,
+  });
+}
+
+/// @nodoc
+class __$$UpdateConditionLogInputImplCopyWithImpl<$Res>
+    extends
+        _$UpdateConditionLogInputCopyWithImpl<
+          $Res,
+          _$UpdateConditionLogInputImpl
+        >
+    implements _$$UpdateConditionLogInputImplCopyWith<$Res> {
+  __$$UpdateConditionLogInputImplCopyWithImpl(
+    _$UpdateConditionLogInputImpl _value,
+    $Res Function(_$UpdateConditionLogInputImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UpdateConditionLogInput
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? profileId = null,
+    Object? timestamp = freezed,
+    Object? severity = freezed,
+    Object? notes = freezed,
+    Object? isFlare = freezed,
+    Object? triggers = freezed,
+  }) {
+    return _then(
+      _$UpdateConditionLogInputImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        profileId: null == profileId
+            ? _value.profileId
+            : profileId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        timestamp: freezed == timestamp
+            ? _value.timestamp
+            : timestamp // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        severity: freezed == severity
+            ? _value.severity
+            : severity // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isFlare: freezed == isFlare
+            ? _value.isFlare
+            : isFlare // ignore: cast_nullable_to_non_nullable
+                  as bool?,
+        triggers: freezed == triggers
+            ? _value.triggers
+            : triggers // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$UpdateConditionLogInputImpl implements _UpdateConditionLogInput {
+  const _$UpdateConditionLogInputImpl({
+    required this.id,
+    required this.profileId,
+    this.timestamp,
+    this.severity,
+    this.notes,
+    this.isFlare,
+    this.triggers,
+  });
+
+  @override
+  final String id;
+  @override
+  final String profileId;
+  @override
+  final int? timestamp;
+  // Epoch ms
+  @override
+  final int? severity;
+  // 1-10 scale
+  @override
+  final String? notes;
+  @override
+  final bool? isFlare;
+  @override
+  final String? triggers;
+
+  @override
+  String toString() {
+    return 'UpdateConditionLogInput(id: $id, profileId: $profileId, timestamp: $timestamp, severity: $severity, notes: $notes, isFlare: $isFlare, triggers: $triggers)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UpdateConditionLogInputImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.profileId, profileId) ||
+                other.profileId == profileId) &&
+            (identical(other.timestamp, timestamp) ||
+                other.timestamp == timestamp) &&
+            (identical(other.severity, severity) ||
+                other.severity == severity) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.isFlare, isFlare) || other.isFlare == isFlare) &&
+            (identical(other.triggers, triggers) ||
+                other.triggers == triggers));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    profileId,
+    timestamp,
+    severity,
+    notes,
+    isFlare,
+    triggers,
+  );
+
+  /// Create a copy of UpdateConditionLogInput
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UpdateConditionLogInputImplCopyWith<_$UpdateConditionLogInputImpl>
+  get copyWith =>
+      __$$UpdateConditionLogInputImplCopyWithImpl<
+        _$UpdateConditionLogInputImpl
+      >(this, _$identity);
+}
+
+abstract class _UpdateConditionLogInput implements UpdateConditionLogInput {
+  const factory _UpdateConditionLogInput({
+    required final String id,
+    required final String profileId,
+    final int? timestamp,
+    final int? severity,
+    final String? notes,
+    final bool? isFlare,
+    final String? triggers,
+  }) = _$UpdateConditionLogInputImpl;
+
+  @override
+  String get id;
+  @override
+  String get profileId;
+  @override
+  int? get timestamp; // Epoch ms
+  @override
+  int? get severity; // 1-10 scale
+  @override
+  String? get notes;
+  @override
+  bool? get isFlare;
+  @override
+  String? get triggers;
+
+  /// Create a copy of UpdateConditionLogInput
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UpdateConditionLogInputImplCopyWith<_$UpdateConditionLogInputImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}

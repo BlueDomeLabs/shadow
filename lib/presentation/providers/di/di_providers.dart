@@ -528,6 +528,14 @@ ArchiveConditionUseCase archiveConditionUseCase(Ref ref) =>
       ref.read(profileAuthorizationServiceProvider),
     );
 
+/// UpdateConditionUseCase provider.
+@riverpod
+UpdateConditionUseCase updateConditionUseCase(Ref ref) =>
+    UpdateConditionUseCase(
+      ref.read(conditionRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
+
 // =============================================================================
 // USE CASES - CONDITION LOGS (2)
 // =============================================================================
@@ -547,6 +555,14 @@ LogConditionUseCase logConditionUseCase(Ref ref) => LogConditionUseCase(
   ref.read(conditionRepositoryProvider),
   ref.read(profileAuthorizationServiceProvider),
 );
+
+/// UpdateConditionLogUseCase provider.
+@riverpod
+UpdateConditionLogUseCase updateConditionLogUseCase(Ref ref) =>
+    UpdateConditionLogUseCase(
+      ref.read(conditionLogRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
+    );
 
 // =============================================================================
 // USE CASES - FLARE UPS (5)

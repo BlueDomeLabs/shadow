@@ -7,6 +7,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_items_usecases.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/food_items/food_item_list_provider.dart';
 import 'package:shadow_app/presentation/screens/food_items/food_item_edit_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
@@ -15,35 +16,74 @@ import 'package:shadow_app/presentation/widgets/widgets.dart';
 ///
 /// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 5 exactly.
 /// Uses [FoodItemListProvider] for state management.
-class FoodItemListScreen extends ConsumerWidget {
+class FoodItemListScreen extends ConsumerStatefulWidget {
   final String profileId;
 
   const FoodItemListScreen({super.key, required this.profileId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FoodItemListScreen> createState() => _FoodItemListScreenState();
+}
+
+class _FoodItemListScreenState extends ConsumerState<FoodItemListScreen> {
+  bool _isSearching = false;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+  List<FoodItem>? _searchResults;
+  bool _searchLoading = false;
+
+  String get profileId => widget.profileId;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final foodItemsAsync = ref.watch(foodItemListProvider(profileId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Food Library'),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search food items…',
+                  border: InputBorder.none,
+                ),
+                onChanged: _onSearchChanged,
+              )
+            : const Text('Food Library'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSearch(context),
-            tooltip: 'Search food items',
-          ),
+          if (_isSearching)
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: _clearSearch,
+              tooltip: 'Clear search',
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: _startSearch,
+              tooltip: 'Search food items',
+            ),
         ],
       ),
       body: Semantics(
         label: 'Food item list',
-        child: foodItemsAsync.when(
-          data: (foodItems) => _buildFoodItemList(context, ref, foodItems),
-          loading: () => const Center(
-            child: ShadowStatus.loading(label: 'Loading food items'),
-          ),
-          error: (error, stack) => _buildErrorState(context, ref, error),
-        ),
+        child: _isSearching
+            ? _buildSearchResults(context)
+            : foodItemsAsync.when(
+                data: (foodItems) =>
+                    _buildFoodItemList(context, ref, foodItems),
+                loading: () => const Center(
+                  child: ShadowStatus.loading(label: 'Loading food items'),
+                ),
+                error: (error, stack) => _buildErrorState(context, ref, error),
+              ),
       ),
       floatingActionButton: Semantics(
         label: 'Add new food item',
@@ -289,9 +329,72 @@ class FoodItemListScreen extends ConsumerWidget {
     FoodItemType.packaged => Icons.shopping_bag,
   };
 
-  void _showSearch(BuildContext context) {
-    // TODO: Wire to SearchFoodItemsUseCase with search delegate
-    showAccessibleSnackBar(context: context, message: 'Coming soon');
+  void _startSearch() {
+    setState(() {
+      _isSearching = true;
+      _searchQuery = '';
+      _searchResults = null;
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchQuery = '';
+      _searchResults = null;
+      _searchController.clear();
+    });
+  }
+
+  Future<void> _onSearchChanged(String query) async {
+    setState(() {
+      _searchQuery = query;
+      _searchLoading = query.isNotEmpty;
+    });
+
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = null;
+        _searchLoading = false;
+      });
+      return;
+    }
+
+    final useCase = ref.read(searchFoodItemsUseCaseProvider);
+    final result = await useCase(
+      SearchFoodItemsInput(profileId: profileId, query: query),
+    );
+    if (!mounted) return;
+
+    result.when(
+      success: (items) => setState(() {
+        _searchResults = items;
+        _searchLoading = false;
+      }),
+      failure: (_) => setState(() {
+        _searchResults = [];
+        _searchLoading = false;
+      }),
+    );
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    if (_searchQuery.isEmpty) {
+      return const Center(child: Text('Type to search food items'));
+    }
+    if (_searchLoading) {
+      return const Center(child: ShadowStatus.loading(label: 'Searching'));
+    }
+    final results = _searchResults ?? [];
+    if (results.isEmpty) {
+      return Center(child: Text('No results for "$_searchQuery"'));
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: results.length,
+      itemBuilder: (context, index) =>
+          _buildFoodItemCard(context, ref, results[index]),
+    );
   }
 
   void _navigateToAddFoodItem(BuildContext context) {

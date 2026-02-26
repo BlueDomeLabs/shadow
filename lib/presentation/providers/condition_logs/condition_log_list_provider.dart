@@ -36,6 +36,31 @@ class ConditionLogList extends _$ConditionLogList {
     );
   }
 
+  /// Updates an existing condition log entry.
+  Future<void> updateLog(UpdateConditionLogInput input) async {
+    _log.debug('Updating condition log: ${input.id}');
+
+    // Defense-in-depth: Provider-level auth check
+    final authService = ref.read(profileAuthorizationServiceProvider);
+    if (!await authService.canWrite(input.profileId)) {
+      throw AuthError.profileAccessDenied(input.profileId);
+    }
+
+    final useCase = ref.read(updateConditionLogUseCaseProvider);
+    final result = await useCase(input);
+
+    result.when(
+      success: (_) {
+        _log.info('Condition log updated successfully');
+        ref.invalidateSelf();
+      },
+      failure: (error) {
+        _log.error('Update failed: ${error.message}');
+        throw error;
+      },
+    );
+  }
+
   /// Logs a condition entry.
   Future<void> log(LogConditionInput input) async {
     _log.debug('Logging condition: ${input.conditionId}');

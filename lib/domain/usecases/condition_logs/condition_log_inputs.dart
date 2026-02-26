@@ -35,3 +35,17 @@ class LogConditionInput with _$LogConditionInput {
     String? triggers, // Comma-separated
   }) = _LogConditionInput;
 }
+
+/// Input for UpdateConditionLogUseCase (editing an existing condition log).
+@freezed
+class UpdateConditionLogInput with _$UpdateConditionLogInput {
+  const factory UpdateConditionLogInput({
+    required String id,
+    required String profileId,
+    int? timestamp, // Epoch ms
+    int? severity, // 1-10 scale
+    String? notes,
+    bool? isFlare,
+    String? triggers, // Comma-separated
+  }) = _UpdateConditionLogInput;
+}

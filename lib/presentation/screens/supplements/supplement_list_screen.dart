@@ -9,19 +9,32 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
 import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
 import 'package:shadow_app/presentation/screens/supplements/supplement_edit_screen.dart';
+import 'package:shadow_app/presentation/screens/supplements/supplement_log_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 /// Screen displaying the list of supplements for a profile.
 ///
 /// Follows 38_UI_FIELD_SPECIFICATIONS.md Section 4 exactly.
 /// Uses [SupplementListProvider] for state management.
-class SupplementListScreen extends ConsumerWidget {
+class SupplementListScreen extends ConsumerStatefulWidget {
   final String profileId;
 
   const SupplementListScreen({super.key, required this.profileId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SupplementListScreen> createState() =>
+      _SupplementListScreenState();
+}
+
+class _SupplementListScreenState extends ConsumerState<SupplementListScreen> {
+  // Filter state — both default to true so all supplements show on first open.
+  bool _showActive = true;
+  bool _showArchived = true;
+
+  String get profileId => widget.profileId;
+
+  @override
+  Widget build(BuildContext context) {
     final supplementsAsync = ref.watch(supplementListProvider(profileId));
 
     return Scaffold(
@@ -38,12 +51,11 @@ class SupplementListScreen extends ConsumerWidget {
       body: Semantics(
         label: 'Supplement list',
         child: supplementsAsync.when(
-          data: (supplements) =>
-              _buildSupplementList(context, ref, supplements),
+          data: (supplements) => _buildSupplementList(context, supplements),
           loading: () => const Center(
             child: ShadowStatus.loading(label: 'Loading supplements'),
           ),
-          error: (error, stack) => _buildErrorState(context, ref, error),
+          error: (error, stack) => _buildErrorState(context, error),
         ),
       ),
       floatingActionButton: Semantics(
@@ -58,16 +70,23 @@ class SupplementListScreen extends ConsumerWidget {
 
   Widget _buildSupplementList(
     BuildContext context,
-    WidgetRef ref,
     List<Supplement> supplements,
   ) {
     if (supplements.isEmpty) {
       return _buildEmptyState(context);
     }
 
-    // Separate active and archived supplements
-    final activeSupplements = supplements.where((s) => s.isActive).toList();
-    final archivedSupplements = supplements.where((s) => s.isArchived).toList();
+    // Separate active and archived supplements, applying filter state.
+    final activeSupplements = _showActive
+        ? supplements.where((s) => s.isActive).toList()
+        : <Supplement>[];
+    final archivedSupplements = _showArchived
+        ? supplements.where((s) => s.isArchived).toList()
+        : <Supplement>[];
+
+    if (activeSupplements.isEmpty && archivedSupplements.isEmpty) {
+      return _buildEmptyState(context);
+    }
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -80,7 +99,7 @@ class SupplementListScreen extends ConsumerWidget {
             _buildSectionHeader(context, 'Active Supplements'),
             const SizedBox(height: 8),
             ...activeSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
+              (supplement) => _buildSupplementCard(context, supplement),
             ),
           ],
           if (archivedSupplements.isNotEmpty) ...[
@@ -88,7 +107,7 @@ class SupplementListScreen extends ConsumerWidget {
             _buildSectionHeader(context, 'Archived'),
             const SizedBox(height: 8),
             ...archivedSupplements.map(
-              (supplement) => _buildSupplementCard(context, ref, supplement),
+              (supplement) => _buildSupplementCard(context, supplement),
             ),
           ],
         ],
@@ -109,11 +128,7 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSupplementCard(
-    BuildContext context,
-    WidgetRef ref,
-    Supplement supplement,
-  ) {
+  Widget _buildSupplementCard(BuildContext context, Supplement supplement) {
     final theme = Theme.of(context);
 
     return Padding(
@@ -187,7 +202,7 @@ class SupplementListScreen extends ConsumerWidget {
             PopupMenuButton<String>(
               tooltip: 'More options',
               onSelected: (value) =>
-                  _handleSupplementAction(context, ref, supplement, value),
+                  _handleSupplementAction(context, supplement, value),
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'edit',
@@ -256,7 +271,7 @@ class SupplementListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+  Widget _buildErrorState(BuildContext context, Object error) {
     final theme = Theme.of(context);
 
     return Center(
@@ -307,7 +322,16 @@ class SupplementListScreen extends ConsumerWidget {
   void _showFilterOptions(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => const _FilterBottomSheet(),
+      builder: (sheetContext) => _FilterBottomSheet(
+        showActive: _showActive,
+        showArchived: _showArchived,
+        onChanged: ({required showActive, required showArchived}) {
+          setState(() {
+            _showActive = showActive;
+            _showArchived = showArchived;
+          });
+        },
+      ),
     );
   }
 
@@ -330,7 +354,6 @@ class SupplementListScreen extends ConsumerWidget {
 
   Future<void> _handleSupplementAction(
     BuildContext context,
-    WidgetRef ref,
     Supplement supplement,
     String action,
   ) async {
@@ -341,18 +364,21 @@ class SupplementListScreen extends ConsumerWidget {
         _navigateToLogIntake(context, supplement);
       case 'archive':
       case 'unarchive':
-        await _toggleArchive(context, ref, supplement);
+        await _toggleArchive(context, supplement);
     }
   }
 
   void _navigateToLogIntake(BuildContext context, Supplement supplement) {
-    // TODO: Wire to IntakeLogScreen when supplement pre-selection is supported
-    showAccessibleSnackBar(context: context, message: 'Coming soon');
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (context) =>
+            SupplementLogScreen(profileId: profileId, supplement: supplement),
+      ),
+    );
   }
 
   Future<void> _toggleArchive(
     BuildContext context,
-    WidgetRef ref,
     Supplement supplement,
   ) async {
     final confirmed = await showDeleteConfirmationDialog(
@@ -402,8 +428,32 @@ class SupplementListScreen extends ConsumerWidget {
 }
 
 /// Bottom sheet for filtering supplements.
-class _FilterBottomSheet extends StatelessWidget {
-  const _FilterBottomSheet();
+class _FilterBottomSheet extends StatefulWidget {
+  final bool showActive;
+  final bool showArchived;
+  final void Function({required bool showActive, required bool showArchived})
+  onChanged;
+
+  const _FilterBottomSheet({
+    required this.showActive,
+    required this.showArchived,
+    required this.onChanged,
+  });
+
+  @override
+  State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<_FilterBottomSheet> {
+  late bool _showActive;
+  late bool _showArchived;
+
+  @override
+  void initState() {
+    super.initState();
+    _showActive = widget.showActive;
+    _showArchived = widget.showArchived;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -417,16 +467,21 @@ class _FilterBottomSheet extends StatelessWidget {
         children: [
           Text('Filter Supplements', style: theme.textTheme.titleLarge),
           const SizedBox(height: 16),
-          // TODO: Wire filter switches to provider state
           ListTile(
             leading: const Icon(Icons.check_circle),
             title: const Text('Active only'),
-            trailing: Switch(value: true, onChanged: (value) {}),
+            trailing: Switch(
+              value: _showActive,
+              onChanged: (value) => setState(() => _showActive = value),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.archive),
             title: const Text('Show archived'),
-            trailing: Switch(value: true, onChanged: (value) {}),
+            trailing: Switch(
+              value: _showArchived,
+              onChanged: (value) => setState(() => _showArchived = value),
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -438,7 +493,13 @@ class _FilterBottomSheet extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               FilledButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  widget.onChanged(
+                    showActive: _showActive,
+                    showArchived: _showArchived,
+                  );
+                  Navigator.pop(context);
+                },
                 child: const Text('Apply'),
               ),
             ],
