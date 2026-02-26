@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: [auto-stamped on push by push_briefing_to_gdrive.py]
-# Briefing Version: 20260225-005
+# Briefing Version: 20260225-006
 #
 # PRIMARY: Google Doc at https://docs.google.com/document/d/1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w
 # This .md file is the source of truth committed to git.
