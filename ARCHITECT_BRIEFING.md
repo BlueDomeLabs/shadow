@@ -8,17 +8,49 @@
 # A Stop hook (scripts/sync_briefing.sh) automatically pushes it to the Google Doc at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 16b complete — committed, tests passing, analyzer clean
-# Last Action:   Implemented SyncFromHealthPlatformUseCase + platform config
-# Next Action:   Phase 16c — concrete HealthPlatformServiceImpl wiring health plugin to domain port; then Health Sync Settings UI screen
+# Status:        Phase 16d deferred — physical device testing pending Apple Watch access
+# Last Action:   Documented Phase 16d test checklist; no code changes
+# Next Action:   Phase 17 — [Reid to decide next phase]
 # Open Items:    0 decisions open; 0 spec findings unresolved
-# Tests:         3,160 passing
-# Schema:        v16
+# Tests:         3,181 passing (unchanged)
+# Schema:        v16 (unchanged)
 # Analyzer:      Clean
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-26 MST] — Phase 16d: Physical Device Testing Deferred
+
+Phase 16d integration testing requires a physical iOS device with HealthKit data.
+Testing is deferred pending access to Reid's daughter's iPhone + Apple Watch.
+
+**When device is available, manual test checklist:**
+- Settings → Health Data screen renders correctly on device
+- Platform status shows "Apple Health — Connected"
+- All 9 data type toggles present and enabled by default
+- "Sync from Health" button triggers sync with progress indicator
+- Result summary shows imported record counts by type
+- Last synced timestamp persists after navigation
+- Incremental sync imports 0 duplicates on second run
+- Imported vitals stored correctly in database (verify via GetImportedVitalsUseCase)
+- Permission denial handled gracefully (no crash, denied types reported)
+- Steps and sleep data import from iPhone alone (no Watch required)
+- Heart rate and resting heart rate import from Apple Watch data
+
+**Data types testable without Apple Watch (iPhone alone):**
+- Steps (iPhone accelerometer)
+- Sleep (iOS 16+ built-in sleep tracking)
+- Weight (manual entry in Health app)
+- Blood pressure (manual entry in Health app)
+- Blood oxygen (manual entry in Health app)
+
+**Data types requiring Apple Watch:**
+- Heart rate
+- Resting heart rate
+- Active calories
 
 ---
 
