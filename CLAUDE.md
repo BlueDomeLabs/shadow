@@ -10,7 +10,7 @@ Reid Barcus is the owner of Blue Dome LLC and your manager. He is NOT a programm
 - **When you need a decision**, present options with plain-language trade-offs, not technical details.
 - **Update VISION.md** if your work changes what the user sees or does. This is Reid's document - keep it in his language.
 - **Update DECISIONS.md** when you make any significant choice, in plain language, so Reid has a record of why things were done a certain way.
-- **ALWAYS update the Architect Briefing Google Doc** after every reply using the Google Drive MCP (`updateGoogleDoc`, document ID: `1dCOexVrJxnJX4vC8ItvL_twSvqBLC2Ro8oUkcG3m-8w`). Claude.ai reads this doc directly — it cannot read clipboard or markdown files. Update Section 7 with any new findings, and update Section 1 Project Vitals when phase or test count changes. No exceptions.
+- **ALWAYS update `ARCHITECT_BRIEFING.md`** after every reply. Add a timestamped section at the top (reverse chronological order) summarizing what was done. Commit and push to GitHub — Claude.ai reads this file via the GitHub Project integration. No exceptions.
 
 ---
 
