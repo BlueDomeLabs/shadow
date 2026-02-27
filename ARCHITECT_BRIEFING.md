@@ -23,6 +23,39 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — Phase 18c DeepLinkService reconnaissance (read-only)
+
+**No commits. Findings for Architect to use when writing Phase 18c implementation prompt.**
+
+### DeepLinkService full interface
+- Location: `lib/core/services/deep_link_service.dart`
+- `GuestInviteLink` — simple data class: `{String token, String profileId}`
+- `DeepLinkService.inviteLinks` — `Stream<GuestInviteLink>` (broadcast)
+- `DeepLinkService.initialize()` — sets up platform channel listeners (cold-start + warm)
+- `DeepLinkService.parseInviteLink(String url)` — **static method**, returns `GuestInviteLink?`, safe to call without a service instance, no platform channels needed. This is what the scanner screen will call.
+- Platform channels: `com.bluedome.shadow/deeplink` (MethodChannel) + `com.bluedome.shadow/deeplink_events` (EventChannel). Both gracefully no-op on desktop/tests via `MissingPluginException` catch.
+
+### Files that reference DeepLinkService (5 total)
+```
+lib/core/bootstrap.dart
+lib/core/services/deep_link_service.dart
+lib/presentation/providers/di/di_providers.dart
+lib/presentation/providers/di/di_providers.g.dart
+lib/presentation/providers/guest_mode/deep_link_handler.dart
+```
+Note: `guest_invite_qr_screen.dart` uses the `shadow://invite` URL string directly but does NOT import DeepLinkService. The new scanner screen will be the first presentation-layer screen to call `DeepLinkService.parseInviteLink()`.
+
+### mobile_scanner version
+```
+mobile_scanner: ^5.0.0
+```
+Already declared in pubspec.yaml — no new dependency needed.
+
+### Key insight for Phase 18c
+The scanner screen does not need to touch `DeepLinkService.initialize()` or the platform channels at all. It only needs to call the static `DeepLinkService.parseInviteLink(scannedString)` on each QR result, then hand the resulting `GuestInviteLink` directly to `DeepLinkHandler` (available via DI). No stream subscription required in the scanner screen.
+
+---
+
 ## [2026-02-27 MST] — Phase 18c reconnaissance (read-only, no code changes)
 
 **Two reconnaissance passes. No commits.**
