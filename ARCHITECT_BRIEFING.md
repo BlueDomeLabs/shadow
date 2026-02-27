@@ -24,6 +24,22 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## Engineering Standards
+
+### Test Execution
+Always run flutter test with the concurrency flag:
+
+  flutter test --concurrency=$(sysctl -n hw.ncpu)
+
+Or using the shell alias (available on this machine):
+
+  ft
+
+Never run plain `flutter test` without the concurrency flag.
+This applies to every verify step in every phase, no exceptions.
+
+---
+
 ## [2026-02-27 MST] — Phase 20b: Photo Edit Path Gap — COMPLETE
 
 **4 new tests added. Tests: 3,274. Analyzer: clean.**
