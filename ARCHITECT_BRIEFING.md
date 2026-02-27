@@ -23,6 +23,16 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — CLAUDE.md: add HOW PROMPTS ARE DELIVERED section
+
+**Commit:** `5a96126`  **Documentation only — no code changes.**
+
+- Added new "HOW PROMPTS ARE DELIVERED" section to CLAUDE.md, placed between "About This Project and Your Role" and "Absolute Rules"
+- Documents the one-prompt-at-a-time workflow, /compact usage, the stop-after-completion rule, and the Architect verification step between prompts
+- Analyzer: clean | Tests: 3,251 (unchanged)
+
+---
+
 ## [2026-02-27 MST] — CLAUDE.md + skills maintenance: stale language cleanup, add context-lost skill
 
 **Commit:** `297c37e`  **Documentation only — no code changes.**
