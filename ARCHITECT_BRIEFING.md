@@ -23,6 +23,17 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — CLAUDE.md + coding skill: three surgical fixes
+
+**Commit:** `7137ea5`  **Documentation only — no code changes.**
+
+- CLAUDE.md HOW PROMPTS ARE DELIVERED: capitalized "Claude.ai" (was "claude.ai") in all three occurrences
+- CLAUDE.md ABSOLUTE RULES #3: replaced "update the status file" with "update ARCHITECT_BRIEFING.md"
+- `.claude/skills/coding/SKILL.md` Definition of Done: removed "Manually verified in app" — Architect reviews code, Claude Code does not need to run the app for every change
+- Analyzer: clean | Tests: 3,251 (unchanged)
+
+---
+
 ## [2026-02-27 MST] — CLAUDE.md: add HOW PROMPTS ARE DELIVERED section
 
 **Commit:** `5a96126`  **Documentation only — no code changes.**
