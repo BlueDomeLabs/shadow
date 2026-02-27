@@ -1173,6 +1173,120 @@ void main() {
         expect(find.byType(SwitchListTile), findsWidgets);
       });
     });
+
+    group('bowel photo', () {
+      testWidgets('photo button renders when bowel movement toggled', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Scroll to and toggle the bowel movement switch
+        await scrollUntilFound(tester, find.text('Had Bowel Movement'));
+        await tester.tap(find.byType(Switch).first);
+        await tester.pumpAndSettle();
+
+        // Scroll until photo button is visible
+        await scrollUntilFound(tester, find.text('Add photo'));
+        expect(find.text('Add photo'), findsOneWidget);
+      });
+
+      testWidgets('Remove photo button shown when bowelPhotoPath set', (
+        tester,
+      ) async {
+        final entry = createTestFluidsEntry(
+          bowelPhotoPath: '/fake/bowel.jpg',
+          bowelCondition: BowelCondition.normal,
+        );
+        await tester.pumpWidget(buildEditScreen(entry));
+        await tester.pumpAndSettle();
+
+        // Scroll to the bowel photo section
+        await scrollUntilFound(tester, find.text('Remove photo'));
+        expect(find.text('Remove photo'), findsOneWidget);
+      });
+
+      testWidgets('Remove photo clears the bowel photo', (tester) async {
+        final entry = createTestFluidsEntry(
+          bowelPhotoPath: '/fake/bowel.jpg',
+          bowelCondition: BowelCondition.normal,
+        );
+        await tester.pumpWidget(buildEditScreen(entry));
+        await tester.pumpAndSettle();
+
+        await scrollUntilFound(tester, find.text('Remove photo'));
+        // Ensure visible before tapping (widget may be near scroll edge)
+        await tester.ensureVisible(find.text('Remove photo'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Remove photo'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Remove photo'), findsNothing);
+      });
+
+      testWidgets('save includes bowelPhotoPath (null) in create mode', (
+        tester,
+      ) async {
+        final mock = _CapturingFluidsEntryList();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              fluidsEntryListProvider(
+                testProfileId,
+                startDate,
+                endDate,
+              ).overrideWith(() => mock),
+            ],
+            child: const MaterialApp(
+              home: FluidsEntryScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Scroll to Save and tap — no photo set, bowelPhotoPath should be null
+        await scrollUntilFound(tester, find.text('Save'));
+        await tester.tap(find.text('Save'));
+        await tester.pump();
+
+        expect(mock.lastLogInput?.bowelPhotoPath, isNull);
+      });
+
+      testWidgets('save includes bowelPhotoPath in edit mode', (tester) async {
+        final mock = _CapturingFluidsEntryList();
+        final entry = createTestFluidsEntry(
+          bowelPhotoPath: '/existing/bowel.jpg',
+          bowelCondition: BowelCondition.normal,
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              fluidsEntryListProvider(
+                testProfileId,
+                startDate,
+                endDate,
+              ).overrideWith(() => mock),
+            ],
+            child: MaterialApp(
+              home: FluidsEntryScreen(
+                profileId: testProfileId,
+                fluidsEntry: entry,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await scrollUntilFound(tester, find.text('Save Changes'));
+        await tester.tap(find.text('Save Changes'));
+        await tester.pump();
+
+        expect(
+          mock.lastUpdateInput?.bowelPhotoPath,
+          equals('/existing/bowel.jpg'),
+        );
+      });
+    });
   });
 }
 
@@ -1202,6 +1316,34 @@ class _MockFluidsEntryList extends FluidsEntryList {
   @override
   Future<void> delete(DeleteFluidsEntryInput input) async {
     // Success - no-op for testing
+  }
+}
+
+/// Capturing mock that records the last log/updateEntry input.
+class _CapturingFluidsEntryList extends FluidsEntryList {
+  LogFluidsEntryInput? lastLogInput;
+  UpdateFluidsEntryInput? lastUpdateInput;
+
+  @override
+  Future<List<FluidsEntry>> build(
+    String profileId,
+    int startDate,
+    int endDate,
+  ) async => [];
+
+  @override
+  Future<void> log(LogFluidsEntryInput input) async {
+    lastLogInput = input;
+  }
+
+  @override
+  Future<void> updateEntry(UpdateFluidsEntryInput input) async {
+    lastUpdateInput = input;
+  }
+
+  @override
+  Future<void> delete(DeleteFluidsEntryInput input) async {
+    // no-op
   }
 }
 

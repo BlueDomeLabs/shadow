@@ -1,9 +1,12 @@
 // lib/presentation/screens/conditions/condition_edit_screen.dart
 // Implements 38_UI_FIELD_SPECIFICATIONS.md Section 8.1 - Condition Edit Screen
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/photo_picker_utils.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -48,6 +51,9 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
   String? _selectedStartTimeframe;
   late ConditionStatus _selectedStatus;
   late List<String> _selectedBodyLocations;
+
+  // State - Photo
+  String? _baselinePhotoPath;
 
   // State - Form dirty tracking
   bool _isDirty = false;
@@ -116,6 +122,7 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
     _selectedStartTimeframe = condition != null
         ? _epochToTimeframeLabel(condition.startTimeframe)
         : null;
+    _baselinePhotoPath = condition?.baselinePhotoPath;
 
     _nameController.addListener(_markDirty);
     _descriptionController.addListener(_markDirty);
@@ -356,16 +363,45 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
                 const SizedBox(height: 8),
                 _buildSectionHeader(theme, 'Photo'),
                 const SizedBox(height: 16),
-                // Baseline Photo - Placeholder button
+                // Baseline Photo
                 Semantics(
                   label: 'Baseline photo for comparison, optional',
                   child: ExcludeSemantics(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement camera/photo picker integration
-                      },
-                      icon: const Icon(Icons.photo_camera),
-                      label: const Text('Add baseline photo'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (_baselinePhotoPath != null) ...[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(_baselinePhotoPath!),
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.broken_image),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        OutlinedButton.icon(
+                          onPressed: _pickBaselinePhoto,
+                          icon: const Icon(Icons.photo_camera),
+                          label: Text(
+                            _baselinePhotoPath != null
+                                ? 'Change baseline photo'
+                                : 'Add baseline photo',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -533,6 +569,25 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
     return '5+ years';
   }
 
+  Future<void> _pickBaselinePhoto() async {
+    try {
+      final path = await showPhotoPicker(context);
+      if (path != null && mounted) {
+        setState(() {
+          _baselinePhotoPath = path;
+          _isDirty = true;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Could not load photo',
+        );
+      }
+    }
+  }
+
   Future<void> _handleSave() async {
     if (!_validateAll()) return;
 
@@ -579,6 +634,7 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
                 endDate: _selectedStatus == ConditionStatus.resolved
                     ? DateTime.now().millisecondsSinceEpoch
                     : null,
+                baselinePhotoPath: _baselinePhotoPath,
               ),
             );
       }

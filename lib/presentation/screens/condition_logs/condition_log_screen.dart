@@ -1,9 +1,12 @@
 // lib/presentation/screens/condition_logs/condition_log_screen.dart
 // Implements 38_UI_FIELD_SPECIFICATIONS.md Section 8.2 - Condition Log Screen
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/utils/photo_picker_utils.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/entities/condition_log.dart';
@@ -60,6 +63,9 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
   late List<String> _availableTriggers;
   late List<String> _selectedTriggers;
 
+  // State - Photo
+  String? _photoPath;
+
   // State - Form dirty tracking
   bool _isDirty = false;
   bool _isSaving = false;
@@ -99,6 +105,8 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
     } else {
       _selectedTriggers = [];
     }
+
+    _photoPath = log?.photoPath;
 
     _notesController.addListener(_markDirty);
     _newTriggerController.addListener(_markDirty);
@@ -492,12 +500,40 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Max 5 photos, 5MB each', style: theme.textTheme.bodySmall),
-          const SizedBox(height: 8),
+          if (_photoPath != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                File(_photoPath!),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.broken_image),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _photoPath = null;
+                  _isDirty = true;
+                });
+              },
+              icon: const Icon(Icons.close, size: 16),
+              label: const Text('Remove photo'),
+            ),
+            const SizedBox(height: 8),
+          ],
           OutlinedButton.icon(
-            onPressed: () {
-              // NOTE: Photo attachment not yet wired — requires image_picker integration.
-            },
+            onPressed: _pickPhoto,
             icon: const Icon(Icons.photo_camera),
             label: const Text('Add photos'),
           ),
@@ -505,6 +541,25 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
       ),
     ),
   );
+
+  Future<void> _pickPhoto() async {
+    try {
+      final path = await showPhotoPicker(context);
+      if (path != null && mounted) {
+        setState(() {
+          _photoPath = path;
+          _isDirty = true;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Could not load photo',
+        );
+      }
+    }
+  }
 
   bool _validateDateTime() {
     String? error;
@@ -598,6 +653,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
                 : null,
             isFlare: _isFlare,
             triggers: triggersString,
+            photoPath: _photoPath,
           ),
         );
       }

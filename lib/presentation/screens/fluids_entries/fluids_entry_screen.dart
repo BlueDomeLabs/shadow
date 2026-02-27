@@ -1,10 +1,13 @@
 // lib/presentation/screens/fluids_entries/fluids_entry_screen.dart
 // Implements 38_UI_FIELD_SPECIFICATIONS.md Section 6.1 - Fluids Entry Screen
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/utils/date_formatters.dart';
+import 'package:shadow_app/core/utils/photo_picker_utils.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/fluids_entry.dart';
 import 'package:shadow_app/domain/entities/user_settings.dart';
@@ -61,6 +64,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   BowelCondition? _bowelCondition;
   late final TextEditingController _bowelCustomConditionController;
   MovementSize _bowelSize = MovementSize.medium;
+  String? _bowelPhotoPath;
 
   // Urine
   bool _hadUrination = false;
@@ -122,6 +126,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     _bowelCondition = entry?.bowelCondition;
     _bowelCustomConditionController = TextEditingController();
     _bowelSize = entry?.bowelSize ?? MovementSize.medium;
+    _bowelPhotoPath = entry?.bowelPhotoPath;
 
     // Urine
     _hadUrination = entry?.urineCondition != null;
@@ -623,13 +628,72 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     ),
   );
 
-  Widget _buildBowelPhoto(ThemeData theme) => ShadowButton.outlined(
-    onPressed: () {
-      // Photo infrastructure not built yet - stub button
-    },
-    label: 'Take photo of bowel movement, optional',
-    child: const Text('Add photo'),
+  Widget _buildBowelPhoto(ThemeData theme) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (_bowelPhotoPath != null) ...[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            File(_bowelPhotoPath!),
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.broken_image),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: () {
+            setState(() {
+              _bowelPhotoPath = null;
+              _isDirty = true;
+            });
+          },
+          icon: const Icon(Icons.close, size: 16),
+          label: const Text('Remove photo'),
+        ),
+        const SizedBox(height: 8),
+      ],
+      Semantics(
+        label: 'Take photo of bowel movement, optional',
+        child: ExcludeSemantics(
+          child: OutlinedButton.icon(
+            onPressed: _pickBowelPhoto,
+            icon: const Icon(Icons.photo_camera),
+            label: const Text('Add photo'),
+          ),
+        ),
+      ),
+    ],
   );
+
+  Future<void> _pickBowelPhoto() async {
+    try {
+      final path = await showPhotoPicker(context);
+      if (path != null && mounted) {
+        setState(() {
+          _bowelPhotoPath = path;
+          _isDirty = true;
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Could not load photo',
+        );
+      }
+    }
+  }
 
   // === Urine Section ===
 
@@ -1177,6 +1241,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 waterIntakeNotes: waterNotes.isNotEmpty ? waterNotes : null,
                 bowelCondition: _hadBowelMovement ? _bowelCondition : null,
                 bowelSize: _hadBowelMovement ? _bowelSize : null,
+                bowelPhotoPath: _bowelPhotoPath,
                 urineCondition: _hadUrination ? _urineCondition : null,
                 urineSize: _hadUrination ? _urineSize : null,
                 menstruationFlow: _menstruationFlow != MenstruationFlow.none
@@ -1213,6 +1278,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 waterIntakeNotes: waterNotes.isNotEmpty ? waterNotes : null,
                 bowelCondition: _hadBowelMovement ? _bowelCondition : null,
                 bowelSize: _hadBowelMovement ? _bowelSize : null,
+                bowelPhotoPath: _bowelPhotoPath,
                 urineCondition: _hadUrination ? _urineCondition : null,
                 urineSize: _hadUrination ? _urineSize : null,
                 menstruationFlow: _menstruationFlow != MenstruationFlow.none

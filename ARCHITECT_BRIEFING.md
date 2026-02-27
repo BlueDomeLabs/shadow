@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-002
+# Briefing Version: 20260227-003
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 20 recon in progress
-# Last Action:   Second recon pass — fluids_entries_table.dart + condition_logs_table.dart
-# Next Action:   Await Architect review / implementation prompt
+# Status:        Phase 20 COMPLETE
+# Last Action:   Photo stubs wired on 3 screens; 14 new tests; formatter + commit
+# Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,256 passing
+# Tests:         3,270 passing
 # Schema:        v17
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,36 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 20: Wire Photo Stubs (3 screens) — COMPLETE
+
+**14 new tests added. Tests: 3,270. Analyzer: clean.**
+
+### Summary
+Wired camera/photo-library picker into three stub screens that previously had TODO placeholders.
+
+### Files Created
+- `lib/core/utils/photo_picker_utils.dart` — shared Camera/Photo Library bottom sheet helper
+
+### Files Modified
+- `lib/presentation/screens/conditions/condition_edit_screen.dart`
+  — added `_baselinePhotoPath` state, `_pickBaselinePhoto()`, thumbnail display, wired into `CreateConditionInput`
+- `lib/presentation/screens/condition_logs/condition_log_screen.dart`
+  — added `_photoPath` state, `_pickPhoto()`, thumbnail + Remove button, wired into `LogConditionInput`
+- `lib/presentation/screens/fluids_entries/fluids_entry_screen.dart`
+  — added `_bowelPhotoPath` state, `_pickBowelPhoto()`, thumbnail + Remove button, wired into both `LogFluidsEntryInput` and `UpdateFluidsEntryInput`
+- `test/presentation/screens/conditions/condition_edit_screen_test.dart` — 4 photo tests + `_CapturingConditionList` mock
+- `test/presentation/screens/condition_logs/condition_log_screen_test.dart` — 5 photo tests + `_CapturingConditionLogList` mock
+- `test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart` — 5 bowel photo tests + `_CapturingFluidsEntryList` mock
+
+### Notes
+- `UpdateConditionInput` lacks `baselinePhotoPath` field — photo wired into create path only
+- `UpdateConditionLogInput` lacks `photoPath` field — photo wired into create path only
+- `UpdateFluidsEntryInput` HAS `bowelPhotoPath` — wired into both create and update paths
+- `ImagePicker` not mocked in tests; used pre-seeded entity data to test thumbnail render + save capture
+- Used Dart 3.x wildcard `(_, _, _)` in errorBuilder lambdas to satisfy `unnecessary_underscores` lint
 
 ---
 
