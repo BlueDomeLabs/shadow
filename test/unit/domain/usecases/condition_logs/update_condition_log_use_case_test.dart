@@ -171,5 +171,61 @@ void main() {
       expect(captured?.severity, 8);
       expect(captured?.notes, 'Original note');
     });
+
+    test('call_withPhotoPath_passesToEntity', () async {
+      final existing = createTestLog();
+      ConditionLog? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('log-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as ConditionLog;
+        return Success(captured!);
+      });
+
+      await useCase(
+        const UpdateConditionLogInput(
+          id: 'log-001',
+          profileId: testProfileId,
+          photoPath: '/new/photo.jpg',
+        ),
+      );
+
+      expect(captured?.photoPath, '/new/photo.jpg');
+    });
+
+    test('call_withNullPhotoPath_clearsPhoto', () async {
+      final existing = ConditionLog(
+        id: 'log-001',
+        clientId: 'client-001',
+        profileId: testProfileId,
+        conditionId: 'cond-001',
+        timestamp: 1704067200000,
+        severity: 5,
+        photoPath: '/existing/photo.jpg',
+        syncMetadata: SyncMetadata.create(deviceId: 'test-device'),
+      );
+      ConditionLog? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('log-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as ConditionLog;
+        return Success(captured!);
+      });
+
+      // Not providing photoPath (defaults to null) clears the photo
+      await useCase(
+        const UpdateConditionLogInput(id: 'log-001', profileId: testProfileId),
+      );
+
+      expect(captured?.photoPath, isNull);
+    });
   });
 }

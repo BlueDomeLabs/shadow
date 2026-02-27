@@ -906,8 +906,8 @@ void main() {
         await tester.tap(find.text('Save Changes'));
         await tester.pump();
 
-        // updateLog is called — UpdateConditionLogInput lacks photoPath
-        expect(mock.updateCalled, isTrue);
+        // photoPath is now wired into UpdateConditionLogInput
+        expect(mock.lastUpdateInput?.photoPath, '/existing/photo.jpg');
       });
     });
   });
@@ -939,7 +939,7 @@ class _MockConditionLogList extends ConditionLogList {
 /// Capturing mock that records the last log/updateLog input.
 class _CapturingConditionLogList extends ConditionLogList {
   LogConditionInput? lastLogInput;
-  bool updateCalled = false;
+  UpdateConditionLogInput? lastUpdateInput;
 
   @override
   Future<List<ConditionLog>> build(
@@ -954,7 +954,7 @@ class _CapturingConditionLogList extends ConditionLogList {
 
   @override
   Future<void> updateLog(UpdateConditionLogInput input) async {
-    updateCalled = true;
+    lastUpdateInput = input;
   }
 }
 

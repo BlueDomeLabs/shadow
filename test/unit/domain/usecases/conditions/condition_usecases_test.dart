@@ -515,5 +515,58 @@ void main() {
       expect(captured?.name, 'New Name');
       expect(captured?.category, 'skin');
     });
+
+    test('call_withBaselinePhotoPath_passesToEntity', () async {
+      final existing = createTestCondition();
+      Condition? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as Condition;
+        return Success(captured!);
+      });
+
+      await useCase(
+        const UpdateConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          baselinePhotoPath: '/new/photo.jpg',
+        ),
+      );
+
+      expect(captured?.baselinePhotoPath, '/new/photo.jpg');
+    });
+
+    test('call_preservesExistingBaselinePhotoPath_whenNotProvided', () async {
+      final existing = createTestCondition(
+        baselinePhotoPath: '/existing/photo.jpg',
+      );
+      Condition? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('cond-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as Condition;
+        return Success(captured!);
+      });
+
+      await useCase(
+        const UpdateConditionInput(
+          id: 'cond-001',
+          profileId: testProfileId,
+          name: 'Updated Name',
+          // baselinePhotoPath not provided — should keep existing
+        ),
+      );
+
+      expect(captured?.baselinePhotoPath, '/existing/photo.jpg');
+    });
   });
 }

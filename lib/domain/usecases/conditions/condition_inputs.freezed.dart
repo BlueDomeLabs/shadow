@@ -782,6 +782,7 @@ mixin _$UpdateConditionInput {
   String? get category => throw _privateConstructorUsedError;
   List<String>? get bodyLocations => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
+  String? get baselinePhotoPath => throw _privateConstructorUsedError;
   int? get startTimeframe => throw _privateConstructorUsedError; // Epoch ms
   int? get endDate => throw _privateConstructorUsedError; // Epoch ms
   ConditionStatus? get status => throw _privateConstructorUsedError;
@@ -807,6 +808,7 @@ abstract class $UpdateConditionInputCopyWith<$Res> {
     String? category,
     List<String>? bodyLocations,
     String? description,
+    String? baselinePhotoPath,
     int? startTimeframe,
     int? endDate,
     ConditionStatus? status,
@@ -837,6 +839,7 @@ class _$UpdateConditionInputCopyWithImpl<
     Object? category = freezed,
     Object? bodyLocations = freezed,
     Object? description = freezed,
+    Object? baselinePhotoPath = freezed,
     Object? startTimeframe = freezed,
     Object? endDate = freezed,
     Object? status = freezed,
@@ -866,6 +869,10 @@ class _$UpdateConditionInputCopyWithImpl<
             description: freezed == description
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            baselinePhotoPath: freezed == baselinePhotoPath
+                ? _value.baselinePhotoPath
+                : baselinePhotoPath // ignore: cast_nullable_to_non_nullable
                       as String?,
             startTimeframe: freezed == startTimeframe
                 ? _value.startTimeframe
@@ -901,6 +908,7 @@ abstract class _$$UpdateConditionInputImplCopyWith<$Res>
     String? category,
     List<String>? bodyLocations,
     String? description,
+    String? baselinePhotoPath,
     int? startTimeframe,
     int? endDate,
     ConditionStatus? status,
@@ -927,6 +935,7 @@ class __$$UpdateConditionInputImplCopyWithImpl<$Res>
     Object? category = freezed,
     Object? bodyLocations = freezed,
     Object? description = freezed,
+    Object? baselinePhotoPath = freezed,
     Object? startTimeframe = freezed,
     Object? endDate = freezed,
     Object? status = freezed,
@@ -957,6 +966,10 @@ class __$$UpdateConditionInputImplCopyWithImpl<$Res>
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
                   as String?,
+        baselinePhotoPath: freezed == baselinePhotoPath
+            ? _value.baselinePhotoPath
+            : baselinePhotoPath // ignore: cast_nullable_to_non_nullable
+                  as String?,
         startTimeframe: freezed == startTimeframe
             ? _value.startTimeframe
             : startTimeframe // ignore: cast_nullable_to_non_nullable
@@ -984,6 +997,7 @@ class _$UpdateConditionInputImpl implements _UpdateConditionInput {
     this.category,
     final List<String>? bodyLocations,
     this.description,
+    this.baselinePhotoPath,
     this.startTimeframe,
     this.endDate,
     this.status,
@@ -1010,6 +1024,8 @@ class _$UpdateConditionInputImpl implements _UpdateConditionInput {
   @override
   final String? description;
   @override
+  final String? baselinePhotoPath;
+  @override
   final int? startTimeframe;
   // Epoch ms
   @override
@@ -1020,7 +1036,7 @@ class _$UpdateConditionInputImpl implements _UpdateConditionInput {
 
   @override
   String toString() {
-    return 'UpdateConditionInput(id: $id, profileId: $profileId, name: $name, category: $category, bodyLocations: $bodyLocations, description: $description, startTimeframe: $startTimeframe, endDate: $endDate, status: $status)';
+    return 'UpdateConditionInput(id: $id, profileId: $profileId, name: $name, category: $category, bodyLocations: $bodyLocations, description: $description, baselinePhotoPath: $baselinePhotoPath, startTimeframe: $startTimeframe, endDate: $endDate, status: $status)';
   }
 
   @override
@@ -1040,6 +1056,8 @@ class _$UpdateConditionInputImpl implements _UpdateConditionInput {
             ) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.baselinePhotoPath, baselinePhotoPath) ||
+                other.baselinePhotoPath == baselinePhotoPath) &&
             (identical(other.startTimeframe, startTimeframe) ||
                 other.startTimeframe == startTimeframe) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
@@ -1055,6 +1073,7 @@ class _$UpdateConditionInputImpl implements _UpdateConditionInput {
     category,
     const DeepCollectionEquality().hash(_bodyLocations),
     description,
+    baselinePhotoPath,
     startTimeframe,
     endDate,
     status,
@@ -1081,6 +1100,7 @@ abstract class _UpdateConditionInput implements UpdateConditionInput {
     final String? category,
     final List<String>? bodyLocations,
     final String? description,
+    final String? baselinePhotoPath,
     final int? startTimeframe,
     final int? endDate,
     final ConditionStatus? status,
@@ -1098,6 +1118,8 @@ abstract class _UpdateConditionInput implements UpdateConditionInput {
   List<String>? get bodyLocations;
   @override
   String? get description;
+  @override
+  String? get baselinePhotoPath;
   @override
   int? get startTimeframe; // Epoch ms
   @override

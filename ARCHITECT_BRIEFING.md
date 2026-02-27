@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-003
+# Briefing Version: 20260227-004
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 20 COMPLETE
-# Last Action:   Photo stubs wired on 3 screens; 14 new tests; formatter + commit
+# Status:        Phase 20b COMPLETE
+# Last Action:   Photo fields added to update inputs; edit paths wired; 4 new tests
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,270 passing
+# Tests:         3,274 passing
 # Schema:        v17
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,36 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 20b: Photo Edit Path Gap — COMPLETE
+
+**4 new tests added. Tests: 3,274. Analyzer: clean.**
+
+### Summary
+Fixed the photo edit path gap by adding photo fields to two update input classes and wiring
+them through the use cases and screens. Photos can now be set or changed in edit mode on both
+the Condition Edit screen and the Condition Log screen.
+
+### Key Decisions
+- `UpdateConditionInput.baselinePhotoPath`: uses `?? existing.baselinePhotoPath` (no Remove button on condition edit)
+- `UpdateConditionLogInput.photoPath`: uses direct assignment (Remove button on log screen needs null to clear)
+
+### Files Modified
+- `lib/domain/usecases/conditions/condition_inputs.dart` — added `String? baselinePhotoPath` to `UpdateConditionInput`
+- `lib/domain/usecases/condition_logs/condition_log_inputs.dart` — added `String? photoPath` to `UpdateConditionLogInput`
+- `lib/domain/usecases/conditions/condition_inputs.freezed.dart` — regenerated (build_runner)
+- `lib/domain/usecases/condition_logs/condition_log_inputs.freezed.dart` — regenerated (build_runner)
+- `lib/domain/usecases/conditions/update_condition_use_case.dart` — wired `baselinePhotoPath` into copyWith
+- `lib/domain/usecases/condition_logs/update_condition_log_use_case.dart` — wired `photoPath` into copyWith
+- `lib/presentation/screens/conditions/condition_edit_screen.dart` — added `baselinePhotoPath: _baselinePhotoPath` to `UpdateConditionInput` call
+- `lib/presentation/screens/condition_logs/condition_log_screen.dart` — added `photoPath: _photoPath` to `UpdateConditionLogInput` call
+- `test/unit/domain/usecases/conditions/condition_usecases_test.dart` — 2 new tests for `UpdateConditionUseCase` photo behavior
+- `test/unit/domain/usecases/condition_logs/update_condition_log_use_case_test.dart` — 2 new tests for `UpdateConditionLogUseCase` photo behavior
+- `test/presentation/screens/conditions/condition_edit_screen_test.dart` — upgraded `_CapturingConditionList` to capture `UpdateConditionInput`; strengthened photo assertion
+- `test/presentation/screens/condition_logs/condition_log_screen_test.dart` — upgraded `_CapturingConditionLogList` to capture `UpdateConditionLogInput`; strengthened photo assertion
+- `ARCHITECT_BRIEFING.md` — this entry
 
 ---
 

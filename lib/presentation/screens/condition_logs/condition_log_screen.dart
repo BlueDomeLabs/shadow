@@ -638,6 +638,7 @@ class _ConditionLogScreenState extends ConsumerState<ConditionLogScreen> {
                 : null,
             isFlare: _isFlare,
             triggers: triggersString,
+            photoPath: _photoPath,
           ),
         );
       } else {

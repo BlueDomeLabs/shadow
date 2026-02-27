@@ -47,5 +47,6 @@ class UpdateConditionLogInput with _$UpdateConditionLogInput {
     String? notes,
     bool? isFlare,
     String? triggers, // Comma-separated
+    String? photoPath,
   }) = _UpdateConditionLogInput;
 }

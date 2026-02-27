@@ -54,6 +54,7 @@ class UpdateConditionInput with _$UpdateConditionInput {
     String? category,
     List<String>? bodyLocations,
     String? description,
+    String? baselinePhotoPath,
     int? startTimeframe, // Epoch ms
     int? endDate, // Epoch ms
     ConditionStatus? status,

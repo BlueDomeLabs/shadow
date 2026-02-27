@@ -669,7 +669,8 @@ mixin _$UpdateConditionLogInput {
   int? get severity => throw _privateConstructorUsedError; // 1-10 scale
   String? get notes => throw _privateConstructorUsedError;
   bool? get isFlare => throw _privateConstructorUsedError;
-  String? get triggers => throw _privateConstructorUsedError;
+  String? get triggers => throw _privateConstructorUsedError; // Comma-separated
+  String? get photoPath => throw _privateConstructorUsedError;
 
   /// Create a copy of UpdateConditionLogInput
   /// with the given fields replaced by the non-null parameter values.
@@ -693,6 +694,7 @@ abstract class $UpdateConditionLogInputCopyWith<$Res> {
     String? notes,
     bool? isFlare,
     String? triggers,
+    String? photoPath,
   });
 }
 
@@ -721,6 +723,7 @@ class _$UpdateConditionLogInputCopyWithImpl<
     Object? notes = freezed,
     Object? isFlare = freezed,
     Object? triggers = freezed,
+    Object? photoPath = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -752,6 +755,10 @@ class _$UpdateConditionLogInputCopyWithImpl<
                 ? _value.triggers
                 : triggers // ignore: cast_nullable_to_non_nullable
                       as String?,
+            photoPath: freezed == photoPath
+                ? _value.photoPath
+                : photoPath // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -775,6 +782,7 @@ abstract class _$$UpdateConditionLogInputImplCopyWith<$Res>
     String? notes,
     bool? isFlare,
     String? triggers,
+    String? photoPath,
   });
 }
 
@@ -803,6 +811,7 @@ class __$$UpdateConditionLogInputImplCopyWithImpl<$Res>
     Object? notes = freezed,
     Object? isFlare = freezed,
     Object? triggers = freezed,
+    Object? photoPath = freezed,
   }) {
     return _then(
       _$UpdateConditionLogInputImpl(
@@ -834,6 +843,10 @@ class __$$UpdateConditionLogInputImplCopyWithImpl<$Res>
             ? _value.triggers
             : triggers // ignore: cast_nullable_to_non_nullable
                   as String?,
+        photoPath: freezed == photoPath
+            ? _value.photoPath
+            : photoPath // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -850,6 +863,7 @@ class _$UpdateConditionLogInputImpl implements _UpdateConditionLogInput {
     this.notes,
     this.isFlare,
     this.triggers,
+    this.photoPath,
   });
 
   @override
@@ -868,10 +882,13 @@ class _$UpdateConditionLogInputImpl implements _UpdateConditionLogInput {
   final bool? isFlare;
   @override
   final String? triggers;
+  // Comma-separated
+  @override
+  final String? photoPath;
 
   @override
   String toString() {
-    return 'UpdateConditionLogInput(id: $id, profileId: $profileId, timestamp: $timestamp, severity: $severity, notes: $notes, isFlare: $isFlare, triggers: $triggers)';
+    return 'UpdateConditionLogInput(id: $id, profileId: $profileId, timestamp: $timestamp, severity: $severity, notes: $notes, isFlare: $isFlare, triggers: $triggers, photoPath: $photoPath)';
   }
 
   @override
@@ -889,7 +906,9 @@ class _$UpdateConditionLogInputImpl implements _UpdateConditionLogInput {
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.isFlare, isFlare) || other.isFlare == isFlare) &&
             (identical(other.triggers, triggers) ||
-                other.triggers == triggers));
+                other.triggers == triggers) &&
+            (identical(other.photoPath, photoPath) ||
+                other.photoPath == photoPath));
   }
 
   @override
@@ -902,6 +921,7 @@ class _$UpdateConditionLogInputImpl implements _UpdateConditionLogInput {
     notes,
     isFlare,
     triggers,
+    photoPath,
   );
 
   /// Create a copy of UpdateConditionLogInput
@@ -925,6 +945,7 @@ abstract class _UpdateConditionLogInput implements UpdateConditionLogInput {
     final String? notes,
     final bool? isFlare,
     final String? triggers,
+    final String? photoPath,
   }) = _$UpdateConditionLogInputImpl;
 
   @override
@@ -940,7 +961,9 @@ abstract class _UpdateConditionLogInput implements UpdateConditionLogInput {
   @override
   bool? get isFlare;
   @override
-  String? get triggers;
+  String? get triggers; // Comma-separated
+  @override
+  String? get photoPath;
 
   /// Create a copy of UpdateConditionLogInput
   /// with the given fields replaced by the non-null parameter values.

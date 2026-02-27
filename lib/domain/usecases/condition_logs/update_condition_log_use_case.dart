@@ -47,6 +47,7 @@ class UpdateConditionLogUseCase
       notes: input.notes ?? existing.notes,
       isFlare: input.isFlare ?? existing.isFlare,
       triggers: input.triggers ?? existing.triggers,
+      photoPath: input.photoPath,
     );
 
     // 4. Validation

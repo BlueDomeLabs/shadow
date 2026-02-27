@@ -44,6 +44,7 @@ class UpdateConditionUseCase
       category: input.category ?? existing.category,
       bodyLocations: input.bodyLocations ?? existing.bodyLocations,
       description: input.description ?? existing.description,
+      baselinePhotoPath: input.baselinePhotoPath ?? existing.baselinePhotoPath,
       startTimeframe: input.startTimeframe ?? existing.startTimeframe,
       endDate: input.endDate ?? existing.endDate,
       status: input.status ?? existing.status,

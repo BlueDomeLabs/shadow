@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 20: Wire Photo Stubs (3 screens)",
+  "task": "Phase 20b: Photo Edit Path Gap",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3270,
+  "testCount": 3274,
   "schemaVersion": 17,
-  "notes": "Phase 20 complete. Wired camera/photo-library picker into 3 stub screens. Created photo_picker_utils.dart (shared helper). condition_edit_screen: baseline photo wired into CreateConditionInput. condition_log_screen: photoPath wired into LogConditionInput. fluids_entry_screen: bowelPhotoPath wired into both LogFluidsEntryInput and UpdateFluidsEntryInput. 14 new widget tests added (4+5+5). UpdateConditionInput and UpdateConditionLogInput lack photo fields — not wired for edit paths. Analyzer clean. Next: await Architect review."
+  "notes": "Phase 20b complete. Added String? baselinePhotoPath to UpdateConditionInput and String? photoPath to UpdateConditionLogInput. Regenerated freezed files. Wired both fields through update use cases and screens. baselinePhotoPath uses ?? merge (no Remove button on condition edit). photoPath uses direct assignment (Remove button on log screen needs null to clear). 4 new use case unit tests. Screen test mocks upgraded to capture update inputs; photo assertions strengthened. 3,274 tests passing. Analyzer clean. Next: await Architect review."
 }

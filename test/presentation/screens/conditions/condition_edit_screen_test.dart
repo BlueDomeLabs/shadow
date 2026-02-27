@@ -391,7 +391,7 @@ void main() {
         tester,
       ) async {
         // Edit mode: condition already has a photo path.
-        // Verify the mock captures it after save.
+        // Verify baselinePhotoPath is passed through in UpdateConditionInput.
         final mock = _CapturingConditionList([]);
         final condition = createTestCondition(
           baselinePhotoPath: '/existing/photo.jpg',
@@ -416,9 +416,8 @@ void main() {
         await tester.tap(find.text('Save Changes'));
         await tester.pump();
 
-        // updateCondition is called (not create) — photo NOT wired into update
-        // because UpdateConditionInput lacks baselinePhotoPath field.
-        expect(mock.updateCalled, isTrue);
+        // baselinePhotoPath is now wired into UpdateConditionInput
+        expect(mock.lastUpdate?.baselinePhotoPath, '/existing/photo.jpg');
       });
     });
   });
@@ -438,7 +437,7 @@ class _CapturingConditionList extends ConditionList {
   _CapturingConditionList(this._conditions);
 
   CreateConditionInput? lastCreate;
-  bool updateCalled = false;
+  UpdateConditionInput? lastUpdate;
 
   @override
   Future<List<Condition>> build(String profileId) async => _conditions;
@@ -450,6 +449,6 @@ class _CapturingConditionList extends ConditionList {
 
   @override
   Future<void> updateCondition(UpdateConditionInput input) async {
-    updateCalled = true;
+    lastUpdate = input;
   }
 }

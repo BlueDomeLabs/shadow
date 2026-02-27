@@ -609,6 +609,7 @@ class _ConditionEditScreenState extends ConsumerState<ConditionEditScreen> {
                 description: _descriptionController.text.trim().isNotEmpty
                     ? _descriptionController.text.trim()
                     : null,
+                baselinePhotoPath: _baselinePhotoPath,
                 startTimeframe: startTimeframe,
                 status: _selectedStatus,
                 endDate: _selectedStatus == ConditionStatus.resolved
