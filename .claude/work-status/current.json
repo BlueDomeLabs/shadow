@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 18b: FlareUpListScreen, ReportFlareUpScreen, wire Conditions tab Flare-Ups button",
-  "timestamp": "2026-02-26T12:00:00Z",
+  "task": "Phase 18c: GuestInviteScanScreen + wire WelcomeScreen Join Existing Account",
+  "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3251,
+  "testCount": 3256,
   "schemaVersion": 16,
-  "notes": "Phase 18b complete. Created FlareUpListScreen (list with severity badges, ONGOING chip, condition name lookup, empty/loading/error states, FAB + card tap navigation). Created ReportFlareUpScreen (new + edit modes; edit mode makes condition/startDate/endDate read-only per UpdateFlareUpInput constraint). Wired Conditions tab Flare-Ups button to navigate to FlareUpListScreen. 41 new tests added (16 FlareUpListScreen + 21 ReportFlareUpScreen + 4 ConditionsTab). 3251 total passing. Next: Phase 18c — wire Welcome Screen Join Existing Account deep link scanner (see DECISIONS.md 2026-02-26)."
+  "notes": "Phase 18c complete. Created GuestInviteScanScreen (ConsumerStatefulWidget, MobileScanner, validates token via validateGuestTokenUseCase, activates guest mode, _processing guard). Wired WelcomeScreen Join Existing Account button to GuestInviteScanScreen; removed _showComingSoon stub. 5 new tests. 3256 total passing. Next: AnchorEventName enum expansion (5→8 values)."
 }

@@ -2,6 +2,7 @@
 // Welcome screen shown on first launch when no profiles exist.
 
 import 'package:flutter/material.dart';
+import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_scan_screen.dart';
 import 'package:shadow_app/presentation/screens/profiles/add_edit_profile_screen.dart';
 
 /// Welcome screen shown on first launch when no profiles exist.
@@ -115,7 +116,11 @@ class WelcomeScreen extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      _showComingSoon(context);
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const GuestInviteScanScreen(),
+                        ),
+                      );
                     },
                     icon: const Icon(Icons.qr_code_scanner, size: 24),
                     label: const Text(
@@ -144,25 +149,6 @@ class WelcomeScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Coming Soon'),
-        content: const Text(
-          'Joining an existing account via QR code '
-          'is not yet available.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
