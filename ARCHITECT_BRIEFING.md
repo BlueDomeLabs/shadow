@@ -23,6 +23,20 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-26 MST] — CLAUDE.md maintenance: team structure + completion report format
+
+**Commit:** `121311b`  **Documentation only — no code changes.**
+
+- Replaced "About Your Manager" with "About This Project and Your Role" — describes the Reid/Architect/Claude Code three-person team and the 8-step session workflow
+- Removed the embedded PLAN checklist (all phase tracking now lives in ARCHITECT_BRIEFING.md only)
+- Added COMPLETION REPORT FORMAT section — every phase must end with a plain-language summary for Reid AND a file change table for Architect review
+- Added completion report checklist item to BEFORE SAYING "DONE"
+- Updated supplement_list_screen.dart description in KEY REFERENCE FILES to be explicit
+- Removed all multi-instance coordination language (.claude/work-status handoff protocol, status file claiming, parallel instance references)
+- Analyzer: clean | Tests: 3,251 (unchanged)
+
+---
+
 ## [2026-02-26 MST] — Phase 18b: FlareUpListScreen + ReportFlareUpScreen
 
 **Commit:** `1fb5609`
