@@ -875,6 +875,45 @@ final reportQueryServiceProvider = Provider<ReportQueryService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ReportQueryServiceRef = ProviderRef<ReportQueryService>;
+String _$reportDataServiceHash() => r'adc5b8cfad292e2cd5c96c50cd0ed76970f6e467';
+
+/// ReportDataService provider - override in ProviderScope with implementation.
+///
+/// Copied from [reportDataService].
+@ProviderFor(reportDataService)
+final reportDataServiceProvider = Provider<ReportDataService>.internal(
+  reportDataService,
+  name: r'reportDataServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$reportDataServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ReportDataServiceRef = ProviderRef<ReportDataService>;
+String _$reportExportServiceHash() =>
+    r'd79a910ba85aa8fd4ac76ea31140fc549900a6d2';
+
+/// ReportExportService provider - override in ProviderScope with implementation.
+///
+/// Copied from [reportExportService].
+@ProviderFor(reportExportService)
+final reportExportServiceProvider = Provider<ReportExportService>.internal(
+  reportExportService,
+  name: r'reportExportServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$reportExportServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ReportExportServiceRef = ProviderRef<ReportExportService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 

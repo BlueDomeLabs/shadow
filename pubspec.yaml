@@ -69,6 +69,10 @@ dependencies:
   # Health Platform Integration (Phase 16)
   health: ^13.3.1
 
+  # Report Export (Phase 25)
+  pdf: ^3.10.0
+  share_plus: ^7.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

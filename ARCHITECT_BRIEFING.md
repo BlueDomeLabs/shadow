@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 24 COMPLETE
-# Last Action:   Reports foundation — screen, config types, query service, DI wiring
+# Status:        Phase 25 COMPLETE
+# Last Action:   Report export — PDF + CSV via share sheet, full DI wiring, tests
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,317 passing (+21 new)
+# Tests:         3,339 passing (+22 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,49 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 25: Report Export (PDF + CSV) — COMPLETE
+
+**22 new tests added. Tests: 3,339. Schema: v18. Analyzer: clean.**
+
+### Summary
+Full PDF and CSV export is now wired into the Reports tab. Users can open either Activity Report
+or Reference Report, configure categories and date range, then export directly as PDF or CSV
+— a native share sheet opens so they can save to Files, email, AirDrop, etc. A spinner indicates
+export is in progress. The export buttons are always enabled (no Preview required). A snackbar
+shows if the export fails. The "Export will be available…" placeholder footer was removed.
+
+### What was built
+
+- **`pubspec.yaml`** — added `pdf: ^3.10.0` (installed 3.11.3) and `share_plus: ^7.0.0` (7.2.2)
+- **`lib/domain/reports/report_data_service.dart`** — `ReportRow` data class + abstract
+  `ReportDataService` interface (`fetchActivityRows`, `fetchReferenceRows`)
+- **`lib/domain/reports/report_export_service.dart`** — abstract `ReportExportService` interface
+  (4 methods: `exportActivityPdf`, `exportActivityCsv`, `exportReferencePdf`, `exportReferenceCsv`)
+- **`lib/data/services/report_data_service_impl.dart`** — 12-repo implementation; builds lookup
+  maps for supplement/condition/area names; partial-failure resilient; rows sorted ascending
+- **`lib/data/services/report_export_service_impl.dart`** — PDF via `pw.Document`/`pw.MultiPage`
+  with table; CSV via `StringBuffer`; writes to temp dir; injectable `getDirectory` for tests
+- **`lib/presentation/providers/di/di_providers.dart`** — added `reportDataServiceProvider` and
+  `reportExportServiceProvider` (both `keepAlive: true`)
+- **`lib/core/bootstrap.dart`** — wired `ReportDataServiceImpl` and `ReportExportServiceImpl`
+- **`lib/presentation/screens/home/tabs/reports_tab.dart`** — Export PDF / Export CSV buttons
+  wired to data + export services; `Share.shareXFiles` opens native sheet; `_isExporting` flag
+  drives `CircularProgressIndicator`; `setState(_isExporting=false)` happens BEFORE share call
+  so widget tests can settle via `pumpAndSettle`
+
+### Key technical notes
+- `Share.shareXFiles` in test environment may never resolve (no native platform). Fix: set
+  `_isExporting = false` BEFORE the share call. The loading indicator disappears, `pumpAndSettle`
+  settles, and the pending share Future is abandoned cleanly.
+- `_FakeReportExportService` in widget tests avoids real file I/O (just returns `File(path)`)
+  so the async chain completes in microtasks and `pumpAndSettle` can settle.
+- `_SlowReportDataService` uses `Completer<List<ReportRow>>` to pause the export mid-flight for
+  the loading indicator test.
+- `ReportExportServiceImpl` constructor accepts optional `Future<Directory> Function()? getDirectory`
+  (defaults to `getTemporaryDirectory`) for unit test injection.
 
 ---
 

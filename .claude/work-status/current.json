@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 24: Reports Foundation",
+  "task": "Phase 25: Report Export (PDF + CSV)",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3317,
+  "testCount": 3339,
   "schemaVersion": 18,
-  "notes": "Phase 24 complete. Built reports foundation: ActivityCategory/ReferenceCategory/ReportType/ReportConfig domain types, abstract ReportQueryService, ReportQueryServiceImpl (11 repo deps, partial-failure resilient), DI wiring, bootstrap update. Replaced reports_tab.dart placeholder with full ConsumerWidget: two cards opening DraggableScrollableSheets with category checkboxes, date range pickers (Activity), pinned Preview + disabled Export buttons. 12 unit tests + 14 widget tests added (+21 total). Key pattern: action buttons pinned OUTSIDE scrollable area; SingleChildScrollView+Column instead of ListView for eager widget building in tests. Analyzer clean. Next: await Architect review."
+  "notes": "Phase 25 complete. Added pdf 3.11.3 + share_plus 7.2.2 deps. Created ReportDataService interface + ReportRow class, ReportExportService interface. ReportDataServiceImpl (12 repos, lookup maps for names, partial-failure resilient, rows sorted ascending). ReportExportServiceImpl (pw.Document PDF tables, StringBuffer CSV, injectable getDirectory for tests). Wired Export PDF + Export CSV buttons in reports_tab.dart with _isExporting spinner. Share.shareXFiles called AFTER setState(_isExporting=false) so pumpAndSettle can settle in tests. _FakeReportExportService avoids real file I/O. 22 new tests (8 unit for data service, 10 unit for export service, 4 new widget tests). Analyzer clean. Next: await Architect review."
 }

@@ -1,19 +1,22 @@
 // lib/presentation/screens/home/tabs/reports_tab.dart
-// Reports tab — Activity Report and Reference Report configuration and preview.
+// Reports tab — Activity Report and Reference Report configuration, preview, and export.
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/domain/reports/report_data_service.dart';
+import 'package:shadow_app/domain/reports/report_export_service.dart';
 import 'package:shadow_app/domain/reports/report_query_service.dart';
 import 'package:shadow_app/domain/reports/report_types.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:share_plus/share_plus.dart';
 
-/// Reports tab — lets the user configure, preview, and export health reports.
+/// Reports tab — configure, preview, and export health reports.
 ///
 /// Two report types are supported:
 /// - Activity Report: time-stamped health events (logs)
 /// - Reference Report: library/setup data (supplements, food, conditions)
-///
-/// PDF/CSV export is not yet available; the Export button is disabled.
 class ReportsTab extends ConsumerWidget {
   final String profileId;
   final String? profileName;
@@ -23,7 +26,6 @@ class ReportsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final titlePrefix = profileName != null ? "$profileName's " : '';
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -54,17 +56,6 @@ class ReportsTab extends ConsumerWidget {
                 'and conditions currently set up in the app.',
             onConfigure: () => _openReferenceSheet(context, ref),
           ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              'PDF and CSV export will be available in an upcoming update.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
         ],
       ),
     );
@@ -76,7 +67,10 @@ class ReportsTab extends ConsumerWidget {
       isScrollControlled: true,
       builder: (_) => _ActivityReportSheet(
         profileId: profileId,
-        service: ref.read(reportQueryServiceProvider),
+        profileName: profileName,
+        queryService: ref.read(reportQueryServiceProvider),
+        dataService: ref.read(reportDataServiceProvider),
+        exportService: ref.read(reportExportServiceProvider),
       ),
     );
   }
@@ -87,7 +81,10 @@ class ReportsTab extends ConsumerWidget {
       isScrollControlled: true,
       builder: (_) => _ReferenceReportSheet(
         profileId: profileId,
-        service: ref.read(reportQueryServiceProvider),
+        profileName: profileName,
+        queryService: ref.read(reportQueryServiceProvider),
+        dataService: ref.read(reportDataServiceProvider),
+        exportService: ref.read(reportExportServiceProvider),
       ),
     );
   }
@@ -167,9 +164,18 @@ class _ReportTypeCard extends StatelessWidget {
 
 class _ActivityReportSheet extends StatefulWidget {
   final String profileId;
-  final ReportQueryService service;
+  final String? profileName;
+  final ReportQueryService queryService;
+  final ReportDataService dataService;
+  final ReportExportService exportService;
 
-  const _ActivityReportSheet({required this.profileId, required this.service});
+  const _ActivityReportSheet({
+    required this.profileId,
+    this.profileName,
+    required this.queryService,
+    required this.dataService,
+    required this.exportService,
+  });
 
   @override
   State<_ActivityReportSheet> createState() => _ActivityReportSheetState();
@@ -181,11 +187,11 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
   DateTime? _endDate;
   Map<ActivityCategory, int>? _counts;
   bool _isLoading = false;
+  bool _isExporting = false;
 
   @override
   void initState() {
     super.initState();
-    // Default: all categories selected
     _selected.addAll(ActivityCategory.values);
   }
 
@@ -348,14 +354,17 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
               16,
               mediaQuery.viewInsets.bottom + 16,
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
+                // Preview button (full width)
+                SizedBox(
+                  width: double.infinity,
                   child: Semantics(
                     label: 'Preview activity report',
                     child: FilledButton.icon(
                       key: const Key('activity-preview-btn'),
-                      onPressed: _selected.isEmpty || _isLoading
+                      onPressed: _selected.isEmpty || _isLoading || _isExporting
                           ? null
                           : _preview,
                       icon: _isLoading
@@ -372,20 +381,46 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Tooltip(
-                    message: 'PDF & CSV export coming soon',
-                    child: Semantics(
-                      label: 'Export activity report — coming soon',
-                      child: FilledButton.icon(
-                        key: const Key('activity-export-btn'),
-                        onPressed: null,
-                        icon: const Icon(Icons.download),
-                        label: const Text('Export'),
+                const SizedBox(height: 8),
+                // Export loading indicator
+                if (_isExporting)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                // Export buttons row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        label: 'Export activity report as PDF',
+                        child: FilledButton.icon(
+                          key: const Key('activity-export-pdf-btn'),
+                          onPressed:
+                              _selected.isEmpty || _isLoading || _isExporting
+                              ? null
+                              : () => _export(isPdf: true),
+                          icon: const Icon(Icons.picture_as_pdf),
+                          label: const Text('Export PDF'),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Semantics(
+                        label: 'Export activity report as CSV',
+                        child: FilledButton.icon(
+                          key: const Key('activity-export-csv-btn'),
+                          onPressed:
+                              _selected.isEmpty || _isLoading || _isExporting
+                              ? null
+                              : () => _export(isPdf: false),
+                          icon: const Icon(Icons.table_chart),
+                          label: const Text('Export CSV'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -504,7 +539,7 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
   Future<void> _preview() async {
     setState(() => _isLoading = true);
     try {
-      final counts = await widget.service.countActivity(
+      final counts = await widget.queryService.countActivity(
         profileId: widget.profileId,
         categories: Set.from(_selected),
         startDate: _startDate,
@@ -521,6 +556,49 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
     }
   }
 
+  Future<void> _export({required bool isPdf}) async {
+    setState(() => _isExporting = true);
+    try {
+      final rows = await widget.dataService.fetchActivityRows(
+        profileId: widget.profileId,
+        categories: Set.from(_selected),
+        startDate: _startDate,
+        endDate: _endDate,
+      );
+      final File file;
+      if (isPdf) {
+        file = await widget.exportService.exportActivityPdf(
+          profileId: widget.profileId,
+          profileName: widget.profileName ?? 'Unknown',
+          rows: rows,
+          categories: Set.from(_selected),
+          startDate: _startDate,
+          endDate: _endDate,
+        );
+      } else {
+        file = await widget.exportService.exportActivityCsv(
+          profileId: widget.profileId,
+          rows: rows,
+        );
+      }
+      // Export is complete once the file is generated. Clear the flag before
+      // sharing so tests (which lack a native share plugin) can settle.
+      if (mounted) setState(() => _isExporting = false);
+      // Share is best-effort; ignore share-level failures (e.g., user dismissed,
+      // plugin unavailable in test environment).
+      try {
+        await Share.shareXFiles([XFile(file.path)]);
+      } on Object catch (_) {}
+    } on Exception catch (_) {
+      if (mounted) {
+        setState(() => _isExporting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Export failed. Please try again.')),
+        );
+      }
+    }
+  }
+
   String _formatDate(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }
@@ -531,9 +609,18 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
 
 class _ReferenceReportSheet extends StatefulWidget {
   final String profileId;
-  final ReportQueryService service;
+  final String? profileName;
+  final ReportQueryService queryService;
+  final ReportDataService dataService;
+  final ReportExportService exportService;
 
-  const _ReferenceReportSheet({required this.profileId, required this.service});
+  const _ReferenceReportSheet({
+    required this.profileId,
+    this.profileName,
+    required this.queryService,
+    required this.dataService,
+    required this.exportService,
+  });
 
   @override
   State<_ReferenceReportSheet> createState() => _ReferenceReportSheetState();
@@ -543,6 +630,7 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
   final Set<ReferenceCategory> _selected = {};
   Map<ReferenceCategory, int>? _counts;
   bool _isLoading = false;
+  bool _isExporting = false;
 
   @override
   void initState() {
@@ -640,14 +728,17 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
               16,
               mediaQuery.viewInsets.bottom + 16,
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
+                // Preview button (full width)
+                SizedBox(
+                  width: double.infinity,
                   child: Semantics(
                     label: 'Preview reference report',
                     child: FilledButton.icon(
                       key: const Key('reference-preview-btn'),
-                      onPressed: _selected.isEmpty || _isLoading
+                      onPressed: _selected.isEmpty || _isLoading || _isExporting
                           ? null
                           : _preview,
                       icon: _isLoading
@@ -664,20 +755,46 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Tooltip(
-                    message: 'PDF & CSV export coming soon',
-                    child: Semantics(
-                      label: 'Export reference report — coming soon',
-                      child: FilledButton.icon(
-                        key: const Key('reference-export-btn'),
-                        onPressed: null,
-                        icon: const Icon(Icons.download),
-                        label: const Text('Export'),
+                const SizedBox(height: 8),
+                // Export loading indicator
+                if (_isExporting)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                // Export buttons row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        label: 'Export reference report as PDF',
+                        child: FilledButton.icon(
+                          key: const Key('reference-export-pdf-btn'),
+                          onPressed:
+                              _selected.isEmpty || _isLoading || _isExporting
+                              ? null
+                              : () => _export(isPdf: true),
+                          icon: const Icon(Icons.picture_as_pdf),
+                          label: const Text('Export PDF'),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Semantics(
+                        label: 'Export reference report as CSV',
+                        child: FilledButton.icon(
+                          key: const Key('reference-export-csv-btn'),
+                          onPressed:
+                              _selected.isEmpty || _isLoading || _isExporting
+                              ? null
+                              : () => _export(isPdf: false),
+                          icon: const Icon(Icons.table_chart),
+                          label: const Text('Export CSV'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -746,7 +863,7 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
   Future<void> _preview() async {
     setState(() => _isLoading = true);
     try {
-      final counts = await widget.service.countReference(
+      final counts = await widget.queryService.countReference(
         profileId: widget.profileId,
         categories: Set.from(_selected),
       );
@@ -758,6 +875,43 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
       }
     } on Exception {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _export({required bool isPdf}) async {
+    setState(() => _isExporting = true);
+    try {
+      final data = await widget.dataService.fetchReferenceRows(
+        profileId: widget.profileId,
+        categories: Set.from(_selected),
+      );
+      final File file;
+      if (isPdf) {
+        file = await widget.exportService.exportReferencePdf(
+          profileId: widget.profileId,
+          profileName: widget.profileName ?? 'Unknown',
+          data: data,
+        );
+      } else {
+        file = await widget.exportService.exportReferenceCsv(
+          profileId: widget.profileId,
+          data: data,
+        );
+      }
+      // Export is complete once the file is generated. Clear the flag before
+      // sharing so tests (which lack a native share plugin) can settle.
+      if (mounted) setState(() => _isExporting = false);
+      // Share is best-effort; ignore share-level failures.
+      try {
+        await Share.shareXFiles([XFile(file.path)]);
+      } on Object catch (_) {}
+    } on Exception catch (_) {
+      if (mounted) {
+        setState(() => _isExporting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Export failed. Please try again.')),
+        );
+      }
     }
   }
 }

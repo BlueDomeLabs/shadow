@@ -13,6 +13,8 @@ import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 // Reports
+import 'package:shadow_app/domain/reports/report_data_service.dart';
+import 'package:shadow_app/domain/reports/report_export_service.dart';
 import 'package:shadow_app/domain/reports/report_query_service.dart';
 // Repositories
 import 'package:shadow_app/domain/repositories/health_platform_service.dart';
@@ -424,6 +426,22 @@ HealthPlatformService healthPlatformService(Ref ref) {
 ReportQueryService reportQueryService(Ref ref) {
   throw UnimplementedError(
     'Override reportQueryServiceProvider in ProviderScope',
+  );
+}
+
+/// ReportDataService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ReportDataService reportDataService(Ref ref) {
+  throw UnimplementedError(
+    'Override reportDataServiceProvider in ProviderScope',
+  );
+}
+
+/// ReportExportService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ReportExportService reportExportService(Ref ref) {
+  throw UnimplementedError(
+    'Override reportExportServiceProvider in ProviderScope',
   );
 }
 
