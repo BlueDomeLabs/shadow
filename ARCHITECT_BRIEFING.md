@@ -24,6 +24,41 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — Phase 19 Reconnaissance: AnchorEventName enum
+
+Read-only recon run in preparation for Phase 19 planning (AnchorEventName 5→8 expansion).
+
+### Key finding: enum file path mismatch
+The Phase 19 prompt referenced `lib/domain/enums/anchor_event_name.dart` — **this file does not exist**.
+`AnchorEventName` is defined in `lib/domain/enums/notification_enums.dart` alongside
+`NotificationCategory` and `NotificationSchedulingMode`.
+
+### Current AnchorEventName enum (5 values)
+```dart
+enum AnchorEventName {
+  wake(0),        // default 07:00
+  breakfast(1),   // default 08:00
+  lunch(2),       // default 12:00
+  dinner(3),      // default 18:00
+  bedtime(4);     // default 22:00
+}
+```
+Both `displayName` and `defaultTime` getters present.
+
+### Touch surface for expansion (14 lib files, 14 test files)
+- Lib: `notification_enums.dart`, `anchor_event_time.dart/.freezed.dart/.g.dart`,
+  `anchor_event_times_table.dart`, `notification_category_settings_table.dart`,
+  `anchor_event_time_dao.dart/.g.dart`, `anchor_event_time_repository_impl.dart`,
+  `anchor_event_time_repository.dart`, `notification_schedule_service.dart`,
+  `notification_seed_service.dart`, `notification_category_settings.dart/.freezed.dart`,
+  `notification_settings_screen.dart`
+- Test: 14 files spanning DAOs, repos, use cases, services, entities, providers, screens
+
+### anchor_event_times table
+Added in schema v12 (Phase 13a). Current schema is v16.
+
+---
+
 ## [2026-02-27 MST] — Phase 18c: GuestInviteScanScreen + WelcomeScreen wired
 
 **Commit:** `1d8168d`
