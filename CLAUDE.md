@@ -32,6 +32,31 @@ Blue Dome Labs.
 
 ---
 
+## HOW PROMPTS ARE DELIVERED
+
+Reid gives you one focused prompt at a time. Each prompt covers
+exactly one task.
+
+Before each prompt, Reid runs /compact to give you a fresh context
+window. This means every session starts clean — you have no memory
+of previous sessions. ARCHITECT_BRIEFING.md is your only
+continuity.
+
+After you complete each prompt:
+1. Commit and push
+2. Update ARCHITECT_BRIEFING.md
+3. Deliver your completion report to Reid (file change table +
+   plain-language summary)
+4. Stop — do not begin anything else
+
+The Architect on claude.ai verifies your work after each prompt.
+You will never receive two prompts, from claude.ai, in a row
+without a verification step in between. You may receive a prompt
+directly from Reid unrelated to the workflow, as he may ask you
+to do something specific outside of claude.ai's instructions.
+
+---
+
 ## ABSOLUTE RULES
 
 1. **NO AGENTS.** Do NOT use the Task tool, TeamCreate, SendMessage, or spawn any subagents. All work is done by YOU directly. Violating this will terminate your session.
