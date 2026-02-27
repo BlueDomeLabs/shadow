@@ -276,8 +276,8 @@ See `59a_FOOD_DATABASE_EXTENSION.md` for full type specifications and nutritiona
 | Times Awakened | Number | No | 0-20, integer | 0 | "Number of times" | 2 |
 | Time Awake During Night | Dropdown | No | None/A few min/15 min/30 min/1 hour/1+ hours | None | - | - |
 
-> **Status: DECIDED — PENDING IMPLEMENTATION (2026-02-25)**
-> Time to Fall Asleep, Times Awakened, and Time Awake During Night have no backing database columns in the current schema. These fields are decided to be built in a future sleep enhancement phase. They must NOT be wired to the UI until the schema migration adding the corresponding columns to `sleep_entries` is implemented. See DECISIONS.md 2026-02-25 entry for full details.
+> **Status: COMPLETE — Phase 21 (2026-02-27)**
+> Time to Fall Asleep, Times Awakened, and Time Awake During Night are fully implemented with database columns, entity fields, and UI wiring. Schema v18 added the three columns to `sleep_entries`. See Phase 21 session entry in ARCHITECT_BRIEFING.md for implementation details.
 
 #### Sleep Breakdown Section (Optional)
 

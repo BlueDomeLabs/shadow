@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-006
+# Briefing Version: 20260227-007
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,18 +9,61 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 22 COMPLETE
-# Last Action:   Food Library Picker screen; food items wired to food log; 18 new tests
+# Status:        Phase 23 COMPLETE
+# Last Action:   Spec cleanup — stale comments and doc status markers updated
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,296 passing
-# Schema:        v18
+# Tests:         3,296 passing (no code changes)
+# Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 23: Spec Cleanup Sprint — COMPLETE
+
+**No code changes. Documentation only. Tests: 3,296. Schema: v18. Analyzer: clean.**
+
+### Summary
+Housekeeping pass to bring all documentation into alignment with the current codebase state.
+Updated stale status markers, corrected "5 anchor events" → "8 anchor events" references,
+and removed stub comments for work completed in Phases 20–22.
+
+### Stale items found and fixed
+
+| Location | Old text | New text |
+|----------|----------|----------|
+| `38_UI_FIELD_SPECIFICATIONS.md` Section 7.1 | Status: DECIDED — PENDING IMPLEMENTATION (2026-02-25) | Status: COMPLETE — Phase 21 (2026-02-27) |
+| `DECISIONS.md` 2026-02-25 entry | "logged as DECIDED/PENDING IMPLEMENTATION" | Added **Resolution (2026-02-27):** Built in Phase 21, schema v18 |
+| `lib/domain/entities/anchor_event_time.dart` | "The 5 anchor events (Wake, Breakfast, Lunch, Dinner, Bedtime)" | "The 8 anchor events (Wake, Breakfast, Morning, Lunch, Afternoon, Dinner, Evening, Bedtime)" |
+| `lib/domain/repositories/anchor_event_time_repository.dart` | "5 anchor events" / "Get all 5" | "8 anchor events" / "Get all 8" |
+| `lib/presentation/providers/notifications/anchor_event_times_provider.dart` | "5 anchor event times" + old event list | "8 anchor event times" + full 8-event list |
+| `lib/presentation/screens/food_logs/food_log_screen.dart` | "// State - Food Items (stub for future food library integration)" | "// State - Food Items" |
+| `lib/presentation/screens/condition_logs/condition_log_screen.dart` | "Photos: Multi-image picker stub (max 5, 5MB each)" | "Photos: Single photo picker (wired via PhotoPickerUtils)" |
+
+### Genuine remaining TODOs (future work, not bugs)
+
+| Location | Comment | Refers to |
+|----------|---------|-----------|
+| `lib/data/services/sync_service_impl.dart:200` | "Pull and conflict resolution operations return stubs (Phase 3/4)" | Cloud sync pull/conflict — unbuilt |
+| `lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart:6` | "use cases are not yet implemented. Will be refactored to..." | Cloud sync auth domain layer — unbuilt |
+
+### File changes
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/entities/anchor_event_time.dart | MODIFIED | Updated "5 anchor events" → "8 anchor events" with full event list |
+| lib/domain/repositories/anchor_event_time_repository.dart | MODIFIED | Updated "5 anchor events" → "8 anchor events" in doc comment and getAll() |
+| lib/presentation/providers/notifications/anchor_event_times_provider.dart | MODIFIED | Updated "5 anchor event times" → "8" with full event name list |
+| lib/presentation/screens/food_logs/food_log_screen.dart | MODIFIED | Removed stale "stub for future food library integration" comment |
+| lib/presentation/screens/condition_logs/condition_log_screen.dart | MODIFIED | Updated photo stub comment to reflect Phase 20 implementation |
+| 38_UI_FIELD_SPECIFICATIONS.md | MODIFIED | Section 7.1 status: DECIDED/PENDING → COMPLETE Phase 21 |
+| DECISIONS.md | MODIFIED | Added Resolution note to 2026-02-25 sleep fields decision entry |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Phase 23 session entry |
 
 ---
 

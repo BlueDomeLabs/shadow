@@ -189,7 +189,9 @@ Each entry has:
 
 **Alternatives:** Dropping them permanently (simpler). Rejected — these are valuable data points worth the schema work.
 
-**Impact:** Requires a future schema migration adding columns to sleep_entries, new entity fields, and UI updates to the sleep entry screen. This is a breaking change — logged as DECIDED/PENDING IMPLEMENTATION. A dedicated sleep enhancement phase must be planned before this is built. Do not add the fields in an unplanned phase.
+**Impact:** Required a schema migration adding columns to sleep_entries, new entity fields, and UI wiring to the sleep entry screen.
+
+**Resolution (2026-02-27):** Built in Phase 21. Schema v18 added `time_to_fall_asleep` (TEXT), `times_awakened` (INTEGER), and `time_awake_during_night` (TEXT) to `sleep_entries`. All three fields are fully wired end-to-end. See Phase 21 session entry in ARCHITECT_BRIEFING.md.
 
 ---
 

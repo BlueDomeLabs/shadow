@@ -25,7 +25,7 @@ import 'package:uuid/uuid.dart';
 /// - Severity: Slider 1-10 (required, default 5)
 /// - Is Flare-up: Toggle (optional, default false)
 /// - Triggers: Multi-select from condition's trigger list + add new
-/// - Photos: Multi-image picker stub (max 5, 5MB each)
+/// - Photos: Single photo picker (wired via PhotoPickerUtils)
 /// - Notes: Text area (optional, max 2000)
 class ConditionLogScreen extends ConsumerStatefulWidget {
   final String profileId;

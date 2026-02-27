@@ -8,11 +8,12 @@ import 'package:shadow_app/domain/enums/notification_enums.dart';
 
 /// Repository contract for AnchorEventTime entities.
 ///
-/// The 5 anchor events (Wake, Breakfast, Lunch, Dinner, Bedtime) are
-/// pre-seeded at first run with spec defaults. This repository allows
-/// the settings screen to read and update their times and enabled states.
+/// The 8 anchor events (Wake, Breakfast, Morning, Lunch, Afternoon,
+/// Dinner, Evening, Bedtime) are pre-seeded at first run with spec defaults.
+/// This repository allows the settings screen to read and update their
+/// times and enabled states.
 abstract class AnchorEventTimeRepository {
-  /// Get all 5 anchor event times, ordered by event name.
+  /// Get all 8 anchor event times, ordered by event name.
   Future<Result<List<AnchorEventTime>, AppError>> getAll();
 
   /// Get a single anchor event time by its enum name.

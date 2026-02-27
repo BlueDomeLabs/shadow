@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 22: Food Library Picker (wire food items to food log)",
+  "task": "Phase 23: Spec Cleanup Sprint (documentation only)",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3296,
   "schemaVersion": 18,
-  "notes": "Phase 22 complete. Created FoodLibraryPickerScreen (multi-select with checkboxes, local search, Done pops List<String>). Replaced _buildFoodItemsStub in food_log_screen.dart with real food items section: chips show resolved names, tapping 'Search foods...' opens picker, chip X removes item. 15 new picker tests + 3 food log screen food items section tests = 18 new tests. 3,296 tests passing. Analyzer clean. Next: await Architect review."
+  "notes": "Phase 23 complete. Documentation-only pass: updated 5→8 anchor event references in 3 dart files, removed stale stub comments in food_log_screen + condition_log_screen, updated 38_UI_FIELD_SPECIFICATIONS.md Section 7.1 status to COMPLETE Phase 21, added resolution note to DECISIONS.md sleep fields entry. No code changes. 3,296 tests unchanged. Analyzer clean. Next: await Architect review."
 }

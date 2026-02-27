@@ -9,9 +9,9 @@ part 'anchor_event_time.g.dart';
 
 /// A named daily anchor event with a user-configurable clock time.
 ///
-/// The 5 anchor events (Wake, Breakfast, Lunch, Dinner, Bedtime) are
-/// pre-populated at first run with spec defaults. Users can adjust times
-/// and enable/disable individual events.
+/// The 8 anchor events (Wake, Breakfast, Morning, Lunch, Afternoon,
+/// Dinner, Evening, Bedtime) are pre-populated at first run with spec
+/// defaults. Users can adjust times and enable/disable individual events.
 ///
 /// See 57_NOTIFICATION_SYSTEM.md for anchor event scheduling behaviour.
 @Freezed(toJson: true, fromJson: true)

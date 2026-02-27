@@ -9,9 +9,10 @@ import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 
 part 'anchor_event_times_provider.g.dart';
 
-/// Provider for the 5 anchor event times (global — not profile-scoped).
+/// Provider for the 8 anchor event times (global — not profile-scoped).
 ///
-/// Anchor events (Wake, Breakfast, Lunch, Dinner, Bedtime) are shared across
+/// Anchor events (Wake, Breakfast, Morning, Lunch, Afternoon, Dinner,
+/// Evening, Bedtime) are shared across
 /// all profiles. Follows the UseCase delegation pattern:
 /// - ALWAYS delegates to UseCases (never calls repository directly)
 /// - Calls ref.invalidateSelf() after successful mutations

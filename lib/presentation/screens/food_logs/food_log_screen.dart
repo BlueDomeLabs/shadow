@@ -54,7 +54,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
   // State - Meal Type
   late MealType _selectedMealType;
 
-  // State - Food Items (stub for future food library integration)
+  // State - Food Items
   late List<String> _foodItemIds;
 
   // State - Ad-hoc Items
