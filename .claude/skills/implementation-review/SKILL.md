@@ -57,4 +57,5 @@ For each deviation found:
 ## After Review
 
 1. Run `flutter test` and `flutter analyze`
-2. Save report to `.claude/audit-reports/YYYY-MM-DD-implementation-review.md`
+2. Report all findings directly to Reid. The Architect will verify
+   the review before the phase is considered complete.

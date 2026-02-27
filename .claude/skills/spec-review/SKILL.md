@@ -55,4 +55,6 @@ For each use case, verify:
 Report violations sorted by severity (Critical > High > Medium > Low).
 For each violation: location, what's wrong, what it should be.
 
-Save report to `.claude/audit-reports/YYYY-MM-DD-spec-review.md`.
+Report all findings directly to Reid. The Architect will review
+and determine which items require action before implementation
+proceeds.

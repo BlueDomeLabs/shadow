@@ -73,11 +73,10 @@ Every session follows this flow. No exceptions.
 ```
 
 ### 4. HANDOFF (before conversation ends)
-- Commit all work with descriptive message
-- Update status file with `status: "complete"` and clear next-steps
-- Update `ARCHITECT_BRIEFING.md` with session log entry
-- Run tests one final time
-- Give Reid a plain-language summary of what was accomplished
+- Commit all work with a descriptive message
+- Update ARCHITECT_BRIEFING.md with a timestamped session log entry
+- Run flutter test one final time — must be clean
+- Deliver the completion report to Reid (see COMPLETION REPORT FORMAT below)
 
 ---
 
@@ -131,15 +130,17 @@ Rules for the table:
 
 ## SKILLS
 
-| Skill | When | Purpose |
-|-------|------|---------|
-| `/startup` | Session start | Verify state, determine next work |
-| `/coding` | Writing code | Spec-exact coding rules |
-| `/compliance` | Before claiming done | Verify tests, analyzer, spec match |
-| `/handoff` | Session ending | Commit, update status, prepare notes |
-| `/factory-reset` | Testing | Clear app data for fresh start |
-| `/spec-review` | Before major implementation | Verify specs against coding standards |
+| Skill | Trigger | Purpose |
+|-------|---------|---------|
+| `/startup` | First thing every session | Verify clean state, orient to current work |
+| `/coding` | When writing any code | Standards, patterns, definition of done |
+| `/compliance` | Before saying "done" | Final checklist before reporting complete |
+| `/handoff` | Before conversation ends | Commit, update briefing, deliver report |
+| `/factory-reset` | Before testing major features | Wipe all app data for a clean test run |
+| `/launch-shadow` | After clean or codegen | Regenerate code and launch app on macOS |
+| `/spec-review` | Before major implementation | Audit spec docs against coding standards |
 | `/implementation-review` | After implementation | Verify code matches specs exactly |
+| `/context-lost` | After context compaction | Re-orient from ARCHITECT_BRIEFING.md and resume |
 
 ---
 

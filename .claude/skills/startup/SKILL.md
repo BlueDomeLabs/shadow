@@ -3,28 +3,24 @@ name: startup
 description: Session startup - verify previous work, determine next task.
 ---
 
-# Startup
-
 Run this FIRST every session before any work.
 
 ## Steps
 
-1. **Read status file:** `.claude/work-status/current.json`
-2. **Run tests:** `flutter test` - fix any failures before new work
-3. **Run analyzer:** `flutter analyze` - fix any issues before new work
-4. **Check git:** `git status` - handle any uncommitted changes
-5. **Read the PLAN** in CLAUDE.md to determine what to work on
-6. **Claim your work** by updating the status file to `in_progress`
+1. Read ARCHITECT_BRIEFING.md — understand current phase status,
+   test count, open items, and what comes next
+2. Run flutter test — fix any failures before new work
+3. Run flutter analyze — fix any issues before new work
+4. Check git status — handle any uncommitted changes from a
+   previous session
 
-## Status File Actions
+## If Your Context Was Just Compacted
 
-| Status | Action |
-|--------|--------|
-| `complete` | Read PLAN in CLAUDE.md, pick next task |
-| `in_progress` | Continue from where previous instance stopped |
-| `blocked` | Check if resolved, else pick alternate task |
+Re-read ARCHITECT_BRIEFING.md immediately. Do not continue from
+memory — compaction clears your working state. Verify where you
+are from the file, then resume.
 
 ## Then
 
-- Read relevant specs before coding (22_API_CONTRACTS.md, 02_CODING_STANDARDS.md)
-- Begin work
+Read the phase prompt from Reid carefully. It was drafted by the
+Architect and contains exactly what to build. Follow it precisely.
