@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 18b complete
-# Last Action:   FlareUpListScreen + ReportFlareUpScreen + Conditions tab wired
-# Next Action:   Phase 18c — wire Welcome Screen "Join Existing Account" deep link scanner
+# Status:        Phase 18c complete
+# Last Action:   GuestInviteScanScreen + WelcomeScreen wired
+# Next Action:   AnchorEventName enum expansion (5→8 values, Decision 3, breaking schema change)
 # Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
-# Tests:         3,251 passing (41 new in Phase 18b)
+# Tests:         3,256 passing (5 new in Phase 18c)
 # Schema:        v16 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,43 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 18c: GuestInviteScanScreen + WelcomeScreen wired
+
+**Commit:** `1d8168d`
+
+### Decision implemented: Option B (bypass DeepLinkHandler for QR path)
+Per Architect decision, scanner screen calls `validateGuestTokenUseCase` and
+`guestModeNotifier.activateGuestMode()` directly. `DeepLinkHandler` stays stream-only.
+
+### What was built
+
+**`lib/presentation/screens/guest_invites/guest_invite_scan_screen.dart`** (NEW)
+- `ConsumerStatefulWidget`
+- `MobileScannerController(autoStart: false)` — screen manages camera start/stop
+- `_processing` flag: once a valid QR detected, set true, scanner paused, loading overlay shown
+- On QR detect: calls `DeepLinkService.parseInviteLink()` (static) → null = snackbar "Not a valid Shadow invite"
+- On valid link: calls `validateGuestTokenUseCaseProvider`, then `guestModeProvider.notifier.activateGuestMode()`, then `Navigator.pop()`
+- On failure: shows "Unable to Join" dialog, resets `_processing = false`, restarts camera
+- AppBar: "Scan Invite Code" | Semantics: "QR code scanner"
+- `testDeviceId` injectable parameter for tests (avoids platform plugin in CI)
+
+**`lib/presentation/screens/profiles/welcome_screen.dart`** (MODIFIED)
+- "Join Existing Account" button now navigates to `GuestInviteScanScreen`
+- `_showComingSoon()` method removed
+
+### Tests (5 new → 3,256 total)
+- `guest_invite_scan_screen_test.dart` (3 new):
+  - Renders AppBar "Scan Invite Code"
+  - Renders MobileScanner widget
+  - `_processing` flag prevents double activation (HangingFakeValidateUseCase)
+- `welcome_screen_test.dart` (2 new):
+  - Join button navigates to GuestInviteScanScreen
+  - Coming Soon dialog no longer appears
+
+### Analyzer: clean | Schema: v16 (unchanged)
 
 ---
 
