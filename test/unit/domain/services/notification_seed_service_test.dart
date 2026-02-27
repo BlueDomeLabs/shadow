@@ -63,7 +63,7 @@ void main() {
     });
 
     group('seedDefaults', () {
-      test('seedDefaults_emptyDatabase_insertsAll5AnchorEvents', () async {
+      test('seedDefaults_emptyDatabase_insertsAll8AnchorEvents', () async {
         when(
           mockAnchorRepo.getAll(),
         ).thenAnswer((_) async => const Success([]));
@@ -83,8 +83,8 @@ void main() {
         final result = await service.seedDefaults();
 
         expect(result.isSuccess, isTrue);
-        // 5 anchor events created
-        verify(mockAnchorRepo.create(any)).called(5);
+        // 8 anchor events created (wake, breakfast, morning, lunch, afternoon, dinner, evening, bedtime)
+        verify(mockAnchorRepo.create(any)).called(8);
       });
 
       test('seedDefaults_emptyDatabase_insertsAll8CategorySettings', () async {
@@ -173,8 +173,8 @@ void main() {
 
         // No settings created since all exist
         verifyNever(mockSettingsRepo.create(any));
-        // Anchors still created
-        verify(mockAnchorRepo.create(any)).called(5);
+        // Anchors still created (8 anchor events)
+        verify(mockAnchorRepo.create(any)).called(8);
       });
 
       test('seedDefaults_fullyPopulated_insertsNothing', () async {
@@ -277,8 +277,11 @@ void main() {
         final byName = {for (final e in capturedEvents) e.name: e.timeOfDay};
         expect(byName[AnchorEventName.wake], '07:00');
         expect(byName[AnchorEventName.breakfast], '08:00');
+        expect(byName[AnchorEventName.morning], '09:00');
         expect(byName[AnchorEventName.lunch], '12:00');
+        expect(byName[AnchorEventName.afternoon], '15:00');
         expect(byName[AnchorEventName.dinner], '18:00');
+        expect(byName[AnchorEventName.evening], '20:00');
         expect(byName[AnchorEventName.bedtime], '22:00');
       });
 

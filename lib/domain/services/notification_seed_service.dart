@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 
 /// Seeds default notification data when the database is first created or upgraded to v12.
 ///
-/// Inserts the 5 anchor events and 8 category settings with spec-recommended defaults.
+/// Inserts the 8 anchor events and 8 category settings with spec-recommended defaults.
 /// Safe to call multiple times — skips rows that already exist.
 class NotificationSeedService {
   final AnchorEventTimeRepository _anchorRepository;
@@ -34,7 +34,7 @@ class NotificationSeedService {
     return _seedCategorySettings();
   }
 
-  /// Seeds the 5 anchor events with spec defaults if not already present.
+  /// Seeds the 8 anchor events with spec defaults if not already present.
   Future<Result<void, AppError>> _seedAnchorEvents() async {
     final allResult = await _anchorRepository.getAll();
     if (allResult.isFailure) return allResult;

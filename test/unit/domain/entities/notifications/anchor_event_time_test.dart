@@ -110,9 +110,12 @@ void main() {
     test('has correct values', () {
       expect(AnchorEventName.wake.value, 0);
       expect(AnchorEventName.breakfast.value, 1);
-      expect(AnchorEventName.lunch.value, 2);
-      expect(AnchorEventName.dinner.value, 3);
-      expect(AnchorEventName.bedtime.value, 4);
+      expect(AnchorEventName.morning.value, 2);
+      expect(AnchorEventName.lunch.value, 3);
+      expect(AnchorEventName.afternoon.value, 4);
+      expect(AnchorEventName.dinner.value, 5);
+      expect(AnchorEventName.evening.value, 6);
+      expect(AnchorEventName.bedtime.value, 7);
     });
 
     test('fromValue round-trips all names', () {
@@ -124,8 +127,11 @@ void main() {
     test('defaultTime returns spec values', () {
       expect(AnchorEventName.wake.defaultTime, '07:00');
       expect(AnchorEventName.breakfast.defaultTime, '08:00');
+      expect(AnchorEventName.morning.defaultTime, '09:00');
       expect(AnchorEventName.lunch.defaultTime, '12:00');
+      expect(AnchorEventName.afternoon.defaultTime, '15:00');
       expect(AnchorEventName.dinner.defaultTime, '18:00');
+      expect(AnchorEventName.evening.defaultTime, '20:00');
       expect(AnchorEventName.bedtime.defaultTime, '22:00');
     });
   });

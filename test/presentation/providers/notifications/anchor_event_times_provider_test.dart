@@ -41,7 +41,7 @@ void main() {
 
       final result = await container.read(anchorEventTimesProvider.future);
 
-      expect(result, hasLength(5));
+      expect(result, hasLength(8));
       expect(result.first.name, AnchorEventName.wake);
     });
 

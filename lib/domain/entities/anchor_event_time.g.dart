@@ -27,7 +27,10 @@ Map<String, dynamic> _$$AnchorEventTimeImplToJson(
 const _$AnchorEventNameEnumMap = {
   AnchorEventName.wake: 'wake',
   AnchorEventName.breakfast: 'breakfast',
+  AnchorEventName.morning: 'morning',
   AnchorEventName.lunch: 'lunch',
+  AnchorEventName.afternoon: 'afternoon',
   AnchorEventName.dinner: 'dinner',
+  AnchorEventName.evening: 'evening',
   AnchorEventName.bedtime: 'bedtime',
 };

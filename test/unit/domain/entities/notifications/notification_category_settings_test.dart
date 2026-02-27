@@ -72,7 +72,7 @@ void main() {
         id: 'cat-5',
         category: NotificationCategory.supplements,
         schedulingMode: NotificationSchedulingMode.anchorEvents,
-        anchorEventValues: [1, 3], // breakfast=1, dinner=3
+        anchorEventValues: [1, 5], // breakfast=1, dinner=5
       );
 
       final events = settings.anchorEvents;

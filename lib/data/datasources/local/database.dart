@@ -193,8 +193,12 @@ class AppDatabase extends _$AppDatabase {
   ///      diet_violations tables. Added violation_flag column to food_logs.
   /// v16: Health Platform Integration data foundation (Phase 16a)
   ///      Added imported_vitals, health_sync_settings, health_sync_status tables.
+  /// v17: AnchorEventName enum expansion 5→8 values (Phase 19)
+  ///      Re-indexed lunch(2→3), dinner(3→5), bedtime(4→7). Added morning(2),
+  ///      afternoon(4), evening(6). Migrated anchor_event_times.name and
+  ///      notification_category_settings.anchor_event_values.
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   /// Migration strategy for schema changes.
   ///
@@ -306,6 +310,37 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(importedVitals);
         await m.createTable(healthSyncSettingsTable);
         await m.createTable(healthSyncStatusTable);
+      }
+
+      // v17: AnchorEventName enum re-index (Phase 19)
+      // Existing integer values: lunch=2, dinner=3, bedtime=4
+      // New integer values:      lunch=3, dinner=5, bedtime=7
+      // Run in reverse order (bedtime first) to avoid collision.
+      if (from < 17) {
+        // Migrate anchor_event_times.name (integer column)
+        await customStatement(
+          'UPDATE anchor_event_times SET name = 7 WHERE name = 4',
+        );
+        await customStatement(
+          'UPDATE anchor_event_times SET name = 5 WHERE name = 3',
+        );
+        await customStatement(
+          'UPDATE anchor_event_times SET name = 3 WHERE name = 2',
+        );
+
+        // Migrate notification_category_settings.anchor_event_values (JSON text column).
+        // Values 2, 3, 4 may appear as array elements; handle all boundary positions
+        // ([N], [N,, ,N], ,N,) to avoid partial-number replacement.
+        // Apply in reverse order: bedtime(4→7), dinner(3→5), lunch(2→3).
+        for (final step in [
+          (old: '4', replacement: '7'),
+          (old: '3', replacement: '5'),
+          (old: '2', replacement: '3'),
+        ]) {
+          await customStatement(
+            '''UPDATE notification_category_settings SET anchor_event_values = REPLACE(REPLACE(REPLACE(REPLACE(anchor_event_values, '[${step.old}]', '[${step.replacement}]'), '[${step.old},', '[${step.replacement},'), ',${step.old}]', ',${step.replacement}]'), ',${step.old},', ',${step.replacement},') WHERE anchor_event_values LIKE '%${step.old}%' ''',
+          );
+        }
       }
     },
     beforeOpen: (details) async {

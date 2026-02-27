@@ -9,18 +9,49 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 18c complete
-# Last Action:   GuestInviteScanScreen + WelcomeScreen wired
-# Next Action:   AnchorEventName enum expansion (5→8 values, Decision 3, breaking schema change)
-# Open Items:    AnchorEventName enum 5→8 values pending (Decision 3, breaking schema change)
-# Tests:         3,256 passing (5 new in Phase 18c)
-# Schema:        v16 (unchanged)
+# Status:        Phase 19 complete
+# Last Action:   AnchorEventName enum expanded 5→8 values; schema bumped v16→v17
+# Next Action:   TBD — await Architect review
+# Open Items:    None
+# Tests:         3,256 passing (0 net new — existing tests updated to cover 8 values)
+# Schema:        v17
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 19: AnchorEventName enum expansion (5→8 values)
+
+**Schema:** v16 → v17
+**Tests:** 3,256 passing (existing tests updated; no net count change)
+**Analyzer:** Clean
+
+### New enum values
+```
+wake(0), breakfast(1), morning(2), lunch(3), afternoon(4), dinner(5), evening(6), bedtime(7)
+```
+Added: morning(2), afternoon(4), evening(6)
+Re-indexed: lunch 2→3, dinner 3→5, bedtime 4→7
+
+### Files changed
+- **`lib/domain/enums/notification_enums.dart`** — 8-value AnchorEventName with displayName/defaultTime for all 8
+- **`lib/data/datasources/local/database.dart`** — schemaVersion 16→17; v17 migration: UPDATE anchor_event_times (int), UPDATE notification_category_settings.anchor_event_values (JSON) in reverse order (bedtime→dinner→lunch) to avoid collisions
+- **`lib/data/datasources/local/tables/anchor_event_times_table.dart`** — comment updated (5→8 events)
+- **`lib/domain/services/notification_seed_service.dart`** — comment updated (5→8 anchor events); _seedAnchorEvents() already iterates AnchorEventName.values so auto-seeds 3 new entries
+
+### No switch statement changes needed
+All remaining files use `.values`, `.fromValue()`, `.value`, or `.displayName` — no exhaustive switches on AnchorEventName existed outside notification_enums.dart itself.
+
+### Tests updated
+- `anchor_event_time_test.dart` — has correct values + defaultTime for all 8
+- `notification_category_settings_test.dart` — anchorEvents getter test: dinner value 3→5
+- `anchor_event_times_provider_test.dart` — hasLength 5→8
+- `notification_seed_service_test.dart` — insert count 5→8; added morning/afternoon/evening defaults to defaultTime test
+- `database_test.dart` — schemaVersion 16→17
 
 ---
 

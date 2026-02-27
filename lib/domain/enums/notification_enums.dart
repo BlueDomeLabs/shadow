@@ -54,7 +54,7 @@ enum NotificationSchedulingMode {
       );
 }
 
-/// The 5 named anchor events used by Mode 1 scheduling.
+/// The 8 named anchor events used by Mode 1 scheduling.
 ///
 /// Each anchor event has a user-configurable clock time.
 /// Categories in Mode 1 fire at the times configured for their
@@ -62,9 +62,12 @@ enum NotificationSchedulingMode {
 enum AnchorEventName {
   wake(0),
   breakfast(1),
-  lunch(2),
-  dinner(3),
-  bedtime(4);
+  morning(2),
+  lunch(3),
+  afternoon(4),
+  dinner(5),
+  evening(6),
+  bedtime(7);
 
   final int value;
   const AnchorEventName(this.value);
@@ -76,8 +79,11 @@ enum AnchorEventName {
   String get displayName => switch (this) {
     wake => 'Wake',
     breakfast => 'Breakfast',
+    morning => 'Morning',
     lunch => 'Lunch',
+    afternoon => 'Afternoon',
     dinner => 'Dinner',
+    evening => 'Evening',
     bedtime => 'Bedtime',
   };
 
@@ -87,8 +93,11 @@ enum AnchorEventName {
   String get defaultTime => switch (this) {
     wake => '07:00',
     breakfast => '08:00',
+    morning => '09:00',
     lunch => '12:00',
+    afternoon => '15:00',
     dinner => '18:00',
+    evening => '20:00',
     bedtime => '22:00',
   };
 }
