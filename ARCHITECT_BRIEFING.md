@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-02-26
-# Briefing Version: 20260226-007
+# Last Updated: 2026-02-27
+# Briefing Version: 20260227-001
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 19 complete
-# Last Action:   AnchorEventName enum expanded 5→8 values; schema bumped v16→v17
-# Next Action:   TBD — await Architect review
+# Status:        Phase 20 recon in progress
+# Last Action:   Read-only recon of photo fields for Phase 20 (Wire Photo Stubs)
+# Next Action:   Await Architect review / implementation prompt
 # Open Items:    None
-# Tests:         3,256 passing (0 net new — existing tests updated to cover 8 values)
+# Tests:         3,256 passing
 # Schema:        v17
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,50 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 20: Recon — Wire Photo Stubs (read-only)
+
+**No code changed. Read-only reconnaissance pass.**
+
+### grep 1 — condition.dart (photo/Photo/image/Image)
+```
+13: /// They can have baseline photos and be linked to activities.
+29:     String? baselinePhotoPath,
+46:   /// Whether the condition has a baseline photo
+47:   bool get hasBaselinePhoto => baselinePhotoPath != null;
+```
+
+### grep 2 — condition_log.dart (photo/Photo/image/Image)
+```
+11: /// Records severity, notes, photos, triggers, and flare status for a condition
+27:     @Default([]) List<String> flarePhotoIds, // Comma-separated in DB
+28:     String? photoPath,
+42:   /// Whether the log has a photo
+43:   bool get hasPhoto => photoPath != null;
+```
+
+### grep 3 — fluids_entry.dart (photo/Photo/image/Image)
+```
+31:     String? bowelPhotoPath,
+36:     String? urinePhotoPath,
+53:     // File sync metadata (for bowel/urine photos)
+61:     @Default([]) List<String> photoIds,
+```
+
+### grep 4 — tables/ (photoPath/baselinePhoto/hasBaseline)
+```
+lib/data/datasources/local/tables/conditions_table.dart:30:  TextColumn get baselinePhotoPath =>
+lib/data/datasources/local/tables/flare_ups_table.dart:26:  TextColumn get photoPath => text().named('photo_path').nullable()();
+lib/data/datasources/local/tables/condition_logs_table.dart:29:  TextColumn get photoPath => text().named('photo_path').nullable()();
+```
+
+### Summary
+- **Condition**: has `baselinePhotoPath` (nullable String) on entity and `baselinePhotoPath` column in `conditions_table.dart`. Getter `hasBaselinePhoto`.
+- **ConditionLog**: has `photoPath` (nullable String) and `flarePhotoIds` (List<String>) on entity; `photoPath` column in `condition_logs_table.dart`. Getter `hasPhoto`.
+- **FluidsEntry**: has `bowelPhotoPath`, `urinePhotoPath` (both nullable String) and `photoIds` (List<String>) on entity. No dedicated photo column found in `fluids_table.dart` (photoIds stored elsewhere / not yet in table).
+- **FlareUps**: has `photoPath` column in `flare_ups_table.dart` (not in the recon target entities but found in grep 4).
 
 ---
 
