@@ -7,6 +7,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/diet.dart';
+import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/entities/food_log.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
@@ -14,6 +15,7 @@ import 'package:shadow_app/domain/usecases/diet/diet_types.dart';
 import 'package:shadow_app/domain/usecases/diet/get_active_diet_use_case.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/providers/food_items/food_item_list_provider.dart';
 import 'package:shadow_app/presentation/providers/food_logs/food_log_list_provider.dart';
 import 'package:shadow_app/presentation/screens/food_logs/food_log_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
@@ -56,6 +58,9 @@ void main() {
         getActiveDietUseCaseProvider.overrideWithValue(
           _FakeGetActiveDietUseCase(),
         ),
+        foodItemListProvider(
+          testProfileId,
+        ).overrideWith(() => _MockFoodItemListForLog([])),
       ],
       child: const MaterialApp(home: FoodLogScreen(profileId: testProfileId)),
     );
@@ -65,6 +70,9 @@ void main() {
         foodLogListProvider(
           testProfileId,
         ).overrideWith(() => _MockFoodLogList([foodLog])),
+        foodItemListProvider(
+          testProfileId,
+        ).overrideWith(() => _MockFoodItemListForLog([])),
       ],
       child: MaterialApp(
         home: FoodLogScreen(profileId: testProfileId, foodLog: foodLog),
@@ -715,6 +723,98 @@ void main() {
         expect(find.text('Discard Changes?'), findsNothing);
       });
     });
+
+    group('food items section', () {
+      testWidgets('tapping food items area navigates to picker', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Tap the "Search foods..." row
+        await tester.tap(find.text('Search foods...'));
+        await tester.pumpAndSettle();
+
+        // Should navigate to FoodLibraryPickerScreen
+        expect(find.text('Select Foods'), findsOneWidget);
+      });
+
+      testWidgets('selected food items appear as chips', (tester) async {
+        final foodItem = FoodItem(
+          id: 'food-001',
+          clientId: 'client-001',
+          profileId: testProfileId,
+          name: 'Grilled Chicken',
+          syncMetadata: SyncMetadata.empty(),
+        );
+        final foodLog = createTestFoodLog(
+          foodItemIds: ['food-001'],
+          adHocItems: [],
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodLogListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodLogList([foodLog])),
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemListForLog([foodItem])),
+            ],
+            child: MaterialApp(
+              home: FoodLogScreen(profileId: testProfileId, foodLog: foodLog),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Grilled Chicken'), findsOneWidget);
+        expect(find.byType(Chip), findsWidgets);
+      });
+
+      testWidgets('removing a food item chip removes it from selection', (
+        tester,
+      ) async {
+        final foodItem = FoodItem(
+          id: 'food-001',
+          clientId: 'client-001',
+          profileId: testProfileId,
+          name: 'Grilled Chicken',
+          syncMetadata: SyncMetadata.empty(),
+        );
+        final foodLog = createTestFoodLog(
+          foodItemIds: ['food-001'],
+          adHocItems: [],
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodLogListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodLogList([foodLog])),
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemListForLog([foodItem])),
+            ],
+            child: MaterialApp(
+              home: FoodLogScreen(profileId: testProfileId, foodLog: foodLog),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Grilled Chicken'), findsOneWidget);
+
+        // Tap the chip's delete icon
+        await tester.tap(find.byIcon(Icons.close));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Grilled Chicken'), findsNothing);
+        expect(find.byType(Chip), findsNothing);
+      });
+    });
   });
 }
 
@@ -760,4 +860,14 @@ class _ErrorOnLogFoodLogList extends FoodLogList {
   Future<void> log(LogFoodInput input) async {
     throw DatabaseError.insertFailed('test');
   }
+}
+
+/// Mock FoodItemList notifier for food log screen tests.
+class _MockFoodItemListForLog extends FoodItemList {
+  final List<FoodItem> _foodItems;
+
+  _MockFoodItemListForLog(this._foodItems);
+
+  @override
+  Future<List<FoodItem>> build(String profileId) async => _foodItems;
 }

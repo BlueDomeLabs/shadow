@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-005
+# Briefing Version: 20260227-006
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 21 COMPLETE
-# Last Action:   3 sleep quality fields added end-to-end; schema v18; 4 new tests
+# Status:        Phase 22 COMPLETE
+# Last Action:   Food Library Picker screen; food items wired to food log; 18 new tests
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,278 passing
+# Tests:         3,296 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,47 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 22: Food Library Picker — COMPLETE
+
+**18 new tests added. Tests: 3,296. Schema: v18. Analyzer: clean.**
+
+### Summary
+Wired food items to the food log screen via a new `FoodLibraryPickerScreen`.
+The "Food Items" section of the food log screen previously showed a non-functional stub
+("Search foods..."). It now opens a full multi-select picker when tapped, shows chips for
+selected items with X-to-remove, and resolves food item names from `foodItemListProvider`
+for display.
+
+### What was built
+- **FoodLibraryPickerScreen**: new `ConsumerStatefulWidget` in `food_items/`. Multi-select
+  mode with checkboxes, local search filter (case-insensitive, active items only), "Done"
+  button pops with `List<String>` of selected IDs. FAB pushes `FoodItemEditScreen` and
+  invalidates the provider on return. Empty states for both "no library" and "no search results".
+- **food_log_screen.dart**: Replaced `_buildFoodItemsStub()` with `_buildFoodItemsSection()`.
+  Now watches `foodItemListProvider` in `build()` to resolve IDs to names. Selected items
+  shown as chips with delete button. Tapping the "Search foods..." `InkWell` opens the picker
+  via `Navigator.push<List<String>>`. `_openFoodPicker()` and `_removeFoodItem(String)` added.
+
+### Key decisions
+- Local filtering over `searchFoodItemsUseCaseProvider` for simplicity and to allow inline
+  checkbox display on all items during search.
+- Chips use chip delete buttons (InkWell scope) rather than outer GestureDetector to avoid
+  gesture conflicts — tapping delete does not also open the picker.
+- Returns `List<String>` (IDs) not `List<FoodItem>` — food_log_screen resolves names locally
+  from its watched `foodItemListProvider` data.
+- Archived items hidden from picker (only active items shown).
+
+### File changes
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/food_items/food_library_picker_screen.dart | CREATED | Multi-select food picker returning List<String> of IDs |
+| lib/presentation/screens/food_logs/food_log_screen.dart | MODIFIED | Replaced stub with real food items section; added picker navigation |
+| test/presentation/screens/food_items/food_library_picker_screen_test.dart | CREATED | 15 widget tests for picker screen |
+| test/presentation/screens/food_logs/food_log_screen_test.dart | MODIFIED | Added foodItemListProvider override to helpers; 3 new food items section tests |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Phase 22 session entry |
 
 ---
 

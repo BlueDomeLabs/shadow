@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 21: Sleep Enhancement (3 missing fields)",
+  "task": "Phase 22: Food Library Picker (wire food items to food log)",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3278,
+  "testCount": 3296,
   "schemaVersion": 18,
-  "notes": "Phase 21 complete. Added String? timeToFallAsleep, int? timesAwakened, String? timeAwakeDuringNight to SleepEntry entity. Added 3 columns to sleep_entries table. Bumped schema v17→v18 with addColumn migration. Updated DAO rowToEntity and entityToCompanion. Added fields to LogSleepEntryInput and UpdateSleepEntryInput. Wired through log and update use cases. Screen already had UI — wired initState to read from entity and _onSave to pass to inputs. 4 new use case unit tests + 1 DB migration test. 3,278 tests passing. Analyzer clean. Next: await Architect review."
+  "notes": "Phase 22 complete. Created FoodLibraryPickerScreen (multi-select with checkboxes, local search, Done pops List<String>). Replaced _buildFoodItemsStub in food_log_screen.dart with real food items section: chips show resolved names, tapping 'Search foods...' opens picker, chip X removes item. 15 new picker tests + 3 food log screen food items section tests = 18 new tests. 3,296 tests passing. Analyzer clean. Next: await Architect review."
 }

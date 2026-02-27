@@ -13,8 +13,10 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/diet/diets_usecases.dart';
 import 'package:shadow_app/domain/usecases/food_logs/food_logs_usecases.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/providers/food_items/food_item_list_provider.dart';
 import 'package:shadow_app/presentation/providers/food_logs/food_log_list_provider.dart';
 import 'package:shadow_app/presentation/screens/diet/diet_violation_dialog.dart';
+import 'package:shadow_app/presentation/screens/food_items/food_library_picker_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -26,7 +28,7 @@ import 'package:uuid/uuid.dart';
 /// Fields:
 /// - Date & Time: DateTime picker (required, not future)
 /// - Meal Type: Segmented button (optional, auto-detected from time)
-/// - Food Items: Multi-select stub (food library not yet built)
+/// - Food Items: Multi-select via FoodLibraryPickerScreen
 /// - Ad-hoc Items: Tag input with chips
 /// - Notes: Text area
 class FoodLogScreen extends ConsumerStatefulWidget {
@@ -134,6 +136,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final foodItemsAsync = ref.watch(foodItemListProvider(widget.profileId));
 
     return PopScope(
       canPop: !_isDirty,
@@ -176,7 +179,7 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
                 const SizedBox(height: 24),
                 _buildSectionHeader(theme, 'Food Items'),
                 const SizedBox(height: 16),
-                _buildFoodItemsStub(theme),
+                _buildFoodItemsSection(theme, foodItemsAsync),
                 const SizedBox(height: 24),
                 _buildSectionHeader(theme, 'Ad-hoc Items'),
                 const SizedBox(height: 16),
@@ -362,40 +365,85 @@ class _FoodLogScreenState extends ConsumerState<FoodLogScreen> {
     ),
   );
 
-  /// Stub for Food Items multi-select.
-  /// The food library search screen is not yet built.
-  /// This will be replaced when the food library is connected.
-  Widget _buildFoodItemsStub(ThemeData theme) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      border: Border.all(
-        color: theme.colorScheme.outline.withValues(alpha: 0.5),
-      ),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.search, color: theme.colorScheme.outline),
-            const SizedBox(width: 8),
-            Text(
-              'Search foods...',
-              style: TextStyle(color: theme.colorScheme.outline),
-            ),
-          ],
+  /// Food Items multi-select section backed by FoodLibraryPickerScreen.
+  Widget _buildFoodItemsSection(
+    ThemeData theme,
+    AsyncValue<List<FoodItem>> foodItemsAsync,
+  ) {
+    final allFoodItems = foodItemsAsync.valueOrNull ?? [];
+    final idToItem = {for (final f in allFoodItems) f.id: f};
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.5),
         ),
-        if (_foodItemIds.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Text(
-            '${_foodItemIds.length} food item(s) selected',
-            style: theme.textTheme.bodySmall,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_foodItemIds.isNotEmpty) ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _foodItemIds.map((id) {
+                final name = idToItem[id]?.name ?? id;
+                return Chip(
+                  label: Text(name),
+                  deleteIcon: const Icon(Icons.close, size: 18),
+                  onDeleted: () => _removeFoodItem(id),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+          ],
+          InkWell(
+            onTap: _openFoodPicker,
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: theme.colorScheme.outline),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Search foods...',
+                    style: TextStyle(color: theme.colorScheme.outline),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
+
+  Future<void> _openFoodPicker() async {
+    final result = await Navigator.of(context).push<List<String>>(
+      MaterialPageRoute<List<String>>(
+        builder: (context) => FoodLibraryPickerScreen(
+          profileId: widget.profileId,
+          initialSelectedIds: _foodItemIds,
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        _foodItemIds = result;
+        _isDirty = true;
+      });
+    }
+  }
+
+  void _removeFoodItem(String id) {
+    setState(() {
+      _foodItemIds = _foodItemIds.where((f) => f != id).toList();
+      _isDirty = true;
+    });
+  }
 
   Widget _buildAdHocItemsSection(ThemeData theme) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
