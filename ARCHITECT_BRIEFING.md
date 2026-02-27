@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-001
+# Briefing Version: 20260227-002
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        Phase 20 recon in progress
-# Last Action:   Read-only recon of photo fields for Phase 20 (Wire Photo Stubs)
+# Last Action:   Second recon pass — fluids_entries_table.dart + condition_logs_table.dart
 # Next Action:   Await Architect review / implementation prompt
 # Open Items:    None
 # Tests:         3,256 passing
@@ -21,6 +21,203 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 20: Recon Pass 2 — Table Column Inspection (read-only)
+
+**No code changed. Read-only reconnaissance pass.**
+
+### cat 1 — fluids_entries_table.dart (full file)
+```
+ 1: // lib/data/datasources/local/tables/fluids_entries_table.dart
+ 2: // Drift table definition for fluids_entries per 10_DATABASE_SCHEMA.md Section 10
+ 3:
+ 4: import 'package:drift/drift.dart';
+ 5:
+ 6: /// Drift table definition for fluids entries.
+ 7: ///
+ 8: /// Maps to database table `fluids_entries` with all sync metadata columns.
+ 9: /// See 10_DATABASE_SCHEMA.md Section 10 for schema definition.
+10: @DataClassName('FluidsEntryRow')
+11: class FluidsEntries extends Table {
+12:   // Primary key
+13:   TextColumn get id => text()();
+14:
+15:   // Required fields
+16:   TextColumn get clientId => text().named('client_id')();
+17:   TextColumn get profileId => text().named('profile_id')();
+18:   IntColumn get entryDate => integer().named('entry_date')(); // Epoch ms
+19:
+20:   // Water intake tracking
+21:   IntColumn get waterIntakeMl =>
+22:       integer().named('water_intake_ml').nullable()();
+23:   TextColumn get waterIntakeNotes =>
+24:       text().named('water_intake_notes').nullable()();
+25:
+26:   // Bowel tracking
+27:   BoolColumn get hasBowelMovement => boolean()
+28:       .named('has_bowel_movement')
+29:       .withDefault(const Constant(false))();
+30:   IntColumn get bowelCondition =>
+31:       integer().named('bowel_condition').nullable()(); // BowelCondition enum
+32:   TextColumn get bowelCustomCondition =>
+33:       text().named('bowel_custom_condition').nullable()();
+34:   IntColumn get bowelSize =>
+35:       integer().named('bowel_size').nullable()(); // MovementSize enum
+36:   TextColumn get bowelPhotoPath =>
+37:       text().named('bowel_photo_path').nullable()();
+38:
+39:   // Urine tracking
+40:   BoolColumn get hasUrineMovement => boolean()
+41:       .named('has_urine_movement')
+42:       .withDefault(const Constant(false))();
+43:   IntColumn get urineCondition =>
+44:       integer().named('urine_condition').nullable()(); // UrineCondition enum
+45:   TextColumn get urineCustomCondition =>
+46:       text().named('urine_custom_condition').nullable()();
+47:   IntColumn get urineSize =>
+48:       integer().named('urine_size').nullable()(); // MovementSize enum
+49:   TextColumn get urinePhotoPath =>
+50:       text().named('urine_photo_path').nullable()();
+51:
+52:   // Menstruation tracking
+53:   IntColumn get menstruationFlow => integer()
+54:       .named('menstruation_flow')
+55:       .nullable()(); // MenstruationFlow enum
+56:
+57:   // Basal body temperature tracking
+58:   RealColumn get basalBodyTemperature =>
+59:       real().named('basal_body_temperature').nullable()();
+60:   IntColumn get bbtRecordedTime =>
+61:       integer().named('bbt_recorded_time').nullable()(); // Epoch ms
+62:
+63:   // Customizable "Other" fluid tracking
+64:   TextColumn get otherFluidName =>
+65:       text().named('other_fluid_name').nullable()();
+66:   TextColumn get otherFluidAmount =>
+67:       text().named('other_fluid_amount').nullable()();
+68:   TextColumn get otherFluidNotes =>
+69:       text().named('other_fluid_notes').nullable()();
+70:
+71:   // Import tracking
+72:   TextColumn get importSource => text().named('import_source').nullable()();
+73:   TextColumn get importExternalId =>
+74:       text().named('import_external_id').nullable()();
+75:
+76:   // File sync metadata
+77:   TextColumn get cloudStorageUrl =>
+78:       text().named('cloud_storage_url').nullable()();
+79:   TextColumn get fileHash => text().named('file_hash').nullable()();
+80:   IntColumn get fileSizeBytes =>
+81:       integer().named('file_size_bytes').nullable()();
+82:   BoolColumn get isFileUploaded =>
+83:       boolean().named('is_file_uploaded').withDefault(const Constant(false))();
+84:
+85:   // General notes
+86:   TextColumn get notes => text().withDefault(const Constant(''))();
+87:   TextColumn get photoIds => text()
+88:       .named('photo_ids')
+89:       .withDefault(const Constant('[]'))(); // JSON array
+90:
+91:   // Sync metadata columns (required on all syncable entities)
+92:   IntColumn get syncCreatedAt => integer().named('sync_created_at')();
+93:   IntColumn get syncUpdatedAt =>
+94:       integer().named('sync_updated_at').nullable()();
+95:   IntColumn get syncDeletedAt =>
+96:       integer().named('sync_deleted_at').nullable()();
+97:   IntColumn get syncLastSyncedAt =>
+98:       integer().named('sync_last_synced_at').nullable()();
+99:   IntColumn get syncStatus =>
+100:       integer().named('sync_status').withDefault(const Constant(0))();
+101:   IntColumn get syncVersion =>
+102:       integer().named('sync_version').withDefault(const Constant(1))();
+103:   TextColumn get syncDeviceId => text().named('sync_device_id').nullable()();
+104:   BoolColumn get syncIsDirty =>
+105:       boolean().named('sync_is_dirty').withDefault(const Constant(true))();
+106:   TextColumn get conflictData => text().named('conflict_data').nullable()();
+107:
+108:   @override
+109:   Set<Column> get primaryKey => {id};
+110:
+111:   @override
+112:   String get tableName => 'fluids_entries';
+113: }
+```
+
+### cat 2 — condition_logs_table.dart (full file)
+```
+ 1: // lib/data/datasources/local/tables/condition_logs_table.dart
+ 2: // Drift table definition for condition_logs per 10_DATABASE_SCHEMA.md
+ 3:
+ 4: import 'package:drift/drift.dart';
+ 5:
+ 6: /// Drift table definition for condition_logs.
+ 7: ///
+ 8: /// Maps to database table `condition_logs` with all sync metadata columns.
+ 9: /// See 10_DATABASE_SCHEMA.md for schema definition.
+10: ///
+11: /// NOTE: @DataClassName('ConditionLogRow') avoids conflict with domain entity ConditionLog.
+12: @DataClassName('ConditionLogRow')
+13: class ConditionLogs extends Table {
+14:   // Primary key
+15:   TextColumn get id => text()();
+16:
+17:   // Required fields
+18:   TextColumn get clientId => text().named('client_id')();
+19:   TextColumn get profileId => text().named('profile_id')();
+20:   TextColumn get conditionId => text().named('condition_id')();
+21:   IntColumn get timestamp => integer()(); // Epoch milliseconds
+22:   IntColumn get severity => integer()(); // 1-10 scale
+23:   BoolColumn get isFlare => boolean().named('is_flare')();
+24:   TextColumn get flarePhotoIds =>
+25:       text().named('flare_photo_ids').withDefault(const Constant(''))();
+26:
+27:   // Optional fields
+28:   TextColumn get notes => text().nullable()();
+29:   TextColumn get photoPath => text().named('photo_path').nullable()();
+30:   TextColumn get activityId => text().named('activity_id').nullable()();
+31:   TextColumn get triggers => text().nullable()(); // Comma-separated
+32:
+33:   // File sync metadata
+34:   TextColumn get cloudStorageUrl =>
+35:       text().named('cloud_storage_url').nullable()();
+36:   TextColumn get fileHash => text().named('file_hash').nullable()();
+37:   IntColumn get fileSizeBytes =>
+38:       integer().named('file_size_bytes').nullable()();
+39:   BoolColumn get isFileUploaded =>
+40:       boolean().named('is_file_uploaded').withDefault(const Constant(false))();
+41:
+42:   // Sync metadata columns (required on all syncable entities)
+43:   IntColumn get syncCreatedAt => integer().named('sync_created_at')();
+44:   IntColumn get syncUpdatedAt =>
+45:       integer().named('sync_updated_at').nullable()();
+46:   IntColumn get syncDeletedAt =>
+47:       integer().named('sync_deleted_at').nullable()();
+48:   IntColumn get syncLastSyncedAt =>
+49:       integer().named('sync_last_synced_at').nullable()();
+50:   IntColumn get syncStatus =>
+51:       integer().named('sync_status').withDefault(const Constant(0))();
+52:   IntColumn get syncVersion =>
+53:       integer().named('sync_version').withDefault(const Constant(1))();
+54:   TextColumn get syncDeviceId => text().named('sync_device_id').nullable()();
+55:   BoolColumn get syncIsDirty =>
+56:       boolean().named('sync_is_dirty').withDefault(const Constant(true))();
+57:   TextColumn get conflictData => text().named('conflict_data').nullable()();
+58:
+59:   @override
+60:   Set<Column> get primaryKey => {id};
+61:
+62:   @override
+63:   String get tableName => 'condition_logs';
+64: }
+```
+
+### Summary — Recon Pass 2
+- **FluidsEntry anomaly resolved**: `bowelPhotoPath` and `urinePhotoPath` ARE in the table (lines 36–37, 49–50 of `fluids_entries_table.dart`). They were missed in recon pass 1 because grep 4 only searched for `photoPath|baselinePhoto|hasBaseline`. `bowelPhotoPath` and `urinePhotoPath` don't match that pattern.
+- **`photoIds` column confirmed**: Line 87–89 of `fluids_entries_table.dart` — `TextColumn get photoIds => text().named('photo_ids').withDefault(const Constant('[]'))()` — stored as JSON array text, not comma-separated.
+- **`flarePhotoIds` column confirmed**: Line 24–25 of `condition_logs_table.dart` — `TextColumn get flarePhotoIds => text().named('flare_photo_ids').withDefault(const Constant(''))()` — stored as empty string default (comma-separated, matches entity comment).
+- **All photo fields now accounted for across both entities and tables.**
 
 ---
 
