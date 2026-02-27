@@ -49,11 +49,11 @@ After you complete each prompt:
    plain-language summary)
 4. Stop — do not begin anything else
 
-The Architect on claude.ai verifies your work after each prompt.
-You will never receive two prompts, from claude.ai, in a row
+The Architect on Claude.ai verifies your work after each prompt.
+You will never receive two prompts, from Claude.ai, in a row
 without a verification step in between. You may receive a prompt
 directly from Reid unrelated to the workflow, as he may ask you
-to do something specific outside of claude.ai's instructions.
+to do something specific outside of Claude.ai's instructions.
 
 ---
 
@@ -61,7 +61,7 @@ to do something specific outside of claude.ai's instructions.
 
 1. **NO AGENTS.** Do NOT use the Task tool, TeamCreate, SendMessage, or spawn any subagents. All work is done by YOU directly. Violating this will terminate your session.
 2. **NO DECISIONS.** Follow specs exactly. If something is ambiguous, STOP and ask the user. An ambiguity is a bug in the spec, not permission to interpret.
-3. **NO UNCOMMITTED WORK.** Before your conversation ends or compacts, commit everything and update the status file.
+3. **NO UNCOMMITTED WORK.** Before your conversation ends or compacts, commit everything and update ARCHITECT_BRIEFING.md.
 
 ---
 

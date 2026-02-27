@@ -118,7 +118,6 @@ A task is done when:
 
 - [ ] Code compiles without warnings
 - [ ] Tests written and passing
-- [ ] Manually verified in app
 - [ ] No regressions in existing tests
 
 ---
