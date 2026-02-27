@@ -23,6 +23,22 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — CLAUDE.md + skills maintenance: stale language cleanup, add context-lost skill
+
+**Commit:** `297c37e`  **Documentation only — no code changes.**
+
+- `CLAUDE.md` SKILLS table: replaced `When` column with `Trigger`, added `/launch-shadow` and `/context-lost` rows, tightened all trigger descriptions
+- `CLAUDE.md` HANDOFF step: removed status file JSON block, replaced with ARCHITECT_BRIEFING.md update + completion report delivery
+- `startup/SKILL.md`: full rewrite — ARCHITECT_BRIEFING.md is now entry point (not .claude/work-status/current.json), added context compaction recovery note
+- `compliance/SKILL.md`: two targeted fixes — last checklist item now says "ARCHITECT_BRIEFING.md updated with session log entry"; After All Pass item 3 now points to ARCHITECT_BRIEFING.md handoff header instead of PLAN checklist
+- `handoff/SKILL.md`: full rewrite — removed status file JSON block and PLAN/VISION update steps; replaced with ARCHITECT_BRIEFING.md session log + handoff header update + completion report delivery; minimum viable handoff section added
+- `spec-review/SKILL.md`: last line now says "Report all findings directly to Reid" instead of "save to audit-reports"
+- `implementation-review/SKILL.md`: same targeted fix — report to Reid, not audit-reports file
+- `context-lost.md` (NEW): six-step recovery protocol — read briefing, check handoff header, run tests/analyze, check git log, re-read phase prompt, resume from exactly where left off
+- Analyzer: clean | Tests: 3,251 (unchanged)
+
+---
+
 ## [2026-02-26 MST] — CLAUDE.md maintenance: team structure + completion report format
 
 **Commit:** `121311b`  **Documentation only — no code changes.**
