@@ -35,6 +35,46 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — Phase 18c stop-point: DeepLinkHandler DI gap discovered
+
+**No code changes. Reporting ambiguity to Architect before proceeding.**
+
+### Stop-point findings (grep + file read)
+
+The Phase 18c prompt says to call `ref.read(deepLinkHandlerProvider).handleInviteLink(link)`.
+Both assumptions in that call are incorrect:
+
+1. **`deepLinkHandlerProvider` does not exist** — `DeepLinkHandler` is not in Riverpod DI at all. It is not created in bootstrap.dart, not declared in di_providers.dart, and `grep -r "deepLinkHandler" lib/` returns zero results.
+
+2. **`handleInviteLink` is a private method** — it is named `_handleInviteLink` and is only called internally from the stream subscription in `startListening()`. The scanner screen cannot call it.
+
+### What IS in DI (guest mode)
+- `deepLinkServiceProvider` ✅ (bootstrap creates DeepLinkService, overrides provider)
+- `guestTokenServiceProvider` ✅
+- `guestSyncValidatorProvider` ✅
+- `validateGuestTokenUseCaseProvider` ✅
+- `createGuestInviteUseCaseProvider` ✅
+- `deepLinkHandlerProvider` — **does not exist**
+
+### DeepLinkHandler's actual public API
+```dart
+OnAccessRevoked? onAccessRevoked;   // callback — caller sets this
+OnShowDisclaimer? onShowDisclaimer; // callback — caller sets this
+void startListening();              // subscribes to inviteLinks stream
+void dispose();                     // cancels subscription
+// _handleInviteLink() is private — not callable externally
+```
+
+### Two options for Architect to decide
+
+**Option A (matches Architect's intent):** Expose `handleInviteLink` as public, add `deepLinkHandlerProvider` to DI, override in bootstrap. Scanner screen calls `ref.read(deepLinkHandlerProvider).handleInviteLink(link)`.
+
+**Option B (bypass DeepLinkHandler for QR path):** Scanner screen calls `validateGuestTokenUseCase` + `guestModeNotifier.activateGuestMode()` directly — both already in DI. DeepLinkHandler stays stream-only (for platform deep links).
+
+**Awaiting Architect decision before writing any code.**
+
+---
+
 ## [2026-02-27 MST] — Phase 18c DeepLinkService reconnaissance (read-only)
 
 **No commits. Findings for Architect to use when writing Phase 18c implementation prompt.**
