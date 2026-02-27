@@ -24,6 +24,17 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — Housekeeping: split briefing into main + archive
+
+**Commit:** `9c64db8`  **Documentation only — no code changes.**
+
+- Created `ARCHITECT_BRIEFING_ARCHIVE.md` — holds all session entries older than Phase 17a (9 sections, 421 lines): Phase 16c, 16d, 16b, session status entries, spec review, sync infrastructure upgrade, BOONDOGGLE test, and Project Vitals Snapshot
+- `ARCHITECT_BRIEFING.md` trimmed from 1,050 lines → 638 lines (keeps: all 2026-02-27 entries, all 2026-02-26 entries from Phase 17a onward, plus structural sections)
+- Added `# Archive:` line to the handoff header pointing to the archive file
+- Structural sections kept in main file: Phase Completion History, Architecture Overview, Dependency Map, Spec Deviation Register, Known Gaps and Tech Debt
+
+---
+
 ## [2026-02-27 MST] — Phase 18c DeepLinkService reconnaissance (read-only)
 
 **No commits. Findings for Architect to use when writing Phase 18c implementation prompt.**
