@@ -21,8 +21,8 @@ void main() {
         expect(database, isNotNull);
       });
 
-      test('schemaVersion is 17 per 10_DATABASE_SCHEMA.md', () {
-        expect(database.schemaVersion, equals(17));
+      test('schemaVersion is 18 per 10_DATABASE_SCHEMA.md', () {
+        expect(database.schemaVersion, equals(18));
       });
 
       test('database is open after creation', () async {
@@ -56,6 +56,22 @@ void main() {
         // This test verifies migration doesn't fail
         expect(tables, isNotNull);
       });
+
+      test(
+        'v18 migration adds sleep quality columns to sleep_entries',
+        () async {
+          // Verify the 3 new columns exist in sleep_entries (schema v18)
+          final result = await database
+              .customSelect('PRAGMA table_info(sleep_entries)')
+              .get();
+          final columnNames = result
+              .map((r) => r.read<String>('name'))
+              .toList();
+          expect(columnNames, contains('time_to_fall_asleep'));
+          expect(columnNames, contains('times_awakened'));
+          expect(columnNames, contains('time_awake_during_night'));
+        },
+      );
     });
 
     group('closeDatabase', () {

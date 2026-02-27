@@ -56,6 +56,9 @@ class UpdateSleepEntryUseCase
       dreamType: input.dreamType ?? existing.dreamType,
       wakingFeeling: input.wakingFeeling ?? existing.wakingFeeling,
       notes: input.notes ?? existing.notes,
+      timeToFallAsleep: input.timeToFallAsleep,
+      timesAwakened: input.timesAwakened ?? existing.timesAwakened,
+      timeAwakeDuringNight: input.timeAwakeDuringNight,
       importSource: input.importSource ?? existing.importSource,
       importExternalId: input.importExternalId ?? existing.importExternalId,
     );

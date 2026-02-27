@@ -24,6 +24,9 @@ _$SleepEntryImpl _$$SleepEntryImplFromJson(Map<String, dynamic> json) =>
           $enumDecodeNullable(_$WakingFeelingEnumMap, json['wakingFeeling']) ??
           WakingFeeling.neutral,
       notes: json['notes'] as String?,
+      timeToFallAsleep: json['timeToFallAsleep'] as String?,
+      timesAwakened: (json['timesAwakened'] as num?)?.toInt(),
+      timeAwakeDuringNight: json['timeAwakeDuringNight'] as String?,
       importSource: json['importSource'] as String?,
       importExternalId: json['importExternalId'] as String?,
       syncMetadata: SyncMetadata.fromJson(
@@ -44,6 +47,9 @@ Map<String, dynamic> _$$SleepEntryImplToJson(_$SleepEntryImpl instance) =>
       'dreamType': _$DreamTypeEnumMap[instance.dreamType]!,
       'wakingFeeling': _$WakingFeelingEnumMap[instance.wakingFeeling]!,
       'notes': instance.notes,
+      'timeToFallAsleep': instance.timeToFallAsleep,
+      'timesAwakened': instance.timesAwakened,
+      'timeAwakeDuringNight': instance.timeAwakeDuringNight,
       'importSource': instance.importSource,
       'importExternalId': instance.importExternalId,
       'syncMetadata': instance.syncMetadata.toJson(),

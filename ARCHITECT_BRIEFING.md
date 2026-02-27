@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-004
+# Briefing Version: 20260227-005
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 20b COMPLETE
-# Last Action:   Photo fields added to update inputs; edit paths wired; 4 new tests
+# Status:        Phase 21 COMPLETE
+# Last Action:   3 sleep quality fields added end-to-end; schema v18; 4 new tests
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,274 passing
-# Schema:        v17
+# Tests:         3,278 passing
+# Schema:        v18
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
@@ -37,6 +37,43 @@ Or using the shell alias (available on this machine):
 
 Never run plain `flutter test` without the concurrency flag.
 This applies to every verify step in every phase, no exceptions.
+
+---
+
+## [2026-02-27 MST] — Phase 21: Sleep Enhancement — COMPLETE
+
+**4 new tests added. Tests: 3,278. Schema: v18. Analyzer: clean.**
+
+### Summary
+Added three missing sleep quality fields end-to-end: time to fall asleep (dropdown),
+times awakened (integer), and time awake during night (dropdown). All three fields now
+persist to the database and round-trip through the domain layer. The sleep entry edit
+screen was already built with UI widgets for these fields — this phase wired them to
+the backing store.
+
+### Key Decisions
+- `timeToFallAsleep` (String?): direct assignment in UpdateSleepEntryUseCase — user can
+  select 'Not set' (→ null) to clear the field; 'Not set' is the UI sentinel for null
+- `timesAwakened` (int?): `??` merge in UpdateSleepEntryUseCase — screen always provides
+  an int (0 by default); null from API means "keep existing"
+- `timeAwakeDuringNight` (String?): direct assignment — 'None' is a valid stored string,
+  not a null sentinel; null means "not answered" and direct assignment preserves semantics
+
+### Files Modified
+- `lib/domain/entities/sleep_entry.dart` — added 3 nullable fields
+- `lib/domain/entities/sleep_entry.freezed.dart` — regenerated (build_runner)
+- `lib/domain/entities/sleep_entry.g.dart` — regenerated (build_runner)
+- `lib/data/datasources/local/tables/sleep_entries_table.dart` — added 3 nullable columns
+- `lib/data/datasources/local/database.dart` — bumped schemaVersion v17→v18; added v18 migration block
+- `lib/data/datasources/local/database.g.dart` — regenerated (build_runner)
+- `lib/data/datasources/local/daos/sleep_entry_dao.dart` — mapped 3 new columns in _rowToEntity and _entityToCompanion
+- `lib/domain/usecases/sleep_entries/sleep_entry_inputs.dart` — added 3 fields to LogSleepEntryInput and UpdateSleepEntryInput
+- `lib/domain/usecases/sleep_entries/sleep_entry_inputs.freezed.dart` — regenerated (build_runner)
+- `lib/domain/usecases/sleep_entries/log_sleep_entry_use_case.dart` — passes 3 fields to entity
+- `lib/domain/usecases/sleep_entries/update_sleep_entry_use_case.dart` — applies 3 fields in copyWith
+- `lib/presentation/screens/sleep_entries/sleep_entry_edit_screen.dart` — reads from entity in initState; passes to inputs on save
+- `test/unit/data/datasources/local/database_test.dart` — updated schemaVersion assertion to v18; added v18 migration column test
+- `test/unit/domain/usecases/sleep_entries/sleep_entry_usecases_test.dart` — updated createTestSleepEntry helper; added 3 field pass-through tests
 
 ---
 

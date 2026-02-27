@@ -197,8 +197,11 @@ class AppDatabase extends _$AppDatabase {
   ///      Re-indexed lunch(2→3), dinner(3→5), bedtime(4→7). Added morning(2),
   ///      afternoon(4), evening(6). Migrated anchor_event_times.name and
   ///      notification_category_settings.anchor_event_values.
+  /// v18: Sleep quality fields (Phase 21)
+  ///      Added time_to_fall_asleep, times_awakened, time_awake_during_night
+  ///      columns to sleep_entries.
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   /// Migration strategy for schema changes.
   ///
@@ -341,6 +344,13 @@ class AppDatabase extends _$AppDatabase {
             '''UPDATE notification_category_settings SET anchor_event_values = REPLACE(REPLACE(REPLACE(REPLACE(anchor_event_values, '[${step.old}]', '[${step.replacement}]'), '[${step.old},', '[${step.replacement},'), ',${step.old}]', ',${step.replacement}]'), ',${step.old},', ',${step.replacement},') WHERE anchor_event_values LIKE '%${step.old}%' ''',
           );
         }
+      }
+
+      // v18: Sleep quality fields (Phase 21)
+      if (from < 18) {
+        await m.addColumn(sleepEntries, sleepEntries.timeToFallAsleep);
+        await m.addColumn(sleepEntries, sleepEntries.timesAwakened);
+        await m.addColumn(sleepEntries, sleepEntries.timeAwakeDuringNight);
       }
     },
     beforeOpen: (details) async {

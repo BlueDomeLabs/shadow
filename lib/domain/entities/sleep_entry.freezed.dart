@@ -32,6 +32,10 @@ mixin _$SleepEntry {
   DreamType get dreamType => throw _privateConstructorUsedError;
   WakingFeeling get wakingFeeling => throw _privateConstructorUsedError;
   String? get notes =>
+      throw _privateConstructorUsedError; // Sleep quality fields
+  String? get timeToFallAsleep => throw _privateConstructorUsedError;
+  int? get timesAwakened => throw _privateConstructorUsedError;
+  String? get timeAwakeDuringNight =>
       throw _privateConstructorUsedError; // Import tracking (for wearable data)
   String? get importSource => throw _privateConstructorUsedError;
   String? get importExternalId => throw _privateConstructorUsedError;
@@ -66,6 +70,9 @@ abstract class $SleepEntryCopyWith<$Res> {
     DreamType dreamType,
     WakingFeeling wakingFeeling,
     String? notes,
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
     String? importSource,
     String? importExternalId,
     SyncMetadata syncMetadata,
@@ -100,6 +107,9 @@ class _$SleepEntryCopyWithImpl<$Res, $Val extends SleepEntry>
     Object? dreamType = null,
     Object? wakingFeeling = null,
     Object? notes = freezed,
+    Object? timeToFallAsleep = freezed,
+    Object? timesAwakened = freezed,
+    Object? timeAwakeDuringNight = freezed,
     Object? importSource = freezed,
     Object? importExternalId = freezed,
     Object? syncMetadata = null,
@@ -150,6 +160,18 @@ class _$SleepEntryCopyWithImpl<$Res, $Val extends SleepEntry>
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
+            timeToFallAsleep: freezed == timeToFallAsleep
+                ? _value.timeToFallAsleep
+                : timeToFallAsleep // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            timesAwakened: freezed == timesAwakened
+                ? _value.timesAwakened
+                : timesAwakened // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            timeAwakeDuringNight: freezed == timeAwakeDuringNight
+                ? _value.timeAwakeDuringNight
+                : timeAwakeDuringNight // ignore: cast_nullable_to_non_nullable
+                      as String?,
             importSource: freezed == importSource
                 ? _value.importSource
                 : importSource // ignore: cast_nullable_to_non_nullable
@@ -199,6 +221,9 @@ abstract class _$$SleepEntryImplCopyWith<$Res>
     DreamType dreamType,
     WakingFeeling wakingFeeling,
     String? notes,
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
     String? importSource,
     String? importExternalId,
     SyncMetadata syncMetadata,
@@ -233,6 +258,9 @@ class __$$SleepEntryImplCopyWithImpl<$Res>
     Object? dreamType = null,
     Object? wakingFeeling = null,
     Object? notes = freezed,
+    Object? timeToFallAsleep = freezed,
+    Object? timesAwakened = freezed,
+    Object? timeAwakeDuringNight = freezed,
     Object? importSource = freezed,
     Object? importExternalId = freezed,
     Object? syncMetadata = null,
@@ -283,6 +311,18 @@ class __$$SleepEntryImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String?,
+        timeToFallAsleep: freezed == timeToFallAsleep
+            ? _value.timeToFallAsleep
+            : timeToFallAsleep // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        timesAwakened: freezed == timesAwakened
+            ? _value.timesAwakened
+            : timesAwakened // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        timeAwakeDuringNight: freezed == timeAwakeDuringNight
+            ? _value.timeAwakeDuringNight
+            : timeAwakeDuringNight // ignore: cast_nullable_to_non_nullable
+                  as String?,
         importSource: freezed == importSource
             ? _value.importSource
             : importSource // ignore: cast_nullable_to_non_nullable
@@ -316,6 +356,9 @@ class _$SleepEntryImpl extends _SleepEntry {
     this.dreamType = DreamType.noDreams,
     this.wakingFeeling = WakingFeeling.neutral,
     this.notes,
+    this.timeToFallAsleep,
+    this.timesAwakened,
+    this.timeAwakeDuringNight,
     this.importSource,
     this.importExternalId,
     required this.syncMetadata,
@@ -353,6 +396,13 @@ class _$SleepEntryImpl extends _SleepEntry {
   final WakingFeeling wakingFeeling;
   @override
   final String? notes;
+  // Sleep quality fields
+  @override
+  final String? timeToFallAsleep;
+  @override
+  final int? timesAwakened;
+  @override
+  final String? timeAwakeDuringNight;
   // Import tracking (for wearable data)
   @override
   final String? importSource;
@@ -363,7 +413,7 @@ class _$SleepEntryImpl extends _SleepEntry {
 
   @override
   String toString() {
-    return 'SleepEntry(id: $id, clientId: $clientId, profileId: $profileId, bedTime: $bedTime, wakeTime: $wakeTime, deepSleepMinutes: $deepSleepMinutes, lightSleepMinutes: $lightSleepMinutes, restlessSleepMinutes: $restlessSleepMinutes, dreamType: $dreamType, wakingFeeling: $wakingFeeling, notes: $notes, importSource: $importSource, importExternalId: $importExternalId, syncMetadata: $syncMetadata)';
+    return 'SleepEntry(id: $id, clientId: $clientId, profileId: $profileId, bedTime: $bedTime, wakeTime: $wakeTime, deepSleepMinutes: $deepSleepMinutes, lightSleepMinutes: $lightSleepMinutes, restlessSleepMinutes: $restlessSleepMinutes, dreamType: $dreamType, wakingFeeling: $wakingFeeling, notes: $notes, timeToFallAsleep: $timeToFallAsleep, timesAwakened: $timesAwakened, timeAwakeDuringNight: $timeAwakeDuringNight, importSource: $importSource, importExternalId: $importExternalId, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -390,6 +440,12 @@ class _$SleepEntryImpl extends _SleepEntry {
             (identical(other.wakingFeeling, wakingFeeling) ||
                 other.wakingFeeling == wakingFeeling) &&
             (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.timeToFallAsleep, timeToFallAsleep) ||
+                other.timeToFallAsleep == timeToFallAsleep) &&
+            (identical(other.timesAwakened, timesAwakened) ||
+                other.timesAwakened == timesAwakened) &&
+            (identical(other.timeAwakeDuringNight, timeAwakeDuringNight) ||
+                other.timeAwakeDuringNight == timeAwakeDuringNight) &&
             (identical(other.importSource, importSource) ||
                 other.importSource == importSource) &&
             (identical(other.importExternalId, importExternalId) ||
@@ -413,6 +469,9 @@ class _$SleepEntryImpl extends _SleepEntry {
     dreamType,
     wakingFeeling,
     notes,
+    timeToFallAsleep,
+    timesAwakened,
+    timeAwakeDuringNight,
     importSource,
     importExternalId,
     syncMetadata,
@@ -445,6 +504,9 @@ abstract class _SleepEntry extends SleepEntry {
     final DreamType dreamType,
     final WakingFeeling wakingFeeling,
     final String? notes,
+    final String? timeToFallAsleep,
+    final int? timesAwakened,
+    final String? timeAwakeDuringNight,
     final String? importSource,
     final String? importExternalId,
     required final SyncMetadata syncMetadata,
@@ -475,7 +537,13 @@ abstract class _SleepEntry extends SleepEntry {
   @override
   WakingFeeling get wakingFeeling;
   @override
-  String? get notes; // Import tracking (for wearable data)
+  String? get notes; // Sleep quality fields
+  @override
+  String? get timeToFallAsleep;
+  @override
+  int? get timesAwakened;
+  @override
+  String? get timeAwakeDuringNight; // Import tracking (for wearable data)
   @override
   String? get importSource;
   @override

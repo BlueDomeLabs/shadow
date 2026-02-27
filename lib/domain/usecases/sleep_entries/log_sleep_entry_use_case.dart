@@ -54,6 +54,9 @@ class LogSleepEntryUseCase implements UseCase<LogSleepEntryInput, SleepEntry> {
       dreamType: input.dreamType,
       wakingFeeling: input.wakingFeeling,
       notes: input.notes,
+      timeToFallAsleep: input.timeToFallAsleep,
+      timesAwakened: input.timesAwakened,
+      timeAwakeDuringNight: input.timeAwakeDuringNight,
       importSource: input.importSource,
       importExternalId: input.importExternalId,
       syncMetadata: SyncMetadata(

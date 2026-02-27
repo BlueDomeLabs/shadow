@@ -9137,6 +9137,39 @@ class $SleepEntriesTable extends SleepEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _timeToFallAsleepMeta = const VerificationMeta(
+    'timeToFallAsleep',
+  );
+  @override
+  late final GeneratedColumn<String> timeToFallAsleep = GeneratedColumn<String>(
+    'time_to_fall_asleep',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _timesAwakenedMeta = const VerificationMeta(
+    'timesAwakened',
+  );
+  @override
+  late final GeneratedColumn<int> timesAwakened = GeneratedColumn<int>(
+    'times_awakened',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _timeAwakeDuringNightMeta =
+      const VerificationMeta('timeAwakeDuringNight');
+  @override
+  late final GeneratedColumn<String> timeAwakeDuringNight =
+      GeneratedColumn<String>(
+        'time_awake_during_night',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _importSourceMeta = const VerificationMeta(
     'importSource',
   );
@@ -9277,6 +9310,9 @@ class $SleepEntriesTable extends SleepEntries
     dreamType,
     wakingFeeling,
     notes,
+    timeToFallAsleep,
+    timesAwakened,
+    timeAwakeDuringNight,
     importSource,
     importExternalId,
     syncCreatedAt,
@@ -9382,6 +9418,33 @@ class $SleepEntriesTable extends SleepEntries
       context.handle(
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('time_to_fall_asleep')) {
+      context.handle(
+        _timeToFallAsleepMeta,
+        timeToFallAsleep.isAcceptableOrUnknown(
+          data['time_to_fall_asleep']!,
+          _timeToFallAsleepMeta,
+        ),
+      );
+    }
+    if (data.containsKey('times_awakened')) {
+      context.handle(
+        _timesAwakenedMeta,
+        timesAwakened.isAcceptableOrUnknown(
+          data['times_awakened']!,
+          _timesAwakenedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('time_awake_during_night')) {
+      context.handle(
+        _timeAwakeDuringNightMeta,
+        timeAwakeDuringNight.isAcceptableOrUnknown(
+          data['time_awake_during_night']!,
+          _timeAwakeDuringNightMeta,
+        ),
       );
     }
     if (data.containsKey('import_source')) {
@@ -9535,6 +9598,18 @@ class $SleepEntriesTable extends SleepEntries
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      timeToFallAsleep: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_to_fall_asleep'],
+      ),
+      timesAwakened: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}times_awakened'],
+      ),
+      timeAwakeDuringNight: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_awake_during_night'],
+      ),
       importSource: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}import_source'],
@@ -9600,6 +9675,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
   final int dreamType;
   final int wakingFeeling;
   final String? notes;
+  final String? timeToFallAsleep;
+  final int? timesAwakened;
+  final String? timeAwakeDuringNight;
   final String? importSource;
   final String? importExternalId;
   final int syncCreatedAt;
@@ -9623,6 +9701,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
     required this.dreamType,
     required this.wakingFeeling,
     this.notes,
+    this.timeToFallAsleep,
+    this.timesAwakened,
+    this.timeAwakeDuringNight,
     this.importSource,
     this.importExternalId,
     required this.syncCreatedAt,
@@ -9652,6 +9733,15 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
     map['waking_feeling'] = Variable<int>(wakingFeeling);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || timeToFallAsleep != null) {
+      map['time_to_fall_asleep'] = Variable<String>(timeToFallAsleep);
+    }
+    if (!nullToAbsent || timesAwakened != null) {
+      map['times_awakened'] = Variable<int>(timesAwakened);
+    }
+    if (!nullToAbsent || timeAwakeDuringNight != null) {
+      map['time_awake_during_night'] = Variable<String>(timeAwakeDuringNight);
     }
     if (!nullToAbsent || importSource != null) {
       map['import_source'] = Variable<String>(importSource);
@@ -9698,6 +9788,15 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      timeToFallAsleep: timeToFallAsleep == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeToFallAsleep),
+      timesAwakened: timesAwakened == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesAwakened),
+      timeAwakeDuringNight: timeAwakeDuringNight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeAwakeDuringNight),
       importSource: importSource == null && nullToAbsent
           ? const Value.absent()
           : Value(importSource),
@@ -9745,6 +9844,11 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
       dreamType: serializer.fromJson<int>(json['dreamType']),
       wakingFeeling: serializer.fromJson<int>(json['wakingFeeling']),
       notes: serializer.fromJson<String?>(json['notes']),
+      timeToFallAsleep: serializer.fromJson<String?>(json['timeToFallAsleep']),
+      timesAwakened: serializer.fromJson<int?>(json['timesAwakened']),
+      timeAwakeDuringNight: serializer.fromJson<String?>(
+        json['timeAwakeDuringNight'],
+      ),
       importSource: serializer.fromJson<String?>(json['importSource']),
       importExternalId: serializer.fromJson<String?>(json['importExternalId']),
       syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
@@ -9773,6 +9877,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
       'dreamType': serializer.toJson<int>(dreamType),
       'wakingFeeling': serializer.toJson<int>(wakingFeeling),
       'notes': serializer.toJson<String?>(notes),
+      'timeToFallAsleep': serializer.toJson<String?>(timeToFallAsleep),
+      'timesAwakened': serializer.toJson<int?>(timesAwakened),
+      'timeAwakeDuringNight': serializer.toJson<String?>(timeAwakeDuringNight),
       'importSource': serializer.toJson<String?>(importSource),
       'importExternalId': serializer.toJson<String?>(importExternalId),
       'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
@@ -9799,6 +9906,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
     int? dreamType,
     int? wakingFeeling,
     Value<String?> notes = const Value.absent(),
+    Value<String?> timeToFallAsleep = const Value.absent(),
+    Value<int?> timesAwakened = const Value.absent(),
+    Value<String?> timeAwakeDuringNight = const Value.absent(),
     Value<String?> importSource = const Value.absent(),
     Value<String?> importExternalId = const Value.absent(),
     int? syncCreatedAt,
@@ -9822,6 +9932,15 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
     dreamType: dreamType ?? this.dreamType,
     wakingFeeling: wakingFeeling ?? this.wakingFeeling,
     notes: notes.present ? notes.value : this.notes,
+    timeToFallAsleep: timeToFallAsleep.present
+        ? timeToFallAsleep.value
+        : this.timeToFallAsleep,
+    timesAwakened: timesAwakened.present
+        ? timesAwakened.value
+        : this.timesAwakened,
+    timeAwakeDuringNight: timeAwakeDuringNight.present
+        ? timeAwakeDuringNight.value
+        : this.timeAwakeDuringNight,
     importSource: importSource.present ? importSource.value : this.importSource,
     importExternalId: importExternalId.present
         ? importExternalId.value
@@ -9863,6 +9982,15 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
           ? data.wakingFeeling.value
           : this.wakingFeeling,
       notes: data.notes.present ? data.notes.value : this.notes,
+      timeToFallAsleep: data.timeToFallAsleep.present
+          ? data.timeToFallAsleep.value
+          : this.timeToFallAsleep,
+      timesAwakened: data.timesAwakened.present
+          ? data.timesAwakened.value
+          : this.timesAwakened,
+      timeAwakeDuringNight: data.timeAwakeDuringNight.present
+          ? data.timeAwakeDuringNight.value
+          : this.timeAwakeDuringNight,
       importSource: data.importSource.present
           ? data.importSource.value
           : this.importSource,
@@ -9913,6 +10041,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
           ..write('dreamType: $dreamType, ')
           ..write('wakingFeeling: $wakingFeeling, ')
           ..write('notes: $notes, ')
+          ..write('timeToFallAsleep: $timeToFallAsleep, ')
+          ..write('timesAwakened: $timesAwakened, ')
+          ..write('timeAwakeDuringNight: $timeAwakeDuringNight, ')
           ..write('importSource: $importSource, ')
           ..write('importExternalId: $importExternalId, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
@@ -9941,6 +10072,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
     dreamType,
     wakingFeeling,
     notes,
+    timeToFallAsleep,
+    timesAwakened,
+    timeAwakeDuringNight,
     importSource,
     importExternalId,
     syncCreatedAt,
@@ -9968,6 +10102,9 @@ class SleepEntryRow extends DataClass implements Insertable<SleepEntryRow> {
           other.dreamType == this.dreamType &&
           other.wakingFeeling == this.wakingFeeling &&
           other.notes == this.notes &&
+          other.timeToFallAsleep == this.timeToFallAsleep &&
+          other.timesAwakened == this.timesAwakened &&
+          other.timeAwakeDuringNight == this.timeAwakeDuringNight &&
           other.importSource == this.importSource &&
           other.importExternalId == this.importExternalId &&
           other.syncCreatedAt == this.syncCreatedAt &&
@@ -9993,6 +10130,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
   final Value<int> dreamType;
   final Value<int> wakingFeeling;
   final Value<String?> notes;
+  final Value<String?> timeToFallAsleep;
+  final Value<int?> timesAwakened;
+  final Value<String?> timeAwakeDuringNight;
   final Value<String?> importSource;
   final Value<String?> importExternalId;
   final Value<int> syncCreatedAt;
@@ -10017,6 +10157,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
     this.dreamType = const Value.absent(),
     this.wakingFeeling = const Value.absent(),
     this.notes = const Value.absent(),
+    this.timeToFallAsleep = const Value.absent(),
+    this.timesAwakened = const Value.absent(),
+    this.timeAwakeDuringNight = const Value.absent(),
     this.importSource = const Value.absent(),
     this.importExternalId = const Value.absent(),
     this.syncCreatedAt = const Value.absent(),
@@ -10042,6 +10185,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
     this.dreamType = const Value.absent(),
     this.wakingFeeling = const Value.absent(),
     this.notes = const Value.absent(),
+    this.timeToFallAsleep = const Value.absent(),
+    this.timesAwakened = const Value.absent(),
+    this.timeAwakeDuringNight = const Value.absent(),
     this.importSource = const Value.absent(),
     this.importExternalId = const Value.absent(),
     required int syncCreatedAt,
@@ -10071,6 +10217,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
     Expression<int>? dreamType,
     Expression<int>? wakingFeeling,
     Expression<String>? notes,
+    Expression<String>? timeToFallAsleep,
+    Expression<int>? timesAwakened,
+    Expression<String>? timeAwakeDuringNight,
     Expression<String>? importSource,
     Expression<String>? importExternalId,
     Expression<int>? syncCreatedAt,
@@ -10097,6 +10246,10 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
       if (dreamType != null) 'dream_type': dreamType,
       if (wakingFeeling != null) 'waking_feeling': wakingFeeling,
       if (notes != null) 'notes': notes,
+      if (timeToFallAsleep != null) 'time_to_fall_asleep': timeToFallAsleep,
+      if (timesAwakened != null) 'times_awakened': timesAwakened,
+      if (timeAwakeDuringNight != null)
+        'time_awake_during_night': timeAwakeDuringNight,
       if (importSource != null) 'import_source': importSource,
       if (importExternalId != null) 'import_external_id': importExternalId,
       if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
@@ -10124,6 +10277,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
     Value<int>? dreamType,
     Value<int>? wakingFeeling,
     Value<String?>? notes,
+    Value<String?>? timeToFallAsleep,
+    Value<int?>? timesAwakened,
+    Value<String?>? timeAwakeDuringNight,
     Value<String?>? importSource,
     Value<String?>? importExternalId,
     Value<int>? syncCreatedAt,
@@ -10149,6 +10305,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
       dreamType: dreamType ?? this.dreamType,
       wakingFeeling: wakingFeeling ?? this.wakingFeeling,
       notes: notes ?? this.notes,
+      timeToFallAsleep: timeToFallAsleep ?? this.timeToFallAsleep,
+      timesAwakened: timesAwakened ?? this.timesAwakened,
+      timeAwakeDuringNight: timeAwakeDuringNight ?? this.timeAwakeDuringNight,
       importSource: importSource ?? this.importSource,
       importExternalId: importExternalId ?? this.importExternalId,
       syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
@@ -10199,6 +10358,17 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
+    }
+    if (timeToFallAsleep.present) {
+      map['time_to_fall_asleep'] = Variable<String>(timeToFallAsleep.value);
+    }
+    if (timesAwakened.present) {
+      map['times_awakened'] = Variable<int>(timesAwakened.value);
+    }
+    if (timeAwakeDuringNight.present) {
+      map['time_awake_during_night'] = Variable<String>(
+        timeAwakeDuringNight.value,
+      );
     }
     if (importSource.present) {
       map['import_source'] = Variable<String>(importSource.value);
@@ -10253,6 +10423,9 @@ class SleepEntriesCompanion extends UpdateCompanion<SleepEntryRow> {
           ..write('dreamType: $dreamType, ')
           ..write('wakingFeeling: $wakingFeeling, ')
           ..write('notes: $notes, ')
+          ..write('timeToFallAsleep: $timeToFallAsleep, ')
+          ..write('timesAwakened: $timesAwakened, ')
+          ..write('timeAwakeDuringNight: $timeAwakeDuringNight, ')
           ..write('importSource: $importSource, ')
           ..write('importExternalId: $importExternalId, ')
           ..write('syncCreatedAt: $syncCreatedAt, ')
@@ -35149,6 +35322,9 @@ typedef $$SleepEntriesTableCreateCompanionBuilder =
       Value<int> dreamType,
       Value<int> wakingFeeling,
       Value<String?> notes,
+      Value<String?> timeToFallAsleep,
+      Value<int?> timesAwakened,
+      Value<String?> timeAwakeDuringNight,
       Value<String?> importSource,
       Value<String?> importExternalId,
       required int syncCreatedAt,
@@ -35175,6 +35351,9 @@ typedef $$SleepEntriesTableUpdateCompanionBuilder =
       Value<int> dreamType,
       Value<int> wakingFeeling,
       Value<String?> notes,
+      Value<String?> timeToFallAsleep,
+      Value<int?> timesAwakened,
+      Value<String?> timeAwakeDuringNight,
       Value<String?> importSource,
       Value<String?> importExternalId,
       Value<int> syncCreatedAt,
@@ -35250,6 +35429,21 @@ class $$SleepEntriesTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeToFallAsleep => $composableBuilder(
+    column: $table.timeToFallAsleep,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timesAwakened => $composableBuilder(
+    column: $table.timesAwakened,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeAwakeDuringNight => $composableBuilder(
+    column: $table.timeAwakeDuringNight,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -35373,6 +35567,21 @@ class $$SleepEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get timeToFallAsleep => $composableBuilder(
+    column: $table.timeToFallAsleep,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timesAwakened => $composableBuilder(
+    column: $table.timesAwakened,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timeAwakeDuringNight => $composableBuilder(
+    column: $table.timeAwakeDuringNight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get importSource => $composableBuilder(
     column: $table.importSource,
     builder: (column) => ColumnOrderings(column),
@@ -35479,6 +35688,21 @@ class $$SleepEntriesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get timeToFallAsleep => $composableBuilder(
+    column: $table.timeToFallAsleep,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get timesAwakened => $composableBuilder(
+    column: $table.timesAwakened,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get timeAwakeDuringNight => $composableBuilder(
+    column: $table.timeAwakeDuringNight,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get importSource => $composableBuilder(
     column: $table.importSource,
     builder: (column) => column,
@@ -35577,6 +35801,9 @@ class $$SleepEntriesTableTableManager
                 Value<int> dreamType = const Value.absent(),
                 Value<int> wakingFeeling = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> timeToFallAsleep = const Value.absent(),
+                Value<int?> timesAwakened = const Value.absent(),
+                Value<String?> timeAwakeDuringNight = const Value.absent(),
                 Value<String?> importSource = const Value.absent(),
                 Value<String?> importExternalId = const Value.absent(),
                 Value<int> syncCreatedAt = const Value.absent(),
@@ -35601,6 +35828,9 @@ class $$SleepEntriesTableTableManager
                 dreamType: dreamType,
                 wakingFeeling: wakingFeeling,
                 notes: notes,
+                timeToFallAsleep: timeToFallAsleep,
+                timesAwakened: timesAwakened,
+                timeAwakeDuringNight: timeAwakeDuringNight,
                 importSource: importSource,
                 importExternalId: importExternalId,
                 syncCreatedAt: syncCreatedAt,
@@ -35627,6 +35857,9 @@ class $$SleepEntriesTableTableManager
                 Value<int> dreamType = const Value.absent(),
                 Value<int> wakingFeeling = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> timeToFallAsleep = const Value.absent(),
+                Value<int?> timesAwakened = const Value.absent(),
+                Value<String?> timeAwakeDuringNight = const Value.absent(),
                 Value<String?> importSource = const Value.absent(),
                 Value<String?> importExternalId = const Value.absent(),
                 required int syncCreatedAt,
@@ -35651,6 +35884,9 @@ class $$SleepEntriesTableTableManager
                 dreamType: dreamType,
                 wakingFeeling: wakingFeeling,
                 notes: notes,
+                timeToFallAsleep: timeToFallAsleep,
+                timesAwakened: timesAwakened,
+                timeAwakeDuringNight: timeAwakeDuringNight,
                 importSource: importSource,
                 importExternalId: importExternalId,
                 syncCreatedAt: syncCreatedAt,

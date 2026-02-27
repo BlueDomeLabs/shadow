@@ -27,6 +27,11 @@ class LogSleepEntryInput with _$LogSleepEntryInput {
     // Notes
     @Default('') String notes,
 
+    // Sleep quality fields
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
+
     // Import tracking (for wearable data)
     String? importSource, // 'healthkit', 'googlefit', 'apple_watch', etc.
     String? importExternalId, // External record ID for deduplication
@@ -80,6 +85,9 @@ class UpdateSleepEntryInput with _$UpdateSleepEntryInput {
     DreamType? dreamType,
     WakingFeeling? wakingFeeling,
     String? notes,
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
     String? importSource,
     String? importExternalId,
   }) = _UpdateSleepEntryInput;

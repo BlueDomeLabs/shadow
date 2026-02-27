@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 20b: Photo Edit Path Gap",
+  "task": "Phase 21: Sleep Enhancement (3 missing fields)",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3274,
-  "schemaVersion": 17,
-  "notes": "Phase 20b complete. Added String? baselinePhotoPath to UpdateConditionInput and String? photoPath to UpdateConditionLogInput. Regenerated freezed files. Wired both fields through update use cases and screens. baselinePhotoPath uses ?? merge (no Remove button on condition edit). photoPath uses direct assignment (Remove button on log screen needs null to clear). 4 new use case unit tests. Screen test mocks upgraded to capture update inputs; photo assertions strengthened. 3,274 tests passing. Analyzer clean. Next: await Architect review."
+  "testCount": 3278,
+  "schemaVersion": 18,
+  "notes": "Phase 21 complete. Added String? timeToFallAsleep, int? timesAwakened, String? timeAwakeDuringNight to SleepEntry entity. Added 3 columns to sleep_entries table. Bumped schema v17→v18 with addColumn migration. Updated DAO rowToEntity and entityToCompanion. Added fields to LogSleepEntryInput and UpdateSleepEntryInput. Wired through log and update use cases. Screen already had UI — wired initState to read from entity and _onSave to pass to inputs. 4 new use case unit tests + 1 DB migration test. 3,278 tests passing. Analyzer clean. Next: await Architect review."
 }

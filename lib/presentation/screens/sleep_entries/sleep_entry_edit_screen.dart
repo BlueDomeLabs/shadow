@@ -108,6 +108,9 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
       _wakingFeeling = entry.wakingFeeling;
       _dreamType = entry.dreamType;
       _notesController.text = entry.notes ?? '';
+      _timeToFallAsleep = entry.timeToFallAsleep ?? 'Not set';
+      _timesAwakened = entry.timesAwakened ?? 0;
+      _timeAwakeDuringNight = entry.timeAwakeDuringNight ?? 'None';
     } else {
       // Defaults per spec
       final now = DateTime.now();
@@ -471,6 +474,11 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
                 dreamType: _dreamType,
                 wakingFeeling: _wakingFeeling,
                 notes: notes.isEmpty ? null : notes,
+                timeToFallAsleep: _timeToFallAsleep == 'Not set'
+                    ? null
+                    : _timeToFallAsleep,
+                timesAwakened: _timesAwakened,
+                timeAwakeDuringNight: _timeAwakeDuringNight,
               ),
             );
       } else {
@@ -485,6 +493,11 @@ class _SleepEntryEditScreenState extends ConsumerState<SleepEntryEditScreen> {
                 dreamType: _dreamType,
                 wakingFeeling: _wakingFeeling,
                 notes: notes.isEmpty ? '' : notes,
+                timeToFallAsleep: _timeToFallAsleep == 'Not set'
+                    ? null
+                    : _timeToFallAsleep,
+                timesAwakened: _timesAwakened,
+                timeAwakeDuringNight: _timeAwakeDuringNight,
               ),
             );
       }

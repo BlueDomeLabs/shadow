@@ -28,6 +28,10 @@ class SleepEntry with _$SleepEntry implements Syncable {
     @Default(DreamType.noDreams) DreamType dreamType,
     @Default(WakingFeeling.neutral) WakingFeeling wakingFeeling,
     String? notes,
+    // Sleep quality fields
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
     // Import tracking (for wearable data)
     String? importSource,
     String? importExternalId,

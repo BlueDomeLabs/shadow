@@ -47,6 +47,9 @@ void main() {
     DreamType dreamType = DreamType.noDreams,
     WakingFeeling wakingFeeling = WakingFeeling.neutral,
     String? notes,
+    String? timeToFallAsleep,
+    int? timesAwakened,
+    String? timeAwakeDuringNight,
     String? importSource,
     String? importExternalId,
     SyncMetadata? syncMetadata,
@@ -62,6 +65,9 @@ void main() {
     dreamType: dreamType,
     wakingFeeling: wakingFeeling,
     notes: notes,
+    timeToFallAsleep: timeToFallAsleep,
+    timesAwakened: timesAwakened,
+    timeAwakeDuringNight: timeAwakeDuringNight,
     importSource: importSource,
     importExternalId: importExternalId,
     syncMetadata: syncMetadata ?? SyncMetadata.create(deviceId: 'test-device'),
@@ -200,6 +206,33 @@ void main() {
       expect(result.isFailure, isTrue);
       expect(result.errorOrNull, isA<ValidationError>());
       verifyNever(mockRepository.create(any));
+    });
+
+    test('call_withSleepQualityFields_passesFieldsToEntity', () async {
+      SleepEntry? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(mockRepository.create(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as SleepEntry;
+        return Success(captured!);
+      });
+
+      await useCase(
+        LogSleepEntryInput(
+          profileId: testProfileId,
+          clientId: testClientId,
+          bedTime: baseTime,
+          wakeTime: wakeTime,
+          timeToFallAsleep: '15 min',
+          timesAwakened: 2,
+          timeAwakeDuringNight: '30 min',
+        ),
+      );
+
+      expect(captured?.timeToFallAsleep, '15 min');
+      expect(captured?.timesAwakened, 2);
+      expect(captured?.timeAwakeDuringNight, '30 min');
     });
   });
 
@@ -476,6 +509,57 @@ void main() {
       expect(result.isFailure, isTrue);
       expect(result.errorOrNull, isA<AuthError>());
       verifyNever(mockRepository.update(any));
+    });
+
+    test('call_withSleepQualityFields_updatesFields', () async {
+      final existing = createTestSleepEntry();
+      SleepEntry? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('sleep-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as SleepEntry;
+        return Success(captured!);
+      });
+
+      await useCase(
+        const UpdateSleepEntryInput(
+          id: 'sleep-001',
+          profileId: testProfileId,
+          timeToFallAsleep: '30 min',
+          timesAwakened: 3,
+          timeAwakeDuringNight: '1 hour',
+        ),
+      );
+
+      expect(captured?.timeToFallAsleep, '30 min');
+      expect(captured?.timesAwakened, 3);
+      expect(captured?.timeAwakeDuringNight, '1 hour');
+    });
+
+    test('call_withNullTimeToFallAsleep_clearsField', () async {
+      final existing = createTestSleepEntry(timeToFallAsleep: '15 min');
+      SleepEntry? captured;
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('sleep-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(mockRepository.update(any)).thenAnswer((inv) async {
+        captured = inv.positionalArguments.first as SleepEntry;
+        return Success(captured!);
+      });
+
+      // Not providing timeToFallAsleep (defaults to null) clears the field
+      await useCase(
+        const UpdateSleepEntryInput(id: 'sleep-001', profileId: testProfileId),
+      );
+
+      expect(captured?.timeToFallAsleep, isNull);
     });
   });
 

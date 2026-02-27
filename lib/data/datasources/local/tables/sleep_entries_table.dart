@@ -35,6 +35,13 @@ class SleepEntries extends Table {
       .withDefault(const Constant(1))(); // WakingFeeling enum
   TextColumn get notes => text().nullable()();
 
+  // Sleep quality fields (Phase 21)
+  TextColumn get timeToFallAsleep =>
+      text().named('time_to_fall_asleep').nullable()();
+  IntColumn get timesAwakened => integer().named('times_awakened').nullable()();
+  TextColumn get timeAwakeDuringNight =>
+      text().named('time_awake_during_night').nullable()();
+
   // Import tracking (for wearable data)
   TextColumn get importSource => text().named('import_source').nullable()();
   TextColumn get importExternalId =>
