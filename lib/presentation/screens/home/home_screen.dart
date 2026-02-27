@@ -122,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               FluidsTab(profileId: profileId, profileName: profileName),
               ActivitiesTab(profileId: profileId, profileName: profileName),
               SleepTab(profileId: profileId),
-              ReportsTab(profileName: profileName),
+              ReportsTab(profileId: profileId, profileName: profileName),
             ],
           ),
         ),

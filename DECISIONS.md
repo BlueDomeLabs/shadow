@@ -17,6 +17,29 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-27: iCloud sync — planned, pending Reports phases
+
+**What:** iCloud/CloudKit sync is fully specced in
+15_APPLE_INTEGRATION.md but not implemented. The
+cloud_sync_setup_screen.dart shows the iCloud button
+but calls _showComingSoon(). Only Google Drive is live.
+
+**Decision:** BUILD — scheduled after Reports phases
+(Phase 24+) are complete. iCloud is iOS/macOS only and
+requires a concrete ICloudProvider implementation wiring
+the CloudKit Flutter plugin into the existing
+CloudStorageProvider interface.
+
+**Why deferred:** Reports deliver immediate user value.
+iCloud sync is infrastructure that becomes more valuable
+as the user accumulates data. Sequence: Reports first,
+iCloud after.
+
+**Impact:** cloud_sync_setup_screen.dart iCloud button
+remains "Coming Soon" until this phase is built.
+
+---
+
 ### 2026-02-26: Welcome Screen "Join Existing Account" — wire deep link scanner
 
 **What:** The "Join Existing Account" button on WelcomeScreen will launch the QR code scanner (the guest invite flow built in Phase 12c). The "Coming soon" snackbar is removed.

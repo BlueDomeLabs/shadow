@@ -855,6 +855,26 @@ final healthPlatformServiceProvider = Provider<HealthPlatformService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef HealthPlatformServiceRef = ProviderRef<HealthPlatformService>;
+String _$reportQueryServiceHash() =>
+    r'375a7dc9646c3a8d6e3221b1b558f537d75b58df';
+
+/// ReportQueryService provider - override in ProviderScope with implementation.
+///
+/// Copied from [reportQueryService].
+@ProviderFor(reportQueryService)
+final reportQueryServiceProvider = Provider<ReportQueryService>.internal(
+  reportQueryService,
+  name: r'reportQueryServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$reportQueryServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ReportQueryServiceRef = ProviderRef<ReportQueryService>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 

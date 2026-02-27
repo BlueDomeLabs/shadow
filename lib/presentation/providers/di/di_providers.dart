@@ -12,6 +12,8 @@ import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+// Reports
+import 'package:shadow_app/domain/reports/report_query_service.dart';
 // Repositories
 import 'package:shadow_app/domain/repositories/health_platform_service.dart';
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
@@ -414,6 +416,14 @@ HealthSyncStatusRepository healthSyncStatusRepository(Ref ref) {
 HealthPlatformService healthPlatformService(Ref ref) {
   throw UnimplementedError(
     'Override healthPlatformServiceProvider in ProviderScope',
+  );
+}
+
+/// ReportQueryService provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ReportQueryService reportQueryService(Ref ref) {
+  throw UnimplementedError(
+    'Override reportQueryServiceProvider in ProviderScope',
   );
 }
 

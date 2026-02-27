@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 23: Spec Cleanup Sprint (documentation only)",
+  "task": "Phase 24: Reports Foundation",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3296,
+  "testCount": 3317,
   "schemaVersion": 18,
-  "notes": "Phase 23 complete. Documentation-only pass: updated 5→8 anchor event references in 3 dart files, removed stale stub comments in food_log_screen + condition_log_screen, updated 38_UI_FIELD_SPECIFICATIONS.md Section 7.1 status to COMPLETE Phase 21, added resolution note to DECISIONS.md sleep fields entry. No code changes. 3,296 tests unchanged. Analyzer clean. Next: await Architect review."
+  "notes": "Phase 24 complete. Built reports foundation: ActivityCategory/ReferenceCategory/ReportType/ReportConfig domain types, abstract ReportQueryService, ReportQueryServiceImpl (11 repo deps, partial-failure resilient), DI wiring, bootstrap update. Replaced reports_tab.dart placeholder with full ConsumerWidget: two cards opening DraggableScrollableSheets with category checkboxes, date range pickers (Activity), pinned Preview + disabled Export buttons. 12 unit tests + 14 widget tests added (+21 total). Key pattern: action buttons pinned OUTSIDE scrollable area; SingleChildScrollView+Column instead of ListView for eager widget building in tests. Analyzer clean. Next: await Architect review."
 }

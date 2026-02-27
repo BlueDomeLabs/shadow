@@ -46,6 +46,7 @@ import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart'
 import 'package:shadow_app/data/services/diet_compliance_service_impl.dart';
 import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/health_platform_service_impl.dart';
+import 'package:shadow_app/data/services/report_query_service_impl.dart';
 import 'package:shadow_app/data/services/supplement_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/entities.dart';
@@ -194,6 +195,21 @@ Future<List<Override>> bootstrap() async {
 
   // 5c-ii. Create Phase 16c HealthPlatformServiceImpl
   final healthPlatformService = HealthPlatformServiceImpl(hp.Health());
+
+  // 5e. Create Phase 24 ReportQueryService
+  final reportQueryService = ReportQueryServiceImpl(
+    foodLogRepo: foodLogRepo,
+    intakeLogRepo: intakeLogRepo,
+    fluidsEntryRepo: fluidsEntryRepo,
+    sleepEntryRepo: sleepEntryRepo,
+    conditionLogRepo: conditionLogRepo,
+    flareUpRepo: flareUpRepo,
+    journalEntryRepo: journalEntryRepo,
+    photoEntryRepo: photoEntryRepo,
+    foodItemRepo: foodItemRepo,
+    supplementRepo: supplementRepo,
+    conditionRepo: conditionRepo,
+  );
 
   // 5d. Create Phase 15b diet tracking repositories and services
   final dietRepo = DietRepositoryImpl(
@@ -421,5 +437,7 @@ Future<List<Override>> bootstrap() async {
     healthSyncStatusRepositoryProvider.overrideWithValue(healthSyncStatusRepo),
     // Phase 16c health platform service
     healthPlatformServiceProvider.overrideWithValue(healthPlatformService),
+    // Phase 24 report query service
+    reportQueryServiceProvider.overrideWithValue(reportQueryService),
   ];
 }

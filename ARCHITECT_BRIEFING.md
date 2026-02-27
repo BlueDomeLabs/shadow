@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 23 COMPLETE
-# Last Action:   Spec cleanup — stale comments and doc status markers updated
+# Status:        Phase 24 COMPLETE
+# Last Action:   Reports foundation — screen, config types, query service, DI wiring
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,296 passing (no code changes)
+# Tests:         3,317 passing (+21 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,62 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 24: Reports Foundation — COMPLETE
+
+**21 new tests added. Tests: 3,317. Schema: v18. Analyzer: clean.**
+
+### Summary
+Built the foundation for the Reports tab: domain types, a query service with 11 repository
+dependencies, DI wiring, and a real `ReportsTab` screen replacing the old placeholder.
+Users can now open either "Activity Report" or "Reference Report", select categories via
+checkboxes, optionally set a date range (Activity only), tap Preview to see live record
+counts from their actual data, and see a disabled Export button placeholder for future export.
+
+### What was built
+
+- **`lib/domain/reports/report_types.dart`** — `ActivityCategory`, `ReferenceCategory`,
+  `ReportType`, and `ReportConfig` value types
+- **`lib/domain/reports/report_query_service.dart`** — abstract `ReportQueryService` interface
+  with `countActivity(...)` and `countReference(...)` methods
+- **`lib/data/services/report_query_service_impl.dart`** — concrete implementation; reads record
+  counts from 11 repositories, returns 0 on any individual failure (partial-failure resilient)
+- **`lib/presentation/providers/di/di_providers.dart`** — wired `ReportQueryServiceImpl` as a
+  singleton provider
+- **`lib/core/bootstrap.dart`** — added `ReportQueryService` to app bootstrap
+- **`lib/presentation/screens/home/tabs/reports_tab.dart`** — full `ConsumerWidget`; two cards,
+  each opening a `DraggableScrollableSheet` with category checkboxes, date pickers (Activity),
+  pinned Preview + disabled Export buttons
+- **`DECISIONS.md`** — iCloud sync approach logged
+
+### Key technical notes
+- Action buttons and count results are pinned OUTSIDE the scrollable area in
+  `DraggableScrollableSheet`. If placed inside `ListView`, test viewport constraints
+  prevent them from being built.
+- `SingleChildScrollView + Column` used instead of `ListView` for checkboxes —
+  Column builds all children eagerly, required for Flutter widget tests.
+- `FilledButton.icon` creates an internal Row child — `btn.child is Text` always fails.
+  All buttons use `Key(...)` finders in tests.
+
+### File changes
+
+| File | Status | Description |
+|------|--------|-------------|
+| DECISIONS.md | MODIFIED | Added iCloud sync approach decision |
+| lib/domain/reports/report_types.dart | CREATED | ActivityCategory, ReferenceCategory, ReportType, ReportConfig types |
+| lib/domain/reports/report_query_service.dart | CREATED | Abstract ReportQueryService interface |
+| lib/data/services/report_query_service_impl.dart | CREATED | Concrete implementation reading counts from 11 repositories |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | Wired ReportQueryServiceImpl as singleton provider |
+| lib/presentation/providers/di/di_providers.g.dart | MODIFIED | Codegen output for new provider |
+| lib/core/bootstrap.dart | MODIFIED | Added ReportQueryService to app bootstrap |
+| lib/presentation/screens/home/home_screen.dart | MODIFIED | Updated imports for real ReportsTab |
+| lib/presentation/screens/home/tabs/reports_tab.dart | MODIFIED | Full ConsumerWidget replacing placeholder |
+| test/unit/data/services/report_query_service_impl_test.dart | CREATED | 12 unit tests for ReportQueryServiceImpl |
+| test/unit/data/services/report_query_service_impl_test.mocks.dart | CREATED | Generated mocks |
+| test/presentation/screens/home/tabs/reports_tab_test.dart | MODIFIED | 14 widget tests for ReportsTab (replaced placeholder tests) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Phase 24 session entry |
 
 ---
 
