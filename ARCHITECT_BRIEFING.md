@@ -23,6 +23,29 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-02-27 MST] — Phase 18c reconnaissance (read-only, no code changes)
+
+**Two reconnaissance passes. No commits.**
+
+### Pass 1 — Guest invite deep dive
+- `GuestInviteQrScreen` is HOST-side only (generates QR, displays it). No guest-side scanner screen exists.
+- `DeepLinkService` (`lib/core/services/deep_link_service.dart`) — parses `shadow://invite?token=...&profile=...` URLs; handles cold-start and warm deep links via platform channels (iOS/Android); gracefully no-ops on macOS desktop.
+- `DeepLinkHandler` (`lib/presentation/providers/guest_mode/deep_link_handler.dart`) — validates token, activates guest mode, shows disclaimer, handles rejection → AccessRevokedScreen. Fully built.
+- Both are already wired into DI and bootstrap (confirmed in `lib/core/bootstrap.dart` and `lib/presentation/providers/di/di_providers.dart`).
+- `WelcomeScreen` "Join Existing Account" button calls `_showComingSoon(context)` at line 117 — confirmed stub, ready to replace.
+- `mobile_scanner` package already in use (supplement + food item barcode screens) — no new dependency needed for Phase 18c.
+
+### Pass 2 — Router and deep link wiring
+- Deep link files (6 total): `lib/core/bootstrap.dart`, `lib/core/services/deep_link_service.dart`, `lib/presentation/providers/di/di_providers.dart`, `lib/presentation/providers/di/di_providers.g.dart`, `lib/presentation/providers/guest_mode/deep_link_handler.dart`, `lib/presentation/screens/guest_invites/guest_invite_qr_screen.dart`
+- No named router in use — `AppRouter`, `GoRouter`, `onGenerateRoute`, `initialRoute` all returned zero matches. App uses plain `Navigator.push` throughout. Phase 18c needs no router changes.
+
+### Phase 18c build plan (confirmed)
+1. Create `GuestQrScannerScreen` — camera scanner using `mobile_scanner`, calls `DeepLinkService.parseInviteLink()` on each code detected, hands result to `DeepLinkHandler`
+2. Replace `_showComingSoon` in `WelcomeScreen` with `Navigator.push` to `GuestQrScannerScreen`
+3. No new packages, no router changes, no schema changes needed
+
+---
+
 ## [2026-02-27 MST] — CLAUDE.md + coding skill: three surgical fixes
 
 **Commit:** `7137ea5`  **Documentation only — no code changes.**
