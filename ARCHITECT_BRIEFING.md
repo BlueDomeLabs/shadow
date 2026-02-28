@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-008
+# Briefing Version: 20260227-009
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 26 COMPLETE
-# Last Action:   BBT Chart screen — unit-aware, menstruation overlay, Reports tab wired
+# Status:        Phase 27 COMPLETE
+# Last Action:   Diet adherence trend chart + Diet Adherence card in Reports tab
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,367 passing (+28 new)
+# Tests:         3,373 passing (+6 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,49 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 27: Diet Adherence Trend Chart — COMPLETE
+
+**6 new tests added. Tests: 3,373. Schema: v18. Analyzer: clean.**
+
+### Summary
+The Diet Dashboard screen now shows a "30-Day Compliance Trend" line chart when
+`dailyTrend` data is present. The chart renders using `ShadowChart.trend` with
+y-axis 0–100%, green line color. It appears after the Streak section and before
+the Violations section. When `dailyTrend` is empty, the section is hidden entirely.
+The Diet Adherence card is now the fourth card in the Reports tab ("View Dashboard"
+button navigates to `DietDashboardScreen`).
+
+### What was built
+
+**Step 2 — Trend chart in DietDashboardScreen:**
+- Added `if (stats.dailyTrend.isNotEmpty)` block after Streak section in `_DashboardContent`
+- Renders `_SectionHeader(title: '30-Day Compliance Trend')` + `ShadowChart.trend`
+- Maps `DailyCompliance.dateEpoch` → `x`, `DailyCompliance.score` → `y` (field is `score`, not `complianceScore`)
+- `yAxisLabel: '%'`, `minY: 0`, `maxY: 100`, `lineColor: Colors.green`
+- No import changes needed: `ShadowChart`/`ChartDataPoint` already available via `widgets.dart`
+
+**Step 3 — Diet Adherence card in ReportsTab:**
+- Added import for `DietDashboardScreen`
+- Added fourth `_ReportTypeCard` with `icon: Icons.restaurant_menu`, `buttonLabel: 'View Dashboard'`
+- Navigates to `DietDashboardScreen(profileId: profileId)` via `MaterialPageRoute`
+
+**Step 4 — Tests:**
+- 3 new widget tests in `test/presentation/screens/diet/diet_dashboard_screen_test.dart`:
+  - Trend section visible when dailyTrend non-empty
+  - Trend section hidden when dailyTrend empty
+  - No-active-diet empty state renders correctly
+- 3 new widget tests in `test/presentation/screens/reports/bbt_chart_screen_test.dart`:
+  - Diet Adherence card renders
+  - "View Dashboard" button present
+  - Tapping navigates to DietDashboardScreen
+
+### Key implementation notes
+- `DailyCompliance.score` (not `complianceScore`) is the correct field name
+- `height: 200` was omitted — it matches ShadowChart.trend default, flagged by `avoid_redundant_argument_values`
+- Navigation test uses `pump()` (not `pumpAndSettle()`) to avoid blocking on provider loading, same pattern as BBT Chart test
 
 ---
 

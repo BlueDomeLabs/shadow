@@ -142,6 +142,64 @@ void main() {
 
       expect(find.text('No compliance data yet'), findsOneWidget);
     });
+
+    testWidgets(
+      'shows 30-Day Compliance Trend section when dailyTrend non-empty',
+      (tester) async {
+        final activeDiet = createTestDiet();
+        const statsWithTrend = ComplianceStats(
+          overallScore: 85,
+          dailyScore: 90,
+          weeklyScore: 80,
+          monthlyScore: 85,
+          currentStreak: 5,
+          longestStreak: 10,
+          totalViolations: 2,
+          totalWarnings: 1,
+          complianceByRule: {},
+          recentViolations: [],
+          dailyTrend: [
+            DailyCompliance(
+              dateEpoch: 1735689600000, // 2025-01-01
+              score: 80,
+              violations: 0,
+              warnings: 0,
+            ),
+            DailyCompliance(
+              dateEpoch: 1735776000000, // 2025-01-02
+              score: 90,
+              violations: 0,
+              warnings: 0,
+            ),
+          ],
+        );
+        await tester.pumpWidget(
+          buildScreen(diets: [activeDiet], stats: statsWithTrend),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('30-Day Compliance Trend'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'hides 30-Day Compliance Trend section when dailyTrend is empty',
+      (tester) async {
+        final activeDiet = createTestDiet();
+        // testStats has dailyTrend: [] — the default.
+        await tester.pumpWidget(buildScreen(diets: [activeDiet]));
+        await tester.pumpAndSettle();
+
+        expect(find.text('30-Day Compliance Trend'), findsNothing);
+      },
+    );
+
+    testWidgets('no-active-diet empty state renders correctly', (tester) async {
+      await tester.pumpWidget(buildScreen(diets: []));
+      await tester.pumpAndSettle();
+
+      expect(find.text('No Active Diet'), findsOneWidget);
+    });
   });
 }
 

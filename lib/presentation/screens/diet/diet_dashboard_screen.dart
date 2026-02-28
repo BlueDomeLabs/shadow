@@ -184,6 +184,23 @@ class _DashboardContent extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // 30-Day Compliance Trend
+                if (stats.dailyTrend.isNotEmpty) ...[
+                  const _SectionHeader(title: '30-Day Compliance Trend'),
+                  const SizedBox(height: 8),
+                  ShadowChart.trend(
+                    dataPoints: stats.dailyTrend
+                        .map((d) => ChartDataPoint(x: d.dateEpoch, y: d.score))
+                        .toList(),
+                    label: '30-day diet compliance trend',
+                    yAxisLabel: '%',
+                    minY: 0,
+                    maxY: 100,
+                    lineColor: Colors.green,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Violation summary
                 const _SectionHeader(title: 'This Month'),
                 const SizedBox(height: 8),

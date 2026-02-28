@@ -19,6 +19,7 @@ import 'package:shadow_app/domain/reports/report_types.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/fluids_entries/fluids_entry_list_provider.dart';
 import 'package:shadow_app/presentation/providers/settings/user_settings_provider.dart';
+import 'package:shadow_app/presentation/screens/diet/diet_dashboard_screen.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/reports_tab.dart';
 import 'package:shadow_app/presentation/screens/reports/bbt_chart_screen.dart';
 
@@ -400,6 +401,52 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(BBTChartScreen), findsOneWidget);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Reports tab — Diet Adherence card
+  // -------------------------------------------------------------------------
+
+  group('ReportsTab — Diet Adherence card', () {
+    testWidgets('renders Diet Adherence card', (tester) async {
+      await tester.pumpWidget(_buildReportsTab());
+      await tester.pump();
+
+      // Scroll down enough to reveal the fourth card.
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pump();
+
+      expect(find.text('Diet Adherence'), findsOneWidget);
+    });
+
+    testWidgets('"View Dashboard" button is present on Diet Adherence card', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_buildReportsTab());
+      await tester.pump();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pump();
+
+      expect(find.text('View Dashboard'), findsOneWidget);
+    });
+
+    testWidgets('tapping View Dashboard navigates to DietDashboardScreen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_buildReportsTab());
+      await tester.pump();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pump();
+
+      await tester.tap(find.text('View Dashboard'));
+      // Use pump (not pumpAndSettle) to avoid blocking on provider loading.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(DietDashboardScreen), findsOneWidget);
     });
   });
 }

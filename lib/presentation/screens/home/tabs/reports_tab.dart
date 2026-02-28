@@ -10,6 +10,7 @@ import 'package:shadow_app/domain/reports/report_export_service.dart';
 import 'package:shadow_app/domain/reports/report_query_service.dart';
 import 'package:shadow_app/domain/reports/report_types.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/screens/diet/diet_dashboard_screen.dart';
 import 'package:shadow_app/presentation/screens/reports/bbt_chart_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -69,6 +70,21 @@ class ReportsTab extends ConsumerWidget {
               context,
               MaterialPageRoute<void>(
                 builder: (_) => BBTChartScreen(profileId: profileId),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _ReportTypeCard(
+            icon: Icons.restaurant_menu,
+            title: 'Diet Adherence',
+            description:
+                'Daily compliance trend for your active diet — '
+                'scores, violations, and 30-day history.',
+            buttonLabel: 'View Dashboard',
+            onConfigure: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => DietDashboardScreen(profileId: profileId),
               ),
             ),
           ),

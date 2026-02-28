@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 26: BBT Chart Screen",
+  "task": "Phase 27: Diet Adherence Trend Chart",
   "timestamp": "2026-02-27T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3367,
+  "testCount": 3373,
   "schemaVersion": 18,
-  "notes": "Phase 26 complete. BBT Chart screen wired to Reports tab. ShadowChart.bbt() now accepts useCelsius param (yAxisLabel, minY, maxY adapt). Created BBTChartScreen (ConsumerStatefulWidget): loads via fluidsEntryListProvider, filters BBT entries, converts to display unit, groups menstruation ranges into DateTimeRange, shows stats row (avg/min/max/count). Date range: last 30 days default + prev/next month buttons + Last 30/90/All time chips. _ReportTypeCard gains optional buttonLabel param. BBT Chart card added to reports_tab.dart with 'View Chart' label. Extracted bbtToDisplay() and groupMenstruationRanges() as package-level functions for unit testability. 28 new tests (15 unit, 13 widget). Analyzer clean. Next: await Architect review."
+  "notes": "Phase 27 complete. DietDashboardScreen now shows '30-Day Compliance Trend' ShadowChart.trend section when dailyTrend is non-empty (hidden when empty). Diet Adherence card added to ReportsTab as fourth card with 'View Dashboard' button. Field name is DailyCompliance.score (not complianceScore). 6 new tests (3 dashboard, 3 reports tab). Analyzer clean. Next: await Architect review."
 }
