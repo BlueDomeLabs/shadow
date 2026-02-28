@@ -169,12 +169,13 @@ class ShadowChart extends StatelessWidget {
     this.dateRange,
     this.menstruationRanges,
     this.onPointTapped,
+    bool useCelsius = false,
   }) : chartType = ChartType.bbt,
        bars = null,
-       yAxisLabel = '°F',
+       yAxisLabel = useCelsius ? '°C' : '°F',
        xAxisLabel = null,
-       minY = 96.0,
-       maxY = 100.0,
+       minY = useCelsius ? 35.5 : 96.0,
+       maxY = useCelsius ? 37.8 : 100.0,
        lineColor = null,
        onBarTapped = null;
 

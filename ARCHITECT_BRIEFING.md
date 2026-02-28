@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-27
-# Briefing Version: 20260227-007
+# Briefing Version: 20260227-008
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 25 COMPLETE
-# Last Action:   Report export — PDF + CSV via share sheet, full DI wiring, tests
+# Status:        Phase 26 COMPLETE
+# Last Action:   BBT Chart screen — unit-aware, menstruation overlay, Reports tab wired
 # Next Action:   Await Architect review
 # Open Items:    None
-# Tests:         3,339 passing (+22 new)
+# Tests:         3,367 passing (+28 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,69 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-27 MST] — Phase 26: BBT Chart Screen — COMPLETE
+
+**28 new tests added. Tests: 3,367. Schema: v18. Analyzer: clean.**
+
+### Summary
+A dedicated BBT Chart screen is now accessible from the Reports tab. It displays basal body
+temperature as a trend chart with a pink menstruation overlay for cycle tracking. The chart
+automatically adjusts to the user's temperature preference (°F or °C). A stats row below the
+chart shows average, minimum, maximum, and reading count. Date range is user-controlled via
+preset chips (Last 30 days / Last 90 days / All time) and prev/next month navigation buttons
+in the AppBar.
+
+### What was built
+
+**Step 2 — ShadowChart.bbt() unit fix:**
+- Added `bool useCelsius = false` parameter to `ShadowChart.bbt()` named constructor
+- Now computes `yAxisLabel`, `minY`, `maxY` from the flag:
+  - °F: `yAxisLabel='°F'`, `minY=96.0`, `maxY=100.0`
+  - °C: `yAxisLabel='°C'`, `minY=35.5`, `maxY=37.8`
+
+**Step 3 — BBTChartScreen (`lib/presentation/screens/reports/bbt_chart_screen.dart`):**
+- `ConsumerStatefulWidget` with `profileId` param
+- Two package-level pure functions extracted for testability:
+  - `bbtToDisplay(double fahrenheit, {required bool useCelsius})` — unit conversion
+  - `groupMenstruationRanges(List<FluidsEntry> entries)` — groups consecutive days into DateTimeRange objects
+- Watches `userSettingsNotifierProvider` for temperature unit
+- Watches `fluidsEntryListProvider(profileId, startMs, endMs)` for data
+- Filters BBT entries (`hasBBTData`), maps to `ChartDataPoint` with unit conversion applied
+- Groups menstruation ranges from all entries (not just BBT entries)
+- States: loading (CPI), error (error + Retry), empty ("No BBT data..."), data (chart + stats)
+- Stats row: Avg, Min, Max, Readings — all formatted with unit symbol
+- AppBar: prev/next month buttons + data table toggle (when data present)
+- Body: preset chips row (Last 30 days / Last 90 days / All time) + chart/state area
+- Date range defaults to last 30 days, normalized to day boundaries
+
+**Step 4 — Reports tab wired:**
+- Added BBT Chart card as third card in `ReportsTab`
+- `_ReportTypeCard` now accepts optional `buttonLabel` (defaults to `'Configure'`)
+- BBT Chart card uses `buttonLabel: 'View Chart'` and navigates to `BBTChartScreen`
+- Semantics label updated to use `buttonLabel` dynamically
+
+**Step 5 — Tests:**
+- 15 unit tests (`test/unit/presentation/screens/reports/bbt_chart_screen_test.dart`):
+  - 6 tests for `bbtToDisplay()` — °F identity, °C conversions (98.6→37.0, 96→35.56, 100→37.78)
+  - 9 tests for `groupMenstruationRanges()` — empty, single day, consecutive, non-consecutive, mixed flows
+- 13 widget tests (`test/presentation/screens/reports/bbt_chart_screen_test.dart`):
+  - Loading state (CPI visible)
+  - Empty state (no BBT data, no entries)
+  - Data state (Avg/Min/Max/Readings labels, reading count, °C unit display)
+  - AppBar structure (title, prev/next buttons, chips)
+  - Reports tab: BBT card present, "View Chart" button, existing "Configure" buttons unchanged
+  - Navigation: tapping "View Chart" pushes BBTChartScreen
+
+### Key implementation notes
+- BBT stored in °F always; `bbtToDisplay()` converts at render time only
+- `groupMenstruationRanges` uses ALL entries (not just BBT entries) to catch menstruation-only entries
+- Date range overrides in widget tests use computed default range (last 30 days normalized)
+- `_LoadingFluidsEntryList` uses `Completer` (not `Future.delayed`) to avoid pending timer failures
+- `_FakeFluidsEntryList` extends `FluidsEntryList` and overrides only `build()` — clean Riverpod override pattern
+- Nav test drags ListView -400px to bring BBT Chart card into view before tapping
 
 ---
 

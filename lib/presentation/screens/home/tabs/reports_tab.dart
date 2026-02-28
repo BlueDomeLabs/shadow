@@ -10,6 +10,7 @@ import 'package:shadow_app/domain/reports/report_export_service.dart';
 import 'package:shadow_app/domain/reports/report_query_service.dart';
 import 'package:shadow_app/domain/reports/report_types.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/screens/reports/bbt_chart_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Reports tab — configure, preview, and export health reports.
@@ -56,6 +57,21 @@ class ReportsTab extends ConsumerWidget {
                 'and conditions currently set up in the app.',
             onConfigure: () => _openReferenceSheet(context, ref),
           ),
+          const SizedBox(height: 16),
+          _ReportTypeCard(
+            icon: Icons.thermostat,
+            title: 'BBT Chart',
+            description:
+                'Basal body temperature trend with menstruation overlay '
+                'for cycle tracking.',
+            buttonLabel: 'View Chart',
+            onConfigure: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => BBTChartScreen(profileId: profileId),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -99,12 +115,14 @@ class _ReportTypeCard extends StatelessWidget {
   final String title;
   final String description;
   final VoidCallback onConfigure;
+  final String buttonLabel;
 
   const _ReportTypeCard({
     required this.icon,
     required this.title,
     required this.description,
     required this.onConfigure,
+    this.buttonLabel = 'Configure',
   });
 
   @override
@@ -141,13 +159,13 @@ class _ReportTypeCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Semantics(
-              label: 'Configure $title',
+              label: '$buttonLabel $title',
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: onConfigure,
                   icon: const Icon(Icons.tune),
-                  label: const Text('Configure'),
+                  label: Text(buttonLabel),
                 ),
               ),
             ),
