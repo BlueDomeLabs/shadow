@@ -12,6 +12,7 @@ import 'package:shadow_app/domain/reports/report_types.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/screens/diet/diet_dashboard_screen.dart';
 import 'package:shadow_app/presentation/screens/reports/bbt_chart_screen.dart';
+import 'package:shadow_app/presentation/screens/reports/correlation_view_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Reports tab — configure, preview, and export health reports.
@@ -85,6 +86,21 @@ class ReportsTab extends ConsumerWidget {
               context,
               MaterialPageRoute<void>(
                 builder: (_) => DietDashboardScreen(profileId: profileId),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _ReportTypeCard(
+            icon: Icons.timeline,
+            title: 'Correlation View',
+            description:
+                'See photos alongside surrounding health events '
+                'to identify triggers and patterns.',
+            buttonLabel: 'View Correlations',
+            onConfigure: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => CorrelationViewScreen(profileId: profileId),
               ),
             ),
           ),

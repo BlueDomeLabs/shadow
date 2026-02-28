@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 28 COMPLETE
-# Last Action:   PhotoProcessingService (compress, EXIF strip, hash) + CLAUDE.md nicknames
+# Status:        Phase 29 COMPLETE
+# Last Action:   Correlation View screen — photos with ±48h event window
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
-# Tests:         3,378 passing (+5 new)
+# Tests:         3,386 passing (+8 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,49 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-28 MST] — Phase 29: Correlation View Screen — COMPLETE
+
+**8 new tests added. Tests: 3,386. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+Added the Correlation View screen — the fifth card in the Reports tab. The screen shows
+all photos chronologically (newest first) with a ±48-hour event window around each photo,
+pulling data from all 8 health event repositories in parallel. Users can filter by date
+preset (30 days / 90 days / all time), event categories (7 types), and photo areas.
+Events are color-coded by temporal position (blue-grey = before, amber = after, primary = same time)
+and display relative timestamps ("3h before", "at same time", "6h after").
+
+### Key files
+
+- **`lib/presentation/screens/reports/correlation_view_screen.dart`** (CREATED)
+  - `CorrelationCategory` enum (7 values) with `label` and `icon` getters
+  - `CorrelationData` value class (8 required lists)
+  - `correlationDataProvider` FutureProvider.family — loads all 8 repos in parallel;
+    photo failures propagate, event category failures degrade gracefully to []
+  - `CorrelationViewScreen` ConsumerStatefulWidget
+  - `_FilterSheet` StatefulWidget — date preset chips, photo area chips, category chips
+  - `_CorrelationPhotoCard` StatelessWidget — ShadowImage.file + metadata + event ListTiles
+
+- **`lib/presentation/screens/home/tabs/reports_tab.dart`** (MODIFIED)
+  - Added fifth `_ReportTypeCard` ("Correlation View") after Diet Adherence card
+  - Navigates to `CorrelationViewScreen` on "View Correlations" tap
+
+- **`test/presentation/screens/reports/correlation_view_screen_test.dart`** (CREATED)
+  - 8 widget tests covering: empty state, photo card render, relative time labels,
+    filter sheet open, default chip selection, category deselect, ReportsTab card
+    presence, and navigation to CorrelationViewScreen
+
+### Production bug fixed
+
+The `_key` for `FutureProvider.family` was originally computed in `build()` using
+`DateTime.now()`, which produces a slightly different key on every frame. This caused
+an infinite reload loop (new key → new provider → loading spinner → animation → rebuild
+→ new key → ...). Fixed by computing `_key` once in `initState()` and only recomputing
+it in `setState()` when the user changes the date preset.
 
 ---
 

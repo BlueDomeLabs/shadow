@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 28: PhotoProcessingService + CLAUDE.md nicknames",
+  "task": "Phase 29: Correlation View screen",
   "timestamp": "2026-02-28T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3378,
+  "testCount": 3386,
   "schemaVersion": 18,
-  "notes": "Phase 28 complete. Task A: CLAUDE.md updated with team nicknames (Architect, Shadow). Task B: PhotoProcessingService created with processStandard/processHighDetail — compress, EXIF strip (keepExif: false), SHA-256 hash. flutter_image_compress ^2.3.0 added (resolved to 2.4.0). Wired into photo_entry_gallery_screen (_pickPhoto), condition_edit_screen (_pickBaselinePhoto with processHighDetail), condition_log_screen (_pickPhoto), fluids_entry_screen (_pickBowelPhoto). 5 new unit tests. DECISIONS.md updated with two entries. Encryption deferred. Next: await Architect review."
+  "notes": "Phase 29 complete. Created CorrelationViewScreen: photos shown newest-first with ±48h health event window, loading 8 repos in parallel. Added as 5th card in ReportsTab. Filter sheet supports date preset (30d/90d/all), photo areas, and 7 event categories. Fixed production bug where _CorrelationKey was recomputed from DateTime.now() in build() causing infinite reload. 8 new widget tests. Next: await Architect review."
 }
