@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-02-27
-# Briefing Version: 20260227-009
+# Last Updated: 2026-02-28
+# Briefing Version: 20260228-001
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 27 COMPLETE
-# Last Action:   Diet adherence trend chart + Diet Adherence card in Reports tab
+# Status:        Phase 28 COMPLETE
+# Last Action:   PhotoProcessingService (compress, EXIF strip, hash) + CLAUDE.md nicknames
 # Next Action:   Await Architect review
-# Open Items:    None
-# Tests:         3,373 passing (+6 new)
+# Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
+# Tests:         3,378 passing (+5 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,75 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-28 MST] — Phase 28: PhotoProcessingService + CLAUDE.md Nicknames — COMPLETE
+
+**5 new tests added. Tests: 3,378. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+All photos captured in the app are now processed before storage: compressed to
+≤ 500 KB (standard) or ≤ 1024 KB (high-detail), EXIF metadata stripped automatically,
+and SHA-256 hash computed. The `PhotoProcessingService` is a plain Dart class
+instantiated directly in screens — no Riverpod provider. Encryption is deferred
+(see DECISIONS.md).
+
+Additionally, `CLAUDE.md` team member names updated:
+- "Claude (claude.ai, Architect)" → "The Architect (claude.ai)"
+- "You (Claude Code)" → "You (Shadow)"
+
+### Task A — CLAUDE.md nickname changes
+
+Updated "The team:" section in `CLAUDE.md`:
+- Line: `Claude (claude.ai, Architect) — your engineering manager.` → `The Architect (claude.ai) — your engineering manager.`
+- Line: `You (Claude Code) — senior engineer.` → `You (Shadow) — senior engineer.`
+
+### Task B — PhotoProcessingService
+
+**New service: `lib/core/services/photo_processing_service.dart`**
+- `PhotoProcessingService` with `processStandard()` (≤ 500 KB) and `processHighDetail()` (≤ 1024 KB)
+- Processing: validate file exists + size ≤ 10 MB; compress via `flutter_image_compress`
+  with quality 85 → 75 → 65 → 60 (minimum); write `<docs>/photos/<uuid>.jpg`; SHA-256 hash
+- `keepExif: false` strips EXIF automatically (default in flutter_image_compress)
+- `format: CompressFormat.jpeg` is default — output is always JPEG
+- `ProcessedPhotoResult { localPath, fileSizeBytes, fileHash }`
+- `PhotoProcessingException(message)` thrown for validation failures
+- `@visibleForTesting static String? testOutputDirectory` — avoids path_provider in tests
+- `@visibleForTesting static Future<Uint8List?> Function(...)? compressOverride` — avoids platform plugin in tests
+
+**New dependency: `flutter_image_compress: ^2.3.0` (resolved: 2.4.0)**
+- Rationale: native platform codecs for HEIC support and 10–20× faster than pure-Dart `image`
+- See DECISIONS.md for full rationale
+
+**Step 4 — photo_entry_gallery_screen.dart `_pickPhoto()`:**
+- After `pickImage`, calls `service.processStandard(image.path)` before showing dialog
+- `PhotoProcessingException` → SnackBar + early return
+- `CreatePhotoEntryInput` wired: `filePath: processed.localPath`, `fileSizeBytes: processed.fileSizeBytes`, `fileHash: processed.fileHash`
+
+**Step 5 — Three additional screens:**
+- `condition_edit_screen.dart` `_pickBaselinePhoto()`: `processHighDetail(path)` → `_baselinePhotoPath = processed.localPath`
+- `condition_log_screen.dart` `_pickPhoto()`: `processStandard(path)` → `_photoPath = processed.localPath`
+- `fluids_entry_screen.dart` `_pickBowelPhoto()`: `processStandard(path)` → `_bowelPhotoPath = processed.localPath`
+- All three: specific `PhotoProcessingException` catch before generic `Exception` catch
+
+**Step 6 — Tests:**
+- 5 new unit tests in `test/core/services/photo_processing_service_test.dart`
+- processStandard output ≤ 500 KB | processHighDetail output ≤ 1024 KB
+- fileHash is 64-char lowercase hex | localPath ends in .jpg
+- File > 10 MB throws PhotoProcessingException
+
+**Step 7 — DECISIONS.md:**
+- Entry 1: `flutter_image_compress` over `image` package (HEIC support, native speed)
+- Entry 2: Encryption deferred — requires key management system not yet built
+
+### Key implementation notes
+- Encryption: step 7 of 18_PHOTO_PROCESSING.md pipeline deferred. Files stored as `.jpg`.
+- `minWidth: 1, minHeight: 1` in `FlutterImageCompress.compressWithFile` prevents upscaling
+- `format: CompressFormat.jpeg` and `keepExif: false` are defaults — removed from call per `avoid_redundant_argument_values`
+- `macos/Flutter/GeneratedPluginRegistrant.swift` auto-updated by pub get (new plugin registration)
+- `pubspec.lock` updated (flutter_image_compress + 5 transitive packages)
 
 ---
 

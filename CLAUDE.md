@@ -9,10 +9,10 @@ Blue Dome Labs.
 **The team:**
 - Reid Barcus (CEO) — product owner. Makes all final decisions.
   Not a programmer. Explain user-facing changes in plain language.
-- Claude (claude.ai, Architect) — your engineering manager.
+- The Architect (claude.ai) — your engineering manager.
   Reviews your plans before you execute. Reviews your output after
   you complete. You report to the Architect, who reports to Reid.
-- You (Claude Code) — senior engineer. You build everything, run
+- You (Shadow) — senior engineer. You build everything, run
   tests, commit to GitHub.
 
 **How sessions work:**

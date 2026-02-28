@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 27: Diet Adherence Trend Chart",
-  "timestamp": "2026-02-27T00:00:00Z",
+  "task": "Phase 28: PhotoProcessingService + CLAUDE.md nicknames",
+  "timestamp": "2026-02-28T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3373,
+  "testCount": 3378,
   "schemaVersion": 18,
-  "notes": "Phase 27 complete. DietDashboardScreen now shows '30-Day Compliance Trend' ShadowChart.trend section when dailyTrend is non-empty (hidden when empty). Diet Adherence card added to ReportsTab as fourth card with 'View Dashboard' button. Field name is DailyCompliance.score (not complianceScore). 6 new tests (3 dashboard, 3 reports tab). Analyzer clean. Next: await Architect review."
+  "notes": "Phase 28 complete. Task A: CLAUDE.md updated with team nicknames (Architect, Shadow). Task B: PhotoProcessingService created with processStandard/processHighDetail — compress, EXIF strip (keepExif: false), SHA-256 hash. flutter_image_compress ^2.3.0 added (resolved to 2.4.0). Wired into photo_entry_gallery_screen (_pickPhoto), condition_edit_screen (_pickBaselinePhoto with processHighDetail), condition_log_screen (_pickPhoto), fluids_entry_screen (_pickBowelPhoto). 5 new unit tests. DECISIONS.md updated with two entries. Encryption deferred. Next: await Architect review."
 }

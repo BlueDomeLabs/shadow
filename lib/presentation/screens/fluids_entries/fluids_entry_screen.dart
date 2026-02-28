@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/services/photo_processing_service.dart';
 import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/utils/photo_picker_utils.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
@@ -679,11 +680,19 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   Future<void> _pickBowelPhoto() async {
     try {
       final path = await showPhotoPicker(context);
-      if (path != null && mounted) {
+      if (path == null || !mounted) return;
+
+      final processed = await PhotoProcessingService().processStandard(path);
+
+      if (mounted) {
         setState(() {
-          _bowelPhotoPath = path;
+          _bowelPhotoPath = processed.localPath;
           _isDirty = true;
         });
+      }
+    } on PhotoProcessingException catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.message);
       }
     } on Exception {
       if (mounted) {

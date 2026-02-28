@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/services/photo_processing_service.dart';
 import 'package:shadow_app/core/utils/date_formatters.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/photo_area.dart';
@@ -245,14 +246,25 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
       final image = await imagePicker.pickImage(source: source);
       if (image == null || !context.mounted) return;
 
-      final file = File(image.path);
-      final fileSize = await file.length();
+      // Process: compress, strip EXIF, hash.
+      final service = PhotoProcessingService();
+      ProcessedPhotoResult processed;
+      try {
+        processed = await service.processStandard(image.path);
+      } on PhotoProcessingException catch (e) {
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: e.message);
+        }
+        return;
+      }
+
       if (!context.mounted) return;
 
       // Show details dialog for notes and date/time
       final details = await showDialog<_PhotoEntryDetails>(
         context: context,
-        builder: (context) => _PhotoDetailsDialog(filePath: image.path),
+        builder: (context) =>
+            _PhotoDetailsDialog(filePath: processed.localPath),
       );
       if (details == null || !context.mounted) return;
 
@@ -265,8 +277,9 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
               photoAreaId: photoArea.id,
               timestamp: details.timestamp,
               notes: details.notes?.isNotEmpty ?? false ? details.notes : null,
-              filePath: image.path,
-              fileSizeBytes: fileSize,
+              filePath: processed.localPath,
+              fileSizeBytes: processed.fileSizeBytes,
+              fileHash: processed.fileHash,
             ),
           );
 

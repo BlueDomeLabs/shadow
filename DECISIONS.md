@@ -17,6 +17,46 @@ Each entry has:
 
 ## Decisions
 
+### 2026-02-27: flutter_image_compress chosen over image package for photo processing
+
+**What:** PhotoProcessingService uses `flutter_image_compress` for compression and EXIF
+stripping instead of the pure-Dart `image` package referenced in 18_PHOTO_PROCESSING.md.
+
+**Why:** `flutter_image_compress` uses native platform codecs (CoreImage on iOS/macOS, libjpeg
+on Android). This provides two critical advantages:
+1. HEIC → JPEG conversion works natively on iOS without additional libraries.
+2. Compression is 10–20× faster than the pure-Dart `image` package because decoding and
+   encoding happen in native code rather than interpreted Dart.
+
+**Alternatives:** The `image` package (pure Dart) — rejected because it does not support HEIC
+and is too slow for real-time photo capture. There is no meaningful correctness trade-off.
+
+**Impact:** `flutter_image_compress` is an additional dependency. `keepExif: false` strips EXIF
+automatically — no manual pixel-copying required (unlike the spec's `_stripMetadata` example).
+
+---
+
+### 2026-02-27: Photo encryption deferred — plaintext .jpg stored for now
+
+**What:** Photos are stored as unencrypted `.jpg` files in the app documents directory.
+18_PHOTO_PROCESSING.md specifies AES-256-GCM encryption (step 7 in the pipeline), but that
+step is not implemented in Phase 28.
+
+**Why:** AES-256-GCM encryption requires a key management system: generating, storing,
+rotating, and distributing per-user keys. That system does not exist yet. Building it
+correctly is a separate engineering effort. Rushing it would risk broken encryption (worse
+than no encryption).
+
+**Alternatives:** Use a hardcoded key — rejected because it is security theatre and creates
+a migration burden later. Defer the feature entirely — rejected; compression and EXIF
+stripping deliver real value now.
+
+**Impact:** Photos on-device are not encrypted at rest at the file level. The SQLite database
+(SQLCipher) is encrypted, but the `.jpg` files are not. This is a known gap; encryption
+will be added in a future phase once key management is designed.
+
+---
+
 ### 2026-02-27: iCloud sync — planned, pending Reports phases
 
 **What:** iCloud/CloudKit sync is fully specced in
