@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-02-28
-# Briefing Version: 20260228-002
+# Last Updated: 2026-03-01
+# Briefing Version: 20260301-001
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 30 COMPLETE
-# Last Action:   Conflict Resolution UI — view and resolve sync conflicts
+# Status:        Bug fix COMPLETE (markDirty forwarding)
+# Last Action:   fix: forward markDirty param to DAO in sleep and food_log repos
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
-# Tests:         3,396 passing (+10 new)
+# Tests:         3,396 passing (unchanged)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,39 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Bug fix: forward markDirty param to DAOs — COMPLETE
+
+**0 new tests. Tests: 3,396. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+Two repository `update()` methods accepted a `markDirty` parameter but did not forward it
+to their DAO calls, causing sync pull operations that pass `markDirty: false` to always
+mark records dirty (triggering unnecessary re-uploads).
+
+Fixed by:
+1. Adding `markDirty: markDirty` to `_dao.updateEntity(...)` calls in
+   `SleepEntryRepositoryImpl` and `FoodLogRepositoryImpl`
+2. Adding `bool markDirty = true` parameter to `SleepEntryDao.updateEntity()` and
+   `FoodLogDao.updateEntity()` signatures (they lacked it; `FoodItemDao` already had it)
+3. Regenerating mocks (`build_runner build`)
+4. Updating test stubs that set up `markDirty: false` calls to use the named arg
+
+Reference: `food_item_repository_impl.dart` was already correct.
+
+### Key files
+
+- **`lib/data/repositories/sleep_entry_repository_impl.dart`** (MODIFIED) — forwards `markDirty`
+- **`lib/data/repositories/food_log_repository_impl.dart`** (MODIFIED) — forwards `markDirty`
+- **`lib/data/datasources/local/daos/sleep_entry_dao.dart`** (MODIFIED) — added `markDirty` param
+- **`lib/data/datasources/local/daos/food_log_dao.dart`** (MODIFIED) — added `markDirty` param
+- **`test/unit/data/repositories/sleep_entry_repository_impl_test.dart`** (MODIFIED) — fixed stub
+- **`test/unit/data/repositories/food_log_repository_impl_test.dart`** (MODIFIED) — fixed stub
+- **`test/unit/data/repositories/sleep_entry_repository_impl_test.mocks.dart`** (MODIFIED) — regenerated
+- **`test/unit/data/repositories/food_log_repository_impl_test.mocks.dart`** (MODIFIED) — regenerated
 
 ---
 

@@ -78,8 +78,9 @@ class SleepEntryDao extends DatabaseAccessor<AppDatabase>
 
   /// Update an existing entry.
   Future<Result<domain.SleepEntry, AppError>> updateEntity(
-    domain.SleepEntry entity,
-  ) async {
+    domain.SleepEntry entity, {
+    bool markDirty = true,
+  }) async {
     try {
       final existsResult = await getById(entity.id);
       if (existsResult.isFailure) return existsResult;

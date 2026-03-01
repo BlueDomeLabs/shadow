@@ -213,7 +213,9 @@ void main() {
           syncIsDirty: false,
         );
         final entry = createTestSleepEntry(syncMetadata: originalMetadata);
-        when(mockDao.updateEntity(any)).thenAnswer((invocation) async {
+        when(mockDao.updateEntity(any, markDirty: false)).thenAnswer((
+          invocation,
+        ) async {
           final updated = invocation.positionalArguments[0] as SleepEntry;
           return Success(updated);
         });

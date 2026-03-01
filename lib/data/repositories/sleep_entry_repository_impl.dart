@@ -58,7 +58,7 @@ class SleepEntryRepositoryImpl extends BaseRepository<SleepEntry>
       getSyncMetadata: (e) => e.syncMetadata,
     );
 
-    return _dao.updateEntity(preparedEntity);
+    return _dao.updateEntity(preparedEntity, markDirty: markDirty);
   }
 
   @override

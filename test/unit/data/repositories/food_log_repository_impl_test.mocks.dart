@@ -279,15 +279,20 @@ class MockFoodLogDao extends _i1.Mock implements _i6.FoodLogDao {
 
   @override
   _i5.Future<_i8.Result<_i9.FoodLog, _i10.AppError>> updateEntity(
-    _i9.FoodLog? entity,
-  ) =>
+    _i9.FoodLog? entity, {
+    bool? markDirty = true,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#updateEntity, [entity]),
+            Invocation.method(#updateEntity, [entity], {#markDirty: markDirty}),
             returnValue:
                 _i5.Future<_i8.Result<_i9.FoodLog, _i10.AppError>>.value(
                   _i7.dummyValue<_i8.Result<_i9.FoodLog, _i10.AppError>>(
                     this,
-                    Invocation.method(#updateEntity, [entity]),
+                    Invocation.method(
+                      #updateEntity,
+                      [entity],
+                      {#markDirty: markDirty},
+                    ),
                   ),
                 ),
           )

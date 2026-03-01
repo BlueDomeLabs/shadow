@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 30: Conflict Resolution UI",
-  "timestamp": "2026-02-28T18:00:00Z",
+  "task": "Bug fix: forward markDirty param to DAOs in sleep_entry and food_log repos",
+  "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3396,
   "schemaVersion": 18,
-  "notes": "Phase 30 complete. Created ConflictResolutionScreen: lists unresolved sync conflicts as cards with This Device vs Other Device panels and Keep/Keep/Merge buttons. Settings screen conflict count row is now tappable and navigates to the new screen. Added getUnresolvedConflicts() to SyncService interface and SyncServiceImpl. 10 new widget tests. Next: await Architect review."
+  "notes": "Fixed SleepEntryRepositoryImpl and FoodLogRepositoryImpl to forward markDirty param to _dao.updateEntity(). Also added markDirty param to SleepEntryDao.updateEntity() and FoodLogDao.updateEntity() signatures. Regenerated mocks and updated test stubs. 3,396 tests passing, analyzer clean. Next: await Architect review."
 }

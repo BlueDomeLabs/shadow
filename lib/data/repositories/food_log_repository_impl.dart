@@ -58,7 +58,7 @@ class FoodLogRepositoryImpl extends BaseRepository<FoodLog>
       getSyncMetadata: (e) => e.syncMetadata,
     );
 
-    return _dao.updateEntity(preparedEntity);
+    return _dao.updateEntity(preparedEntity, markDirty: markDirty);
   }
 
   @override

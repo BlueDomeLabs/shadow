@@ -83,8 +83,9 @@ class FoodLogDao extends DatabaseAccessor<AppDatabase> with _$FoodLogDaoMixin {
 
   /// Update an existing food log.
   Future<Result<domain.FoodLog, AppError>> updateEntity(
-    domain.FoodLog entity,
-  ) async {
+    domain.FoodLog entity, {
+    bool markDirty = true,
+  }) async {
     try {
       final existsResult = await getById(entity.id);
       if (existsResult.isFailure) return existsResult;
