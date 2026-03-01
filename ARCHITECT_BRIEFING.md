@@ -9,8 +9,8 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Bug fix COMPLETE (Group A Quick Fixes — fasting markDirty)
-# Last Action:   fix: group A quick fixes - markDirty fasting, confirmed others already done
+# Status:        Bug fix COMPLETE (Group D — archive methods syncStatus check)
+# Last Action:   fix: archive methods set syncStatus=modified in DAOs (already correct — no changes)
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
 # Tests:         3,396 passing (unchanged)
@@ -21,6 +21,20 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Group D — Archive Methods syncStatus Check — COMPLETE
+
+**0 new tests. Tests: 3,396. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+All three DAOs already correct. No code changes needed.
+
+- **`condition_dao.dart`**: `archive()` sets `syncStatus: Value(SyncStatus.modified.value)` ✓
+- **`supplement_dao.dart`**: No `archive()` method exists — not in the supplement repository interface either. Nothing to fix.
+- **`food_item_dao.dart`**: `archive()` sets `syncStatus: Value(SyncStatus.modified.value)` ✓
 
 ---
 
