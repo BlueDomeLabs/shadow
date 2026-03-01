@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-012
+# Briefing Version: 20260301-013
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,10 +10,10 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-012 — iCloud sync reconnaissance
+# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-013 — encryption + iCloud sync recon
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
-# Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
+# Open Items:    None — encryption already complete; iCloud provider not yet built
 # Tests:         3,396 passing
 # Schema:        v18
 # Analyzer:      Clean
@@ -22,6 +22,134 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Encryption + iCloud Sync Reconnaissance (Phase 31 Prep, Pass 2)
+
+**READ-ONLY RECON — no code changes**
+
+### Technical Summary
+
+This session extended the prior iCloud recon (v20260301-012) to add encryption scope. The prompt asked whether crypto packages exist, whether `flutter_secure_storage` is present, and whether any `EncryptionService` has been built. All three questions resolve to "yes, already complete."
+
+---
+
+#### 1. pubspec.yaml — Security packages confirmed
+
+`flutter_secure_storage: ^9.0.0` — present (Keychain/Keystore; used for encryption key storage).
+
+Full crypto stack already in dependencies:
+- `encrypt: ^5.0.3`
+- `crypto: ^3.0.3`
+- `pointycastle: ^3.7.3`
+- `bcrypt: ^1.1.3`
+
+No iCloud/CloudKit plugin present (`icloud_storage`, `cloudkit_dart`, etc. — none of these exist).
+
+**Correction to prior briefing header:** The prior CLAUDE handoff noted "Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)". This was incorrect. Encryption is fully implemented and in active use. DECISIONS.md may record historical deliberation, but the implementation is done.
+
+---
+
+#### 2. `lib/core/services/encryption_service.dart` — ALREADY COMPLETE
+
+Full AES-256-GCM implementation using `pointycastle`. Key details:
+
+- Key: 256-bit, generated once, stored in FlutterSecureStorage under `'shadow_encryption_key_v1'`
+- Nonce: 96-bit, generated fresh per `encrypt()` call (correct — prevents nonce reuse)
+- Tag: 128-bit GCM authentication tag
+- Wire format: `base64(nonce):base64(ciphertext):base64(tag)` — a single string
+- No additional authenticated data (AAD) currently used
+
+Public API:
+```dart
+class EncryptionService {
+  EncryptionService(FlutterSecureStorage secureStorage);
+  Future<void> initialize();        // Load or generate key from Keychain
+  Future<String> encrypt(String plaintext);
+  Future<String> decrypt(String encrypted);
+  Uint8List generateKey();
+  bool get isInitialized;
+}
+```
+
+`DecryptionException` is thrown on bad format or authentication failure.
+
+---
+
+#### 3. `lib/data/services/sync_service_impl.dart` — Encryption already wired
+
+`SyncServiceImpl` constructor already takes `EncryptionService encryptionService`. Encryption is live for push:
+
+```dart
+// Push path (already live):
+final jsonString = jsonEncode(change.data);
+final encryptedData = await _encryptionService.encrypt(jsonString);
+final envelope = {
+  'entityType': ..., 'entityId': ..., 'profileId': ..., 'clientId': ...,
+  'version': ..., 'timestamp': ..., 'isDeleted': ...,
+  'encryptedData': encryptedData,    // <-- encrypted payload
+};
+await _cloudProvider.uploadEntity(..., envelope, ...);
+```
+
+Pull path decrypts symmetrically:
+```dart
+final encryptedData = change.data['encryptedData'] as String?;
+final decryptedJson = await _encryptionService.decrypt(encryptedData);
+final entityData = jsonDecode(decryptedJson) as Map<String, dynamic>;
+```
+
+GoogleDriveProvider receives and uploads the envelope as-is (no double-encryption). Any future iCloud provider would follow the same contract identically.
+
+---
+
+#### 4. Architecture summary for iCloud provider
+
+What iCloud provider needs to implement (10 methods of `CloudStorageProvider`):
+1. `providerType` → returns `CloudProviderType.icloud`
+2. `authenticate()` — Apple Sign-In or native CloudKit auth
+3. `signOut()`
+4. `isAuthenticated()`
+5. `isAvailable()` — CloudKit availability check
+6. `uploadEntity(entityType, entityId, profileId, clientId, json, version)` — store JSON envelope in CloudKit
+7. `downloadEntity(entityType, entityId)` — fetch envelope from CloudKit
+8. `getChangesSince(sinceTimestamp)` — return `List<SyncChange>` of changes newer than timestamp
+9. `deleteEntity(entityType, entityId)` — soft/hard delete in CloudKit
+10. `uploadFile(localPath, remotePath)` / `downloadFile(remotePath, localPath)` — binary blobs (photos)
+
+The provider does NOT encrypt — envelopes arrive pre-encrypted from `SyncServiceImpl`. This is identical to the Google Drive contract.
+
+**Open DI decision (unchanged from v20260301-012):** `googleDriveProviderProvider` is typed to the concrete class. Phase 31 still needs the Architect to decide: separate `iCloudProviderProvider` slot, or a unified `activeCloudProviderProvider: CloudStorageProvider`.
+
+---
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| pubspec.yaml | ALREADY CORRECT — no change needed | flutter_secure_storage ^9.0.0, pointycastle ^3.7.3, encrypt ^5.0.3, crypto ^3.0.3, bcrypt ^1.1.3 all present. No iCloud plugin. |
+| lib/core/services/encryption_service.dart | ALREADY CORRECT — no change needed | Full AES-256-GCM implementation with pointycastle. Key in FlutterSecureStorage. Wire format: nonce:ciphertext:tag (base64). |
+| lib/data/services/sync_service_impl.dart | ALREADY CORRECT — no change needed | Already uses EncryptionService — encrypts on push, decrypts on pull. encryptedData field live in envelopes. |
+| lib/data/datasources/remote/cloud_storage_provider.dart | ALREADY CORRECT — no change needed | (from prior session) 10-method abstract interface; icloud(1) enum value already present. |
+| lib/data/cloud/google_drive_provider.dart | ALREADY CORRECT — no change needed | (from prior session) Does not encrypt; uploads pre-encrypted envelopes from SyncServiceImpl. |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | ALREADY CORRECT — no change needed | (from prior session) iCloud button shows "Coming Soon" dialog on iOS/macOS. |
+| lib/core/bootstrap.dart | ALREADY CORRECT — no change needed | (from prior session) GoogleDriveProvider + EncryptionService wired directly; no factory. |
+| lib/presentation/providers/di/di_providers.dart | ALREADY CORRECT — no change needed | (from prior session) googleDriveProviderProvider typed to concrete class; no iCloud providers. |
+
+---
+
+### Executive Summary for Reid
+
+This was another read-only investigation — no code was changed.
+
+The big discovery this session: **encryption is already built and working.** The app has been encrypting your health data before uploading it to Google Drive this whole time. I had incorrectly noted in a prior briefing that encryption was deferred — that was wrong, and I'm correcting it now.
+
+Here's what the encryption looks like: every time a health record (activity, food log, journal entry, etc.) gets synced, the app wraps the data in AES-256-GCM encryption — the same standard used by banks and messaging apps like Signal. The encryption key is stored in your phone's secure keychain, not on the server. The encrypted blob goes up to Google Drive, and only your device (with its keychain key) can decrypt it.
+
+For iCloud sync, the exact same encryption pipeline would apply — we just need to build an iCloud-shaped box to deliver the pre-encrypted packages into, instead of a Google Drive-shaped box. The encryption work is done. What remains is the iCloud/CloudKit delivery mechanism and the app wiring to let users pick iCloud instead of Google Drive.
+
+No code was changed this session.
 
 ---
 
