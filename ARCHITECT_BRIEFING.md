@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-009
+# Briefing Version: 20260301-010
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) no commit — file already correct, no changes made
+# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-010 — Group G DAO audit: all already correct
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
@@ -22,6 +22,58 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Group G: DAO Silent Catch Audit — ALL ALREADY CORRECT
+
+**READ-ONLY AUDIT — no code changes**
+
+### Technical Summary
+
+Verified all 9 DAO files listed in the prompt for silent JSON parse catch blocks. Every file already has `debugPrint` warnings in all exception catches. Zero changes required.
+
+**Verification results by file:**
+
+- `supplement_dao.dart` — `_parseIngredients` and `_parseSchedules` both have `debugPrint` with specific class+method names. ✓
+- `condition_dao.dart` — `_parseBodyLocations` and `_parseJsonList` both have `debugPrint`. Note: prompt mentioned "flarePhotoIds" as a condition_dao field — this field does not exist in condition_dao. It lives in condition_log_dao. The triggers field uses `_parseJsonList` which is correct. ✓
+- `condition_log_dao.dart` — `_parseJsonList` used for `flarePhotoIds` has `debugPrint`. Note: `triggers` in ConditionLog entity is a plain `String?` (not a JSON list), so no parse catch needed there. ✓
+- `activity_log_dao.dart` — `_parseJsonList` used for both `activityIds` and `adHocActivities` has `debugPrint`. ✓
+- `food_log_dao.dart` — `_parseJsonList` used for both `foodItemIds` and `adHocItems` has `debugPrint`. ✓
+- `food_item_dao.dart` — `_parseJsonList` used for `simpleItemIds` has `debugPrint`. Note: prompt mentioned "nutritionInfo JSON parsing" — no such field exists in this DAO. The only JSON list field is `simpleItemIds`. ✓
+- `fluids_entry_dao.dart` — `_parsePhotoIds` has `debugPrint`. Note: prompt mentioned "bowelData JSON parsing" — no such JSON field; the only JSON field is `photoIds`. ✓
+- `flare_up_dao.dart` — `_parseJsonList` used for `triggers` has `debugPrint`. Note: prompt mentioned "bodyLocationDetails" — no such field in flare_up_dao. bodyLocations is in condition_dao. ✓
+- `journal_entry_dao.dart` — `_parseJsonList` for `tags` has `debugPrint`, returns `null` (not `[]`) matching spec. ✓
+
+**Field name discrepancies in the prompt** (four cases where the prompt named a field that doesn't exist in that DAO):
+1. condition_dao "flarePhotoIds" → flarePhotoIds is in condition_log_dao, not condition_dao
+2. food_item_dao "nutritionInfo" → no such field; JSON field is simpleItemIds
+3. fluids_entry_dao "bowelData" → no such JSON field; JSON field is photoIds
+4. flare_up_dao "bodyLocationDetails" → no such field; the JSON field is triggers
+
+These are naming mismatches in the audit prompt itself — not defects in the code. All actual JSON parse catches are already protected.
+
+No changes made.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/data/datasources/local/daos/supplement_dao.dart | ALREADY CORRECT | _parseIngredients and _parseSchedules both have debugPrint |
+| lib/data/datasources/local/daos/condition_dao.dart | ALREADY CORRECT | _parseBodyLocations and _parseJsonList both have debugPrint |
+| lib/data/datasources/local/daos/condition_log_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; triggers is plain String (no JSON parse) |
+| lib/data/datasources/local/daos/activity_log_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; used for activityIds and adHocActivities |
+| lib/data/datasources/local/daos/food_log_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; used for foodItemIds and adHocItems |
+| lib/data/datasources/local/daos/food_item_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; used for simpleItemIds |
+| lib/data/datasources/local/daos/fluids_entry_dao.dart | ALREADY CORRECT | _parsePhotoIds has debugPrint |
+| lib/data/datasources/local/daos/flare_up_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; used for triggers |
+| lib/data/datasources/local/daos/journal_entry_dao.dart | ALREADY CORRECT | _parseJsonList has debugPrint; returns null (not []) as specified |
+
+### Executive Summary for Reid
+
+The Architect asked me to check nine database files for a specific pattern: exception handlers that silently swallow errors without logging anything. I checked all nine files. Every single one of them already logs a warning when JSON data fails to parse — the fix was applied at some point in a previous session. Nothing to do here.
+
+One note for the Architect: four of the field names mentioned in the audit prompt don't match what's actually in those files. For example, the prompt says to check "bowelData JSON parsing" in the fluids DAO, but that file's only JSON field is called `photoIds`. These are naming mismatches in the audit spec, not code bugs — the actual catch blocks are all covered. Worth correcting in the audit document to avoid confusion in future reviews.
 
 ---
 
