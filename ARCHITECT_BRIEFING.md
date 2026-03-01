@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-001
+# Briefing Version: 20260301-002
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,8 +9,8 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Bug fix COMPLETE (markDirty forwarding)
-# Last Action:   fix: forward markDirty param to DAO in sleep and food_log repos
+# Status:        Bug fix COMPLETE (Group A Quick Fixes — fasting markDirty)
+# Last Action:   fix: group A quick fixes - markDirty fasting, confirmed others already done
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
 # Tests:         3,396 passing (unchanged)
@@ -21,6 +21,50 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Group A Quick Fixes — COMPLETE
+
+**0 new tests. Tests: 3,396. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+Prompt requested 5 fixes. Only Fix 1 required code changes — the other 4 were already correct.
+
+**Fix 1 (fasting_repository_impl — markDirty not forwarded):**
+Same bug as the previous session (sleep/food_log). `FastingRepositoryImpl.update()` accepted
+`markDirty` but called `_dao.updateEntity(prepared)` without forwarding it.
+- Added `{bool markDirty = true}` to `FastingSessionDao.updateEntity()` signature
+- Changed repository call to `_dao.updateEntity(prepared, markDirty: markDirty)`
+- Regenerated mocks (`build_runner build`)
+- Existing test stubs (`when(mockDao.updateEntity(any))`) continue to work for the default case
+
+**Fix 2 (activity_log.dart — @Default([]) on lists):** Already done. Both `activityIds` and
+`adHocActivities` already have `@Default([])`. No change needed.
+
+**Fix 3 (access_level.dart — integer values):** File `access_level.dart` does not exist as
+standalone — `AccessLevel` is in `profile_authorization_service.dart`. Current values
+`readOnly(0), readWrite(1), owner(2)` match `22_API_CONTRACTS.md` exactly. The prompt's
+values (`owner(0), member(1), readOnly(2)`) appear to be an error in the task description.
+No change made.
+
+**Fix 4 (DatabaseError.transactionFailed):** Already exists in `app_error.dart` (line 92 code
+constant, line 192 factory). Existing factory uses `(String operation, [dynamic error, StackTrace?])`
+which is consistent with the rest of the class and the uppercase code convention. No change needed.
+
+**Fix 5 (isActive consistency):** All four entities already check `syncDeletedAt == null`:
+- `supplement.dart`: `!isArchived && syncMetadata.syncDeletedAt == null` ✓
+- `activity.dart`: `!isArchived && syncMetadata.syncDeletedAt == null` ✓
+- `food_item.dart`: `!isArchived && syncMetadata.syncDeletedAt == null` ✓
+- `condition.dart`: `!isArchived && status == ConditionStatus.active && syncMetadata.syncDeletedAt == null` ✓
+No change needed.
+
+### Key files
+
+- **`lib/data/repositories/fasting_repository_impl.dart`** (MODIFIED) — forwards `markDirty`
+- **`lib/data/datasources/local/daos/fasting_session_dao.dart`** (MODIFIED) — added `markDirty` param
+- **`test/unit/data/repositories/fasting_repository_impl_test.mocks.dart`** (MODIFIED) — regenerated
 
 ---
 

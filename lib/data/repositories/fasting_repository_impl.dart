@@ -70,7 +70,7 @@ class FastingRepositoryImpl extends BaseRepository<FastingSession>
       markDirty: markDirty,
       getSyncMetadata: (e) => e.syncMetadata,
     );
-    return _dao.updateEntity(prepared);
+    return _dao.updateEntity(prepared, markDirty: markDirty);
   }
 
   @override

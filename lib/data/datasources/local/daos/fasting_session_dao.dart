@@ -98,8 +98,9 @@ class FastingSessionDao extends DatabaseAccessor<AppDatabase>
 
   /// Update a fasting session (e.g. set endedAt when fast ends).
   Future<Result<domain.FastingSession, AppError>> updateEntity(
-    domain.FastingSession entity,
-  ) async {
+    domain.FastingSession entity, {
+    bool markDirty = true,
+  }) async {
     try {
       final existsResult = await getById(entity.id);
       if (existsResult.isFailure) return existsResult;
