@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-005
+# Briefing Version: 20260301-006
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,16 +10,9 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   e7987f0 — docs: update briefing (no code changes)
+# Last Commit:   (this session) docs: add report format and compaction protocol to CLAUDE.md
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
-# Last Completed Task:
-#   - Verified archive() syncStatus in activity_dao, food_item_dao, photo_area_dao — all already correct
-#   - Corrected 02_CODING_STANDARDS.md Section 9.5 — FoodItem and PhotoArea now archive-capable (Yes)
-#   - Added ValidationRules.activityName(), foodName(), journalContent() named validators
-#   - Updated CreateActivityUseCase, CreateFoodItemUseCase, CreateJournalEntryUseCase to use named validators
-#   - Verified LogConditionUseCase already had future timestamp check — no change needed
 # Next Action:   Await next phase prompt from Architect
-# Note:          Reid accidentally pasted a non-Shadow prompt last session; no work was done from it
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
 # Tests:         3,396 passing
 # Schema:        v18
@@ -29,6 +22,56 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — CLAUDE.md Report Format + Compaction Protocol — COMPLETE
+
+**Tests: 3,396 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+This session implemented two additions to CLAUDE.md prompted by the Architect:
+
+1. **New section: "ARCHITECT_BRIEFING.md — Report Format"** — defines the new four-section
+   standard for all completion reports: (1) Header, (2) Technical Summary, (3) File Change
+   Table, (4) Executive Summary for Reid. Key change from old format: the File Change Table
+   now requires "ALREADY CORRECT — no change needed" entries for files checked but unchanged.
+   Executive Summary is last in the document but first on Reid's screen when the response loads.
+
+2. **New section: "If Your Context Was Compacted Mid-Session"** — defines exactly what Shadow
+   should do when compaction strikes mid-prompt: reorient from ARCHITECT_BRIEFING.md, assess
+   completion state, commit clean work, resume incomplete items, and flag the Architect that
+   compaction occurred so prompt sizing can be adjusted.
+
+3. **Replaced: "COMPLETION REPORT FORMAT"** — old multi-paragraph format replaced with a
+   brief four-line stub that references the new detailed section above. No information lost;
+   just consolidated.
+
+Note: Context was compacted at the end of the previous session before this prompt was
+executed. Step 1 and Step 2 of the original prompt (team identity additions) were not
+visible after compaction — only Steps 3 and 4 were recoverable from the compaction summary.
+Implemented Steps 3 and 4 exactly. Reid should confirm whether Steps 1–2 need to be
+executed in a follow-up prompt.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| CLAUDE.md | MODIFIED | Added Report Format section, Compaction Protocol section; replaced COMPLETION REPORT FORMAT with brief stub |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added this session log entry; updated handoff block to v006 |
+
+### Executive Summary for Reid
+
+This session updated the engineering playbook — the instructions I follow every session.
+Two things were added: a cleaner standard for how I write my end-of-session reports to
+you and the Architect, and a clear procedure for what I do if context compaction happens
+in the middle of a task (so I pick up cleanly rather than starting over blind).
+
+One thing I want to flag directly: the beginning of this prompt was lost in the compaction
+from last session. I could only recover Steps 3 and 4. If there were earlier steps —
+possibly about adding something about my identity or voice — those weren't executed.
+Please check with the Architect and let me know if there's a follow-up needed.
 
 ---
 

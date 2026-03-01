@@ -111,31 +111,91 @@ embedded in this file.**
 
 ---
 
-## COMPLETION REPORT FORMAT
+## ARCHITECT_BRIEFING.md — Report Format
 
-Every phase completion report must end with two things:
+Every session report has four sections in this order:
 
-### 1. Plain-language summary for Reid
-3–5 sentences describing what was built in terms of what the user
-will see or experience. No class names, no file paths, no jargon.
+### 1. Header
+One line: **Tests: X,XXX | Schema: vX | Analyzer: clean**
 
-### 2. File change table for Architect review
+### 2. Technical Summary
+Written for the Architect. Thorough and precise. Cover what was built,
+what was already correct, what decisions were made independently and why,
+any deviations from the prompt, and any unexpected findings.
 
-After the plain-language summary, include this exact table:
+### 3. File Change Table
 
 | File | Status | Description |
 |------|--------|-------------|
-| lib/path/to/file.dart | CREATED | What it does |
-| lib/path/to/other.dart | MODIFIED | What changed |
-| test/path/to/test.dart | CREATED | What it tests |
+| path/to/file.dart | MODIFIED | What changed and why |
+| path/to/file.dart | ALREADY CORRECT | Checked — no change needed |
 
-Rules for the table:
-- Include EVERY file you created or modified, including test files
-- Use exact file paths relative to the project root
-- Status is one of: CREATED, MODIFIED, DELETED
-- Description is one sentence maximum
-- Do not omit files to keep the table short — completeness is required
-- ARCHITECT_BRIEFING.md always goes in the table as MODIFIED
+Every file referenced in the prompt must appear in this table, whether
+it was changed or not. "ALREADY CORRECT — no change needed" is a required
+entry, not an optional one. The Architect needs to know what was checked,
+not just what changed.
+
+### 4. Executive Summary for Reid
+This section is last so Reid sees it first when the response loads.
+
+Written in plain language for someone who understands the project goals
+but not the code. Explain what changed and why it matters — not how it
+was implemented.
+
+Good: "We fixed a bug where archiving a food item on one device would
+not sync the change to your other devices. The app was flagging the
+change locally but forgetting to queue it for upload."
+
+Not good: "Fixed syncStatus not being set to SyncStatus.modified.value
+in the archive() Drift companion call in food_item_dao.dart."
+
+This is also your direct line to Reid. We work in a peer model. Reid
+is the final decision maker but relies on input from both the Architect
+and from you. If you have observations, concerns, questions, or ideas
+you want to raise directly with Reid — things that go beyond the
+technical report — this is the place. Those thoughts are documented
+as part of the project record.
+
+The Architect reads the full briefing but treats this section as your
+conversation with Reid. It will not comment on or interpret what you
+write here unless something appears factually incorrect or would
+materially affect the project.
+
+---
+
+## If Your Context Was Compacted Mid-Session
+
+Compaction is like falling asleep — it just happens. You will not always
+know it is coming. When you wake up inside a compacted session:
+
+1. Read ARCHITECT_BRIEFING.md immediately to reorient.
+2. Assess what was completed before compaction and what was not.
+3. Run `flutter test` and `flutter analyze` to verify the codebase state.
+4. Commit anything that is complete and clean.
+5. Re-read the original prompt from Reid. Identify any items that remain
+   incomplete. Complete and commit those items if the codebase is in a
+   stable state to do so.
+6. Update ARCHITECT_BRIEFING.md with a clear account of what was completed
+   before compaction, what was completed after, and what (if anything)
+   remains. Flag that compaction occurred mid-session.
+7. Note to the Architect that the prompt scope exceeded one session —
+   this helps future prompts be sized correctly and alerts the Architect
+   to inspect carefully for any errors compaction may have introduced.
+
+---
+
+## COMPLETION REPORT FORMAT
+
+Every session report follows the four-section format defined in
+"ARCHITECT_BRIEFING.md — Report Format" above. The four sections are:
+
+1. Header (test count, schema version, analyzer status)
+2. Technical Summary (for the Architect — precise and complete)
+3. File Change Table (every file in the prompt, changed or not)
+4. Executive Summary for Reid (plain language, your direct voice)
+
+The Executive Summary is always last so Reid sees it first when
+the response loads.
 
 ---
 
