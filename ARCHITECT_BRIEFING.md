@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-011
+# Briefing Version: 20260301-012
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-011 — Test coverage audit: all 14 entities fully covered
+# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-012 — iCloud sync reconnaissance
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
@@ -22,6 +22,176 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — iCloud Sync Reconnaissance (Phase 31 Prep)
+
+**READ-ONLY RECON — no code changes**
+
+### Technical Summary
+
+Audited 6 files to understand the current cloud sync architecture before Phase 31 (iCloud/CloudKit).
+
+---
+
+#### 1. pubspec.yaml
+
+**No iCloud plugin present.** No `icloud_storage`, `cloudkit`, or any Apple cloud package exists.
+
+Google packages in use:
+- `google_sign_in: ^6.1.6`
+- `googleapis: ^12.0.0`
+- `googleapis_auth: ^1.4.1`
+- `http: ^1.1.2`
+
+---
+
+#### 2. `lib/data/datasources/remote/cloud_storage_provider.dart`
+
+Full abstract interface — `CloudStorageProvider`:
+
+```dart
+enum CloudProviderType { googleDrive(0), icloud(1), offline(2); }
+
+class SyncChange {
+  final String entityType;
+  final String entityId;
+  final String profileId;
+  final String clientId;
+  final Map<String, dynamic> data;
+  final int version;
+  final int timestamp;
+  final bool isDeleted;
+}
+
+abstract class CloudStorageProvider {
+  CloudProviderType get providerType;
+  Future<Result<void, AppError>> authenticate();
+  Future<Result<void, AppError>> signOut();
+  Future<bool> isAuthenticated();
+  Future<bool> isAvailable();
+  Future<Result<void, AppError>> uploadEntity(String entityType, String entityId, String profileId, String clientId, Map<String, dynamic> json, int version);
+  Future<Result<Map<String, dynamic>?, AppError>> downloadEntity(String entityType, String entityId);
+  Future<Result<List<SyncChange>, AppError>> getChangesSince(int sinceTimestamp);
+  Future<Result<void, AppError>> deleteEntity(String entityType, String entityId);
+  Future<Result<void, AppError>> uploadFile(String localPath, String remotePath);
+  Future<Result<String, AppError>> downloadFile(String remotePath, String localPath);
+}
+```
+
+`CloudProviderType.icloud(1)` is already declared in the enum — a placeholder anticipating this phase.
+
+---
+
+#### 3. `lib/data/cloud/google_drive_provider.dart`
+
+**Does NOT encrypt data itself.** Comments make this explicit:
+
+> "Upload the envelope as-is. The caller (SyncService.pushChanges) builds the complete envelope per Section 17.3 with all canonical field names and the AES-256-GCM encrypted data in 'encryptedData'."
+
+Encryption happens upstream in `SyncServiceImpl` before data reaches the provider. `GoogleDriveProvider` uploads and downloads raw JSON envelopes (which contain an `encryptedData` field). The iCloud provider will follow the same contract.
+
+**Folder structure:**
+```
+shadow_app/
+  data/{entityType}/{entityId}.json   (entity envelopes)
+  files/{remotePath}                  (binary files/photos)
+```
+
+**Auth pattern:** macOS uses PKCE OAuth 2.0 via `MacOSGoogleOAuth` (loopback server); iOS uses `google_sign_in` native flow. Token stored in `FlutterSecureStorage`. Token refresh handled in `_ensureValidToken()` before every API call.
+
+---
+
+#### 4. `lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart`
+
+**iCloud button currently shows a "Coming Soon" dialog.** Specifically:
+
+```dart
+if (Platform.isIOS || Platform.isMacOS) ...[
+  _buildProviderButton(
+    context,
+    icon: Icons.cloud,
+    title: 'iCloud',
+    subtitle: 'Use your Apple account for sync',
+    onTap: () => _showComingSoon(context),
+  ),
+],
+```
+
+The screen supports two real providers (Google Drive with real auth) and two stubs (iCloud = "Coming Soon", Local Only = pop back). iCloud button only appears on iOS/macOS. The screen uses `CloudSyncAuthState` which is typed around Google Drive.
+
+---
+
+#### 5. `lib/core/bootstrap.dart`
+
+**No CloudProviderFactory.** `GoogleDriveProvider` is instantiated directly and passed to `SyncServiceImpl`:
+
+```dart
+final googleDriveProvider = GoogleDriveProvider();
+final syncService = SyncServiceImpl(
+  ...
+  cloudProvider: googleDriveProvider,
+  ...
+);
+```
+
+Then overridden in ProviderScope:
+```dart
+googleDriveProviderProvider.overrideWithValue(googleDriveProvider),
+syncServiceProvider.overrideWithValue(syncService),
+```
+
+`SyncServiceImpl` takes a `CloudStorageProvider` (the abstract type), not `GoogleDriveProvider` specifically. So swapping in an `ICloudProvider` would require changing bootstrap wiring, but `SyncServiceImpl` itself is already provider-agnostic.
+
+---
+
+#### 6. `lib/presentation/providers/di/di_providers.dart`
+
+**No iCloud-related providers.** Cloud injection is:
+
+```dart
+@Riverpod(keepAlive: true)
+GoogleDriveProvider googleDriveProvider(Ref ref) {
+  throw UnimplementedError('Override googleDriveProviderProvider in ProviderScope');
+}
+```
+
+The provider is typed `GoogleDriveProvider` (concrete class), not `CloudStorageProvider` (abstract). The `CloudSyncAuthNotifier` reads `googleDriveProviderProvider` directly. This means Phase 31 will need to either:
+1. Add an `iCloudProviderProvider` alongside `googleDriveProviderProvider`, or
+2. Introduce an `activeCloudProviderProvider` typed to `CloudStorageProvider` and let both impls compete.
+
+---
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| pubspec.yaml | ALREADY CORRECT — no change needed | No iCloud plugin present |
+| lib/data/datasources/remote/cloud_storage_provider.dart | ALREADY CORRECT — no change needed | Interface read; icloud enum value already exists |
+| lib/data/cloud/google_drive_provider.dart | ALREADY CORRECT — no change needed | Does not encrypt; uploads raw envelopes |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | ALREADY CORRECT — no change needed | iCloud button shows "Coming Soon" dialog |
+| lib/core/bootstrap.dart | ALREADY CORRECT — no change needed | GoogleDriveProvider hardwired directly; no factory |
+| lib/presentation/providers/di/di_providers.dart | ALREADY CORRECT — no change needed | googleDriveProviderProvider typed to concrete class; no iCloud providers |
+
+---
+
+### Executive Summary for Reid
+
+This was a read-only investigation to understand what's already in place before we build iCloud sync.
+
+**What we found:**
+
+The app already has a clean "plug in a cloud provider" architecture — all the sync logic is written in a way that doesn't care whether it's talking to Google Drive or iCloud. We just need to write an iCloud provider that plugs into the same set of slots.
+
+Three things are already stubbed out and waiting for us:
+- The iCloud option in the enum (`icloud` value already exists)
+- The iCloud button in the cloud setup screen (currently shows "Coming Soon")
+- The abstract interface that any new provider must implement (10 methods)
+
+One thing to be aware of: the current DI wiring is typed to `GoogleDriveProvider` (the concrete class), not the generic interface. Phase 31 will need to decide how to handle provider switching — whether we add a separate iCloud provider slot, or introduce a single "active cloud provider" slot that both implementations share. That's a design decision for the Architect to make before implementation begins.
+
+No code was changed this session.
 
 ---
 
