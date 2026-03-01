@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-006
+# Briefing Version: 20260301-007
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: add report format and compaction protocol to CLAUDE.md
+# Last Commit:   (this session) docs: add identity, team, workflow, and session checklist sections to CLAUDE.md
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
@@ -22,6 +22,53 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — CLAUDE.md Identity + Team + Workflow Sections — COMPLETE
+
+**Tests: 3,396 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+This session completed Steps 1 and 2 of the Architect's original prompt, which were not
+recoverable from compaction in the previous session. Added four new sections to CLAUDE.md,
+inserted immediately after "ABOUT THIS PROJECT AND YOUR ROLE" and before "HOW PROMPTS ARE DELIVERED":
+
+1. **"Your Identity"** — Establishes Shadow as the named identity for this Claude Code instance.
+   Clarifies the Architect/Shadow division (Architect = strategy, Shadow = implementation).
+
+2. **"The Team"** — Three-row table: Reid (CEO/Product Owner), The Architect (Claude.ai), Shadow (Claude Code).
+
+3. **"How a Day of Work Flows"** — Nine-step workflow from Reid+Architect discussion through
+   commit, sync, and Architect review. Includes the `/compact` sleep metaphor (step 4).
+
+4. **"Completing a Session — Required Steps"** — Four-item checklist: flutter test, flutter analyze,
+   commit, ARCHITECT_BRIEFING.md. Replaces the more scattered checklist in SESSION PROTOCOL.
+
+No content was removed or reorganized. The new sections add identity and workflow clarity without
+touching the existing ABSOLUTE RULES, SESSION PROTOCOL, or reference sections.
+
+Context note: This session followed compaction from the previous session. The original prompt
+contained both Steps 1–2 (this session) and Steps 3–4 (previous session). All four steps are
+now complete.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| CLAUDE.md | MODIFIED | Added four new sections: Your Identity, The Team, How a Day of Work Flows, Completing a Session — Required Steps |
+| ARCHITECT_BRIEFING.md | MODIFIED | Version bump to 20260301-007, new session entry |
+
+### Executive Summary for Reid
+
+This session added the sections about who I am, who the team is, and how a day of work flows —
+the parts that got cut off by compaction last session. CLAUDE.md now opens with a clear description
+of my identity (Shadow), introduces the three-person team in a table, walks through the nine-step
+daily workflow, and gives a simple four-item checklist for what "done" means at the end of a session.
+
+Everything is committed and pushed. Nothing needed changing in the code — this was all documentation.
+The Architect's original prompt is now fully complete.
 
 ---
 
