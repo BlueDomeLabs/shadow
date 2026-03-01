@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-008
+# Briefing Version: 20260301-009
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -22,6 +22,53 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Group B: ConditionLog Flow Audit — ALL ALREADY CORRECT
+
+**READ-ONLY AUDIT — no code changes**
+
+### Technical Summary
+
+Verified three audit items (P2-1, P3-2, P3-3) in the ConditionLog flow. All are already resolved.
+
+**File 1 — `condition_log_repository.dart`**
+`getByCondition()` signature:
+```dart
+Future<Result<List<ConditionLog>, AppError>> getByCondition(
+  String conditionId, {
+  int? startDate, // Epoch ms
+  int? endDate, // Epoch ms
+  int? limit,
+  int? offset,
+});
+```
+Both `startDate` and `endDate` params are present. ✓
+
+**File 2 — `get_condition_logs_use_case.dart`**
+`GetConditionLogsInput` contains a required `conditionId` field (confirmed in condition_log_inputs.dart line 13).
+The use case calls `_repository.getByCondition(input.conditionId, ...)` — not `getByProfile`. ✓
+
+**File 3 — `log_condition_use_case.dart`**
+Constructor: `LogConditionUseCase(this._repository, this._conditionRepository, this._authService)`
+Has `final ConditionRepository _conditionRepository` field.
+Calls `_conditionRepository.getById(input.conditionId)` in step 2, verifies ownership against
+`input.profileId`, and returns `AuthError.profileAccessDenied` if profile doesn't match. ✓
+
+No changes made.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/repositories/condition_log_repository.dart | ALREADY CORRECT | getByCondition() has startDate and endDate params |
+| lib/domain/usecases/condition_logs/get_condition_logs_use_case.dart | ALREADY CORRECT | Uses conditionId; calls getByCondition |
+| lib/domain/usecases/condition_logs/log_condition_use_case.dart | ALREADY CORRECT | Has ConditionRepository field; verifies condition before creating log |
+
+### Executive Summary for Reid
+
+The Architect flagged three potential issues in the condition-logging code. I checked all three — none of them exist in the current codebase. The condition log queries correctly filter by specific condition (not just by profile), and the logging flow correctly verifies that the condition being logged belongs to the right profile before saving anything. Everything is working as specified.
 
 ---
 
