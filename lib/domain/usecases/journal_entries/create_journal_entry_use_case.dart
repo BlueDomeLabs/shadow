@@ -64,12 +64,8 @@ class CreateJournalEntryUseCase
     final errors = <String, List<String>>{};
 
     // Content validation
-    if (input.content.length < ValidationRules.journalContentMinLength ||
-        input.content.length > ValidationRules.journalContentMaxLength) {
-      errors['content'] = [
-        'Content must be ${ValidationRules.journalContentMinLength}-${ValidationRules.journalContentMaxLength} characters',
-      ];
-    }
+    final contentError = ValidationRules.journalContent(input.content);
+    if (contentError != null) errors['content'] = [contentError];
 
     // Title validation if provided
     if (input.title != null &&

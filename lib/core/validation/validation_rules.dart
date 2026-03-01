@@ -190,6 +190,28 @@ class ValidationRules {
   static String? supplementName(String? value) =>
       entityName(value, 'Supplement name', supplementNameMaxLength);
 
+  /// Validate activity name.
+  static String? activityName(String? value) =>
+      entityName(value, 'Activity name', activityNameMaxLength);
+
+  /// Validate food item name.
+  static String? foodName(String? value) =>
+      entityName(value, 'Food item name', foodNameMaxLength);
+
+  /// Validate journal entry content.
+  static String? journalContent(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Content is required';
+    }
+    if (value.length < journalContentMinLength) {
+      return 'Content must be at least $journalContentMinLength characters';
+    }
+    if (value.length > journalContentMaxLength) {
+      return 'Content must be $journalContentMaxLength characters or less';
+    }
+    return null;
+  }
+
   /// Validate brand name (optional but max length).
   static String? brand(String? value) {
     if (value == null || value.isEmpty) return null;

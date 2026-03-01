@@ -1518,8 +1518,8 @@ await syncConflictDao.countUnresolved(profileId);
 | Condition | **Yes** | Conditions can go into remission |
 | Activity | **Yes** | User may pause activities seasonally |
 | Diet | **Yes** | User may pause diets (vacations, holidays) |
-| FoodItem | No | Delete unused foods, no pause concept |
-| PhotoArea | No | Delete unused areas |
+| FoodItem | **Yes** | Users may want to hide unused foods from their library |
+| PhotoArea | **Yes** | Users may retire photo tracking areas |
 | NotificationSchedule | No | Disable via isEnabled flag instead |
 | JournalEntry | No | Historical record, delete if unwanted |
 | SleepEntry | No | Historical record |

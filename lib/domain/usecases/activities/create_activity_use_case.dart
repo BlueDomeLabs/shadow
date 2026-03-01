@@ -60,12 +60,8 @@ class CreateActivityUseCase implements UseCase<CreateActivityInput, Activity> {
     final errors = <String, List<String>>{};
 
     // Name validation
-    if (input.name.length < ValidationRules.nameMinLength ||
-        input.name.length > ValidationRules.activityNameMaxLength) {
-      errors['name'] = [
-        'Activity name must be ${ValidationRules.nameMinLength}-${ValidationRules.activityNameMaxLength} characters',
-      ];
-    }
+    final nameError = ValidationRules.activityName(input.name);
+    if (nameError != null) errors['name'] = [nameError];
 
     // Duration validation
     if (input.durationMinutes < ValidationRules.activityDurationMinMinutes ||

@@ -99,12 +99,8 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
     final errors = <String, List<String>>{};
 
     // Name validation
-    if (input.name.length < ValidationRules.nameMinLength ||
-        input.name.length > ValidationRules.foodNameMaxLength) {
-      errors['name'] = [
-        'Food item name must be ${ValidationRules.nameMinLength}-${ValidationRules.foodNameMaxLength} characters',
-      ];
-    }
+    final nameError = ValidationRules.foodName(input.name);
+    if (nameError != null) errors['name'] = [nameError];
 
     // Composed items must have simple item IDs
     if (input.type == FoodItemType.composed && input.simpleItemIds.isEmpty) {

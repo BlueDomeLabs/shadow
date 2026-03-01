@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-002
+# Briefing Version: 20260301-003
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,8 +9,8 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Bug fix COMPLETE (Group D — archive methods syncStatus check)
-# Last Action:   fix: archive methods set syncStatus=modified in DAOs (already correct — no changes)
+# Status:        Bug fix COMPLETE (archive syncStatus + spec correction + ValidationRules use cases)
+# Last Action:   fix: archive syncStatus in 3 DAOs; spec correction; ValidationRules use cases
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
 # Tests:         3,396 passing (unchanged)
@@ -21,6 +21,43 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Archive syncStatus + Spec Correction + ValidationRules Use Cases — COMPLETE
+
+**0 new tests. Tests: 3,396. Schema: v18. Analyzer: clean.**
+
+### Part 1: Spec correction — 02_CODING_STANDARDS.md Section 9.5
+- **FoodItem**: Changed from "No" to "Yes — Users may want to hide unused foods from their library"
+- **PhotoArea**: Changed from "No" to "Yes — Users may retire photo tracking areas"
+
+### Part 2: DAOs archive syncStatus check (activity, food_item, photo_area)
+All three already correct. No code changes needed.
+- **`activity_dao.dart`**: `archive()` and `unarchive()` both set `syncStatus: Value(SyncStatus.modified.value)` ✓
+- **`food_item_dao.dart`**: `archive()` sets `syncStatus: Value(SyncStatus.modified.value)` ✓
+- **`photo_area_dao.dart`**: `archive()` sets `syncStatus: Value(SyncStatus.modified.value)` ✓
+
+### Parts 3–5: ValidationRules named validators + use case updates
+Added three named validator methods to `ValidationRules`:
+- `activityName(String? value)` — delegates to `entityName(value, 'Activity name', activityNameMaxLength)`
+- `foodName(String? value)` — delegates to `entityName(value, 'Food item name', foodNameMaxLength)`
+- `journalContent(String? value)` — checks min/max length for journal content
+
+Updated three use cases to use named validators (replacing hardcoded length checks):
+- `CreateActivityUseCase._validate()` — now uses `ValidationRules.activityName(input.name)`
+- `CreateFoodItemUseCase._validate()` — now uses `ValidationRules.foodName(input.name)`
+- `CreateJournalEntryUseCase._validate()` — now uses `ValidationRules.journalContent(input.content)`
+
+### Part 6: LogConditionUseCase future timestamp check
+Already done. Lines 100–107 already have future timestamp check matching `log_flare_up_use_case.dart`. No change needed.
+
+### Key files
+- **`02_CODING_STANDARDS.md`** (MODIFIED) — FoodItem/PhotoArea archive support updated to Yes
+- **`lib/core/validation/validation_rules.dart`** (MODIFIED) — added activityName, foodName, journalContent validators
+- **`lib/domain/usecases/activities/create_activity_use_case.dart`** (MODIFIED) — use ValidationRules.activityName()
+- **`lib/domain/usecases/food_items/create_food_item_use_case.dart`** (MODIFIED) — use ValidationRules.foodName()
+- **`lib/domain/usecases/journal_entries/create_journal_entry_use_case.dart`** (MODIFIED) — use ValidationRules.journalContent()
 
 ---
 

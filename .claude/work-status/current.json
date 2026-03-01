@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Bug fix: Group A Quick Fixes — fasting markDirty forwarding",
+  "task": "Bug fix: archive syncStatus + spec correction + ValidationRules use cases",
   "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3396,
   "schemaVersion": 18,
-  "notes": "Fixed FastingRepositoryImpl to forward markDirty param to _dao.updateEntity(). Also added markDirty param to FastingSessionDao.updateEntity() signature. Regenerated mocks. Fixes 2-5 from the prompt were already done (activity_log @Default already correct, AccessLevel already has correct values per 22_API_CONTRACTS.md, DatabaseError.transactionFailed already exists, all four entity isActive getters already check syncDeletedAt). 3,396 tests passing, analyzer clean. Next: await Architect review."
+  "notes": "Part 1: Updated 02_CODING_STANDARDS.md Section 9.5 — FoodItem and PhotoArea now support archive (Yes). Parts 2: activity_dao, food_item_dao, photo_area_dao archive() methods all already had syncStatus=modified — no changes. Part 3-5: Added ValidationRules.activityName(), foodName(), journalContent() methods; updated CreateActivityUseCase, CreateFoodItemUseCase, CreateJournalEntryUseCase to use named validators. Part 6: LogConditionUseCase already had future timestamp check — no change. 3,396 tests passing, analyzer clean. Next: await Architect review."
 }
