@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-004
+# Briefing Version: 20260301-005
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,13 +10,21 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Action:   fix: archive syncStatus in 3 DAOs; spec correction; ValidationRules use cases (559a634)
-# Next Action:   Await correct prompt from Architect (Reid noted previous prompt was a copy error)
+# Last Commit:   e7987f0 — docs: update briefing (no code changes)
+# Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
+# Last Completed Task:
+#   - Verified archive() syncStatus in activity_dao, food_item_dao, photo_area_dao — all already correct
+#   - Corrected 02_CODING_STANDARDS.md Section 9.5 — FoodItem and PhotoArea now archive-capable (Yes)
+#   - Added ValidationRules.activityName(), foodName(), journalContent() named validators
+#   - Updated CreateActivityUseCase, CreateFoodItemUseCase, CreateJournalEntryUseCase to use named validators
+#   - Verified LogConditionUseCase already had future timestamp check — no change needed
+# Next Action:   Await next phase prompt from Architect
+# Note:          Reid accidentally pasted a non-Shadow prompt last session; no work was done from it
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
-# Tests:         3,396 passing (unchanged)
-# Schema:        v18 (unchanged)
+# Tests:         3,396 passing
+# Schema:        v18
 # Analyzer:      Clean
-# Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
+# Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
