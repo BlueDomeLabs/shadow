@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-007
+# Briefing Version: 20260301-008
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: add identity, team, workflow, and session checklist sections to CLAUDE.md
+# Last Commit:   (this session) no commit — file already correct, no changes made
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
@@ -22,6 +22,44 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Group E: UpdateSupplementUseCase Audit — ALREADY CORRECT
+
+**Tests: 3,396 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Prompt requested two fixes to `update_supplement_use_case.dart`:
+1. Add 5 missing validations to `_validateUpdated()`
+2. Remove manual `syncMetadata.copyWith()` block from `call()`
+
+Full read of the file confirmed both issues are already resolved. The `_validateUpdated()` method
+contains all 7 validations in exact parity with `CreateSupplementUseCase._validate()`:
+supplementName, brand (optional), customForm required when form==other, customDosageUnit required
+when unit==custom, dosageQuantity positive, ingredientsCount, schedulesCount, and dateRange.
+
+The `call()` method has no `syncMetadata` manipulation — it constructs the updated entity via
+`copyWith` (fields only, no syncMetadata) and passes it directly to `_repository.update(updated)`.
+No `now` variable exists in `call()`. This matches the established pattern exactly.
+
+Also cross-checked against `CreateSupplementUseCase` — validation logic, structure, and comments
+are in full parity. No changes made to any file.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/usecases/supplements/update_supplement_use_case.dart | ALREADY CORRECT | All 5 validations present; no manual syncMetadata block |
+| lib/domain/usecases/supplements/create_supplement_use_case.dart | ALREADY CORRECT | Read for comparison — in full parity with update use case |
+
+### Executive Summary for Reid
+
+The Architect flagged two potential bugs in the supplement-updating code. I checked both and neither
+exists in the current codebase — the code already handles all the validation rules the Architect
+expected to be missing, and it already delegates sync management to the right layer rather than
+handling it manually. Nothing needed fixing. Tests are clean at 3,396 passing.
 
 ---
 
