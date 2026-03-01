@@ -335,6 +335,11 @@ class _FakeSyncService implements SyncService {
   @override
   Future<Result<int?, AppError>> getLastSyncVersion(String profileId) async =>
       const Success(null);
+
+  @override
+  Future<Result<List<SyncConflict>, AppError>> getUnresolvedConflicts(
+    String profileId,
+  ) async => const Success([]);
 }
 
 /// Fake ProfileNotifier that immediately holds a preset profileId.

@@ -732,6 +732,11 @@ class SyncServiceImpl implements SyncService {
       _conflictDao.countUnresolved(profileId);
 
   @override
+  Future<Result<List<SyncConflict>, AppError>> getUnresolvedConflicts(
+    String profileId,
+  ) async => _conflictDao.getUnresolved(profileId);
+
+  @override
   Future<Result<int?, AppError>> getLastSyncTime(String profileId) async {
     final time = _prefs.getInt('$_lastSyncTimeKey$profileId');
     return Success(time);

@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 29: Correlation View screen",
-  "timestamp": "2026-02-28T00:00:00Z",
+  "task": "Phase 30: Conflict Resolution UI",
+  "timestamp": "2026-02-28T18:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3386,
+  "testCount": 3396,
   "schemaVersion": 18,
-  "notes": "Phase 29 complete. Created CorrelationViewScreen: photos shown newest-first with ±48h health event window, loading 8 repos in parallel. Added as 5th card in ReportsTab. Filter sheet supports date preset (30d/90d/all), photo areas, and 7 event categories. Fixed production bug where _CorrelationKey was recomputed from DateTime.now() in build() causing infinite reload. 8 new widget tests. Next: await Architect review."
+  "notes": "Phase 30 complete. Created ConflictResolutionScreen: lists unresolved sync conflicts as cards with This Device vs Other Device panels and Keep/Keep/Merge buttons. Settings screen conflict count row is now tappable and navigates to the new screen. Added getUnresolvedConflicts() to SyncService interface and SyncServiceImpl. 10 new widget tests. Next: await Architect review."
 }

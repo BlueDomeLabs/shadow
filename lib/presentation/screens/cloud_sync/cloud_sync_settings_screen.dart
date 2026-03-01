@@ -7,6 +7,7 @@ import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_pro
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
+import 'package:shadow_app/presentation/screens/cloud_sync/conflict_resolution_screen.dart';
 
 /// Cloud sync settings screen for managing sync configuration.
 ///
@@ -181,31 +182,47 @@ class _CloudSyncSettingsScreenState
           ),
           if (_conflictCount > 0) ...[
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.orange[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange[300]!),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ConflictResolutionScreen(),
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.warning_amber,
-                    color: Colors.orange[700],
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '$_conflictCount conflict${_conflictCount == 1 ? '' : 's'} need${_conflictCount == 1 ? 's' : ''} review',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.orange[800],
-                        fontWeight: FontWeight.w500,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange[300]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber,
+                      color: Colors.orange[700],
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '$_conflictCount conflict${_conflictCount == 1 ? '' : 's'} need${_conflictCount == 1 ? 's' : ''} review',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.orange[800],
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.orange[700],
+                      size: 18,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-02-28
-# Briefing Version: 20260228-001
+# Briefing Version: 20260228-002
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        Phase 29 COMPLETE
-# Last Action:   Correlation View screen — photos with ±48h event window
+# Status:        Phase 30 COMPLETE
+# Last Action:   Conflict Resolution UI — view and resolve sync conflicts
 # Next Action:   Await Architect review
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
-# Tests:         3,386 passing (+8 new)
+# Tests:         3,396 passing (+10 new)
 # Schema:        v18 (unchanged)
 # Analyzer:      Clean
 # Archive:    Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -21,6 +21,54 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-02-28 MST] — Phase 30: Conflict Resolution UI — COMPLETE
+
+**10 new tests added. Tests: 3,396. Schema: v18. Analyzer: clean.**
+
+### Summary
+
+Added a Conflict Resolution screen reachable from the Cloud Sync settings screen.
+When sync detects that the same data was edited on two devices, conflicts are listed
+as cards showing "This Device" vs "Other Device" side by side, with three resolution
+buttons per card: Keep This Device, Keep Other Device, and Merge. Resolving a conflict
+removes its card immediately; errors show a snackbar. When no conflicts remain, a green
+checkmark empty-state is shown. The conflict count row in the settings screen is now
+tappable (was static text) and navigates to the new screen.
+
+Also added `getUnresolvedConflicts(profileId)` to `SyncService` / `SyncServiceImpl`
+(delegates to `SyncConflictDao.getUnresolved`).
+
+**Recon note:** The prompt referenced `syncNotifierProvider` — no such provider exists.
+Resolution calls go directly through `ref.read(syncServiceProvider).resolveConflict(...)`.
+This is intentional and consistent with how the settings screen accesses sync.
+
+### Key files
+
+- **`lib/presentation/screens/cloud_sync/conflict_resolution_screen.dart`** (CREATED)
+  - `ConflictResolutionScreen` — loads conflicts in `initState`, shows banner + ListView
+  - `_ConflictCard` — entity label, truncated ID, detected time, version panels, 3 buttons
+  - `_VersionPanel` — extracts name/notes/content/timestamps from entity JSON for display
+  - Entity type label mapping for all 15 entity types
+
+- **`lib/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart`** (MODIFIED)
+  - Conflict count container wrapped in `InkWell` → navigates to ConflictResolutionScreen
+  - Added `Icons.chevron_right` to conflict row to signal tappability
+
+- **`lib/domain/services/sync_service.dart`** (MODIFIED)
+  - Added `getUnresolvedConflicts(String profileId)` to interface
+
+- **`lib/data/services/sync_service_impl.dart`** (MODIFIED)
+  - Implemented `getUnresolvedConflicts` → delegates to `_conflictDao.getUnresolved`
+
+- **`test/presentation/screens/cloud_sync/conflict_resolution_screen_test.dart`** (CREATED)
+  - 10 widget tests: empty state, banner, card content, three resolution buttons,
+    card removal on success, error snackbar, settings navigation
+
+- **`test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart`** (MODIFIED)
+  - Added `getUnresolvedConflicts` stub to `_FakeSyncService`
 
 ---
 

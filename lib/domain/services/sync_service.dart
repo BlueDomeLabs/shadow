@@ -72,6 +72,11 @@ abstract class SyncService {
   /// Get count of unresolved sync conflicts for a profile.
   Future<Result<int, AppError>> getConflictCount(String profileId);
 
+  /// Get all unresolved sync conflicts for a profile.
+  Future<Result<List<SyncConflict>, AppError>> getUnresolvedConflicts(
+    String profileId,
+  );
+
   /// Get last successful sync time (epoch milliseconds) for a profile.
   Future<Result<int?, AppError>> getLastSyncTime(String profileId);
 
