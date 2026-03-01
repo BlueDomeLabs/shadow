@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-010
+# Briefing Version: 20260301-011
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-010 — Group G DAO audit: all already correct
+# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-011 — Test coverage audit: all 14 entities fully covered
 # Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
 # Next Action:   Await next phase prompt from Architect
 # Open Items:    Encryption deferred (AES-256-GCM needs key management — see DECISIONS.md)
@@ -22,6 +22,102 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Test Coverage Audit: All 14 Entities — FULLY COVERED
+
+**READ-ONLY AUDIT — no code changes**
+
+### Technical Summary
+
+Audited all 14 entities across three test directories:
+- `test/unit/domain/entities/`
+- `test/unit/data/datasources/local/daos/`
+- `test/unit/data/repositories/`
+
+**Result: All 14 entities now have all three test types.** The February audit gap (P8-1, P8-2, P8-3) is fully closed. Every entity that was previously flagged as missing DAO tests, entity tests, or repo impl tests now has all three.
+
+**The 10 previously-missing entities (all now covered):**
+
+| Entity | Entity Tests | DAO Tests | Repo Impl Tests |
+|--------|-------------|-----------|----------------|
+| Condition | condition_test.dart (11) | condition_dao_test.dart (24) | condition_repository_impl_test.dart (19) |
+| ConditionLog | condition_log_test.dart (11) | condition_log_dao_test.dart (18) | condition_log_repository_impl_test.dart (21) |
+| FlareUp | flare_up_test.dart (20) | flare_up_dao_test.dart (18) | flare_up_repository_impl_test.dart (21) |
+| Activity | activity_test.dart (17) | activity_dao_test.dart (27) | activity_repository_impl_test.dart (23) |
+| ActivityLog | activity_log_test.dart (20) | activity_log_dao_test.dart (16) | activity_log_repository_impl_test.dart (20) |
+| FoodItem | food_item_test.dart (25) | food_item_dao_test.dart (15) | food_item_repository_impl_test.dart (27) |
+| FoodLog | food_log_test.dart (18) | food_log_dao_test.dart (16) | food_log_repository_impl_test.dart (17) |
+| FluidsEntry | fluids_entry_test.dart (26) | fluids_entry_dao_test.dart (14) | fluids_entry_repository_impl_test.dart (19) |
+| IntakeLog | intake_log_test.dart (11) | intake_log_dao_test.dart (25) | intake_log_repository_impl_test.dart (23) |
+| JournalEntry | journal_entry_test.dart (22) | journal_entry_dao_test.dart (13) | journal_entry_repository_impl_test.dart (18) |
+
+**The 4 previously-confirmed entities (still covered):**
+
+| Entity | Entity Tests | DAO Tests | Repo Impl Tests |
+|--------|-------------|-----------|----------------|
+| Supplement | supplement_test.dart (44) | supplement_dao_test.dart (38) | supplement_repository_impl_test.dart (35) |
+| SleepEntry | sleep_entry_test.dart (20) | sleep_entry_dao_test.dart (14) | sleep_entry_repository_impl_test.dart (19) |
+| PhotoArea | photo_area_test.dart (13) | photo_area_dao_test.dart (13) | photo_area_repository_impl_test.dart (18) |
+| PhotoEntry | photo_entry_test.dart (18) | photo_entry_dao_test.dart (14) | photo_entry_repository_impl_test.dart (19) |
+
+Test counts are per `test(` invocation (not counting `group` blocks). Parameterized or nested tests may generate more actual test cases at runtime.
+
+No code changes made.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| test/unit/domain/entities/condition_test.dart | EXISTS | 11 tests |
+| test/unit/domain/entities/condition_log_test.dart | EXISTS | 11 tests |
+| test/unit/domain/entities/flare_up_test.dart | EXISTS | 20 tests |
+| test/unit/domain/entities/activity_test.dart | EXISTS | 17 tests |
+| test/unit/domain/entities/activity_log_test.dart | EXISTS | 20 tests |
+| test/unit/domain/entities/food_item_test.dart | EXISTS | 25 tests |
+| test/unit/domain/entities/food_log_test.dart | EXISTS | 18 tests |
+| test/unit/domain/entities/fluids_entry_test.dart | EXISTS | 26 tests |
+| test/unit/domain/entities/intake_log_test.dart | EXISTS | 11 tests |
+| test/unit/domain/entities/journal_entry_test.dart | EXISTS | 22 tests |
+| test/unit/data/datasources/local/daos/condition_dao_test.dart | EXISTS | 24 tests |
+| test/unit/data/datasources/local/daos/condition_log_dao_test.dart | EXISTS | 18 tests |
+| test/unit/data/datasources/local/daos/flare_up_dao_test.dart | EXISTS | 18 tests |
+| test/unit/data/datasources/local/daos/activity_dao_test.dart | EXISTS | 27 tests |
+| test/unit/data/datasources/local/daos/activity_log_dao_test.dart | EXISTS | 16 tests |
+| test/unit/data/datasources/local/daos/food_item_dao_test.dart | EXISTS | 15 tests |
+| test/unit/data/datasources/local/daos/food_log_dao_test.dart | EXISTS | 16 tests |
+| test/unit/data/datasources/local/daos/fluids_entry_dao_test.dart | EXISTS | 14 tests |
+| test/unit/data/datasources/local/daos/intake_log_dao_test.dart | EXISTS | 25 tests |
+| test/unit/data/datasources/local/daos/journal_entry_dao_test.dart | EXISTS | 13 tests |
+| test/unit/data/repositories/condition_repository_impl_test.dart | EXISTS | 19 tests |
+| test/unit/data/repositories/condition_log_repository_impl_test.dart | EXISTS | 21 tests |
+| test/unit/data/repositories/flare_up_repository_impl_test.dart | EXISTS | 21 tests |
+| test/unit/data/repositories/activity_repository_impl_test.dart | EXISTS | 23 tests |
+| test/unit/data/repositories/activity_log_repository_impl_test.dart | EXISTS | 20 tests |
+| test/unit/data/repositories/food_item_repository_impl_test.dart | EXISTS | 27 tests |
+| test/unit/data/repositories/food_log_repository_impl_test.dart | EXISTS | 17 tests |
+| test/unit/data/repositories/fluids_entry_repository_impl_test.dart | EXISTS | 19 tests |
+| test/unit/data/repositories/intake_log_repository_impl_test.dart | EXISTS | 23 tests |
+| test/unit/data/repositories/journal_entry_repository_impl_test.dart | EXISTS | 18 tests |
+| test/unit/domain/entities/supplement_test.dart | EXISTS (confirmed) | 44 tests |
+| test/unit/domain/entities/sleep_entry_test.dart | EXISTS (confirmed) | 20 tests |
+| test/unit/domain/entities/photo_area_test.dart | EXISTS (confirmed) | 13 tests |
+| test/unit/domain/entities/photo_entry_test.dart | EXISTS (confirmed) | 18 tests |
+| test/unit/data/datasources/local/daos/supplement_dao_test.dart | EXISTS (confirmed) | 38 tests |
+| test/unit/data/datasources/local/daos/sleep_entry_dao_test.dart | EXISTS (confirmed) | 14 tests |
+| test/unit/data/datasources/local/daos/photo_area_dao_test.dart | EXISTS (confirmed) | 13 tests |
+| test/unit/data/datasources/local/daos/photo_entry_dao_test.dart | EXISTS (confirmed) | 14 tests |
+| test/unit/data/repositories/supplement_repository_impl_test.dart | EXISTS (confirmed) | 35 tests |
+| test/unit/data/repositories/sleep_entry_repository_impl_test.dart | EXISTS (confirmed) | 19 tests |
+| test/unit/data/repositories/photo_area_repository_impl_test.dart | EXISTS (confirmed) | 18 tests |
+| test/unit/data/repositories/photo_entry_repository_impl_test.dart | EXISTS (confirmed) | 19 tests |
+
+### Executive Summary for Reid
+
+The Architect asked me to check whether the 10 entities flagged in the February audit as missing tests now have them. Short answer: yes, all of them do.
+
+Every one of the 14 core health tracking entities — conditions, condition logs, flare-ups, activities, activity logs, food items, food logs, fluid entries, intake logs, journal entries, supplements, sleep entries, photo areas, and photo entries — now has all three layers of tests: tests for the entity data model itself, tests for the database access layer, and tests for the repository layer. The February gap is closed.
 
 ---
 
