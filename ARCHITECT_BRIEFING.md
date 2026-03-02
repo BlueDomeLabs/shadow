@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-026
+# Briefing Version: 20260302-027
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Pass 08 cataloged + Pass 09 complete ✅
-# Last Commit:   docs: audit pass 08 findings — platform compliance (8 findings)
+# Status:        IDLE — Pass 09 cataloged + Pass 10 complete ✅ ALL 10 PASSES DONE
+# Last Commit:   docs: audit pass 09 findings — performance (4 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 09 findings → AUDIT_FINDINGS.md → run Pass 10
+# Next Action:   Architect catalogs Pass 10 findings → declares convergence → produces FIX_PLAN.md
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,123 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Pass 09 Cataloged + Pass 10: Code Standards & Dead Code
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Part A: Appended the Architect-supplied Pass 09 findings verbatim to
+`docs/AUDIT_FINDINGS.md`. Committed as `c4ead1a`.
+
+Part B: Executed Pass 10 — Code Standards & Dead Code — across all 8 steps.
+6 findings total: 0 CRITICAL, 1 HIGH, 0 MEDIUM, 5 LOW.
+
+**AUDIT-10-001 — LOW**
+Magic number `violations.take(10)` in
+`get_compliance_stats_use_case.dart:117`. No named constant or explanatory
+comment. Business logic limit of 10 recent violations should be a named
+constant (e.g. `_maxRecentViolations = 10`).
+
+**AUDIT-10-002 — LOW**
+Magic number `.take(5)` in `diet_dashboard_screen.dart:235`. Dashboard
+shows 5 recent violations with no named constant.
+
+**AUDIT-10-003 — LOW**
+`supplement_edit_screen.dart` is 1,634 lines — over the 800-line review
+threshold. Contains mixed concerns: form fields, barcode scanning, AI label
+scanning, photo management, schedule builder. Extraction opportunity.
+
+**AUDIT-10-004 — LOW**
+`fluids_entry_screen.dart` is 1,337 lines — over 800-line threshold.
+Extraction opportunity into smaller widget components.
+
+**AUDIT-10-005 — LOW**
+`food_item_edit_screen.dart` is 1,131 lines — over 800-line threshold.
+Extraction opportunity.
+
+**AUDIT-10-006 — HIGH**
+`addSupplementLabelPhotoUseCaseProvider` is defined and wired in
+`di_providers.dart` (line 514) and `supplementLabelPhotoRepository` is
+overridden in bootstrap (line 461), but `addSupplementLabelPhotoUseCase`
+is never called anywhere in the codebase. The supplement edit screen
+maintains a `_labelPhotoPaths` list and shows a Label Photos UI section
+(up to 3 photos), but the list is never included in `UpdateSupplementInput`
+or `CreateSupplementInput` during save. Label photos silently disappear
+on save — a silent data loss path.
+Fix approach: Wire `_labelPhotoPaths` into the save flow by calling
+`addSupplementLabelPhotoUseCaseProvider` after supplement create/update,
+or remove the label photo UI if the feature is intentionally deferred.
+
+**Clean areas — no findings:**
+- No TODO/FIXME/HACK in production code (Step 1: zero results)
+- No commented-out code blocks (Step 2: all comments are doc/explanatory)
+- Analyzer clean — 0 unused imports (Step 3)
+- All .dart files are snake_case (Step 4a: no violations)
+- All classes PascalCase, all methods camelCase (Step 4b/c: spot-check clean)
+- No constants directory; no SCREAMING_SNAKE_CASE constants found (Step 4d)
+- No provider invalidation in loops (Step 5: already confirmed Pass 09)
+- BaseRepository provides shared prepareForCreate/update/delete helpers;
+  all repo impls extend it — no copy-pasted error wrapping (Step 6a/b)
+- showAccessibleSnackBar is a shared helper used consistently (167 sites,
+  Step 6c)
+- All use case providers in di_providers.dart are consumed somewhere,
+  except addSupplementLabelPhotoUseCase (Step 8)
+
+**Grand Total — All 10 Passes:**
+| Pass | Name | Total | C | H | M | L |
+|------|------|-------|---|---|---|---|
+| 01 | Architecture | 7 | 0 | 2 | 3 | 2 |
+| 02 | Schema Alignment | 5 | 0 | 1 | 2 | 2 |
+| 03 | Sync Correctness | 3 | 0 | 1 | 2 | 0 |
+| 04 | Error Handling | 3 | 0 | 0 | 2 | 1 |
+| 05 | Security | 3 | 0 | 0 | 1 | 2 |
+| 06 | UI Completeness | 5 | 0 | 0 | 3 | 2 |
+| 07 | Test Quality | 4 | 0 | 1 | 2 | 1 |
+| 08 | Platform Compliance | 8 | 1 | 4 | 1 | 2 |
+| 09 | Performance | 4 | 0 | 1 | 2 | 1 |
+| 10 | Code Standards | 6 | 0 | 1 | 0 | 5 |
+| **TOTAL** | | **48** | **1** | **11** | **18** | **18** |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 09 findings (4 findings) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Session report + grand total |
+
+### Executive Summary for Reid
+
+This session wrapped up the last two items in the audit: cataloging the
+performance findings from last session, and running the final pass (Pass 10)
+on code quality and dead code.
+
+The good news: the codebase is remarkably clean. No TODO/FIXME comments
+left in production code, no commented-out code blocks, no unused imports,
+no copy-pasted error handling. The naming conventions are consistent
+throughout. The shared utility helpers are being used correctly everywhere
+they should be.
+
+The one meaningful finding is that the supplement label photo feature is
+half-built. The app shows a "Label Photos" section on the supplement edit
+screen where you can attach photos of a supplement's label. The photos
+appear in the UI, but when you hit Save, they're silently discarded — never
+written to the database. The infrastructure to save them exists (the
+repository, the use case, all wired up), but the save flow never calls it.
+This is HIGH severity because it's a silent data loss — the user believes
+their photos were saved, but they weren't.
+
+The remaining findings are style items: three screens over 800 lines (they
+work correctly, just complex), and two magic numbers in the diet compliance
+system (hard-coded limits of 10 and 5 that should be named constants).
+
+The complete audit is now done. 48 total findings across all 10 passes:
+1 CRITICAL, 11 HIGH, 18 MEDIUM, 18 LOW. The Architect will review, catalog
+Pass 10 into AUDIT_FINDINGS.md, and produce a FIX_PLAN.md grouping all
+findings by fix complexity. Then the fix phase begins.
 
 ---
 
