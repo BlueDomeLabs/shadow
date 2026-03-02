@@ -1464,3 +1464,96 @@ Status: OPEN
 ## End of Convergence Pass C Findings
 
 ---
+
+## Convergence Pass D — Unreachable Screens + Dead Use Case Wiring Sweep
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 4 (0 CRITICAL, 2 HIGH, 1 MEDIUM, 1 LOW)
+
+---
+
+AUDIT-CD-001
+Severity: HIGH
+Category: Navigation Wiring — Unreachable Screen
+File: lib/presentation/screens/activity_logs/activity_log_screen.dart
+Cross-cutting: lib/presentation/providers/activity_logs/activity_log_list_provider.dart,
+  lib/presentation/screens/home/tabs/activities_tab.dart
+Description: ActivityLogScreen is fully implemented (create + edit,
+  timestamp picker, activity multi-select, ad-hoc activities, duration,
+  notes, dirty-state guard) but is not imported or navigated to from
+  any screen except via activity_quick_entry_sheet.dart (notification
+  path only). The ActivitiesTab shows activity definitions (with
+  ActivityEditScreen), but has no FAB or action to log an activity
+  occurrence. Users can only log an activity via a notification quick-
+  entry sheet; the full log screen is inaccessible from the main nav.
+  Same pattern as AUDIT-CC-002 (ConditionLogScreen unreachable).
+Fix approach: Add a "Log Activity" FAB or per-card action in
+  ActivitiesTab navigating to ActivityLogScreen. Alternatively, add a
+  dedicated "Activity Logs" history view reachable from the tab.
+Status: OPEN
+
+---
+
+AUDIT-CD-002
+Severity: HIGH
+Category: Navigation Wiring — Unreachable Screen
+File: lib/presentation/screens/diet/fasting_timer_screen.dart
+Cross-cutting: lib/presentation/screens/diet/diet_dashboard_screen.dart,
+  lib/presentation/screens/diet/diet_list_screen.dart
+Description: FastingTimerScreen is fully implemented (active fasting
+  session display with timer, end-fast action) but is not imported or
+  navigated to from any other file in the codebase. A grep for
+  `FastingTimerScreen` returns only the screen's own file. The diet
+  feature has DietDashboardScreen and DietListScreen but neither
+  navigates to the fasting timer. Users have no UI path to view or
+  manage an active fasting session.
+  Same pattern as AUDIT-CC-002 (ConditionLogScreen unreachable).
+Fix approach: Wire FastingTimerScreen into DietDashboardScreen or
+  DietListScreen. Most natural entry: a "View Timer" button or card
+  that is conditionally visible when an active fasting session exists,
+  navigating with Navigator.push to FastingTimerScreen(profileId).
+Status: OPEN
+
+---
+
+AUDIT-CD-003
+Severity: MEDIUM
+Category: Dead DI Wiring — Provider Never Called
+File: lib/presentation/providers/di/di_providers.dart
+Cross-cutting: lib/domain/usecases/health/get_imported_vitals_use_case.dart,
+  lib/presentation/providers/health/health_sync_provider.dart
+Description: `getImportedVitalsUseCaseProvider` is registered in
+  di_providers.dart (line 1190) and overridden in bootstrap.dart, but
+  is never referenced outside di_providers.dart. The
+  health_sync_provider.dart does not consume it, and no screen or
+  provider reads the imported vitals through this use case.
+  Same pattern as AUDIT-10-006 (addSupplementLabelPhotoUseCaseProvider).
+Fix approach: Either wire the use case into the health sync provider so
+  imported vitals are surfaced in the UI, or document that this use case
+  is intentionally deferred (Phase 3 / future health platform work).
+Status: OPEN
+
+---
+
+AUDIT-CD-004
+Severity: LOW
+Category: Dead Domain Code — Use Case Never Wired to DI
+File: lib/domain/usecases/fluids_entries/get_fluids_entries_use_case.dart
+Cross-cutting: lib/presentation/screens/reports/bbt_chart_screen.dart,
+  lib/presentation/providers/di/di_providers.dart
+Description: `GetBBTEntriesUseCase` is defined in the domain layer
+  (get_fluids_entries_use_case.dart) with a corresponding
+  `GetBBTEntriesInput` type. It is never registered in di_providers.dart
+  and never called anywhere in the codebase. BBTChartScreen loads BBT
+  data by reading fluids_entry_list_provider directly, bypassing the
+  dedicated use case entirely. The use case is dead code.
+Fix approach: Either (a) register GetBBTEntriesUseCase in di_providers.dart
+  and wire BBTChartScreen through the use case (preferred — maintains
+  layer boundaries), or (b) delete the unused use case and input type.
+Status: OPEN
+
+---
+
+## End of Convergence Pass D Findings
+
+---

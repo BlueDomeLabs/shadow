@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-029
+# Briefing Version: 20260302-030
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Convergence Pass C complete; 60 total findings cataloged
-# Last Commit:   docs: Convergence Pass C audit findings (AUDIT-CC-001 through AUDIT-CC-003)
+# Status:        IDLE — Convergence Pass D complete; 64 total findings cataloged
+# Last Commit:   docs: Convergence Pass D audit findings (AUDIT-CD-001 through AUDIT-CD-004)
 # Last Code:     DOCS ONLY — no code changes
-# Next Action:   Architect reviews Pass C findings → declares convergence or orders Pass D
+# Next Action:   Architect reviews Pass D findings → declares convergence or orders Pass E
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,116 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Convergence Pass D: Unreachable Screens + Dead Use Case Wiring Sweep
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Convergence Pass D — systematic sweep for screens with no
+navigation entry points and use case providers wired in DI but never
+called. 4 new findings: AUDIT-CD-001 through AUDIT-CD-004.
+
+**Step 1 — Router Completeness:**
+No named router in this project. Confirmed all navigation is
+plain Navigator.push. Searched every screen class name across lib/.
+Two screens with zero external references found:
+ActivityLogScreen (AUDIT-CD-001) and FastingTimerScreen (AUDIT-CD-002).
+BBTChartScreen is referenced correctly from reports_tab.dart.
+ConditionLogScreen already cataloged as AUDIT-CC-002.
+
+**Step 2 — DI Provider Call-Site Audit:**
+Reviewed all use case providers in di_providers.dart. Most are
+correctly called from their corresponding providers. Two providers
+found with zero call sites outside DI:
+- getImportedVitalsUseCaseProvider: in DI, never called (AUDIT-CD-003)
+- addSupplementLabelPhotoUseCaseProvider: already AUDIT-10-006
+Additionally, GetBBTEntriesUseCase exists in the domain layer but is
+never registered in DI at all, and BBTChartScreen bypasses it (AUDIT-CD-004).
+
+**Step 3 — Orphaned Feature Directories:**
+All subdirectories in usecases/, screens/, and providers/ map to
+active features. The health/ directory contains GetImportedVitalsUseCase
+and SyncFromHealthPlatformUseCase — the latter IS called from
+health_sync_provider. No orphaned directories found.
+
+**Step 4 — ConditionLog Navigation Fix Scope:**
+ConditionLogScreen requires `conditionId` at construction time — must
+be opened from within a specific condition's context, not from a
+general FAB. The conditions_tab.dart shows conditions as ExpansionTiles
+with a popup menu (Edit / Archive). The natural fix is adding "Log Entry"
+to that popup menu, navigating to ConditionLogScreen(profileId, condition).
+No router change needed — plain Navigator.push matches project pattern.
+Minimum change: add import + one popup menu item in conditions_tab.dart.
+(Note: condition_list_screen.dart is not currently reachable from
+conditions_tab either — conditions_tab renders its own inline list,
+not via ConditionListScreen.)
+
+### Grand Total (64 findings)
+
+| Pass | Findings | C | H | M | L |
+|------|----------|---|---|---|---|
+| 01 Architecture | 7 | 0 | 2 | 3 | 2 |
+| 02 Schema Alignment | 5 | 0 | 1 | 2 | 2 |
+| 03 Sync Correctness | 3 | 0 | 1 | 2 | 0 |
+| 04 Error Handling | 3 | 0 | 0 | 2 | 1 |
+| 05 Security | 3 | 0 | 0 | 1 | 2 |
+| 06 UI Completeness | 5 | 0 | 0 | 3 | 2 |
+| 07 Test Quality | 4 | 0 | 1 | 2 | 1 |
+| 08 Platform Compliance | 8 | 1 | 4 | 1 | 2 |
+| 09 Performance | 4 | 0 | 1 | 2 | 1 |
+| 10 Code Standards | 6 | 0 | 1 | 0 | 5 |
+| Conv. Pass A Profile | 5 | 0 | 1 | 3 | 1 |
+| Conv. Pass B Diet+Photo | 4 | 0 | 0 | 4 | 0 |
+| Conv. Pass C FlareUp+Nav | 3 | 0 | 1 | 2 | 0 |
+| Conv. Pass D Unreachable | 4 | 0 | 2 | 1 | 1 |
+| **TOTAL** | **64** | **1** | **15** | **28** | **20** |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass D section (4 findings) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Session entry + updated grand total |
+
+### Executive Summary for Reid
+
+Pass D is complete. We did a targeted search for two specific problems
+we've seen before: screens that are fully built but can't be reached
+from the app, and use cases that are wired up in the plumbing but
+never actually called.
+
+We found two more unreachable screens:
+
+1. **ActivityLogScreen** — The full screen for logging an activity
+   (like "ran 30 minutes") exists but there's no button in the app
+   to open it. You can only log an activity via a notification quick-
+   entry shortcut, not through the Activities section of the app.
+
+2. **FastingTimerScreen** — A complete fasting timer screen (shows
+   elapsed time, lets you end a fast) exists but is completely
+   disconnected from the Diet section. If you start a fast, you have
+   no way to view the timer or stop it from the main app.
+
+We also confirmed that a "Get Imported Vitals" use case is registered
+in the app's dependency graph but never actually called anywhere — same
+bookkeeping issue as the supplement photo case we found earlier.
+
+The grand total is now **64 findings** (was 60). This is the same
+population of issues — Pass D added 4, all in the navigation/wiring
+category. The pattern is consistent: features were built but then
+weren't connected to the navigation. That is exactly what the fix
+phase will address.
+
+Pass D is the fourth convergence pass. I recommend the Architect
+review whether more passes are warranted or whether convergence
+has been reached. The unreachable screen pattern (now 3 confirmed
+instances: ConditionLog, ActivityLog, FastingTimer) plus the
+DI dead wiring issues are now well-cataloged and ready for the
+fix plan.
 
 ---
 
