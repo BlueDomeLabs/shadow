@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Pass 05 findings cataloged + Pass 06 complete ✅
-# Last Commit:   docs: audit pass 05 findings — security privacy (3 findings)
+# Status:        IDLE — Pass 06 cataloged + Pass 07 complete ✅
+# Last Commit:   docs: audit pass 06 findings — UI completeness (5 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 06 findings → AUDIT_FINDINGS.md → run Pass 07
+# Next Action:   Architect catalogs Pass 07 findings → AUDIT_FINDINGS.md → run Pass 08
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,113 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 07: Test Quality
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 07 of the final pre-launch audit. Examined all 210 non-generated
+test files across 6 steps: always-passing tests, mock staleness, failure path
+coverage, widget test completeness, database isolation, and integration sync.
+
+**4 findings: 0 CRITICAL, 1 HIGH, 2 MEDIUM, 1 LOW.**
+
+**AUDIT-07-001 — HIGH**
+No integration test exercises the full sync flow (create entity → push →
+pull → verify received). `test/integration/` contains only
+`guest_profile_access_test.dart` (guest token flow). `sync_service_impl_test.dart`
+tests SyncServiceImpl in unit isolation with all dependencies mocked — it does
+NOT catch integration failures between sync service, DAO, encryption, and cloud
+provider. The sync path is the most critical data flow in the app. A regression
+that breaks push or pull would not be caught by any automated test.
+Fix approach: Add `test/integration/sync_flow_integration_test.dart` using
+in-memory DB + mock CloudStorageProvider. Test: create entity → getPendingSync
+→ pushChanges → mock cloud returns the change → pullChanges → applyChanges
+→ verify entity marked clean and present in DB.
+
+**AUDIT-07-002 — MEDIUM**
+`LogFluidsEntryUseCase` (lib/domain/usecases/fluids_entries/
+log_fluids_entry_use_case.dart) has no unit test file. All other CRUD use cases
+have test coverage under test/unit/domain/usecases/{entity}/. The fluids_entries
+directory is the only missing one. Widget tests (fluids_entry_screen_test,
+fluids_quick_entry_sheet_test) provide indirect coverage of the happy path only.
+Fix approach: Add test/unit/domain/usecases/fluids_entries/
+fluids_entry_usecases_test.dart. Cover: happy path, repository failure,
+profile authorization failure, and edge cases (LogFluidsEntryUseCase,
+UpdateFluidsEntryUseCase, DeleteFluidsEntryUseCase, GetFluidsEntriesUseCase).
+
+**AUDIT-07-003 — MEDIUM**
+`test/unit/domain/repositories/entity_repository_test.dart` (209 lines, 25 tests)
+and `test/unit/domain/repositories/supplement_repository_test.dart` (235 lines, 28
+tests) test hand-written mock implementations that always return `Success`. Every
+test in both files will pass regardless of what the real implementations do — the
+tests verify that the interface compiles with certain method signatures, nothing
+more. These tests provide false confidence: they are counted in the 3,449 test
+total but exercise no real logic.
+Fix approach: Either (a) rename these as "interface contract compilation tests"
+with a comment making the limitation explicit, or (b) replace with tests that
+exercise the actual real implementations (SupplementRepositoryImpl,
+etc.) against real data, which is better covered by the existing
+repository impl tests anyway. The 53 tests could be removed without reducing
+actual coverage.
+
+**AUDIT-07-004 — LOW**
+`health_sync_settings_screen_test.dart` tests 17 widget states (platform name,
+toggle states, sync button visibility, etc.) but does not test the AsyncError
+state. This is a test gap that directly mirrors AUDIT-06-004 (the screen itself
+shows raw exception text with no retry). When AUDIT-06-004 is fixed, a
+corresponding error state widget test should be added.
+Fix approach: Add a testWidgets case that overrides the provider with an
+AsyncError state and verifies the error message + retry button are rendered.
+Defer until AUDIT-06-004 fix lands.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Pass 06 findings appended (Part A) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Pass 07 session entry |
+
+### Executive Summary for Reid
+
+Two things happened this session:
+
+**Part A** — I finished cataloging the Pass 06 findings (the UI screen audit
+from last session) into the official audit log and committed them to GitHub.
+That's now complete.
+
+**Part B** — I ran the Pass 07 audit, which focused on test quality. I read
+all 210 test files and examined them for weaknesses. The good news: the
+testing discipline across the app is strong. Nearly every feature has unit tests,
+failure paths are covered, the test database is properly isolated, and the
+test mocks are up to date.
+
+Four issues were found:
+
+1. **The most important:** There is no test that verifies the full sync loop
+   end to end — create data, push it to the cloud, pull it back, confirm it
+   arrived correctly. The sync system has good unit tests for each piece in
+   isolation, but nothing verifies that all the pieces work together. A bug
+   that breaks sync between two devices might not be caught by the current
+   test suite.
+
+2. **A gap in fluids entry:** The "log a fluids entry" use case is missing its
+   unit tests. Every other similar use case in the app has them.
+
+3. **Some hollow tests:** Two test files (209 + 235 lines) test fake mock objects
+   that always return "success" — they don't test any real code. They count toward
+   the test total but don't provide real coverage. They could safely be removed
+   or converted into meaningful tests.
+
+4. **A low-priority gap:** The health data settings screen test doesn't verify
+   what happens when the screen fails to load — matching a gap already noted
+   in the UI audit (Pass 06).
+
+Passes 08–10 remain. No fixes until the Architect declares convergence.
 
 ---
 
