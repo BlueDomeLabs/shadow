@@ -133,3 +133,112 @@ Status: OPEN
 ## End of Pass 01 Findings
 
 ---
+
+## Pass 02 — Schema → Entity → DAO → Repository Alignment
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 5 (0 CRITICAL, 1 HIGH, 2 MEDIUM, 2 LOW)
+
+Note: 15 sync adapters exist (not 14 as documented).
+3 additional Syncable entities (Diet, DietViolation,
+FastingSession) have no adapter registration.
+
+---
+
+AUDIT-02-001
+Severity: MEDIUM
+Category: Schema → Entity → DAO → Repository Alignment
+File: lib/data/datasources/local/tables/fluids_entries_table.dart
+Cross-cutting: lib/data/datasources/local/daos/fluids_entry_dao.dart,
+  lib/domain/entities/fluids_entry.dart
+Description: Two table columns (bowel_custom_condition,
+  urine_custom_condition) have no corresponding fields
+  in the FluidsEntry entity. The DAO _rowToEntity never
+  reads them and _entityToCompanion never writes them.
+  These columns are permanently null in all rows.
+Fix approach: Either add entity fields for these two
+  columns and wire them through the DAO, or drop the
+  columns in a migration if they are not needed.
+Status: OPEN
+
+---
+
+AUDIT-02-002
+Severity: MEDIUM
+Category: Schema → Entity → DAO → Repository Alignment
+File: lib/data/datasources/local/tables/food_items_table.dart
+Cross-cutting: lib/domain/entities/food_item.dart,
+  lib/data/datasources/local/daos/food_item_dao.dart
+Description: Type mismatch between schema and entity.
+  Table stores serving_size (REAL) + serving_unit (TEXT)
+  as two separate columns. Entity has a single
+  servingSize: String? field (e.g. "1 cup", "100g").
+  DAO converts via _buildServingSize/_parseServingSize
+  which silently returns (null, null) for non-parseable
+  strings — data loss possible on round-trip.
+Fix approach: Add a separate servingUnit: String? field
+  to the FoodItem entity to match the schema structure.
+  Update DAO to read/write both fields independently
+  without string parsing.
+Status: OPEN
+
+---
+
+AUDIT-02-003
+Severity: HIGH
+Category: Schema → Entity → DAO → Repository Alignment
+File: lib/core/bootstrap.dart
+Cross-cutting: lib/domain/entities/diet.dart,
+  lib/domain/entities/diet_violation.dart,
+  lib/domain/entities/fasting_session.dart,
+  lib/data/datasources/local/tables/diets_table.dart,
+  lib/data/datasources/local/tables/diet_violations_table.dart,
+  lib/data/datasources/local/tables/fasting_sessions_table.dart
+Description: Diet, DietViolation, and FastingSession all
+  implement Syncable with full sync metadata columns and
+  complete DAO + repository stacks. None are registered
+  as SyncEntityAdapter in bootstrap.dart. Diet data is
+  marked dirty on every create/update but the sync system
+  never reads these entities. Diet tracking data silently
+  never syncs between devices — no error, no indication,
+  just permanent data divergence.
+Fix approach: Add three SyncEntityAdapter registrations
+  for Diet, DietViolation, and FastingSession in
+  bootstrap.dart. Implement the required toJson/fromJson
+  and repository accessors for each adapter.
+Status: OPEN
+
+---
+
+AUDIT-02-004
+Severity: LOW
+Category: Schema → Entity → DAO → Repository Alignment
+File: lib/data/datasources/local/database.dart
+Cross-cutting: None
+Description: Class doc comment says "Schema version
+  follows 10_DATABASE_SCHEMA.md: Version 7" but actual
+  schemaVersion constant is 18. Stale comment.
+Fix approach: Update comment to "Version 18".
+Status: OPEN
+
+---
+
+AUDIT-02-005
+Severity: LOW
+Category: Schema → Entity → DAO → Repository Alignment
+File: lib/core/bootstrap.dart
+Cross-cutting: None
+Description: Comment says "Build sync entity adapters
+  for all 14 entity types" but 15 adapters are registered.
+  Additionally 3 more Syncable entities exist without
+  adapters (see AUDIT-02-003). Stale comment will be
+  wrong in both directions until the adapter gap is fixed.
+Fix approach: Update comment after AUDIT-02-003 is
+  resolved to reflect the correct adapter count.
+Status: OPEN
+
+---
+
+## End of Pass 02 Findings
+
+---
