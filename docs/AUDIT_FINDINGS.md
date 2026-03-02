@@ -720,3 +720,162 @@ Status: OPEN
 ## End of Pass 07 Findings
 
 ---
+
+## Pass 08 — Platform Compliance
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 8 (1 CRITICAL, 4 HIGH, 1 MEDIUM, 2 LOW)
+
+---
+
+AUDIT-08-001
+Severity: CRITICAL
+Category: Platform Compliance
+File: ios/Runner/PrivacyInfo.xcprivacy (MISSING)
+Cross-cutting: ios/Runner.xcodeproj/project.pbxproj
+Description: No PrivacyInfo.xcprivacy file exists for
+  the app target. Apple has required this file for all
+  App Store submissions since Spring 2024. Only
+  pod/build-directory PrivacyInfo files exist — none
+  is the app's own manifest. Without this file the
+  submission will be rejected before review.
+  Must declare: NSPrivacyTracking (false for Shadow),
+  NSPrivacyAccessedAPITypes (UserDefaults, file
+  timestamps), NSPrivacyCollectedDataTypes (health data).
+Fix approach: Create ios/Runner/PrivacyInfo.xcprivacy
+  with NSPrivacyTracking: false, appropriate
+  NSPrivacyAccessedAPITypes, and
+  NSPrivacyCollectedDataTypes for health data.
+  Add to Xcode project via project.pbxproj.
+Status: OPEN
+
+---
+
+AUDIT-08-002
+Severity: HIGH
+Category: Platform Compliance
+File: ios/Runner/Info.plist
+Cross-cutting: None
+Description: Four required NSUsageDescription keys
+  are missing. image_picker is confirmed used in
+  photo_picker_utils.dart and 4 screen files —
+  requires NSCameraUsageDescription,
+  NSPhotoLibraryUsageDescription, and
+  NSPhotoLibraryAddUsageDescription. local_auth is
+  confirmed used in security_settings_service.dart —
+  requires NSFaceIDUsageDescription. Absence of
+  NSFaceIDUsageDescription crashes the app on Face ID
+  devices. Other missing keys cause silent permission
+  denial for camera and photo library.
+Fix approach: Add all four keys to Info.plist with
+  meaningful user-facing descriptions that explain
+  why the app needs each permission.
+Status: OPEN
+
+---
+
+AUDIT-08-003
+Severity: HIGH
+Category: Platform Compliance
+File: android/app/src/main/AndroidManifest.xml
+Cross-cutting: None
+Description: android.permission.INTERNET is not
+  declared. The app makes network calls for Google
+  Drive sync, Google Sign-In, Open Food Facts, NIH
+  DSLD, and Anthropic API. Without INTERNET declared,
+  all network calls are blocked on Android — cloud
+  sync and all API features fail silently.
+Fix approach: Add <uses-permission
+  android:name="android.permission.INTERNET"/> to
+  AndroidManifest.xml.
+Status: OPEN
+
+---
+
+AUDIT-08-004
+Severity: HIGH
+Category: Platform Compliance
+File: android/app/src/main/AndroidManifest.xml
+Cross-cutting: None
+Description: android.permission.USE_BIOMETRIC and
+  android.permission.USE_FINGERPRINT (for API < 28
+  compatibility) are not declared. local_auth is
+  confirmed in use for biometric lock. Without these
+  permissions declared, biometric auth throws
+  PlatformException on Android.
+Fix approach: Add USE_BIOMETRIC and USE_FINGERPRINT
+  permissions to AndroidManifest.xml.
+Status: OPEN
+
+---
+
+AUDIT-08-005
+Severity: HIGH
+Category: Platform Compliance
+File: android/app/build.gradle.kts
+Cross-cutting: android/app/src/main/AndroidManifest.xml
+Description: minSdk = flutter.minSdkVersion resolves
+  to 21 (Android 5.0). Health Connect requires API 26+
+  (Android 8.0). Eight health permissions and a Health
+  Connect intent filter are declared — these are
+  non-functional or will crash on API 21-25 devices.
+  App does not guard against unsupported API level
+  at runtime.
+Fix approach: Set minSdk = 26 explicitly in
+  build.gradle.kts. Remove dependency on
+  flutter.minSdkVersion default.
+Status: OPEN
+
+---
+
+AUDIT-08-006
+Severity: MEDIUM
+Category: Platform Compliance
+File: ios/Runner.xcodeproj/project.pbxproj
+Cross-cutting: None
+Description: IPHONEOS_DEPLOYMENT_TARGET = 13.0 in
+  3 occurrences. App declares background modes and
+  HealthKit background delivery requires iOS 15+.
+  Recommend raising to 16.0 to align with app feature
+  set and avoid runtime failures on iOS 13-15 devices
+  using advanced HealthKit or background sync features.
+Fix approach: Raise IPHONEOS_DEPLOYMENT_TARGET to
+  16.0 in all three occurrences in project.pbxproj.
+Status: OPEN
+
+---
+
+AUDIT-08-007
+Severity: LOW
+Category: Platform Compliance
+File: android/app/build.gradle.kts
+Cross-cutting: None
+Description: Flutter default TODO comment indicates
+  release build is signed with debug keys. Play Store
+  submissions require release signing. Launch checklist
+  item — not a code bug but will block Play Store
+  submission.
+Fix approach: Configure release signing configuration
+  before first Play Store submission.
+Status: OPEN
+
+---
+
+AUDIT-08-008
+Severity: LOW
+Category: Platform Compliance
+File: (no file — Play Console configuration)
+Cross-cutting: None
+Description: Google Play Data Safety declaration must
+  be completed in Play Console before submission.
+  Shadow collects health data — the form is mandatory.
+  This is not a code change but a launch checklist item.
+Fix approach: Complete the Data Safety form in Google
+  Play Console before submitting to Play Store.
+Status: OPEN
+
+---
+
+## End of Pass 08 Findings
+
+---
