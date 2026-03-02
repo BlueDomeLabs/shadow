@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-014
+# Briefing Version: 20260301-015
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,11 +10,13 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   feat: add ICloudProvider implementing CloudStorageProvider (Phase 31a)
-# Last Code:     (this session) ICloudProvider + 24 tests
-# Next Action:   Phase 31b — DI wiring + UI changes (Session 2 per prompt)
-# Open Items:    iOS/macOS Xcode entitlements required (manual step — not in this session)
-# Tests:         3,420 passing
+# Last Commit:   feat: wire ICloudProvider into DI + cloud sync setup screen (Phase 31b)
+# Last Code:     (this session) DI wiring, bootstrap, auth notifier iCloud, setup screen
+# Next Action:   Phase 32 (TBD by Architect)
+# Open Items:    iOS/macOS Xcode entitlements required (manual step — iCloud won't work on
+#                real device without iCloud capability + iCloud Documents + container ID)
+#                Provider switching requires app restart for SyncService to use new provider
+# Tests:         3,432 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +24,55 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Phase 31b: ICloudProvider DI Wiring + Cloud Sync Setup Screen
+
+**Tests: 3,432 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Phase 31b wired ICloudProvider into DI, updated bootstrap to select the active provider at startup, extended CloudSyncAuthNotifier to support iCloud, and replaced the "Coming Soon" iCloud button with a real auth flow.
+
+**di_providers.dart:** Added `iCloudProvider` and `activeCloudProvider` providers (both `@Riverpod(keepAlive: true)`, typed to `ICloudProvider` and `CloudStorageProvider` respectively). Added imports for `icloud_provider.dart` and `cloud_storage_provider.dart`. The abstract `activeCloudProvider` is what SyncService should eventually read from directly (not yet — SyncService receives the concrete instance at bootstrap).
+
+**bootstrap.dart:** After creating `secureStorage`, reads `'cloud_provider_type'` key to determine stored preference (defaults to `googleDrive` if absent). Instantiates both `GoogleDriveProvider` and `ICloudProvider`. Selects `activeProvider` via exhaustive switch on `CloudProviderType`. Passes `activeProvider` to `SyncServiceImpl` (previously hardcoded `googleDriveProvider`). Overrides all three providers: `googleDriveProviderProvider`, `iCloudProviderProvider`, `activeCloudProviderProvider`.
+
+**cloud_sync_auth_provider.dart:** `CloudSyncAuthNotifier` constructor now accepts optional `ICloudProvider? iCloudProvider` and `FlutterSecureStorage? storage` parameters (backward compatible — existing `CloudSyncAuthNotifier(mockProvider)` calls work unchanged). `_checkExistingSession` reads stored preference and checks the appropriate provider. Added `signInWithICloud()` for direct iCloud auth. Added `switchProvider(CloudProviderType)` which signs out of current provider, authenticates new, writes preference to storage. `signOut()` now dispatches to `_iCloudProvider` or `_googleProvider` based on `state.activeProvider`. The `cloudSyncAuthProvider` StateNotifierProvider passes both providers from DI.
+
+**cloud_sync_setup_screen.dart:** Replaced `_showComingSoon()` with `_selectProvider(context, ref, authState, type)`. The iCloud button calls `_selectProvider` with `CloudProviderType.icloud`. `_selectProvider` shows a confirmation dialog when switching away from an existing provider; otherwise calls `signInWithICloud()` directly. Added `_providerDisplayName()` helper. Updated `_buildSignedInSection` to use `_providerDisplayName(authState.activeProvider)` instead of hardcoded 'Google Drive'.
+
+**Key architectural note:** Provider switching (via `switchProvider`) persists the new type to `FlutterSecureStorage`. The SyncService will use the new provider after the next app restart. The auth state updates immediately. This matches the "app restart is acceptable" guidance in the prompt.
+
+**Tests added:** 12 new tests. Auth provider test: `signInWithICloud` success/failure/concurrent; `switchProvider` success/failure/persistence; `signOut` dispatches to iCloud. Setup screen test: iCloud button visible on macOS; iCloud tap calls `signInWithICloud` not "Coming Soon"; subtitle correct; `switchProvider` callable; signed-in section shows 'iCloud' not 'Google Drive'. Existing tests required: add `TestWidgetsFlutterBinding.ensureInitialized()` (FlutterSecureStorage platform channels) and pass `mockStorage` to `CloudSyncAuthNotifier` constructor.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | Added iCloudProviderProvider + activeCloudProviderProvider |
+| lib/presentation/providers/di/di_providers.g.dart | MODIFIED | Regenerated — includes new provider stubs |
+| lib/core/bootstrap.dart | MODIFIED | Read stored CloudProviderType; instantiate ICloudProvider; select active; wire all three in ProviderScope; pass active to SyncServiceImpl |
+| lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart | MODIFIED | Add ICloudProvider/storage params; signInWithICloud(); switchProvider(); updated signOut(); updated _checkExistingSession() |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | MODIFIED | Replace _showComingSoon with _selectProvider; _providerDisplayName helper; updated _buildSignedInSection |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart | MODIFIED | +TestWidgetsFlutterBinding.ensureInitialized; +mockStorage; +12 new tests for iCloud support |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.mocks.dart | MODIFIED | Regenerated — adds MockICloudProvider + MockFlutterSecureStorage |
+| test/unit/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | Added _SpyCloudSyncAuthNotifier; 5 new iCloud button tests; updated _FakeCloudSyncAuthNotifier with no-op overrides |
+| .claude/work-status/current.json | MODIFIED | Updated to Phase 31b complete, 3432 tests |
+
+### Executive Summary for Reid
+
+Phase 31b is complete. The iCloud button in the cloud sync setup screen now does something real. When you tap it, the app checks whether your Apple account has iCloud available and, if so, connects to it. The "Coming Soon" message is gone.
+
+Under the hood, the app now remembers which cloud provider you chose (Google Drive or iCloud) and uses that choice the next time it starts up. The sync engine picks the right provider at startup based on your saved preference.
+
+A few things worth knowing:
+- **iCloud still won't work on a real iPhone or Mac until we add Xcode entitlements** — a separate manual step that requires working in Xcode directly. The code is all in place; we just need to tell Apple's system the app is allowed to use iCloud. That's Phase 31c or a future Xcode session.
+- **Switching providers takes effect after an app restart.** If you switch from Google Drive to iCloud (or vice versa), your local data shows the new provider immediately, but the actual sync engine won't switch until you close and reopen the app. This is intentional and the simplest approach given how the app is structured.
+- **No data migration happens on provider switch.** If you've been syncing to Google Drive and switch to iCloud, your existing cloud data stays in Google Drive. The app will start syncing new changes to iCloud going forward.
+
+The Architect should note: `activeCloudProviderProvider` is now wired in ProviderScope but the SyncService receives the concrete instance at construction (not via `ref.read(activeCloudProviderProvider)`). If hot-switching is needed in a future phase, the SyncService would need to accept a provider ref rather than a concrete instance.
 
 ---
 
