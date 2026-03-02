@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
         _SettingsTile(
           icon: Icons.cloud_outlined,
           title: 'Cloud Sync',
-          subtitle: 'Google Drive backup and sync status',
+          subtitle: 'Cloud backup and sync status',
           onTap: () => _navigateTo(context, const CloudSyncSettingsScreen()),
         ),
         _SettingsTile(

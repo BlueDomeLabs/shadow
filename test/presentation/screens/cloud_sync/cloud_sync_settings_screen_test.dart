@@ -108,6 +108,52 @@ void main() {
       expect(find.text('Google Drive'), findsOneWidget);
     });
 
+    testWidgets('shows iCloud as provider when iCloud is active provider', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildScreen(
+          authState: const CloudSyncAuthState(
+            isAuthenticated: true,
+            activeProvider: CloudProviderType.icloud,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.text('iCloud'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('iCloud'), findsOneWidget);
+      expect(find.text('Google Drive'), findsNothing);
+    });
+
+    testWidgets(
+      'shows Google Drive as Sync Provider when Google Drive is active',
+      (tester) async {
+        await tester.pumpWidget(
+          buildScreen(
+            authState: const CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@example.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        await tester.scrollUntilVisible(
+          find.text('Google Drive'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('Google Drive'), findsOneWidget);
+        expect(find.text('iCloud'), findsNothing);
+      },
+    );
+
     testWidgets('shows None as provider when not authenticated', (
       tester,
     ) async {

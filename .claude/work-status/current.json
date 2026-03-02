@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 31b: ICloudProvider DI wiring + cloud sync setup screen",
+  "task": "Three cosmetic cloud sync string fixes",
   "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3432,
+  "testCount": 3434,
   "schemaVersion": 18,
-  "notes": "Phase 31b complete. DI: added iCloudProviderProvider + activeCloudProviderProvider to di_providers.dart. Bootstrap: reads stored 'cloud_provider_type' from FlutterSecureStorage (key), instantiates both providers, selects active based on stored preference, overrides all three in ProviderScope, passes activeProvider to SyncServiceImpl. Auth notifier: added ICloudProvider + FlutterSecureStorage params (optional for backward compat); added signInWithICloud(), switchProvider(); updated signOut() to dispatch to correct provider based on state.activeProvider; _checkExistingSession reads stored preference. Setup screen: replaced _showComingSoon with _selectProvider(); updated _buildSignedInSection to show correct provider name. +12 new tests (29 auth provider total, 32 setup screen total). 3432 total passing. Analyzer clean. NOTE: Xcode entitlements still required for iCloud on real device. Provider switching requires app restart for SyncService to use new provider. Next: Phase 32 (TBD by Architect)."
+  "notes": "Three string fixes: (1) CloudSyncSettingsScreen Device Info now uses _providerDisplayName() instead of hardcoded 'Google Drive' — shows correct label for iCloud or Google Drive; (2) Settings screen Cloud Sync tile subtitle changed from 'Google Drive backup and sync status' to 'Cloud backup and sync status'; (3) Stale SyncServiceImpl class comment removed (was 'Pull and conflict resolution return stubs (Phase 3/4)'). +2 new tests for provider label. 3,434 total passing. Analyzer clean."
 }

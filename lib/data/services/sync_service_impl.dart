@@ -197,7 +197,7 @@ class SyncEntityAdapter<T extends Syncable> {
 /// - [CloudStorageProvider] to upload encrypted data to Google Drive
 /// - [SharedPreferences] to persist sync timestamps and versions
 ///
-/// Pull and conflict resolution operations return stubs (Phase 3/4).
+/// Pull, push, conflict detection, and resolution are all fully implemented.
 class SyncServiceImpl implements SyncService {
   static final _log = logger.scope('SyncService');
 

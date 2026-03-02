@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-015
+# Briefing Version: 20260301-016
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,13 +10,13 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   feat: wire ICloudProvider into DI + cloud sync setup screen (Phase 31b)
-# Last Code:     (this session) DI wiring, bootstrap, auth notifier iCloud, setup screen
+# Last Commit:   fix: correct stale cloud sync strings and provider display label
+# Last Code:     Three cosmetic fixes: provider label, settings subtitle, stale comment
 # Next Action:   Phase 32 (TBD by Architect)
 # Open Items:    iOS/macOS Xcode entitlements required (manual step — iCloud won't work on
 #                real device without iCloud capability + iCloud Documents + container ID)
 #                Provider switching requires app restart for SyncService to use new provider
-# Tests:         3,432 passing
+# Tests:         3,434 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -24,6 +24,32 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Three Cosmetic Fixes: Cloud Sync String Cleanup
+
+**Tests: 3,434 | Schema: v18 | Analyzer: clean**
+
+### What Changed
+
+**Fix 1 — Hardcoded "Google Drive" label in CloudSyncSettingsScreen (BUG)**
+`_buildDeviceInfoSection()` hardcoded `'Google Drive'` as the Sync Provider value regardless of which provider was actually active. Added `_providerDisplayName(CloudProviderType?)` helper to `_CloudSyncSettingsScreenState` (mirrors the same helper already in `CloudSyncSetupScreen`) and wired it in. Also added `cloud_storage_provider.dart` import needed for the `CloudProviderType` switch. Added 2 new tests: one covering iCloud active provider shows "iCloud", one confirming Google Drive active provider shows "Google Drive" (not "iCloud").
+
+**Fix 2 — Settings screen subtitle**
+`settings_screen.dart` tile subtitle changed from `'Google Drive backup and sync status'` to `'Cloud backup and sync status'`. No tests needed — string-only change.
+
+**Fix 3 — Stale comment in SyncServiceImpl**
+Replaced `"Pull and conflict resolution operations return stubs (Phase 3/4)."` with `"Pull, push, conflict detection, and resolution are all fully implemented."` — a comment-only change.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart | MODIFIED | Added `_providerDisplayName()` helper; replaced hardcoded `'Google Drive'` with dynamic call; added `cloud_storage_provider.dart` import |
+| lib/presentation/screens/settings/settings_screen.dart | MODIFIED | Changed Cloud Sync tile subtitle to `'Cloud backup and sync status'` |
+| lib/data/services/sync_service_impl.dart | MODIFIED | Updated stale class-level comment — no code change |
+| test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart | MODIFIED | +2 tests: iCloud active shows "iCloud"; Google Drive active shows "Google Drive" |
 
 ---
 

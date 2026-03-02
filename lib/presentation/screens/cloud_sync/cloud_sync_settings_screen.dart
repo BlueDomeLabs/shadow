@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
@@ -252,7 +253,9 @@ class _CloudSyncSettingsScreenState
           const SizedBox(height: 8),
           _buildInfoRow(
             'Sync Provider',
-            authState.isAuthenticated ? 'Google Drive' : 'None',
+            authState.isAuthenticated
+                ? _providerDisplayName(authState.activeProvider)
+                : 'None',
           ),
           const SizedBox(height: 8),
           _buildInfoRow('Last Sync', _formatLastSyncTime(_lastSyncTime)),
@@ -354,4 +357,12 @@ class _CloudSyncSettingsScreenState
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
   }
+
+  /// Returns the display name for a [CloudProviderType].
+  String _providerDisplayName(CloudProviderType? type) => switch (type) {
+    CloudProviderType.icloud => 'iCloud',
+    CloudProviderType.googleDrive => 'Google Drive',
+    CloudProviderType.offline => 'Local Only',
+    null => 'Cloud Sync',
+  };
 }
