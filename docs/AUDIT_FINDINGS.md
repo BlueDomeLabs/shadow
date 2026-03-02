@@ -242,3 +242,79 @@ Status: OPEN
 ## End of Pass 02 Findings
 
 ---
+
+## Pass 03 — Sync Correctness
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 3 (0 CRITICAL, 1 HIGH, 2 MEDIUM, 0 LOW)
+
+---
+
+AUDIT-03-001
+Severity: HIGH
+Category: Sync Correctness
+File: lib/data/services/sync_service_impl.dart
+Cross-cutting: All 15 entity DAOs
+Description: After a successful push, markEntitySynced()
+  calls repository.getById(entityId) to fetch the entity
+  before clearing isDirty. All DAOs filter out
+  soft-deleted rows (WHERE sync_deleted_at IS NULL), so
+  getById returns not-found for deleted entities.
+  markEntitySynced failure is silently ignored. Result:
+  deleted entities upload correctly once but their local
+  syncIsDirty flag is never cleared — they re-upload on
+  every sync cycle indefinitely. Silent infinite loop.
+Fix approach: Either (a) have markEntitySynced bypass
+  the soft-delete filter to fetch the row, or (b) add a
+  DAO-level markSynced(id) partial UPDATE that sets
+  syncIsDirty=false directly without fetching the entity.
+Status: OPEN
+
+---
+
+AUDIT-03-002
+Severity: MEDIUM
+Category: Sync Correctness
+File: lib/core/repositories/base_repository.dart
+Cross-cutting: All 15 entity DAO softDelete() methods
+Description: DAO softDelete() writes a partial Companion
+  setting syncDeletedAt, syncUpdatedAt, syncIsDirty=true,
+  syncStatus=deleted — but does NOT increment syncVersion
+  or update syncDeviceId. BaseRepository.prepareForDelete()
+  which calls markDeleted() with proper version increment
+  exists but is never called by any repository impl —
+  all 15 call _dao.softDelete(id) directly. Conflict
+  detection still works (isDirty-based) but syncVersion
+  does not reflect delete operations.
+Fix approach: Repository delete() methods should call
+  prepareForDelete() then _dao.updateEntity(), or each
+  DAO softDelete() must also write syncVersion+1 and
+  syncDeviceId.
+Status: OPEN
+
+---
+
+AUDIT-03-003
+Severity: MEDIUM
+Category: Sync Correctness
+File: lib/domain/usecases/supplements/archive_supplement_use_case.dart
+Cross-cutting: lib/domain/usecases/conditions/archive_condition_use_case.dart,
+  lib/domain/usecases/food_items/archive_food_item_use_case.dart
+Description: All three archive use cases manually set
+  syncVersion: existing.syncMetadata.syncVersion + 1
+  before calling repository.update(updated). The update()
+  path calls prepareForUpdate() which calls markModified(),
+  which increments syncVersion again. Archive operations
+  double-increment syncVersion (N → N+2 instead of N+1).
+  Could cause spurious conflict detection.
+Fix approach: Remove the manual syncMetadata.copyWith(...)
+  block from all three archive use cases. Only set
+  isArchived on the entity copy and let repository.update()
+  handle all sync metadata increments.
+Status: OPEN
+
+---
+
+## End of Pass 03 Findings
+
+---
