@@ -318,3 +318,85 @@ Status: OPEN
 ## End of Pass 03 Findings
 
 ---
+
+## Pass 04 — Error Handling & Result Type
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 3 (0 CRITICAL, 0 HIGH, 2 MEDIUM, 1 LOW)
+
+Note: All 26 repository impls, all use cases, and all
+Riverpod providers are clean. Result type usage is
+disciplined throughout. No swallowed exceptions found
+outside the items below.
+
+---
+
+AUDIT-04-001
+Severity: MEDIUM
+Category: Error Handling & Result Type
+File: lib/domain/usecases/health/sync_from_health_platform_use_case.dart
+Cross-cutting: None
+Description: Inconsistent per-type error handling in
+  health sync loop. Comment at line 127 states "Platform
+  read failure for one type should not abort the whole
+  sync" — readRecords failures are correctly non-fatal
+  and continue to the next type. However,
+  _vitalRepo.getLastImportTime(), _vitalRepo.importBatch(),
+  and _statusRepo.upsert() failures all return Failure(),
+  aborting the entire import. A transient DB error on
+  one data type (e.g. heart rate) aborts all remaining
+  types (weight, blood pressure, steps, etc.). User sees
+  "Sync failed" with no indication of partial completion.
+Fix approach: Match the readRecords non-fatal pattern
+  for DB operations within the loop — log, record 0
+  imported for that type, and continue. Return partial
+  SyncFromHealthPlatformResult with per-type error
+  counts instead of top-level Failure.
+Status: OPEN
+
+---
+
+AUDIT-04-002
+Severity: MEDIUM
+Category: Error Handling & Result Type
+File: lib/presentation/providers/profile/profile_provider.dart
+Cross-cutting: lib/domain/usecases/profiles/ (missing),
+  lib/data/repositories/profile_repository_impl.dart
+Description: ProfileNotifier._load(), _save(),
+  addProfile(), updateProfile(), deleteProfile(),
+  setCurrentProfile() have no error handling.
+  SharedPreferences failures produce uncaught async
+  exceptions. ProfileState has no error field. Screens
+  call these methods fire-and-forget — if persistence
+  fails, UI shows success while the change was not
+  saved. Downstream consequence of AUDIT-01-006; the
+  architectural fix resolves this automatically.
+Fix approach: Add try/catch to _save() and _load()
+  with logging as an interim fix. Full resolution
+  when AUDIT-01-006 is addressed (migrate profile
+  management to profileRepositoryProvider + use cases).
+Status: OPEN
+
+---
+
+AUDIT-04-003
+Severity: LOW
+Category: Error Handling & Result Type
+File: lib/data/datasources/local/database.dart
+Cross-cutting: None
+Description: MigrationStrategy.onUpgrade has no
+  try/catch. onCreate has a try/catch with descriptive
+  logging before rethrow. onUpgrade should match — a
+  migration failure is a critical crash and wrapping
+  with descriptive logging before rethrow would
+  significantly aid crash diagnosis in the field.
+Fix approach: Wrap entire onUpgrade body in try/catch
+  that logs DatabaseError.migrationFailed(from, to,
+  e, stack) then rethrows.
+Status: OPEN
+
+---
+
+## End of Pass 04 Findings
+
+---
