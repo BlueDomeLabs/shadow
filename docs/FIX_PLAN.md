@@ -481,7 +481,7 @@ When all groups are complete and deferred items are acknowledged:
 | Date | Group | Finding IDs | Commit | Notes |
 |------|-------|-------------|--------|-------|
 | 2026-03-02 | GROUP P | AUDIT-08-001, 08-002, 08-003, 08-004, 08-005, 08-006, 08-007(ack), 08-008(ack) | 4782b15 | All 6 code fixes done; 2 launch-checklist items acknowledged |
-| 2026-03-02 | GROUP Q | AUDIT-02-004, 02-005, 04-003, 05-001, 05-003, 07-003, 10-001, 10-002, CA-003 | TBD | All 9 findings fixed; 3,442 tests passing; analyzer clean |
+| 2026-03-02 | GROUP Q | AUDIT-02-004, 02-005, 04-003, 05-001, 05-003, 07-003, 10-001, 10-002, CA-003 | 458ce90 | All 9 findings fixed; 3,442 tests passing; analyzer clean |
 
 ---
 
