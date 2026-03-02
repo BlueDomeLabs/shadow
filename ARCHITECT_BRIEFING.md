@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-024
+# Briefing Version: 20260302-025
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Pass 06 cataloged + Pass 07 complete ✅
-# Last Commit:   docs: audit pass 06 findings — UI completeness (5 findings)
+# Status:        IDLE — Pass 07 cataloged + Pass 08 complete ✅
+# Last Commit:   docs: audit pass 07 findings — test quality (4 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 07 findings → AUDIT_FINDINGS.md → run Pass 08
+# Next Action:   Architect catalogs Pass 08 findings → AUDIT_FINDINGS.md → run Pass 09
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,122 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 07 Cataloged + Pass 08: Platform Compliance
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Part A: Appended the Architect-supplied Pass 07 findings verbatim to
+`docs/AUDIT_FINDINGS.md`. Committed as `84ae4a9`.
+
+Part B: Executed Pass 08 — Platform Compliance — across 7 steps. Files examined:
+`ios/Runner/Info.plist`, `ios/Runner/Runner.entitlements`,
+`android/app/src/main/AndroidManifest.xml`, `android/app/build.gradle.kts`,
+pubspec.yaml (permission packages), and checked for `ios/Runner/PrivacyInfo.xcprivacy`.
+
+**8 findings: 1 CRITICAL, 4 HIGH, 1 MEDIUM, 2 LOW.**
+
+**AUDIT-08-001 — CRITICAL**
+No `ios/Runner/PrivacyInfo.xcprivacy` exists. Apple has required this file for all
+App Store submissions since Spring 2024. Only pod/build-directory PrivacyInfo files
+exist — none is the app's own manifest. Must declare NSPrivacyTracking, health data
+collection types, and required reason APIs (UserDefaults, file timestamps).
+Fix approach: Create `ios/Runner/PrivacyInfo.xcprivacy` with NSPrivacyTracking: false,
+appropriate NSPrivacyAccessedAPITypes, and NSPrivacyCollectedDataTypes for health data.
+Add to Xcode project.
+
+**AUDIT-08-002 — HIGH**
+Info.plist missing four required NSUsageDescription keys: NSCameraUsageDescription,
+NSPhotoLibraryUsageDescription, NSPhotoLibraryAddUsageDescription (all required because
+`image_picker` is confirmed used in photo_picker_utils.dart and 4 screen files), and
+NSFaceIDUsageDescription (required because `local_auth` is confirmed used in
+security_settings_service.dart). Absence of NSFaceIDUsageDescription causes a crash on
+Face ID devices. Other missing keys cause silent permission denial.
+Fix approach: Add all four keys to Info.plist with meaningful descriptions.
+
+**AUDIT-08-003 — HIGH**
+`android.permission.INTERNET` not declared in AndroidManifest.xml. The app makes
+network calls for Google Drive sync and Google Sign-In. Without INTERNET declared,
+all network calls are blocked on Android — cloud sync fails silently.
+Fix approach: Add `<uses-permission android:name="android.permission.INTERNET"/>`.
+
+**AUDIT-08-004 — HIGH**
+`android.permission.USE_BIOMETRIC` (and USE_FINGERPRINT for API < 28 compatibility)
+not declared. `local_auth` confirmed in use. Without these, biometric auth throws
+PlatformException on Android.
+Fix approach: Add USE_BIOMETRIC and USE_FINGERPRINT permissions to AndroidManifest.xml.
+
+**AUDIT-08-005 — HIGH**
+`minSdk = flutter.minSdkVersion` resolves to 21 (Android 5.0). Health Connect requires
+API 26+. 8 health permissions and a Health Connect intent filter are declared — these
+will be non-functional or crash on API 21–25 devices.
+Fix approach: Set `minSdk = 26` explicitly in build.gradle.kts.
+
+**AUDIT-08-006 — MEDIUM**
+`IPHONEOS_DEPLOYMENT_TARGET = 13.0` in project.pbxproj (3 occurrences). App declares
+background modes; HealthKit background delivery requires iOS 15+. Recommend raising to
+iOS 16.0 to align with app feature set.
+Fix approach: Raise to 16.0 in all three occurrences in project.pbxproj.
+
+**AUDIT-08-007 — LOW**
+`build.gradle.kts` contains Flutter default TODO comment: release build signed with
+debug keys. Cannot submit to Play Store with debug keys. Launch checklist item.
+Fix approach: Configure release signing before first Play Store submission.
+
+**AUDIT-08-008 — LOW**
+Google Play Data Safety declaration must be completed in Play Console (not a file in
+the repo). Shadow collects health data — the form must be completed before submission.
+Launch checklist item, no code change needed.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 07 findings (117 lines) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Updated handoff + added Pass 08 session entry |
+| ios/Runner/Info.plist | READ | Missing 4 NSUsageDescription keys (AUDIT-08-002) |
+| ios/Runner/Runner.entitlements | READ | HealthKit entitlement present; no background-delivery (app doesn't use it) |
+| android/app/src/main/AndroidManifest.xml | READ | Missing INTERNET, USE_BIOMETRIC (AUDIT-08-003, 04) |
+| android/app/build.gradle.kts | READ | minSdk deferred to flutter default = 21 (AUDIT-08-005) |
+| ios/Runner/PrivacyInfo.xcprivacy | READ — MISSING | Does not exist (AUDIT-08-001 CRITICAL) |
+
+### Executive Summary for Reid
+
+Pass 08 examined both the iOS and Android platform configuration files — the settings
+that control what permissions the app is allowed to request, what features it can use,
+and what Apple and Google require for App Store submission.
+
+The headline finding is critical: Apple now requires every iOS app to include a privacy
+declaration file before it can be submitted to the App Store. Shadow doesn't have one.
+Without it, the submission will be rejected before anyone even reviews the code. This
+is fixable — it's a file we need to create — but it needs to happen before we submit.
+
+There are four HIGH findings that affect actual app behavior:
+
+1. The iOS app is missing permission descriptions for camera, photo library, and Face ID.
+   The photo features (adding photos to your log) and PIN/biometric lock both require
+   these. The Face ID one is the most urgent — its absence doesn't just block the
+   feature, it crashes the app on any iPhone with Face ID.
+
+2. Android is missing the basic internet permission. This means cloud sync would be
+   silently broken on Android — no error, it just won't connect. This is likely a
+   template oversight.
+
+3. Android biometric auth permission is also missing — same effect as iOS: the lock
+   screen feature would throw an error.
+
+4. The Android minimum OS version is too low. Health Connect requires Android 8.0 or
+   newer, but the app is currently configured to support Android 5.0+. Devices older
+   than Android 8.0 can't use Health Connect at all, and the app doesn't guard against
+   this.
+
+None of these findings require changes to app logic — they're all configuration fixes.
+But they need to be addressed before any public release or TestFlight/internal testing
+on real devices, or testers will hit crashes and silent failures.
 
 ---
 
