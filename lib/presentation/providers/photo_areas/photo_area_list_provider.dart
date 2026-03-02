@@ -36,7 +36,7 @@ class PhotoAreaList extends _$PhotoAreaList {
 
   /// Creates a new photo area.
   Future<void> create(CreatePhotoAreaInput input) async {
-    _log.debug('Creating photo area: ${input.name}');
+    _log.debug('Creating photo area for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);

@@ -81,7 +81,7 @@ part 'database.g.dart';
 
 /// Shadow App Database using Drift ORM with SQLCipher AES-256 encryption.
 ///
-/// Schema version follows 10_DATABASE_SCHEMA.md: Version 7.
+/// Schema version follows 10_DATABASE_SCHEMA.md: Version 18.
 /// Tables are added incrementally as entities are implemented.
 ///
 /// Security:
@@ -221,63 +221,64 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     onUpgrade: (m, from, to) async {
-      // Each migration is idempotent per 02_CODING_STANDARDS.md Section 8.5
+      try {
+        // Each migration is idempotent per 02_CODING_STANDARDS.md Section 8.5
 
-      // v8: Add sync_conflicts table for Phase 4 conflict handling
-      if (from < 8) {
-        await m.createTable(syncConflicts);
-      }
+        // v8: Add sync_conflicts table for Phase 4 conflict handling
+        if (from < 8) {
+          await m.createTable(syncConflicts);
+        }
 
-      // v9: Add custom_dosage_unit column to supplements
-      if (from < 9) {
-        await m.addColumn(supplements, supplements.customDosageUnit);
-      }
+        // v9: Add custom_dosage_unit column to supplements
+        if (from < 9) {
+          await m.addColumn(supplements, supplements.customDosageUnit);
+        }
 
-      // v10: Add profiles table (Phase 11)
-      if (from < 10) {
-        await m.createTable(profiles);
-      }
+        // v10: Add profiles table (Phase 11)
+        if (from < 10) {
+          await m.createTable(profiles);
+        }
 
-      // v11: Add guest_invites table (Phase 12a)
-      if (from < 11) {
-        await m.createTable(guestInvites);
-      }
+        // v11: Add guest_invites table (Phase 12a)
+        if (from < 11) {
+          await m.createTable(guestInvites);
+        }
 
-      // v12: Add notification tables (Phase 13a)
-      if (from < 12) {
-        await m.createTable(anchorEventTimes);
-        await m.createTable(notificationCategorySettings);
-      }
+        // v12: Add notification tables (Phase 13a)
+        if (from < 12) {
+          await m.createTable(anchorEventTimes);
+          await m.createTable(notificationCategorySettings);
+        }
 
-      // v13: Add user_settings table (Phase 14)
-      if (from < 13) {
-        await m.createTable(userSettingsTable);
-      }
+        // v13: Add user_settings table (Phase 14)
+        if (from < 13) {
+          await m.createTable(userSettingsTable);
+        }
 
-      // v14: Food Database Extension + Supplement Extension (Phase 15a)
-      if (from < 14) {
-        // Add new columns to food_items
-        await m.addColumn(foodItems, foodItems.sodiumMg);
-        await m.addColumn(foodItems, foodItems.barcode);
-        await m.addColumn(foodItems, foodItems.brand);
-        await m.addColumn(foodItems, foodItems.ingredientsText);
-        await m.addColumn(foodItems, foodItems.openFoodFactsId);
-        await m.addColumn(foodItems, foodItems.importSource);
-        await m.addColumn(foodItems, foodItems.imageUrl);
-        // Add new columns to supplements
-        await m.addColumn(supplements, supplements.source);
-        await m.addColumn(supplements, supplements.pricePaid);
-        await m.addColumn(supplements, supplements.barcode);
-        await m.addColumn(supplements, supplements.importSource);
-        // Create new tables
-        await m.createTable(foodItemComponents);
-        await m.createTable(foodBarcodeCache);
-        await m.createTable(supplementLabelPhotos);
-        await m.createTable(supplementBarcodeCache);
-        // Data migration: copy existing simpleItemIds JSON → food_item_components
-        // with quantity=1.0 for each existing composed item component.
-        // Uses raw SQL since Drift migration doesn't support complex read+insert.
-        await customStatement('''
+        // v14: Food Database Extension + Supplement Extension (Phase 15a)
+        if (from < 14) {
+          // Add new columns to food_items
+          await m.addColumn(foodItems, foodItems.sodiumMg);
+          await m.addColumn(foodItems, foodItems.barcode);
+          await m.addColumn(foodItems, foodItems.brand);
+          await m.addColumn(foodItems, foodItems.ingredientsText);
+          await m.addColumn(foodItems, foodItems.openFoodFactsId);
+          await m.addColumn(foodItems, foodItems.importSource);
+          await m.addColumn(foodItems, foodItems.imageUrl);
+          // Add new columns to supplements
+          await m.addColumn(supplements, supplements.source);
+          await m.addColumn(supplements, supplements.pricePaid);
+          await m.addColumn(supplements, supplements.barcode);
+          await m.addColumn(supplements, supplements.importSource);
+          // Create new tables
+          await m.createTable(foodItemComponents);
+          await m.createTable(foodBarcodeCache);
+          await m.createTable(supplementLabelPhotos);
+          await m.createTable(supplementBarcodeCache);
+          // Data migration: copy existing simpleItemIds JSON → food_item_components
+          // with quantity=1.0 for each existing composed item component.
+          // Uses raw SQL since Drift migration doesn't support complex read+insert.
+          await customStatement('''
           INSERT INTO food_item_components (id, composed_food_item_id, simple_food_item_id, quantity, sort_order)
           SELECT
             lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' ||
@@ -294,63 +295,68 @@ class AppDatabase extends _$AppDatabase {
             AND fi.simple_item_ids != '[]'
             AND fi.simple_item_ids != ''
         ''');
-      }
-
-      // v15: Diet Tracking data foundation (Phase 15b-1)
-      if (from < 15) {
-        // Add violation_flag column to food_logs
-        await m.addColumn(foodLogs, foodLogs.violationFlag);
-        // Create new diet tracking tables
-        await m.createTable(diets);
-        await m.createTable(dietRules);
-        await m.createTable(dietExceptions);
-        await m.createTable(fastingSessions);
-        await m.createTable(dietViolations);
-      }
-
-      // v16: Health Platform Integration data foundation (Phase 16a)
-      if (from < 16) {
-        await m.createTable(importedVitals);
-        await m.createTable(healthSyncSettingsTable);
-        await m.createTable(healthSyncStatusTable);
-      }
-
-      // v17: AnchorEventName enum re-index (Phase 19)
-      // Existing integer values: lunch=2, dinner=3, bedtime=4
-      // New integer values:      lunch=3, dinner=5, bedtime=7
-      // Run in reverse order (bedtime first) to avoid collision.
-      if (from < 17) {
-        // Migrate anchor_event_times.name (integer column)
-        await customStatement(
-          'UPDATE anchor_event_times SET name = 7 WHERE name = 4',
-        );
-        await customStatement(
-          'UPDATE anchor_event_times SET name = 5 WHERE name = 3',
-        );
-        await customStatement(
-          'UPDATE anchor_event_times SET name = 3 WHERE name = 2',
-        );
-
-        // Migrate notification_category_settings.anchor_event_values (JSON text column).
-        // Values 2, 3, 4 may appear as array elements; handle all boundary positions
-        // ([N], [N,, ,N], ,N,) to avoid partial-number replacement.
-        // Apply in reverse order: bedtime(4→7), dinner(3→5), lunch(2→3).
-        for (final step in [
-          (old: '4', replacement: '7'),
-          (old: '3', replacement: '5'),
-          (old: '2', replacement: '3'),
-        ]) {
-          await customStatement(
-            '''UPDATE notification_category_settings SET anchor_event_values = REPLACE(REPLACE(REPLACE(REPLACE(anchor_event_values, '[${step.old}]', '[${step.replacement}]'), '[${step.old},', '[${step.replacement},'), ',${step.old}]', ',${step.replacement}]'), ',${step.old},', ',${step.replacement},') WHERE anchor_event_values LIKE '%${step.old}%' ''',
-          );
         }
-      }
 
-      // v18: Sleep quality fields (Phase 21)
-      if (from < 18) {
-        await m.addColumn(sleepEntries, sleepEntries.timeToFallAsleep);
-        await m.addColumn(sleepEntries, sleepEntries.timesAwakened);
-        await m.addColumn(sleepEntries, sleepEntries.timeAwakeDuringNight);
+        // v15: Diet Tracking data foundation (Phase 15b-1)
+        if (from < 15) {
+          // Add violation_flag column to food_logs
+          await m.addColumn(foodLogs, foodLogs.violationFlag);
+          // Create new diet tracking tables
+          await m.createTable(diets);
+          await m.createTable(dietRules);
+          await m.createTable(dietExceptions);
+          await m.createTable(fastingSessions);
+          await m.createTable(dietViolations);
+        }
+
+        // v16: Health Platform Integration data foundation (Phase 16a)
+        if (from < 16) {
+          await m.createTable(importedVitals);
+          await m.createTable(healthSyncSettingsTable);
+          await m.createTable(healthSyncStatusTable);
+        }
+
+        // v17: AnchorEventName enum re-index (Phase 19)
+        // Existing integer values: lunch=2, dinner=3, bedtime=4
+        // New integer values:      lunch=3, dinner=5, bedtime=7
+        // Run in reverse order (bedtime first) to avoid collision.
+        if (from < 17) {
+          // Migrate anchor_event_times.name (integer column)
+          await customStatement(
+            'UPDATE anchor_event_times SET name = 7 WHERE name = 4',
+          );
+          await customStatement(
+            'UPDATE anchor_event_times SET name = 5 WHERE name = 3',
+          );
+          await customStatement(
+            'UPDATE anchor_event_times SET name = 3 WHERE name = 2',
+          );
+
+          // Migrate notification_category_settings.anchor_event_values (JSON text column).
+          // Values 2, 3, 4 may appear as array elements; handle all boundary positions
+          // ([N], [N,, ,N], ,N,) to avoid partial-number replacement.
+          // Apply in reverse order: bedtime(4→7), dinner(3→5), lunch(2→3).
+          for (final step in [
+            (old: '4', replacement: '7'),
+            (old: '3', replacement: '5'),
+            (old: '2', replacement: '3'),
+          ]) {
+            await customStatement(
+              '''UPDATE notification_category_settings SET anchor_event_values = REPLACE(REPLACE(REPLACE(REPLACE(anchor_event_values, '[${step.old}]', '[${step.replacement}]'), '[${step.old},', '[${step.replacement},'), ',${step.old}]', ',${step.replacement}]'), ',${step.old},', ',${step.replacement},') WHERE anchor_event_values LIKE '%${step.old}%' ''',
+            );
+          }
+        }
+
+        // v18: Sleep quality fields (Phase 21)
+        if (from < 18) {
+          await m.addColumn(sleepEntries, sleepEntries.timeToFallAsleep);
+          await m.addColumn(sleepEntries, sleepEntries.timesAwakened);
+          await m.addColumn(sleepEntries, sleepEntries.timeAwakeDuringNight);
+        }
+      } on Exception catch (e, stack) {
+        debugPrint('[Shadow DB] onUpgrade FAILED (v$from → v$to): $e');
+        debugPrint('[Shadow DB] Stack trace: $stack');
+        rethrow;
       }
     },
     beforeOpen: (details) async {

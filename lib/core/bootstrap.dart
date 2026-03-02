@@ -280,7 +280,7 @@ Future<List<Override>> bootstrap() async {
   // 8. Get SharedPreferences for sync timestamp/version storage
   final prefs = await SharedPreferences.getInstance();
 
-  // 9. Build sync entity adapters for all 14 entity types
+  // 9. Build sync entity adapters for all 15 entity types
   final syncService = SyncServiceImpl(
     adapters: [
       SyncEntityAdapter<Supplement>(

@@ -11,6 +11,9 @@ import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/diet/diet_list_provider.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
+/// Maximum number of violations to display in the dashboard list.
+const int _maxDashboardViolations = 5;
+
 /// Diet compliance dashboard screen.
 ///
 /// Per 38_UI_FIELD_SPECIFICATIONS.md Section 17.3:
@@ -232,7 +235,7 @@ class _DashboardContent extends ConsumerWidget {
                   const _SectionHeader(title: 'Recent Violations'),
                   const SizedBox(height: 8),
                   ...stats.recentViolations
-                      .take(5)
+                      .take(_maxDashboardViolations)
                       .map(
                         (violation) => Padding(
                           padding: const EdgeInsets.only(bottom: 8),

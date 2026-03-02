@@ -39,7 +39,7 @@ class DietList extends _$DietList {
 
   /// Creates a new diet (custom or preset).
   Future<void> create(CreateDietInput input) async {
-    _log.debug('Creating diet: ${input.name}');
+    _log.debug('Creating diet for profile: ${input.profileId}');
 
     final authService = ref.read(profileAuthorizationServiceProvider);
     if (!await authService.canWrite(input.profileId)) {

@@ -22,6 +22,9 @@ import 'package:shadow_app/domain/usecases/diet/diet_types.dart';
 /// - Current and longest compliant streaks
 /// - Violation counts, recent violations, and per-rule breakdowns
 /// - Daily trend data for charting
+/// Maximum number of recent violations to include in compliance stats.
+const int _maxRecentViolations = 10;
+
 class GetComplianceStatsUseCase
     implements UseCase<GetComplianceStatsInput, ComplianceStats> {
   final DietRepository _dietRepository;
@@ -114,7 +117,7 @@ class GetComplianceStatsUseCase
     final streak = _calculateStreak(foodLogs, violations);
     final byRule = _complianceByRule(violations, diet);
     final dailyTrend = _dailyTrend(foodLogs, violations, input);
-    final recentViolations = violations.take(10).toList();
+    final recentViolations = violations.take(_maxRecentViolations).toList();
 
     // totalViolations = user cancelled (wasOverridden=false, hard violations)
     // totalWarnings = user added anyway (wasOverridden=true, soft violations)

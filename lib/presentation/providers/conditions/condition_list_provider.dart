@@ -36,7 +36,7 @@ class ConditionList extends _$ConditionList {
 
   /// Creates a new condition.
   Future<void> create(CreateConditionInput input) async {
-    _log.debug('Creating condition: ${input.name}');
+    _log.debug('Creating condition for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);

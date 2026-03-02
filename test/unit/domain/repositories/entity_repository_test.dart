@@ -57,6 +57,10 @@ class MockEntity {
 }
 
 void main() {
+  // Interface contract compilation tests — these tests verify that the
+  // EntityRepository interface compiles correctly against a mock implementation.
+  // They do NOT test real implementation behavior. Real behavior is covered
+  // by the repository_impl tests. See AUDIT-07-003 for context.
   group('EntityRepository interface contract', () {
     late MockEntityRepository repository;
 

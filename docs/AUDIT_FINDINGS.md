@@ -219,7 +219,7 @@ Description: Class doc comment says "Schema version
   follows 10_DATABASE_SCHEMA.md: Version 7" but actual
   schemaVersion constant is 18. Stale comment.
 Fix approach: Update comment to "Version 18".
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -235,7 +235,7 @@ Description: Comment says "Build sync entity adapters
   wrong in both directions until the adapter gap is fixed.
 Fix approach: Update comment after AUDIT-02-003 is
   resolved to reflect the correct adapter count.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -393,7 +393,7 @@ Description: MigrationStrategy.onUpgrade has no
 Fix approach: Wrap entire onUpgrade body in try/catch
   that logs DatabaseError.migrationFailed(from, to,
   e, stack) then rethrows.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -435,7 +435,7 @@ Fix approach: Remove entity name from create() debug
   and profileId only (e.g. "Creating condition for
   profile: $profileId"). IDs and counts are acceptable;
   names and content are not.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -481,7 +481,7 @@ Description: Google OAuth client_secret
 Fix approach: Delete docs/archive/cloud-sync/
   reference-code/client_secret.json from repository.
   Add client_secret*.json to .gitignore.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -694,7 +694,7 @@ Fix approach: Either (a) add a comment block making
   the limitation explicit and rename as interface
   contract tests, or (b) delete both files — coverage
   is redundant with existing repository impl tests.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1078,7 +1078,7 @@ Fix approach: Wrap _load() body in try/catch(Object). On
   Optionally show a one-time "Profile data could not be loaded"
   message. The full fix is AUDIT-01-006 (move to Drift/SQLCipher
   which uses atomic WAL writes).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1303,7 +1303,7 @@ Description: Magic number `violations.take(10)` at line 117.
   constant or explanatory comment.
 Fix approach: Extract to named constant `_maxRecentViolations = 10`
   at top of class.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1315,7 +1315,7 @@ Cross-cutting: None
 Description: Magic number `.take(5)` at line 235. The dashboard's
   5-violation display limit has no named constant.
 Fix approach: Extract to named constant `_maxDashboardViolations = 5`.
-Status: OPEN
+Status: FIXED
 
 ---
 

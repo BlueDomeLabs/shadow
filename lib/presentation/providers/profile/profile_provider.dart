@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -77,15 +78,23 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_profilesKey);
-    final currentId = prefs.getString(_currentProfileIdKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_profilesKey);
+      final currentId = prefs.getString(_currentProfileIdKey);
 
-    if (jsonStr != null) {
-      final list = (jsonDecode(jsonStr) as List)
-          .map((e) => Profile.fromJson(e as Map<String, dynamic>))
-          .toList();
-      state = ProfileState(profiles: list, currentProfileId: currentId);
+      if (jsonStr != null) {
+        final list = (jsonDecode(jsonStr) as List)
+            .map((e) => Profile.fromJson(e as Map<String, dynamic>))
+            .toList();
+        state = ProfileState(profiles: list, currentProfileId: currentId);
+      }
+    } on Object catch (e, stack) {
+      // Profile data is corrupt (e.g. mid-write crash on Android).
+      // Leave state as empty ProfileState — do not overwrite with _save().
+      // Full fix: AUDIT-01-006 (move to Drift/SQLCipher atomic writes).
+      debugPrint('[Shadow Profile] _load FAILED — corrupt profile data: $e');
+      debugPrint('[Shadow Profile] Stack trace: $stack');
     }
   }
 

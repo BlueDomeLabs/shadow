@@ -6,7 +6,7 @@ part of 'diet_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dietListHash() => r'8514b526b2037bdaef8dded94a4f89ff1b911f62';
+String _$dietListHash() => r'c781923b8e43f4391c39e20cde1a9f6c425d934a';
 
 /// Copied from Dart SDK
 class _SystemHash {

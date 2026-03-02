@@ -43,7 +43,7 @@ class SupplementList extends _$SupplementList {
 
   /// Creates a new supplement.
   Future<void> create(CreateSupplementInput input) async {
-    _log.debug('Creating supplement: ${input.name}');
+    _log.debug('Creating supplement for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);

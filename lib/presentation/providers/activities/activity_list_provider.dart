@@ -36,7 +36,7 @@ class ActivityList extends _$ActivityList {
 
   /// Creates a new activity.
   Future<void> create(CreateActivityInput input) async {
-    _log.debug('Creating activity: ${input.name}');
+    _log.debug('Creating activity for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);

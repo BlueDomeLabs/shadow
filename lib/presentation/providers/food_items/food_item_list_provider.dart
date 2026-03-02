@@ -36,7 +36,7 @@ class FoodItemList extends _$FoodItemList {
 
   /// Creates a new food item.
   Future<void> create(CreateFoodItemInput input) async {
-    _log.debug('Creating food item: ${input.name}');
+    _log.debug('Creating food item for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
     final authService = ref.read(profileAuthorizationServiceProvider);

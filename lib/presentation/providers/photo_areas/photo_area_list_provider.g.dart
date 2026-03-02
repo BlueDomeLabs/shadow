@@ -6,7 +6,7 @@ part of 'photo_area_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$photoAreaListHash() => r'28d53ee3f68c56c846b7e486cd83019272e2edc0';
+String _$photoAreaListHash() => r'53e0993ff4d502ee3bd718d04c7f829c4d58e72c';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -83,6 +83,10 @@ class MockSupplementRepository implements SupplementRepository {
 }
 
 void main() {
+  // Interface contract compilation tests — these tests verify that the
+  // SupplementRepository interface compiles correctly against a mock implementation.
+  // They do NOT test real implementation behavior. Real behavior is covered
+  // by the repository_impl tests. See AUDIT-07-003 for context.
   group('SupplementRepository interface contract', () {
     late MockSupplementRepository repository;
 
