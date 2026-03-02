@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-017
+# Briefing Version: 20260301-018
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — iCloud sync fully complete — Xcode entitlements done ✅
-# Last Commit:   fix: correct iCloud container ID and remove stale HealthKit background-delivery entitlement
-# Last Code:     Entitlement files (iOS + macOS) + icloud_provider.dart container ID aligned
-# Next Action:   Phase 32 (TBD by Architect)
+# Status:        IDLE — Phase 32 docs complete ✅
+# Last Commit:   docs: Phase 32 — fix container ID, update cloud sync spec, record iCloud decision
+# Last Code:     DOCS ONLY — no code changes
+# Next Action:   Phase 33 (TBD by Architect)
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,434 passing
 # Schema:        v18
@@ -22,6 +22,33 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Phase 32: Documentation Fixes
+
+**Tests: 3,434 | Schema: v18 | Analyzer: clean | DOCS ONLY — no code changes**
+
+### Technical Summary
+
+Three documentation files updated. No code, no tests, no analyzer run required.
+
+**Fix 1 — 15_APPLE_INTEGRATION.md:**
+Replaced 3 occurrences of `iCloud.com.bluedomecolorado.shadow` with `iCloud.com.bluedomecolorado.shadowApp` — two XML `<string>` tags in the entitlements example block, one Dart string constant in the code example.
+
+**Fix 2 — 38_UI_FIELD_SPECIFICATIONS.md (Section 13.3):**
+Section 13.3 was stale — it still documented Auto Sync Toggle, WiFi Only Toggle, and Sync Frequency rows that were removed in Phase 17b. Updated both 13.3.1 and 13.3.2 to reflect the current manual-sync-only design: removed the three stale rows, added Conflict Badge row, made Status Value and Sync Provider dynamic (Google Drive or iCloud), updated Last Sync description to show formatted relative time.
+
+**Fix 3 — DECISIONS.md:**
+Added new entry at top of decisions log recording iCloud sync as complete, covering: implementation approach (icloud_storage package, file-based storage), container ID, encryption pipeline, provider selection/persistence, platform support, and deferred items.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| 15_APPLE_INTEGRATION.md | MODIFIED | 3 occurrences of old container ID → `iCloud.com.bluedomecolorado.shadowApp` |
+| 38_UI_FIELD_SPECIFICATIONS.md | MODIFIED | Section 13.3 updated to reflect current manual-sync-only design; stale toggle rows removed |
+| DECISIONS.md | MODIFIED | Added iCloud sync complete decision entry at top |
 
 ---
 
