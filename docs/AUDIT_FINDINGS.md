@@ -1437,7 +1437,7 @@ Fix approach: Wire ConditionLogScreen into the conditions navigation.
   in conditions_tab.dart or condition_list_screen.dart, navigating with
   Navigator.push(context, MaterialPageRoute(builder: (_) =>
   ConditionLogScreen(profileId: profileId, condition: condition))).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1457,7 +1457,7 @@ Fix approach: Either (a) implement actual filter state (show archived,
   active-only) driving the condition list query, or (b) remove the
   filter button and bottom sheet until the feature is ready for
   implementation.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1490,7 +1490,7 @@ Description: ActivityLogScreen is fully implemented (create + edit,
 Fix approach: Add a "Log Activity" FAB or per-card action in
   ActivitiesTab navigating to ActivityLogScreen. Alternatively, add a
   dedicated "Activity Logs" history view reachable from the tab.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1512,7 +1512,7 @@ Fix approach: Wire FastingTimerScreen into DietDashboardScreen or
   DietListScreen. Most natural entry: a "View Timer" button or card
   that is conditionally visible when an active fasting session exists,
   navigating with Navigator.push to FastingTimerScreen(profileId).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1531,7 +1531,7 @@ Description: `getImportedVitalsUseCaseProvider` is registered in
 Fix approach: Either wire the use case into the health sync provider so
   imported vitals are surfaced in the UI, or document that this use case
   is intentionally deferred (Phase 3 / future health platform work).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1550,7 +1550,7 @@ Description: `GetBBTEntriesUseCase` is defined in the domain layer
 Fix approach: Either (a) register GetBBTEntriesUseCase in di_providers.dart
   and wire BBTChartScreen through the use case (preferred — maintains
   layer boundaries), or (b) delete the unused use case and input type.
-Status: OPEN
+Status: FIXED
 
 ---
 

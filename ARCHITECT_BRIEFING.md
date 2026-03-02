@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-033
+# Briefing Version: 20260302-034
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP Q complete; 9 findings fixed
-# Last Commit:   fix: Group Q — quick cleanup, magic numbers, stale comments, error handling (458ce90)
-# Last Code:     database.dart, bootstrap.dart, 6 list providers, diet use case/screen, profile_provider, 2 test files
-# Next Action:   Architect issues GROUP N prompt (navigation wiring)
-# Open Items:    6 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,442 passing
+# Status:        IDLE — GROUP N complete; 5 findings fixed
+# Last Commit:   fix: Group N — wire unreachable screens into navigation (40154aa)
+# Last Code:     conditions_tab.dart, condition_list_screen.dart, activities_tab.dart, diet_dashboard_screen.dart, di_providers.dart, condition_list_screen_test.dart
+# Next Action:   Architect reviews Group N output; issues GROUP U prompt (UI error states)
+# Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
+# Tests:         3,441 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,58 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — GROUP N: Navigation Wiring
+
+**Tests: 3,441 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Fixed all 5 Group N findings. All changes are navigation wiring — no schema changes, no new screens, no new use cases, no regressions. Test count decreased by 1 (removed the filter stub test which tested behavior that no longer exists; replaced with a test confirming the filter button is gone).
+
+**AUDIT-CC-002 (HIGH):** Wired `ConditionLogScreen` into `conditions_tab.dart`. Added "Log Entry" as the first item in the `PopupMenuButton` on each condition's `ExpansionTile`. Handles `'log'` in `onSelected` with `Navigator.push`. Imported `ConditionLogScreen`. Constructor: `ConditionLogScreen(profileId: profileId, condition: condition)`.
+
+**AUDIT-CC-003 (MEDIUM):** Removed non-functional filter stub from `condition_list_screen.dart`. Deleted: `IconButton` filter action from AppBar `actions`, `_showFilterOptions()` method, `_FilterBottomSheet` private class. AppBar is now clean with no actions. Updated the corresponding test: replaced "renders filter button" test with "does not render filter button" test; deleted "filter button opens bottom sheet" test.
+
+**AUDIT-CD-001 (HIGH):** Wired `ActivityLogScreen` into `activities_tab.dart`. Added a prominent "Log Activity" `ElevatedButton.icon` at the top of the tab body, matching the Flare-Ups button pattern from `conditions_tab.dart`. The existing FAB still opens `ActivityEditScreen` (for defining activity types). The new button opens `ActivityLogScreen` (for logging a session). Body restructured from direct `activitiesAsync.when(...)` → `Column([button, Divider, Expanded(when(...))])`. Imported `ActivityLogScreen`. Constructor: `ActivityLogScreen(profileId: profileId)`.
+
+**AUDIT-CD-002 (HIGH):** Wired `FastingTimerScreen` into `diet_dashboard_screen.dart`. In `_DashboardContent`, added watch of `fastingSessionNotifierProvider(profileId)`. When `activeFastingSession != null`, renders a tappable `ShadowCard.listItem` with orange timer icon labeled "Active Fast in Progress" that navigates to `FastingTimerScreen(profileId: profileId)`. The card appears between the active diet name card and the compliance stats section. The `onRefresh` callback also invalidates `fastingSessionNotifierProvider`. Imported both `fasting_session_provider.dart` and `fasting_timer_screen.dart`.
+
+**AUDIT-CD-004 (LOW):** Registered `GetBBTEntriesUseCase` in `di_providers.dart` as `getBBTEntriesUseCaseProvider`. Updated the section comment from "(4)" to "(5)". Added a doc comment explaining that `BBTChartScreen` continues to read `fluidsEntryListProvider` directly because the screen also needs menstruation data from the same query set — using the use case would require a double fetch. The bypass is intentional and documented. The use case is now registered and available for future consumers that need BBT data without the full fluids entry set.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/home/tabs/conditions_tab.dart | MODIFIED | AUDIT-CC-002: import ConditionLogScreen; add "Log Entry" popup menu item |
+| lib/presentation/screens/conditions/condition_list_screen.dart | MODIFIED | AUDIT-CC-003: remove filter IconButton, _showFilterOptions(), _FilterBottomSheet class |
+| lib/presentation/screens/home/tabs/activities_tab.dart | MODIFIED | AUDIT-CD-001: import ActivityLogScreen; add "Log Activity" button at top of body; wrap body in Column+Expanded |
+| lib/presentation/screens/diet/diet_dashboard_screen.dart | MODIFIED | AUDIT-CD-002: import FastingTimerScreen + fasting_session_provider; watch provider; conditionally render active fast card |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | AUDIT-CD-004: register getBBTEntriesUseCaseProvider; update count comment (4)→(5) |
+| test/presentation/screens/conditions/condition_list_screen_test.dart | MODIFIED | AUDIT-CC-003: replace filter button test with "filter button absent" test; delete filter bottom sheet group |
+| lib/presentation/providers/di/di_providers.g.dart | REGENERATED | Riverpod codegen re-run after new @riverpod provider added |
+| (dart format reformatted) condition_list_screen.dart | REFORMATTED | dart format adjusted AppBar indentation after actions removed |
+| (dart format reformatted) activities_tab.dart | REFORMATTED | dart format adjusted Column/Expanded indentation |
+
+### Executive Summary for Reid
+
+Group N is complete. This was the most user-visible set of fixes in the entire audit plan.
+
+**What changed:**
+
+1. **Conditions tab** — Each condition card now has a "Log Entry" option in its menu (alongside Edit and Archive). Tapping it opens the condition log screen where you can record how you're feeling today for that specific condition. This was the primary daily-tracking feature for conditions and was completely inaccessible before — a significant gap.
+
+2. **Conditions list screen** — Removed a fake "Filter" button that appeared to let you filter the conditions list but actually did nothing. The button would open a sheet with two switches, but flipping them had zero effect on the list. Gone now. Cleaner screen, no misleading UI.
+
+3. **Activities tab** — Added a prominent "Log Activity" button at the top of the Activities tab. Tapping it opens the activity log screen where you can record a workout or activity session. Before this, the only way to access the full log screen was through notification shortcuts — completely hidden from normal use.
+
+4. **Diet dashboard** — When you have an active fasting session in progress, the Diet Dashboard now shows an "Active Fast in Progress" card that takes you directly to the fasting timer screen. Before this, the timer screen was fully built but completely unreachable.
+
+5. **Technical registration** (low-visibility) — A BBT (basal body temperature) use case that existed in code but was never registered in the app's dependency system is now registered. The BBT chart screen still works exactly as before; this just makes the use case available if we need it elsewhere later.
+
+Three key features went from "fully built but invisible" to "actually reachable" in this session.
 
 ---
 

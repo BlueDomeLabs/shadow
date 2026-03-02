@@ -422,7 +422,7 @@ Sub-tasks (in order):
 |-------|-------|----------|---|---|---|---|----------|----------|
 | 1 | **P — Platform & Store Blockers** ✓ DONE | 8 | 1 | 4 | 1 | 2 | 1 session | YES — App Store |
 | 2 | **Q — Quick Cleanup** ✓ DONE | 8 | 0 | 0 | 1 | 7 | 1 session | No |
-| 3 | N — Navigation Wiring | 5 | 0 | 3 | 2 | 0 | 1 session | YES — users can't reach features |
+| 3 | **N — Navigation Wiring** ✓ DONE | 5 | 0 | 3 | 2 | 0 | 1 session | YES — users can't reach features |
 | 4 | U — UI Error States | 5 | 0 | 0 | 3 | 2 | 1 session | No |
 | 5 | S — Sync Integrity | 5 | 0 | 2 | 2 | 0 (+ comment) | 1-2 sessions | YES — data correctness |
 | 6 | T — Test Coverage | 3 | 0 | 1 | 2 | 0 | 1 session | No |
@@ -447,7 +447,6 @@ Shadow cannot proceed without explicit direction on ambiguous items.
 
 | Decision | Needed Before | Options |
 |----------|--------------|---------|
-| AUDIT-CC-003: Implement filter or remove stub? | GROUP N | (a) Implement active/archived filter state, or (b) Remove filter button entirely |
 | AUDIT-07-003: Delete redundant repository tests or comment? | GROUP T | (a) Delete both files (−53 tests), or (b) Add limitation comment and rename |
 | AUDIT-02-001: Add FluidsEntry custom condition fields or drop columns? | GROUP F | (a) Add bowelCustomCondition + urineCustomCondition to entity, or (b) Drop columns in migration |
 | AUDIT-CD-003: Wire imported vitals or document as Phase 3 deferral? | GROUP X | (a) Wire getImportedVitalsUseCaseProvider into health_sync_provider, or (b) Mark WONT_FIX (Phase 3) |
@@ -482,6 +481,7 @@ When all groups are complete and deferred items are acknowledged:
 |------|-------|-------------|--------|-------|
 | 2026-03-02 | GROUP P | AUDIT-08-001, 08-002, 08-003, 08-004, 08-005, 08-006, 08-007(ack), 08-008(ack) | 4782b15 | All 6 code fixes done; 2 launch-checklist items acknowledged |
 | 2026-03-02 | GROUP Q | AUDIT-02-004, 02-005, 04-003, 05-001, 05-003, 07-003, 10-001, 10-002, CA-003 | 458ce90 | All 9 findings fixed; 3,442 tests passing; analyzer clean |
+| 2026-03-02 | GROUP N | AUDIT-CC-002, CC-003, CD-001, CD-002, CD-004 | TBD | All 5 findings fixed; 3,441 tests passing (−1 from removed filter stub test); analyzer clean |
 
 ---
 
