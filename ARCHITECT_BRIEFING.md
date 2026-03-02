@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-020
+# Briefing Version: 20260302-021
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Audit Pass 01 complete ✅ Findings reported to Architect
-# Last Commit:   docs: audit pass 01 findings in ARCHITECT_BRIEFING.md
+# Status:        IDLE — Audit Pass 02 complete ✅ Findings reported to Architect
+# Last Commit:   docs: audit pass 01 findings cataloged + pass 02 session report
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 01 findings → AUDIT_FINDINGS.md → run Pass 02
+# Next Action:   Architect catalogs Pass 02 findings → AUDIT_FINDINGS.md → run Pass 03
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,96 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 02: Schema → Entity → DAO → Repository Alignment
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 02 of the final pre-launch audit. Also completed Part A of the prompt: cataloged Pass 01 findings into `docs/AUDIT_FINDINGS.md` and committed.
+
+Read all 15 synced entity table files, entity files, key DAOs, repository interfaces, and repository impls. Also checked 4 local-only entities and the migration sequence.
+
+**5 findings: 0 CRITICAL, 1 HIGH, 2 MEDIUM, 2 LOW.**
+
+**Important discovery:** The plan stated "14 synced entities" and bootstrap.dart comments say "14 entity types" — but there are actually 15 SyncEntityAdapters registered (the 14 original + Profile, added in Phase 11). Additionally, 3 more entities (Diet, DietViolation, FastingSession) implement Syncable with full sync columns but have NO adapter registration — their data is marked dirty but never synced.
+
+**AUDIT-02-001 — MEDIUM**
+`lib/data/datasources/local/tables/fluids_entries_table.dart` — Two table columns (`bowel_custom_condition`, `urine_custom_condition`) have no corresponding entity fields in `FluidsEntry`. The DAO's `_rowToEntity` never reads them, and `_entityToCompanion` never writes them. The columns are permanently null in all rows. Cross-cutting: `lib/data/datasources/local/daos/fluids_entry_dao.dart`. Fix: Either add entity fields for these columns, or drop the columns in the next migration.
+
+**AUDIT-02-002 — MEDIUM**
+`lib/data/datasources/local/tables/food_items_table.dart` / `lib/domain/entities/food_item.dart` — Type mismatch: table stores `serving_size` (REAL) + `serving_unit` (TEXT) as separate columns, but entity has a single `servingSize: String?` field (e.g. "1 cup", "100g"). The DAO converts via `_buildServingSize`/`_parseServingSize`, which silently returns (null, null) for non-parseable strings — data loss possible. Cross-cutting: `lib/data/datasources/local/daos/food_item_dao.dart`. Fix: Either add a separate `servingUnit: String?` field to the entity (preferred, matches schema), or add a `GENERATED ALWAYS` column to the schema.
+
+**AUDIT-02-003 — HIGH**
+`lib/core/bootstrap.dart` + diet entities — `Diet`, `DietViolation`, and `FastingSession` all implement `Syncable` with full sync metadata columns (syncIsDirty, clientId, syncMetadata, etc.) and have complete DAO + repository stack. However, none are registered as `SyncEntityAdapter` in bootstrap.dart. Diet data is marked dirty on every create/update but the sync system never reads it — diet tracking data will never sync between devices. Silent failure: no error, no indication, just silent data divergence. Cross-cutting: `lib/data/datasources/local/tables/diets_table.dart`, `diet_violations_table.dart`, `fasting_sessions_table.dart`, `lib/domain/entities/diet.dart`, `diet_violation.dart`, `fasting_session.dart`. Fix: Add three SyncEntityAdapter registrations for Diet, DietViolation, FastingSession in bootstrap.dart.
+
+**AUDIT-02-004 — LOW**
+`lib/data/datasources/local/database.dart` line 84 — Class doc comment says "Schema version follows 10_DATABASE_SCHEMA.md: Version 7" but actual `schemaVersion` is 18. Fix: Update comment to "Version 18".
+
+**AUDIT-02-005 — LOW**
+`lib/core/bootstrap.dart` line 283 — Comment says "Build sync entity adapters for all 14 entity types" but 15 adapters are registered, and 3 more Syncable entities (Diet, DietViolation, FastingSession) exist without adapters. Fix: Update comment to reflect actual count when AUDIT-02-003 is resolved.
+
+### Alignment Summary
+
+| Entity | Table→Entity | Entity→DAO | DAO→Repo | Notes |
+|--------|-------------|-----------|---------|-------|
+| Supplement | ✓ | ✓ | ✓ | ALIGNED |
+| IntakeLog | ✓ | ✓ | ✓ | ALIGNED |
+| Condition | ✓ | ✓ | ✓ | ALIGNED |
+| ConditionLog | ✓ | ✓ | ✓ | ALIGNED |
+| FlareUp | ✓ | ✓ | ✓ | ALIGNED |
+| FluidsEntry | GAP | ✓ | ✓ | 2 orphaned columns (AUDIT-02-001) |
+| SleepEntry | ✓ | ✓ | ✓ | ALIGNED |
+| Activity | ✓ | ✓ | ✓ | ALIGNED |
+| ActivityLog | ✓ | ✓ | ✓ | ALIGNED |
+| FoodItem | TYPE MISMATCH | ✓* | ✓ | serving_size mismatch (AUDIT-02-002) |
+| FoodLog | ✓ | ✓ | ✓ | ALIGNED |
+| JournalEntry | ✓ | ✓ | ✓ | ALIGNED |
+| PhotoArea | ✓ | ✓ | ✓ | ALIGNED |
+| PhotoEntry | ✓ | ✓ | ✓ | ALIGNED |
+| Profile | ✓ | ✓ | ✓ | ALIGNED (bypassed by UI — AUDIT-01-006) |
+| Diet | ✓ | ✓ | ✓ | No sync adapter (AUDIT-02-003) |
+| DietViolation | ✓ | ✓ | ✓ | No sync adapter (AUDIT-02-003) |
+| FastingSession | ✓ | ✓ | ✓ | No sync adapter (AUDIT-02-003) |
+| HealthSyncSettings | ✓ | ✓ | ✓ | Local-only, ALIGNED |
+| HealthSyncStatus | ✓ | ✓ | ✓ | Local-only, ALIGNED |
+| UserSettings | ✓ | ✓ | ✓ | Local-only, ALIGNED (autoLockMinutes↔autoLockDuration handled in DAO) |
+| ImportedVital | ✓ | ✓ | ✓ | Has sync columns but no adapter — intentionally deferred per bootstrap comment |
+
+### Schema Verification
+- schemaVersion = 18 ✓ matches highest migration (v18)
+- Migration sequence v8→v18 is gapless ✓ (v1-v7 covered by onCreate)
+- All migrations additive — no DROP TABLE without justification ✓
+- All generated files (.freezed.dart, .g.dart) present for all Syncable entities ✓
+- DietRule, DietException, FoodItemComponent: have .freezed.dart but no .g.dart — CORRECT (sub-entities, not JSON-serializable directly)
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 01 findings (7 findings, as specified by prompt) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Pass 02 session report |
+
+### Executive Summary for Reid
+
+Part A is done: the 7 findings from the architecture review are now recorded in the official findings document.
+
+For Part B (the schema alignment audit), here's what I found:
+
+**The good news:** Almost everything lines up correctly. For 15 of the 18 health data types I checked, the database table, the data object, the database access code, and the repository interface all match each other cleanly. That's solid foundational work.
+
+**Three findings worth knowing about:**
+
+1. **Diet data doesn't sync between devices (HIGH)** — This is the most important finding. The diet tracking features (diet plans, diet violations, fasting sessions) are built with all the right sync infrastructure — they're marked as "dirty" when changed, they have sync version numbers, the whole stack. But the final wiring step that connects them to the sync engine was never added. The result: diet data lives only on the device where it was entered. It won't appear on your other devices, and it won't be included in your cloud backup. This needs to be fixed before launch.
+
+2. **Fluids entry has two phantom database columns (MEDIUM)** — The database table for fluids tracking has two columns (`bowel_custom_condition` and `urine_custom_condition`) that have no corresponding fields in the app data model and are never written to or read from. They're dead weight — every fluids entry row has these columns storing nothing useful. Minor cleanup item.
+
+3. **Food item serving size uses an awkward storage format (MEDIUM)** — The database stores serving size as a number and unit separately (e.g., `100` + `g`), but the data model combines them into a single string ("100g" or "1 cup"). The code converts between these representations, and it works for normal cases, but unusual serving size formats (anything that can't be parsed as a number + unit) would be silently dropped when saved. Not a crisis, but a potential data integrity edge case.
+
+Two LOW findings: stale comments in two files that still reference old numbers from early in development.
 
 ---
 
