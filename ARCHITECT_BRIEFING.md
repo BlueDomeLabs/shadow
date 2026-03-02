@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-023
+# Briefing Version: 20260302-024
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Audit Pass 03 findings cataloged + Pass 04 complete ✅
-# Last Commit:   docs: audit pass 03 findings — sync correctness (3 findings)
+# Status:        IDLE — Audit Pass 04 findings cataloged + Pass 05 complete ✅
+# Last Commit:   docs: audit pass 04 findings — error handling result type (3 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 04 findings → AUDIT_FINDINGS.md → run Pass 05
+# Next Action:   Architect catalogs Pass 05 findings → AUDIT_FINDINGS.md → run Pass 06
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,96 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 05: Security & Privacy
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 05 of the final pre-launch audit. Also completed Part A: appended
+Architect-supplied Pass 04 findings to `docs/AUDIT_FINDINGS.md` and committed (`92d946f`).
+
+Read: `encryption_service.dart`, `secure_storage_keys.dart`, `google_oauth_config.dart`,
+`google_drive_provider.dart`, `icloud_provider.dart`, `health_platform_service_impl.dart`,
+`guest_token_service.dart`, `security_settings_service.dart`, `security_provider.dart`,
+`lock_screen.dart`, `condition_list_provider.dart`, `sync_service_impl.dart` (log review),
+`logger_service.dart`, `DECISIONS.md` (client_secret entry), `main.dart` (LockScreenGuard).
+
+Grep scans: all logging/print calls, all SharedPreferences uses, all FlutterSecureStorage uses,
+all outbound HTTP calls, all secret/key/token patterns.
+
+**3 findings: 0 CRITICAL, 0 HIGH, 1 MEDIUM, 2 LOW.**
+
+**AUDIT-05-001 — LOW**
+`lib/presentation/providers/conditions/condition_list_provider.dart` (line 39),
+same pattern in `supplement_list_provider.dart:46`, `food_item_list_provider.dart:39`,
+`photo_area_list_provider.dart:39`, `diet_list_provider.dart:42`, `activities/activity_list_provider.dart:39` —
+`_log.debug('Creating {entity}: ${input.name}')`. Medical condition names (e.g. "Crohn's Disease",
+"Type 2 Diabetes") are PHI. All are `.debug()` level — suppressed in release builds
+(`kDebugMode` check in `logger_service.dart`). Risk is development/testing builds only.
+The code comment at top of `encryption_service.dart` says "Never log plaintext or encryption keys"
+but does not explicitly address entity content. The condition name case is the clearest PHI concern.
+Fix approach: Remove entity name from create() debug logs across all list providers. Log "Creating
+condition for profile: $profileId" instead. Counts and IDs are acceptable; names/content are not.
+
+**AUDIT-05-002 — MEDIUM**
+`lib/presentation/providers/profile/profile_provider.dart` —
+Profile JSON (names, profile IDs, profile list) stored via plain `SharedPreferences.getInstance()`
+with no `AndroidOptions(encryptedSharedPreferences: true)`. On Android, SharedPreferences data is
+stored unencrypted in the app's data directory. On iOS/macOS, NSUserDefaults is also unencrypted.
+Profile names are PII. This is distinct from AUDIT-01-006 / AUDIT-04-002 (which flag the
+architectural bypass) — this is specifically about unencrypted PII on disk. Downstream consequence
+of AUDIT-01-006; the architectural fix (migrate to repository/Drift) resolves this automatically
+since Drift uses SQLCipher (encrypted database).
+Fix approach: As interim: add `AndroidOptions(encryptedSharedPreferences: true)` to the
+SharedPreferences calls in profile_provider. Full resolution when AUDIT-01-006 is addressed
+(profile data moves to encrypted Drift database).
+
+**AUDIT-05-003 — LOW**
+`docs/archive/cloud-sync/reference-code/client_secret.json` —
+The Google OAuth `client_secret` (`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`) appears in a JSON file
+committed to the git repository under `docs/archive/`. This is the same secret as the
+development fallback in `google_oauth_config.dart` — no additional credential exposure.
+However, the JSON file format (official Google client_secret.json format) could be mistakenly
+used with OAuth tooling. Since DECISIONS.md already accepts this secret in the app binary for
+macOS Desktop OAuth, this adds minimal incremental risk. The archive file is not included in the
+app bundle. Risk is elevated only if the repository is or becomes public.
+Fix approach: Delete `docs/archive/cloud-sync/reference-code/client_secret.json` from the
+repository and add `client_secret*.json` to `.gitignore`.
+
+### Step Results
+
+| Step | Result |
+|------|--------|
+| 1 — PII in logs | `.debug()` calls log condition/supplement/food/diet names. Debug-only (suppressed in release). Condition names = PHI. AUDIT-05-001 (LOW). |
+| 2 — Encryption correctness | AES-256-GCM ✓. Random nonce per-encrypt via `Random.secure()` ✓. Key in FlutterSecureStorage ✓. Key generated-once-persisted ✓. Decryption throws `DecryptionException` ✓. All sync uploads encrypted ✓. |
+| 3 — Secrets exposure | Google OAuth client_id + client_secret hardcoded as dev fallbacks. Documented in DECISIONS.md. No Anthropic key hardcoded (FlutterSecureStorage). Same secret also in archive JSON file. AUDIT-05-003 (LOW). |
+| 4 — Storage of sensitive data | Sync timestamps in SharedPreferences (non-sensitive ✓). Guest disclaimer bool in SharedPreferences (non-sensitive ✓). Profile JSON in plain SharedPreferences — unencrypted on Android. AUDIT-05-002 (MEDIUM). All secrets (key, tokens, PIN hash) in FlutterSecureStorage ✓. |
+| 5 — Health data routing | Google Drive: uploads to user's Drive via `drive.file` scope (app-created files only) ✓. iCloud: uploads to private container `iCloud.com.bluedomecolorado.shadowApp` ✓. Health service: read-only from HealthKit/Health Connect, no external server calls ✓. HTTP calls: Open Food Facts, NIH DSLD, api.anthropic.com, Google OAuth endpoints — all legitimate ✓. |
+| 6 — Guest access security | One-device limit enforced via `activeDeviceId` check ✓. Expiry checked on each use ✓. Revocation via `RevokeGuestInviteUseCase` ✓. Profile-scoped via `profileId` on invite entity ✓. `validateOnly()` re-validates on sync ✓. |
+| 7 — PIN/biometric bypass | bcrypt for PIN verification (constant-time by design) ✓. Biometric result verified locally via `local_auth` ✓. Auto-lock responds to `AppLifecycleState.paused/detached` ✓. Deep-link bypass impossible: `_LockScreenGuard` wraps entire app in `main.dart` line 70 — `isLocked=true` shows `LockScreen` for all routes ✓. |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 04 findings (3 findings) as supplied by Architect |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Pass 05 session report |
+
+### Executive Summary for Reid
+
+This session had two jobs again: first, I filed the three error-handling findings from the previous session into the audit register exactly as the Architect wrote them. Second, I completed the fifth audit pass — a deep look at security and privacy.
+
+The overall picture here is strong. The encryption system is implemented correctly: AES-256-GCM with a fresh random nonce on every encryption, the encryption key stored in the device keychain, and every piece of data encrypted before it ever leaves your device. Health data only ever goes to your own Google Drive folder or your own iCloud container — never anywhere else. The PIN and biometric lock system is solid: it uses bcrypt (a deliberately slow algorithm that resists brute-force attacks), and I confirmed that no deep link or navigation trick can bypass the lock screen.
+
+I found three items worth flagging. None are critical or high.
+
+The most important (medium): profile names and the list of your profiles are stored on Android in an unencrypted location. On iOS and macOS this is less of a concern (iOS has app sandboxing), but on Android, any tool with root access could read profile names from this file. The root-cause fix — migrating profiles to the encrypted database — is already planned under the earlier AUDIT-01-006 finding.
+
+Two low items: A few places in the code log the names of medical conditions, supplements, and food items when creating them. These only appear in development/debug builds, never in the version you'd actually install from the App Store. Still, condition names (e.g. "Crohn's Disease") are health data and shouldn't be logged anywhere. Second: the Google OAuth client secret appears in an old reference file stored in the project's documentation archive folder. This is the same secret that's already in the app binary (a known and accepted situation for desktop OAuth apps), so no new credentials are exposed. But the archive file should be deleted and added to `.gitignore` as housekeeping.
 
 ---
 
