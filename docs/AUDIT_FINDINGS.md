@@ -603,3 +603,120 @@ Status: OPEN
 ## End of Pass 06 Findings
 
 ---
+
+## Pass 07 — Test Quality
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 4 (0 CRITICAL, 1 HIGH, 2 MEDIUM, 1 LOW)
+
+Note: 210 test files examined. Testing discipline is
+strong across the app. All mocks are build_runner
+generated and current. All DAO tests use in-memory
+databases with isolated state. Failure paths covered
+for all critical use cases except those noted below.
+
+---
+
+AUDIT-07-001
+Severity: HIGH
+Category: Test Quality
+File: test/integration/ (missing file)
+Cross-cutting: lib/data/services/sync_service_impl.dart,
+  lib/data/datasources/local/daos/ (all),
+  lib/core/services/encryption_service.dart,
+  lib/data/cloud/google_drive_provider.dart
+Description: No integration test exercises the full
+  sync flow end-to-end. test/integration/ contains
+  only guest_profile_access_test.dart. The unit test
+  sync_service_impl_test.dart tests SyncServiceImpl
+  in isolation with all dependencies mocked — it does
+  not catch integration failures between sync service,
+  DAO, encryption, and cloud provider. A regression
+  that breaks push or pull would not be caught by
+  any automated test. Sync is the most critical data
+  flow in the app.
+Fix approach: Add test/integration/sync_flow_
+  integration_test.dart using in-memory DB + mock
+  CloudStorageProvider. Test: create entity →
+  getPendingSync → pushChanges → mock cloud returns
+  the change → pullChanges → applyChanges → verify
+  entity marked clean and present in DB.
+Status: OPEN
+
+---
+
+AUDIT-07-002
+Severity: MEDIUM
+Category: Test Quality
+File: test/unit/domain/usecases/fluids_entries/
+  (missing directory)
+Cross-cutting: lib/domain/usecases/fluids_entries/
+  log_fluids_entry_use_case.dart,
+  lib/domain/usecases/fluids_entries/
+  update_fluids_entry_use_case.dart,
+  lib/domain/usecases/fluids_entries/
+  delete_fluids_entry_use_case.dart,
+  lib/domain/usecases/fluids_entries/
+  get_fluids_entries_use_case.dart
+Description: LogFluidsEntryUseCase and all related
+  fluids entry use cases have no unit test file. All
+  other CRUD use case families have test coverage
+  under test/unit/domain/usecases/{entity}/. The
+  fluids_entries directory is the only missing one.
+  Widget tests provide indirect happy-path coverage
+  only. No failure path, authorization failure, or
+  edge case coverage exists.
+Fix approach: Add test/unit/domain/usecases/
+  fluids_entries/fluids_entry_usecases_test.dart.
+  Cover happy path, repository failure,
+  profile authorization failure, and edge cases
+  for all four use cases in the family.
+Status: OPEN
+
+---
+
+AUDIT-07-003
+Severity: MEDIUM
+Category: Test Quality
+File: test/unit/domain/repositories/entity_repository_test.dart
+Cross-cutting: test/unit/domain/repositories/
+  supplement_repository_test.dart
+Description: Both files (209 lines + 235 lines,
+  53 tests total) test hand-written mock
+  implementations that always return Success. Every
+  test passes regardless of what real implementations
+  do — these tests verify interface compilation, not
+  behavior. They provide false confidence and inflate
+  the test count by 53 without adding real coverage.
+  Real implementation coverage already exists in the
+  repository_impl tests.
+Fix approach: Either (a) add a comment block making
+  the limitation explicit and rename as interface
+  contract tests, or (b) delete both files — coverage
+  is redundant with existing repository impl tests.
+Status: OPEN
+
+---
+
+AUDIT-07-004
+Severity: LOW
+Category: Test Quality
+File: test/presentation/screens/health/health_sync_settings_screen_test.dart
+Cross-cutting: None
+Description: Tests 17 widget states but does not test
+  the AsyncError state. Directly mirrors AUDIT-06-004
+  (the screen shows raw exception text with no retry).
+  When AUDIT-06-004 is fixed, a corresponding error
+  state widget test should be added to verify the
+  friendly error message and retry button render.
+Fix approach: Add a testWidgets case that overrides
+  the provider with an AsyncError state and verifies
+  the error message and retry button are rendered.
+  Defer addition until AUDIT-06-004 fix lands.
+Status: OPEN
+
+---
+
+## End of Pass 07 Findings
+
+---
