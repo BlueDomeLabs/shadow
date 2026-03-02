@@ -7,6 +7,7 @@ import 'package:shadow_app/domain/entities/activity.dart';
 import 'package:shadow_app/domain/usecases/activities/activity_inputs.dart';
 import 'package:shadow_app/presentation/providers/activities/activity_list_provider.dart';
 import 'package:shadow_app/presentation/screens/activities/activity_edit_screen.dart';
+import 'package:shadow_app/presentation/screens/activity_logs/activity_log_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 /// Activities tab showing activity definitions with expanded details.
@@ -28,40 +29,73 @@ class ActivitiesTab extends ConsumerWidget {
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
-      body: activitiesAsync.when(
-        data: (activities) {
-          final active = activities.where((a) => a.isActive).toList();
-          if (active.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.directions_run_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => ActivityLogScreen(profileId: profileId),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No activities logged yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap + to add your first activity',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
+                ),
+                icon: const Icon(Icons.add_task),
+                label: const Text('Log Activity'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                ),
               ),
-            );
-          }
-          return _buildActivityList(context, ref, active);
-        },
-        loading: () => const Center(
-          child: ShadowStatus.loading(label: 'Loading activities'),
-        ),
-        error: (error, _) =>
-            Center(child: Text('Error loading activities: $error')),
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: activitiesAsync.when(
+              data: (activities) {
+                final active = activities.where((a) => a.isActive).toList();
+                if (active.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.directions_run_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No activities logged yet',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap + to add your first activity',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return _buildActivityList(context, ref, active);
+              },
+              loading: () => const Center(
+                child: ShadowStatus.loading(label: 'Loading activities'),
+              ),
+              error: (error, _) =>
+                  Center(child: Text('Error loading activities: $error')),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'activities_fab',

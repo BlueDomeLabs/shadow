@@ -7,6 +7,7 @@ import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/conditions/condition_inputs.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
+import 'package:shadow_app/presentation/screens/condition_logs/condition_log_screen.dart';
 import 'package:shadow_app/presentation/screens/conditions/condition_edit_screen.dart';
 import 'package:shadow_app/presentation/screens/conditions/flare_up_list_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
@@ -156,7 +157,16 @@ class ConditionsTab extends ConsumerWidget {
               icon: const Icon(Icons.more_vert),
               tooltip: 'Options for ${condition.name}',
               onSelected: (value) {
-                if (value == 'edit') {
+                if (value == 'log') {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ConditionLogScreen(
+                        profileId: profileId,
+                        condition: condition,
+                      ),
+                    ),
+                  );
+                } else if (value == 'edit') {
                   Navigator.of(context).push<void>(
                     MaterialPageRoute<void>(
                       builder: (_) => ConditionEditScreen(
@@ -170,6 +180,7 @@ class ConditionsTab extends ConsumerWidget {
                 }
               },
               itemBuilder: (_) => const [
+                PopupMenuItem(value: 'log', child: Text('Log Entry')),
                 PopupMenuItem(value: 'edit', child: Text('Edit')),
                 PopupMenuItem(value: 'archive', child: Text('Archive')),
               ],

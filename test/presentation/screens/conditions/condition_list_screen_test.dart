@@ -56,7 +56,7 @@ void main() {
       expect(find.text('Conditions'), findsOneWidget);
     });
 
-    testWidgets('renders filter button with tooltip Filter conditions', (
+    testWidgets('does not render filter button (stub removed — AUDIT-CC-003)', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -72,11 +72,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.filter_list), findsOneWidget);
-      final iconButton = tester.widget<IconButton>(
-        find.widgetWithIcon(IconButton, Icons.filter_list),
-      );
-      expect(iconButton.tooltip, 'Filter conditions');
+      expect(find.byIcon(Icons.filter_list), findsNothing);
     });
 
     testWidgets('renders FAB for adding conditions', (tester) async {
@@ -369,31 +365,6 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Failed to load conditions'), findsOneWidget);
         expect(find.text('Retry'), findsOneWidget);
-      });
-    });
-
-    group('filter bottom sheet', () {
-      testWidgets('filter button opens bottom sheet', (tester) async {
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              conditionListProvider(
-                testProfileId,
-              ).overrideWith(() => _MockConditionList([])),
-            ],
-            child: const MaterialApp(
-              home: ConditionListScreen(profileId: testProfileId),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.byIcon(Icons.filter_list));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Filter Conditions'), findsOneWidget);
-        expect(find.text('Active only'), findsOneWidget);
-        expect(find.text('Show archived'), findsOneWidget);
       });
     });
 

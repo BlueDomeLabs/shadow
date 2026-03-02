@@ -1469,6 +1469,33 @@ final getFluidsEntriesUseCaseProvider =
 // ignore: unused_element
 typedef GetFluidsEntriesUseCaseRef =
     AutoDisposeProviderRef<GetFluidsEntriesUseCase>;
+String _$getBBTEntriesUseCaseHash() =>
+    r'db5db12507913ebcd45239332b4aa84412b3f8fa';
+
+/// GetBBTEntriesUseCase provider.
+///
+/// BBTChartScreen currently reads fluids entries via fluidsEntryListProvider
+/// directly (bypassing this use case) because it also needs menstruation data
+/// from the same query set, avoiding a double fetch. This provider is
+/// registered here so the use case is available for future consumers that need
+/// BBT data without the full fluids entry set. See AUDIT-CD-004.
+///
+/// Copied from [getBBTEntriesUseCase].
+@ProviderFor(getBBTEntriesUseCase)
+final getBBTEntriesUseCaseProvider =
+    AutoDisposeProvider<GetBBTEntriesUseCase>.internal(
+      getBBTEntriesUseCase,
+      name: r'getBBTEntriesUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getBBTEntriesUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetBBTEntriesUseCaseRef = AutoDisposeProviderRef<GetBBTEntriesUseCase>;
 String _$logFluidsEntryUseCaseHash() =>
     r'b259abc3433930df63747f5df8f8c248b4470a1d';
 

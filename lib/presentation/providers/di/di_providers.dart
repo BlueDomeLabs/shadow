@@ -652,7 +652,7 @@ DeleteFlareUpUseCase deleteFlareUpUseCase(Ref ref) => DeleteFlareUpUseCase(
 );
 
 // =============================================================================
-// USE CASES - FLUIDS ENTRIES (4)
+// USE CASES - FLUIDS ENTRIES (5)
 // =============================================================================
 
 /// GetFluidsEntriesUseCase provider.
@@ -662,6 +662,19 @@ GetFluidsEntriesUseCase getFluidsEntriesUseCase(Ref ref) =>
       ref.read(fluidsEntryRepositoryProvider),
       ref.read(profileAuthorizationServiceProvider),
     );
+
+/// GetBBTEntriesUseCase provider.
+///
+/// BBTChartScreen currently reads fluids entries via fluidsEntryListProvider
+/// directly (bypassing this use case) because it also needs menstruation data
+/// from the same query set, avoiding a double fetch. This provider is
+/// registered here so the use case is available for future consumers that need
+/// BBT data without the full fluids entry set. See AUDIT-CD-004.
+@riverpod
+GetBBTEntriesUseCase getBBTEntriesUseCase(Ref ref) => GetBBTEntriesUseCase(
+  ref.read(fluidsEntryRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
 
 /// LogFluidsEntryUseCase provider.
 @riverpod

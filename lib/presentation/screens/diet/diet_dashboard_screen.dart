@@ -9,6 +9,8 @@ import 'package:shadow_app/domain/entities/diet.dart';
 import 'package:shadow_app/domain/usecases/diet/diets_usecases.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/diet/diet_list_provider.dart';
+import 'package:shadow_app/presentation/providers/diet/fasting_session_provider.dart';
+import 'package:shadow_app/presentation/screens/diet/fasting_timer_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 
 /// Maximum number of violations to display in the dashboard list.
@@ -99,10 +101,16 @@ class _DashboardContent extends ConsumerWidget {
       )),
     );
 
+    final fastingSessionAsync = ref.watch(
+      fastingSessionNotifierProvider(profileId),
+    );
+    final activeFastingSession = fastingSessionAsync.valueOrNull;
+
     return RefreshIndicator(
       onRefresh: () async {
         ref
           ..invalidate(dietListProvider(profileId))
+          ..invalidate(fastingSessionNotifierProvider(profileId))
           ..invalidate(
             _complianceStatsProvider((
               profileId: profileId,
@@ -124,6 +132,24 @@ class _DashboardContent extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+
+          // Active fasting session card — shown only when a fast is in progress
+          if (activeFastingSession != null) ...[
+            ShadowCard.listItem(
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => FastingTimerScreen(profileId: profileId),
+                ),
+              ),
+              child: const ListTile(
+                leading: Icon(Icons.timer, color: Colors.orange),
+                title: Text('Active Fast in Progress'),
+                subtitle: Text('Tap to view fasting timer'),
+                trailing: Icon(Icons.chevron_right),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
 
           statsAsync.when(
             loading: () => const Center(

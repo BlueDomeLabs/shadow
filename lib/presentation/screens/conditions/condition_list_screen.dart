@@ -24,16 +24,7 @@ class ConditionListScreen extends ConsumerWidget {
     final conditionsAsync = ref.watch(conditionListProvider(profileId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Conditions'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilterOptions(context),
-            tooltip: 'Filter conditions',
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Conditions')),
       body: Semantics(
         label: 'Condition list',
         child: conditionsAsync.when(
@@ -283,13 +274,6 @@ class ConditionListScreen extends ConsumerWidget {
     );
   }
 
-  void _showFilterOptions(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => const _FilterBottomSheet(),
-    );
-  }
-
   void _navigateToAddCondition(BuildContext context) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
@@ -370,52 +354,5 @@ class ConditionListScreen extends ConsumerWidget {
         }
       }
     }
-  }
-}
-
-/// Bottom sheet for filtering conditions.
-class _FilterBottomSheet extends StatelessWidget {
-  const _FilterBottomSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Filter Conditions', style: theme.textTheme.titleLarge),
-          const SizedBox(height: 16),
-          ListTile(
-            leading: const Icon(Icons.check_circle),
-            title: const Text('Active only'),
-            trailing: Switch(value: true, onChanged: (value) {}),
-          ),
-          ListTile(
-            leading: const Icon(Icons.archive),
-            title: const Text('Show archived'),
-            trailing: Switch(value: true, onChanged: (value) {}),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Apply'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

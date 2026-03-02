@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP Q — Quick Cleanup (audit fix session)",
+  "task": "GROUP N — Navigation Wiring (audit fix session)",
   "timestamp": "2026-03-02T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3442,
+  "testCount": 3441,
   "schemaVersion": 18,
-  "notes": "Fixed 9 Group Q findings: AUDIT-02-004 (database.dart version comment), AUDIT-02-005 (bootstrap.dart adapter count), AUDIT-04-003 (onUpgrade try/catch), AUDIT-05-001 (PHI removed from 6 list provider create() logs), AUDIT-05-003 (client_secret.json deleted), AUDIT-07-003 (interface contract comments added to 2 test files), AUDIT-10-001 (magic number constant), AUDIT-10-002 (magic number constant), AUDIT-CA-003 (profile _load() wrapped in try/catch). All tests passing, analyzer clean."
+  "notes": "Fixed 5 Group N findings: AUDIT-CC-002 (ConditionLogScreen wired via conditions_tab.dart popup menu), AUDIT-CC-003 (filter stub removed from condition_list_screen.dart), AUDIT-CD-001 (ActivityLogScreen wired via activities_tab.dart Log Activity button), AUDIT-CD-002 (FastingTimerScreen wired into diet_dashboard_screen.dart when active fast exists), AUDIT-CD-004 (GetBBTEntriesUseCase registered in di_providers.dart; BBTChartScreen bypass documented). All tests passing, analyzer clean."
 }
