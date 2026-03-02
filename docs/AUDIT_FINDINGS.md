@@ -1283,3 +1283,104 @@ Status: OPEN
 ## End of Convergence Pass B Findings
 
 ---
+
+## Pass 10 — Code Standards & Dead Code
+
+**Date:** 2026-02-XX MST
+**Scope:** Magic numbers, oversized files, dead code, unreachable paths
+**Files reviewed:** All use cases, screens, DI providers
+**New findings:** 6 (0 Critical, 1 High, 0 Medium, 5 Low)
+
+---
+
+AUDIT-10-001
+Severity: LOW
+Category: Code Standards & Dead Code
+File: lib/domain/usecases/diet/get_compliance_stats_use_case.dart
+Cross-cutting: None
+Description: Magic number `violations.take(10)` at line 117.
+  The business-logic cap of 10 recent violations has no named
+  constant or explanatory comment.
+Fix approach: Extract to named constant `_maxRecentViolations = 10`
+  at top of class.
+Status: OPEN
+
+---
+
+AUDIT-10-002
+Severity: LOW
+Category: Code Standards & Dead Code
+File: lib/presentation/screens/diet/diet_dashboard_screen.dart
+Cross-cutting: None
+Description: Magic number `.take(5)` at line 235. The dashboard's
+  5-violation display limit has no named constant.
+Fix approach: Extract to named constant `_maxDashboardViolations = 5`.
+Status: OPEN
+
+---
+
+AUDIT-10-003
+Severity: LOW
+Category: Code Standards & Dead Code
+File: lib/presentation/screens/supplements/supplement_edit_screen.dart
+Cross-cutting: None
+Description: File is 1,634 lines — over the 800-line review
+  threshold. Mixes form fields, barcode scanning, AI label scanning,
+  photo management, and schedule builder in one file.
+Fix approach: Extract sub-concerns into dedicated widget classes
+  (schedule builder, photo section, barcode/AI scan actions).
+Status: OPEN
+
+---
+
+AUDIT-10-004
+Severity: LOW
+Category: Code Standards & Dead Code
+File: lib/presentation/screens/fluids/fluids_entry_screen.dart
+Cross-cutting: None
+Description: File is 1,337 lines — over the 800-line threshold.
+Fix approach: Extract widget components to reduce file size.
+Status: OPEN
+
+---
+
+AUDIT-10-005
+Severity: LOW
+Category: Code Standards & Dead Code
+File: lib/presentation/screens/food/food_item_edit_screen.dart
+Cross-cutting: None
+Description: File is 1,131 lines — over the 800-line threshold.
+Fix approach: Extract widget components to reduce file size.
+Status: OPEN
+
+---
+
+AUDIT-10-006
+Severity: HIGH
+Category: Code Standards & Dead Code
+File: lib/presentation/screens/supplements/supplement_edit_screen.dart
+Cross-cutting: lib/di/di_providers.dart (line 514),
+  lib/core/bootstrap.dart (line 461),
+  lib/domain/usecases/supplements/add_supplement_label_photo_use_case.dart
+Description: `addSupplementLabelPhotoUseCaseProvider` is defined in
+  di_providers.dart (line 514) and `supplementLabelPhotoRepository`
+  is overridden in bootstrap (line 461), but
+  `addSupplementLabelPhotoUseCase` is never called anywhere in
+  the codebase. supplement_edit_screen.dart maintains a
+  `_labelPhotoPaths` list and renders a Label Photos UI section
+  (up to 3 photos), but `_labelPhotoPaths` is never included in
+  `UpdateSupplementInput` or `CreateSupplementInput` at save time.
+  Label photos are silently discarded on every save — a silent
+  data loss path.
+Fix approach: Wire `_labelPhotoPaths` into the save flow by calling
+  `addSupplementLabelPhotoUseCaseProvider` after supplement
+  create/update. If the feature is intentionally deferred, remove
+  the label photo UI section entirely and delete the dead provider
+  wiring.
+Status: OPEN
+
+---
+
+## End of Pass 10 Findings
+
+---
