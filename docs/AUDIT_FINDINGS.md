@@ -400,3 +400,91 @@ Status: OPEN
 ## End of Pass 04 Findings
 
 ---
+
+## Pass 05 — Security & Privacy
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 3 (0 CRITICAL, 0 HIGH, 1 MEDIUM, 2 LOW)
+
+Note: Encryption, guest access, PIN/biometric, and
+health data routing all pass cleanly. The security
+architecture is sound.
+
+---
+
+AUDIT-05-001
+Severity: LOW
+Category: Security & Privacy
+File: lib/presentation/providers/conditions/condition_list_provider.dart
+Cross-cutting: lib/presentation/providers/supplements/supplement_list_provider.dart,
+  lib/presentation/providers/food_items/food_item_list_provider.dart,
+  lib/presentation/providers/photos/photo_area_list_provider.dart,
+  lib/presentation/providers/diet/diet_list_provider.dart,
+  lib/presentation/providers/activities/activity_list_provider.dart
+Description: Multiple list providers log entity names
+  at debug level on create (e.g. "Creating condition:
+  Crohn's Disease"). Medical condition names are PHI.
+  All calls are .debug() level — suppressed in release
+  builds via kDebugMode check in logger_service.dart.
+  Risk is development and testing builds only, not
+  production. encryption_service.dart comment says
+  "Never log plaintext or encryption keys" but does
+  not explicitly address entity content.
+Fix approach: Remove entity name from create() debug
+  log lines across all list providers. Log operation
+  and profileId only (e.g. "Creating condition for
+  profile: $profileId"). IDs and counts are acceptable;
+  names and content are not.
+Status: OPEN
+
+---
+
+AUDIT-05-002
+Severity: MEDIUM
+Category: Security & Privacy
+File: lib/presentation/providers/profile/profile_provider.dart
+Cross-cutting: android/ (SharedPreferences storage layer)
+Description: Profile JSON (names, profile IDs, profile
+  list) stored via plain SharedPreferences with no
+  AndroidOptions(encryptedSharedPreferences: true).
+  On Android, SharedPreferences data is stored
+  unencrypted in the app data directory. Profile names
+  are PII. On iOS/macOS, NSUserDefaults is sandboxed
+  but also unencrypted. This is distinct from
+  AUDIT-01-006 (architectural bypass) — this is
+  specifically unencrypted PII on disk. Full resolution
+  when AUDIT-01-006 is addressed (profile data moves
+  to encrypted Drift/SQLCipher database).
+Fix approach: As interim: add AndroidOptions(
+  encryptedSharedPreferences: true) to SharedPreferences
+  calls in profile_provider.dart. Full resolution
+  when AUDIT-01-006 is addressed.
+Status: OPEN
+
+---
+
+AUDIT-05-003
+Severity: LOW
+Category: Security & Privacy
+File: docs/archive/cloud-sync/reference-code/client_secret.json
+Cross-cutting: .gitignore
+Description: Google OAuth client_secret
+  (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) present in
+  a JSON file committed to the git repository under
+  docs/archive/. Same secret as the development
+  fallback in google_oauth_config.dart — no additional
+  credential exposure beyond what is already accepted
+  in DECISIONS.md. Archive file is not included in
+  app bundle. Risk is elevated only if repository
+  becomes public. The JSON format could be mistakenly
+  used with OAuth tooling.
+Fix approach: Delete docs/archive/cloud-sync/
+  reference-code/client_secret.json from repository.
+  Add client_secret*.json to .gitignore.
+Status: OPEN
+
+---
+
+## End of Pass 05 Findings
+
+---
