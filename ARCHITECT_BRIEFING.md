@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-022
+# Briefing Version: 20260302-023
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Audit Pass 03 complete ✅ Findings reported to Architect
-# Last Commit:   docs: audit pass 02 findings cataloged + pass 03 session report
+# Status:        IDLE — Audit Pass 03 findings cataloged + Pass 04 complete ✅
+# Last Commit:   docs: audit pass 03 findings — sync correctness (3 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 03 findings → AUDIT_FINDINGS.md → run Pass 04
+# Next Action:   Architect catalogs Pass 04 findings → AUDIT_FINDINGS.md → run Pass 05
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,71 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 04: Error Handling & Result Type
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 04 of the final pre-launch audit. Also completed Part A of the prompt: appended Architect-supplied Pass 03 findings to `docs/AUDIT_FINDINGS.md` and committed (`c4d0b43`).
+
+Read: all 26 `*_impl.dart` files under `lib/data/repositories/`, representative use cases across all domains, `supplement_list_provider.dart`, `cloud_sync_auth_provider.dart`, `health_sync_provider.dart`, `profile_provider.dart`, `sync_service_impl.dart` (full), `encryption_service.dart`, `health_platform_service_impl.dart`, `sync_from_health_platform_use_case.dart`, `photo_processing_service.dart`, 4 screens calling `PhotoProcessingService`, `database.dart` (migration section), `app_error.dart` (full).
+
+**3 findings: 0 CRITICAL, 0 HIGH, 2 MEDIUM, 1 LOW.**
+
+**AUDIT-04-001 — MEDIUM**
+`lib/domain/usecases/health/sync_from_health_platform_use_case.dart` — Inconsistent per-type error handling in health sync loop. The comment at line 127 explicitly states "Platform read failure for one type should not abort the whole sync" and `readRecords` failure is correctly non-fatal (continues). However, `_vitalRepo.getLastImportTime()`, `_vitalRepo.importBatch()`, and `_statusRepo.upsert()` failures all `return Failure(...)`, aborting the entire import. A transient DB error on heart rate aborts weight, blood pressure, steps, etc. User sees "Sync failed: [error]" with no indication of partial completion.
+Fix approach: Match the `readRecords` non-fatal pattern — log, record 0 imported for that type, and continue. Return partial `SyncFromHealthPlatformResult` with per-type error counts instead of top-level `Failure`.
+
+**AUDIT-04-002 — MEDIUM**
+`lib/presentation/providers/profile/profile_provider.dart` — `ProfileNotifier._load()`, `_save()`, `addProfile()`, `updateProfile()`, `deleteProfile()`, `setCurrentProfile()` have no error handling. SharedPreferences failures produce uncaught async exceptions. `ProfileState` has no error field. Screens call these methods fire-and-forget — if persistence fails, UI shows success while data was not saved. Note: downstream consequence of AUDIT-01-006. The architectural fix (migrate to repository + use case) resolves this automatically.
+Fix approach: Add try/catch to `_save()` and `_load()` with logging as an interim fix. Full resolution when AUDIT-01-006 is addressed (migrate to `profileRepositoryProvider`).
+
+**AUDIT-04-003 — LOW**
+`lib/data/datasources/local/database.dart` — `MigrationStrategy.onUpgrade` has no try/catch. `onCreate` has a try/catch with descriptive logging before rethrow. `onUpgrade` should match. A migration failure is a critical crash; wrapping with `DatabaseError.migrationFailed(from, to, e, stack)` before rethrow would significantly aid crash diagnosis.
+Fix approach: Wrap entire `onUpgrade` body in try/catch that logs `DatabaseError.migrationFailed(from, to, e, stack)` then rethrows.
+
+### Step Results
+
+| Step | Result |
+|------|--------|
+| 1 — Result usage in repositories | Clean. All 26 impls delegate to DAO, return Results directly, no unsafe `valueOrNull!`, no swallowed exceptions. |
+| 2 — Result usage in use cases | Mostly clean. All `valueOrNull!` follow `isFailure` guard. One inconsistency: health sync loop (AUDIT-04-001). |
+| 3 — Result usage in providers | Clean for Riverpod providers — all use `result.when()`, throw into AsyncValue error state. Exception: `ProfileNotifier` not yet on Riverpod pattern (AUDIT-04-002). |
+| 4 — AppError type appropriateness | Good. `EncryptionService` throws `StateError`/`DecryptionException` caught by sync service. `PhotoProcessingService` throws `PhotoProcessingException`; all 4 call sites handle correctly. |
+| 5a — Sync push partial failure | Designed correctly. Per-entity try/catch, pushedCount/failedCount tracked, encryption failure caught. ✓ |
+| 5b — Encryption failure | Handled within sync service's per-entity `on Exception catch`. ✓ |
+| 5c — DB migration failure | `onCreate`: catches, logs, rethrows ✓. `onUpgrade`: no try/catch → raw Drift exception (AUDIT-04-003). |
+| 5d — Photo processing failure | All 4 call sites catch `PhotoProcessingException` + generic `on Exception`, both show user snackbar. ✓ |
+| 5e — Health platform per-type failure | Platform read failure → continue ✓. DB failures in same loop → abort entire import (AUDIT-04-001). |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 03 findings (3 findings) as supplied by Architect |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Pass 04 session report |
+
+### Executive Summary for Reid
+
+This session had two jobs. First, I filed the three sync findings from last session into the audit register exactly as the Architect wrote them. Second, I completed the fourth audit pass — looking at how the app handles errors.
+
+The good news: the error handling architecture is solid. Every repository, every use case, and every Riverpod provider follows the same disciplined pattern of returning structured `Result` objects rather than throwing raw exceptions. There were no hidden crashes lurking in the main data layer.
+
+I found three items worth flagging. Two are medium-weight:
+
+1. **Health platform sync** — if the app's local database has a hiccup while importing, say, your heart rate, it aborts importing everything else too (weight, steps, blood pressure). The fix would make it continue to the next data type instead. This is consistent with how platform-side failures are already handled — those correctly keep going.
+
+2. **Profile management** — the profile screen (create, rename, delete profiles) is built on an older pattern that doesn't handle save failures. If SharedPreferences (the underlying storage) fails silently, the UI shows success but the change wasn't saved. This is the same structural issue flagged in Pass 01 (AUDIT-01-006). One fix addresses both.
+
+The third item is minor: database migration errors don't include a helpful "migration failed from v15 to v18" log message — they just crash with a raw database exception. Easy to add, useful for diagnosing issues in the field.
+
+No crashes, no data exposure, no silent data loss outside the already-known profile issue. The error handling layer is in good shape.
+
+---
 
 ---
 
