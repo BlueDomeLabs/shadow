@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Final audit plan created ✅ Ready for Pass 01
-# Last Commit:   docs: create final pre-launch audit plan and findings register
-# Last Code:     DOCS ONLY — no code changes
-# Next Action:   Audit Pass 01 — Architecture & Layer Boundaries
+# Status:        IDLE — Audit Pass 01 complete ✅ Findings reported to Architect
+# Last Commit:   docs: audit pass 01 findings in ARCHITECT_BRIEFING.md
+# Last Code:     DOCS ONLY — read-only audit, no code changes
+# Next Action:   Architect catalogs Pass 01 findings → AUDIT_FINDINGS.md → run Pass 02
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,70 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 01: Architecture & Layer Boundaries
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 01 of the final pre-launch audit. Read all files under `lib/domain/`, `lib/data/repositories/`, `lib/presentation/providers/`, and `lib/core/bootstrap.dart`. Checked for layer boundary violations per `docs/FINAL_AUDIT_PLAN.md`.
+
+**7 findings: 0 CRITICAL, 2 HIGH, 3 MEDIUM, 2 LOW.**
+
+**AUDIT-01-001 — MEDIUM**
+`lib/domain/services/sync_service.dart` imports `lib/data/datasources/remote/cloud_storage_provider.dart`. Domain layer must not import from data layer. `CloudStorageProvider` is an abstract interface, but physically located in `lib/data/`. Cross-cutting: `sync_service_impl.dart`, `cloud_sync_auth_provider.dart`, `di_providers.dart`. Fix: Move `cloud_storage_provider.dart` to `lib/core/sync/` or `lib/domain/`.
+
+**AUDIT-01-002 — LOW**
+`lib/domain/services/local_profile_authorization_service.dart` is a concrete class in the domain layer. Convention: concretions in `lib/data/`. No functional risk (no external deps). Fix: Move to `lib/data/services/`.
+
+**AUDIT-01-003 — LOW**
+`lib/domain/services/notification_seed_service.dart` is a concrete class in the domain layer (contains seeding logic, UUID generation). Fix: Move to `lib/data/services/`.
+
+**AUDIT-01-004 — HIGH**
+`lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart` directly imports and holds concrete data-layer types (`GoogleDriveProvider`, `ICloudProvider`). Contains business logic that belongs in use cases: auth session checks, sign-in/sign-out, provider switching, `FlutterSecureStorage` writes. File comment acknowledges this as intentional tech debt. Fix: Create `CloudSyncAuthService` domain interface + use cases; refactor provider to delegate.
+
+**AUDIT-01-005 — MEDIUM**
+`lib/presentation/providers/di/di_providers.dart` imports and exposes `GoogleDriveProvider` and `ICloudProvider` as concrete-typed Riverpod providers. DI declarations should use abstract interfaces only. This finding is subsumed by AUDIT-01-004 — resolving the auth provider refactor eliminates the need for concrete-typed DI providers.
+
+**AUDIT-01-006 — HIGH**
+`lib/presentation/providers/profile/profile_provider.dart` defines a duplicate `Profile` model in the presentation layer that bypasses `ProfileRepository` entirely — profile data persists to `SharedPreferences` (not the DAO/database). Domain `Profile` entity (with `syncMetadata`, full sync support) exists but is unused by the UI. `profileRepositoryProvider` in DI throws `UnimplementedError` and is never consumed. **Profile create/rename/delete are invisible to the sync system.** Fix: Implement profile use cases; migrate `ProfileNotifier` to use `profileRepositoryProvider`; delete duplicate model.
+
+**AUDIT-01-007 — MEDIUM**
+`lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart:88`: `CloudSyncAuthNotifier` instantiates `ICloudProvider()` directly as a default fallback: `_iCloudProvider = iCloudProvider ?? ICloudProvider()`. Concrete instantiation outside bootstrap.dart. Subsumed by AUDIT-01-004.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/services/sync_service.dart | EXAMINED | Finding AUDIT-01-001: imports from data layer |
+| lib/domain/services/local_profile_authorization_service.dart | EXAMINED | Finding AUDIT-01-002: concrete class in domain layer |
+| lib/domain/services/notification_seed_service.dart | EXAMINED | Finding AUDIT-01-003: concrete class in domain layer |
+| lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart | EXAMINED | Findings AUDIT-01-004, AUDIT-01-007: concrete data imports + business logic |
+| lib/presentation/providers/di/di_providers.dart | EXAMINED | Finding AUDIT-01-005: concrete-typed DI providers |
+| lib/presentation/providers/profile/profile_provider.dart | EXAMINED | Finding AUDIT-01-006: duplicate entity + bypasses repository |
+| lib/core/bootstrap.dart | EXAMINED | ALIGNED — correct sole location for concrete instantiation |
+| lib/domain/entities/ (all) | EXAMINED | CLEAN — no Flutter imports, no data layer imports |
+| lib/data/repositories/ (all *_impl.dart) | EXAMINED | CLEAN — no presentation imports, no Riverpod imports |
+| lib/domain/usecases/ (sampled) | EXAMINED | CLEAN — constructor injection, no direct instantiation |
+
+### Executive Summary for Reid
+
+Pass 01 of the pre-launch code review is done. I examined the entire architecture looking for places where the app's structural rules are violated — specifically, places where code in one "layer" of the app directly reaches into another layer it shouldn't be talking to.
+
+**Overall verdict: the architecture is fundamentally sound.** Seven issues found, none of them catastrophic. The app's core engine — entity definitions, business rules, database access — is cleanly separated as designed. Providers correctly delegate to use cases in almost all cases.
+
+**The two most significant findings:**
+
+1. **Profile data bypasses sync (HIGH).** When you create, rename, or delete a profile, that change is saved to a quick-access store on the device but never reaches the sync system. If you had two devices, profile changes would not propagate between them. The full profile sync infrastructure exists in the database — it just isn't being used yet for profile management.
+
+2. **Cloud authentication logic in wrong place (HIGH).** The code that handles signing into Google Drive or iCloud is sitting in the "display" layer of the app rather than the "business logic" layer where it belongs. This is acknowledged in the code itself as a known gap. It doesn't affect users today but it makes that code harder to test and maintain.
+
+The remaining five findings are lower-priority structural cleanups — an interface file in the wrong folder, two concrete helper classes that belong one layer down, and two dependency injection issues that get resolved when the auth gap is fixed.
+
+No code was changed in this session. The Architect will catalog these findings and decide fix priority.
 
 ---
 
