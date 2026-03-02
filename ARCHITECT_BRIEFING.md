@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-030
+# Briefing Version: 20260302-031
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,11 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Convergence Pass D complete; 64 total findings cataloged
-# Last Commit:   docs: Convergence Pass D audit findings (AUDIT-CD-001 through AUDIT-CD-004)
+# Status:        IDLE — FIX_PLAN.md created; 64 findings in 12 groups + deferred
+# Last Commit:   docs: create FIX_PLAN.md — 64 findings in 12 groups, sequenced for execution
 # Last Code:     DOCS ONLY — no code changes
-# Next Action:   Architect reviews Pass D findings → declares convergence or orders Pass E
-# Open Items:    Provider switching requires app restart for SyncService to use new provider
+# Next Action:   Architect reviews FIX_PLAN.md groupings + decisions required → issues GROUP P prompt
+# Open Items:    6 decisions required before specific sessions (see FIX_PLAN.md Section 3)
 # Tests:         3,449 passing
 # Schema:        v18
 # Analyzer:      Clean
@@ -22,6 +22,70 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — FIX_PLAN.md Created: 64 Findings Grouped for Execution
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | DOCS ONLY — no code changes**
+
+### Technical Summary
+
+Created docs/FIX_PLAN.md grouping all 64 audit findings into 12 execution groups
+plus a deferred bucket, sequenced by priority and dependency.
+
+**Group structure (12 groups + deferred):**
+
+| Group | Label | Findings | Estimate |
+|-------|-------|----------|----------|
+| P | Platform & Store Blockers | 8 | 1 session |
+| Q | Quick Cleanup | 8 | 1 session |
+| N | Navigation Wiring (Unreachable Screens) | 5 | 1 session |
+| U | UI Error States & Form Guards | 5 | 1 session |
+| S | Sync Integrity | 5 | 1-2 sessions |
+| T | Test Coverage Gaps | 3 | 1 session |
+| PH | Photo System Gaps | 5 | 1-2 sessions |
+| F | Schema & Entity Fixes | 2 | 1 session |
+| X | Complex Features | 5 | 1-2 sessions |
+| A | Profile Architecture (Major) | 8 | 2-3 sessions |
+| B | Cloud Sync Architecture | 4 | 2 sessions |
+| L | Large File Refactors (Low) | 3 | 1-2 sessions |
+| DEF | Deferred | 6 | — |
+
+Total estimated sessions: ~15
+
+**6 decisions required from Architect before specific sessions:**
+1. AUDIT-CC-003: Implement condition filter or remove stub? (before GROUP N)
+2. AUDIT-07-003: Delete redundant repository tests or add comment? (before GROUP T)
+3. AUDIT-02-001: Add FluidsEntry custom condition fields or drop columns? (before GROUP F)
+4. AUDIT-CD-003: Wire imported vitals or document as Phase 3 deferral? (before GROUP X)
+5. AUDIT-10-006: Wire supplement label photos or remove dead code? (before GROUP X)
+6. GROUP B: CloudSyncAuthUseCase interface design (before GROUP B)
+
+**Sequencing rationale:**
+- GROUP P first: App Store/Play Store rejectors must be resolved before any device testing
+- GROUP N third: 4 screens are completely unreachable including condition logging (primary feature)
+- GROUP S fifth: data correctness issues (silent sync loops, missing dirty flags)
+- GROUP A tenth: largest scope; all other work should be stable first
+- GROUP B eleventh: depends on GROUP A reducing entanglement
+- GROUP L last: purely cosmetic refactors with regression risk; do after all content additions
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/FIX_PLAN.md | CREATED | 64 findings grouped into 12 execution groups with decisions, notes, sequence |
+| ARCHITECT_BRIEFING.md | MODIFIED | Session entry + handoff block updated |
+
+### Executive Summary for Reid
+
+The audit is complete. All 64 problems have been cataloged, and I've now organized them into a fix plan with 12 groups in a specific sequence. Group P comes first because those are the items that would get the app rejected from the App Store and Play Store — missing permission descriptions, missing privacy file, and Android permission gaps. Group N comes third because several fully-built screens are simply unreachable from the app's navigation, including the condition daily-logging screen which is the core feature for tracking how a condition feels each day.
+
+The plan estimates about 15 work sessions to complete all fixes. The biggest single piece of work is the profile architecture (Group A, 2-3 sessions) — that's where the app currently stores profile names in the wrong place, which causes several downstream problems including profile changes not syncing between devices.
+
+Before we can start on certain groups, the Architect needs to make 6 decisions about ambiguous items — for example, whether to implement or remove a non-functional filter button in the conditions screen, and whether supplement label photos should be wired up for launch or removed for now.
+
+The next step is the Architect reviewing the plan and issuing the Group P prompt.
 
 ---
 
