@@ -10,7 +10,7 @@
 // NOTE: iOS/macOS entitlements required for iCloud to work on device:
 //   - iCloud capability enabled in Xcode
 //   - iCloud Documents entitlement
-//   - Container ID: iCloud.com.bluedomecolorado.shadow
+//   - Container ID: iCloud.com.bluedomecolorado.shadowApp
 //   These are manual Xcode steps NOT included in this session.
 
 import 'dart:async';
@@ -79,7 +79,7 @@ class ICloudStorageWrapper {
 /// changed envelopes.
 class ICloudProvider implements CloudStorageProvider {
   /// iCloud container ID — must match the entitlement in Xcode.
-  static const String _containerId = 'iCloud.com.bluedomecolorado.shadow';
+  static const String _containerId = 'iCloud.com.bluedomecolorado.shadowApp';
 
   /// Override for [isAvailable] platform check in unit tests.
   ///

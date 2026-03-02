@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-016
+# Briefing Version: 20260301-017
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,13 +9,11 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   fix: correct stale cloud sync strings and provider display label
-# Last Code:     Three cosmetic fixes: provider label, settings subtitle, stale comment
+# Status:        IDLE — iCloud sync fully complete — Xcode entitlements done ✅
+# Last Commit:   fix: correct iCloud container ID and remove stale HealthKit background-delivery entitlement
+# Last Code:     Entitlement files (iOS + macOS) + icloud_provider.dart container ID aligned
 # Next Action:   Phase 32 (TBD by Architect)
-# Open Items:    iOS/macOS Xcode entitlements required (manual step — iCloud won't work on
-#                real device without iCloud capability + iCloud Documents + container ID)
-#                Provider switching requires app restart for SyncService to use new provider
+# Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,434 passing
 # Schema:        v18
 # Analyzer:      Clean
@@ -24,6 +22,36 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — iCloud Entitlement Files + Container ID Fix
+
+**Tests: 3,434 | Schema: v18 | Analyzer: clean**
+
+### What Changed
+
+Manually edited files committed. No logic changes — config and constant fixes only.
+
+**ios/Runner/Runner.entitlements:**
+- Removed stale `com.apple.developer.healthkit.background-delivery` key (was `<false/>` — Shadow never uses background delivery; this key should not be present at all)
+- Added `com.apple.developer.icloud-container-identifiers`, `com.apple.developer.icloud-services` (CloudDocuments), and `com.apple.developer.ubiquity-container-identifiers` — all pointing to `iCloud.com.bluedomecolorado.shadowApp`
+
+**macos/Runner/DebugProfile.entitlements + Release.entitlements:**
+- Added the same three iCloud entitlement keys with container ID `iCloud.com.bluedomecolorado.shadowApp`
+
+**lib/data/cloud/icloud_provider.dart:**
+- `_containerId` constant corrected from `iCloud.com.bluedomecolorado.shadow` → `iCloud.com.bluedomecolorado.shadowApp`
+- Comment in file header updated to match
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| ios/Runner/Runner.entitlements | MODIFIED | Removed stale HealthKit background-delivery; added iCloud container/services/ubiquity entitlements |
+| macos/Runner/DebugProfile.entitlements | MODIFIED | Added iCloud container/services/ubiquity entitlements |
+| macos/Runner/Release.entitlements | MODIFIED | Added iCloud container/services/ubiquity entitlements |
+| lib/data/cloud/icloud_provider.dart | MODIFIED | `_containerId` and header comment corrected to `iCloud.com.bluedomecolorado.shadowApp` |
 
 ---
 

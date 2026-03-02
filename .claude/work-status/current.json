@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Three cosmetic cloud sync string fixes",
+  "task": "Fix iCloud container ID and entitlement files",
   "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3434,
   "schemaVersion": 18,
-  "notes": "Three string fixes: (1) CloudSyncSettingsScreen Device Info now uses _providerDisplayName() instead of hardcoded 'Google Drive' — shows correct label for iCloud or Google Drive; (2) Settings screen Cloud Sync tile subtitle changed from 'Google Drive backup and sync status' to 'Cloud backup and sync status'; (3) Stale SyncServiceImpl class comment removed (was 'Pull and conflict resolution return stubs (Phase 3/4)'). +2 new tests for provider label. 3,434 total passing. Analyzer clean."
+  "notes": "Manual edits committed: (1) ios/Runner/Runner.entitlements — removed stale HealthKit background-delivery key, added iCloud container/services/ubiquity entitlements for iCloud.com.bluedomecolorado.shadowApp; (2) macos/Runner/DebugProfile.entitlements + Release.entitlements — added same iCloud container/services/ubiquity entitlements; (3) lib/data/cloud/icloud_provider.dart — _containerId and comment corrected from iCloud.com.bluedomecolorado.shadow to iCloud.com.bluedomecolorado.shadowApp. No logic changes. Analyzer clean. iCloud sync fully wired end-to-end on iOS and macOS."
 }
