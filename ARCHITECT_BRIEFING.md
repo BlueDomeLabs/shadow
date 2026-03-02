@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-013
+# Briefing Version: 20260301-014
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,11 +10,11 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — awaiting next prompt from Architect
-# Last Commit:   (this session) docs: ARCHITECT_BRIEFING v20260301-013 — encryption + iCloud sync recon
-# Last Code:     559a634 — fix: archive syncStatus check + spec correction + ValidationRules use cases
-# Next Action:   Await next phase prompt from Architect
-# Open Items:    None — encryption already complete; iCloud provider not yet built
-# Tests:         3,396 passing
+# Last Commit:   feat: add ICloudProvider implementing CloudStorageProvider (Phase 31a)
+# Last Code:     (this session) ICloudProvider + 24 tests
+# Next Action:   Phase 31b — DI wiring + UI changes (Session 2 per prompt)
+# Open Items:    iOS/macOS Xcode entitlements required (manual step — not in this session)
+# Tests:         3,420 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,125 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Phase 31a: ICloudProvider Implementation + Tests
+
+**Tests: 3,420 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Implemented `ICloudProvider` in full — all 10 methods of `CloudStorageProvider` — and 24 unit tests covering every required case. Resolved two spec gaps discovered by reading actual package source before writing code.
+
+---
+
+#### 1. Package API discovery — icloud_storage 2.2.0 (resolved from ^2.0.0)
+
+Read source at `~/.pub-cache/hosted/pub.dev/icloud_storage-2.2.0/`. Key findings:
+
+- **No `isICloudAvailable()` method** — the prompt assumed this existed. It does not. Implemented `isAvailable()` by probing the container via `gather()` on Apple platforms; `PlatformException(E_CTR)` means "not available/not signed in".
+- **`gather()` returns `List<ICloudFile>`** — each file has `contentChangeDate` (DateTime). This enabled real `getChangesSince()` implementation — not the `Success([])` stub the prompt anticipated. Full directory listing + filter + download is implemented.
+- **`download()` is async-initiated** — the future completes when download *begins*, not when it finishes. Used `Completer<void>` with `onProgress` stream `onDone` callback to wait for actual completion. This is `_downloadAndWait()`.
+- **`StreamHandler<T>` typedef** defined in platform interface, not exported from main library. Changed `ICloudStorageWrapper` to use `void Function(Stream<T>)?` directly.
+- **Delete throws `PlatformException(E_FNF)` if file not found** — caught and treated as success (already gone).
+
+---
+
+#### 2. ICloudStorageWrapper — thin injectable wrapper
+
+Created `ICloudStorageWrapper` class that wraps all static `ICloudStorage` methods. Same pattern as `GoogleDriveProvider` uses `http.Client` injection. Methods: `gather`, `upload`, `download`, `delete`.
+
+---
+
+#### 3. ICloudProvider — 10 methods implemented
+
+All method implementations:
+
+| Method | Behaviour |
+|--------|-----------|
+| `providerType` | `CloudProviderType.icloud` |
+| `isAvailable()` | Platform check + `gather()` probe |
+| `isAuthenticated()` | Delegates to `isAvailable()` |
+| `authenticate()` | Success if available; AuthError otherwise |
+| `signOut()` | No-op, always Success |
+| `uploadEntity()` | Write JSON to temp file → `upload()` → delete temp |
+| `downloadEntity()` | `download()` via completer → read file → parse JSON |
+| `deleteEntity()` | `delete()`; E_FNF → Success |
+| `getChangesSince()` | `gather()` → filter by `contentChangeDate` → download each |
+| `uploadFile()` | `upload()` to `shadow_app/files/{remotePath}` |
+| `downloadFile()` | `download()` to localPath via completer |
+
+Error mapping: `SyncError.uploadFailed` for upload/delete failures; `SyncError.downloadFailed` for download failures. Matches GoogleDriveProvider patterns exactly.
+
+Two `@visibleForTesting` static overrides added:
+- `testIsApplePlatform` — overrides Platform check for non-Apple unit test environments
+- `testTempDirectory` — bypasses `getTemporaryDirectory()` (path_provider not available in pure unit tests)
+
+**iCloud container ID:** `iCloud.com.bluedomecolorado.shadow`
+
+**Folder structure** (mirrors GoogleDriveProvider):
+- `shadow_app/data/{entityType}/{entityId}.json` — entity envelopes
+- `shadow_app/files/{remotePath}` — binary files
+
+**Xcode entitlements required (manual step — not in this session):**
+- iCloud capability enabled
+- iCloud Documents entitlement
+- Container ID: `iCloud.com.bluedomecolorado.shadow`
+
+---
+
+#### 4. Unit tests — 24 tests passing
+
+`test/unit/data/cloud/icloud_provider_test.dart`
+
+Tests use `MockICloudStorageWrapper` (mockito-generated). Mock `download()` answers write the file to the destination path AND invoke the `onProgress` stream's `onDone` to simulate iCloud download completion.
+
+Coverage:
+- `providerType` value is 1
+- `isAvailable()` false on non-Apple; true when gather succeeds; false on E_CTR; false on generic exception
+- `authenticate()` success when available; failure when not
+- `signOut()` always success
+- `uploadEntity()` calls upload with correct path; returns Failure on exception
+- `downloadEntity()` Success(null) on E_FNF; parses JSON on success; Failure on exception
+- `deleteEntity()` calls delete and returns Success; Success on E_FNF; Failure on exception
+- `getChangesSince()` empty when no matches; populated when files match; skips non-data paths; Failure when gather throws
+- `uploadFile()` uploads to shadow_app/files/ prefix
+- `downloadFile()` Success(localPath); Failure on E_FNF
+
+---
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `pubspec.yaml` | MODIFIED | Added `icloud_storage: ^2.0.0` (resolved to 2.2.0) |
+| `pubspec.lock` | MODIFIED | Dependency lock updated |
+| `macos/Flutter/GeneratedPluginRegistrant.swift` | MODIFIED | Auto-generated — icloud_storage registered |
+| `lib/data/cloud/icloud_provider.dart` | NEW | ICloudStorageWrapper + ICloudProvider (10 methods) |
+| `test/unit/data/cloud/icloud_provider_test.dart` | NEW | 24 unit tests |
+| `test/unit/data/cloud/icloud_provider_test.mocks.dart` | NEW | Generated mock for ICloudStorageWrapper |
+| `lib/data/datasources/remote/cloud_storage_provider.dart` | ALREADY CORRECT | Checked — icloud(1) enum value already present |
+
+---
+
+### Executive Summary for Reid
+
+Phase 31a is done. We built the full iCloud sync engine — everything the app needs to read and write data to iCloud Drive on iOS and macOS.
+
+Before writing a single line of code, I read the actual iCloud library source to understand exactly what it supports. That revealed two things the original plan hadn't accounted for:
+
+1. The library has no "is iCloud available?" function. So I implemented a smarter version that actually tests the connection by trying to list your files — if it fails, it reports iCloud as unavailable.
+
+2. The library actually *does* support listing files with their last-changed timestamps. The original plan assumed it didn't and said to return an empty list with a TODO comment. Instead, I implemented real change detection: the app can now query "what changed since my last sync?" and get actual answers by checking file modification dates.
+
+Everything passes: 3,420 tests, analyzer clean.
+
+**What still needs to happen before iCloud sync works on a real device:**
+
+Xcode requires a manual configuration step — the iCloud capability must be enabled in the app's settings and the container ID (`iCloud.com.bluedomecolorado.shadow`) must be registered. This is a one-time setup in Xcode, not code. The Architect should flag this as a required step for anyone testing on device.
+
+The next session (31b) will wire iCloud into the app's dependency injection and update the UI so users can actually select it as their sync provider.
 
 ---
 

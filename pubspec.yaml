@@ -46,6 +46,9 @@ dependencies:
   collection: ^1.18.0
   device_info_plus: ^12.3.0
 
+  # iCloud Sync (Phase 31)
+  icloud_storage: ^2.0.0
+
   # Google Sign-In & Drive
   google_sign_in: ^6.1.6
   googleapis: ^12.0.0
