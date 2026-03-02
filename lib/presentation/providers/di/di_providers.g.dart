@@ -429,6 +429,48 @@ final googleDriveProviderProvider = Provider<GoogleDriveProvider>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GoogleDriveProviderRef = ProviderRef<GoogleDriveProvider>;
+String _$iCloudProviderHash() => r'ab054744c0eddbffcfd15d06aa6be3258afb0aac';
+
+/// iCloud provider - override in ProviderScope with implementation.
+///
+/// Copied from [iCloudProvider].
+@ProviderFor(iCloudProvider)
+final iCloudProviderProvider = Provider<ICloudProvider>.internal(
+  iCloudProvider,
+  name: r'iCloudProviderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$iCloudProviderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ICloudProviderRef = ProviderRef<ICloudProvider>;
+String _$activeCloudProviderHash() =>
+    r'fdc10d145427c60b073dd73267bf45242f6ff710';
+
+/// Active cloud provider - override in ProviderScope with implementation.
+///
+/// Bootstrap selects which concrete provider to wire here based on
+/// the stored CloudProviderType preference.
+///
+/// Copied from [activeCloudProvider].
+@ProviderFor(activeCloudProvider)
+final activeCloudProviderProvider = Provider<CloudStorageProvider>.internal(
+  activeCloudProvider,
+  name: r'activeCloudProviderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$activeCloudProviderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ActiveCloudProviderRef = ProviderRef<CloudStorageProvider>;
 String _$syncServiceHash() => r'aa309c4de1092b99562390893c4e749ea92d5b22';
 
 /// Sync service provider - override in ProviderScope with implementation.

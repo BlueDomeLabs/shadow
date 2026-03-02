@@ -1,20 +1,25 @@
 // test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart
 // Tests for CloudSyncAuthProvider and CloudSyncAuthState.
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+import 'package:shadow_app/data/cloud/icloud_provider.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
     show CloudProviderType, SyncChange;
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 
-@GenerateMocks([GoogleDriveProvider])
+@GenerateMocks([GoogleDriveProvider, ICloudProvider, FlutterSecureStorage])
 import 'cloud_sync_auth_provider_test.mocks.dart';
 
 void main() {
+  // Required: FlutterSecureStorage uses platform channels which need the binding
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   // Register dummy values for sealed Result types so Mockito can handle them
   setUpAll(() {
     provideDummy<Result<void, AppError>>(const Success(null));
@@ -102,14 +107,23 @@ void main() {
 
   group('CloudSyncAuthNotifier', () {
     late MockGoogleDriveProvider mockProvider;
+    late MockFlutterSecureStorage mockStorageForLegacy;
     late CloudSyncAuthNotifier notifier;
 
     setUp(() {
       mockProvider = MockGoogleDriveProvider();
+      mockStorageForLegacy = MockFlutterSecureStorage();
       // Default: no existing session
       when(mockProvider.isAuthenticated()).thenAnswer((_) async => false);
       when(mockProvider.userEmail).thenReturn(null);
-      notifier = CloudSyncAuthNotifier(mockProvider);
+      // No stored preference → defaults to Google Drive session check
+      when(
+        mockStorageForLegacy.read(key: anyNamed('key')),
+      ).thenAnswer((_) async => null);
+      notifier = CloudSyncAuthNotifier(
+        mockProvider,
+        storage: mockStorageForLegacy,
+      );
     });
 
     test('initial state is not authenticated and not loading', () {
@@ -127,8 +141,14 @@ void main() {
     test('restores existing session if authenticated', () async {
       when(mockProvider.isAuthenticated()).thenAnswer((_) async => true);
       when(mockProvider.userEmail).thenReturn('restored@gmail.com');
+      when(
+        mockStorageForLegacy.read(key: anyNamed('key')),
+      ).thenAnswer((_) async => null);
 
-      final restoreNotifier = CloudSyncAuthNotifier(mockProvider);
+      final restoreNotifier = CloudSyncAuthNotifier(
+        mockProvider,
+        storage: mockStorageForLegacy,
+      );
       // Wait for async init
       await Future<void>.delayed(Duration.zero);
 
@@ -312,13 +332,174 @@ void main() {
       when(
         mockProvider.isAuthenticated(),
       ).thenThrow(Exception('Storage error'));
+      when(
+        mockStorageForLegacy.read(key: anyNamed('key')),
+      ).thenAnswer((_) async => null);
 
-      final errorNotifier = CloudSyncAuthNotifier(mockProvider);
+      final errorNotifier = CloudSyncAuthNotifier(
+        mockProvider,
+        storage: mockStorageForLegacy,
+      );
       // Should not throw - wait for async init
       await Future<void>.delayed(Duration.zero);
 
       expect(errorNotifier.state.isAuthenticated, false);
       expect(errorNotifier.state.isLoading, false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Phase 31b: iCloud support
+  // ---------------------------------------------------------------------------
+
+  group('iCloud support', () {
+    late MockGoogleDriveProvider mockGoogleProvider;
+    late MockICloudProvider mockICloudProvider;
+    late MockFlutterSecureStorage mockStorage;
+    late CloudSyncAuthNotifier notifier;
+
+    setUp(() {
+      mockGoogleProvider = MockGoogleDriveProvider();
+      mockICloudProvider = MockICloudProvider();
+      mockStorage = MockFlutterSecureStorage();
+      // Default: no existing session, no stored preference
+      when(mockGoogleProvider.isAuthenticated()).thenAnswer((_) async => false);
+      when(mockGoogleProvider.userEmail).thenReturn(null);
+      when(
+        mockStorage.read(key: anyNamed('key')),
+      ).thenAnswer((_) async => null);
+      notifier = CloudSyncAuthNotifier(
+        mockGoogleProvider,
+        iCloudProvider: mockICloudProvider,
+        storage: mockStorage,
+      );
+    });
+
+    group('signInWithICloud', () {
+      test(
+        'updates to authenticated state with icloud provider on success',
+        () async {
+          when(
+            mockICloudProvider.authenticate(),
+          ).thenAnswer((_) async => const Success(null));
+
+          await notifier.signInWithICloud();
+
+          expect(notifier.state.isAuthenticated, true);
+          expect(notifier.state.isLoading, false);
+          expect(notifier.state.activeProvider, CloudProviderType.icloud);
+          expect(notifier.state.userEmail, isNull); // iCloud has no email
+          expect(notifier.state.errorMessage, isNull);
+        },
+      );
+
+      test('sets error state on failure', () async {
+        when(mockICloudProvider.authenticate()).thenAnswer(
+          (_) async => Failure(AuthError.signInFailed('iCloud not available')),
+        );
+
+        await notifier.signInWithICloud();
+
+        expect(notifier.state.isAuthenticated, false);
+        expect(notifier.state.isLoading, false);
+        expect(notifier.state.activeProvider, isNull);
+        expect(notifier.state.errorMessage, isNotNull);
+      });
+
+      test('ignores concurrent sign-in attempts', () async {
+        var callCount = 0;
+        when(mockICloudProvider.authenticate()).thenAnswer((_) async {
+          callCount++;
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          return const Success(null);
+        });
+
+        final future1 = notifier.signInWithICloud();
+        final future2 = notifier.signInWithICloud();
+        await Future.wait([future1, future2]);
+
+        expect(callCount, 1);
+      });
+    });
+
+    group('switchProvider', () {
+      test('authenticates new provider and updates state on success', () async {
+        // Start: authenticated with Google Drive
+        when(
+          mockGoogleProvider.authenticate(),
+        ).thenAnswer((_) async => const Success(null));
+        when(mockGoogleProvider.userEmail).thenReturn('user@gmail.com');
+        await notifier.signInWithGoogle();
+        expect(notifier.state.activeProvider, CloudProviderType.googleDrive);
+
+        // Switch to iCloud
+        when(
+          mockGoogleProvider.signOut(),
+        ).thenAnswer((_) async => const Success(null));
+        when(
+          mockICloudProvider.authenticate(),
+        ).thenAnswer((_) async => const Success(null));
+        when(
+          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+        ).thenAnswer((_) async {});
+
+        await notifier.switchProvider(CloudProviderType.icloud);
+
+        expect(notifier.state.isAuthenticated, true);
+        expect(notifier.state.activeProvider, CloudProviderType.icloud);
+        expect(notifier.state.userEmail, isNull);
+        expect(notifier.state.isLoading, false);
+      });
+
+      test('sets error state if new provider authentication fails', () async {
+        when(mockICloudProvider.authenticate()).thenAnswer(
+          (_) async => Failure(AuthError.signInFailed('iCloud not available')),
+        );
+
+        await notifier.switchProvider(CloudProviderType.icloud);
+
+        expect(notifier.state.isAuthenticated, false);
+        expect(notifier.state.errorMessage, isNotNull);
+        expect(notifier.state.isLoading, false);
+      });
+
+      test('persists new provider type to storage on success', () async {
+        when(
+          mockICloudProvider.authenticate(),
+        ).thenAnswer((_) async => const Success(null));
+        when(
+          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
+        ).thenAnswer((_) async {});
+
+        await notifier.switchProvider(CloudProviderType.icloud);
+
+        verify(
+          mockStorage.write(
+            key: 'cloud_provider_type',
+            value: CloudProviderType.icloud.value.toString(),
+          ),
+        ).called(1);
+      });
+    });
+
+    group('signOut dispatches to correct provider', () {
+      test('calls iCloud signOut when active provider is iCloud', () async {
+        // Sign in with iCloud first
+        when(
+          mockICloudProvider.authenticate(),
+        ).thenAnswer((_) async => const Success(null));
+        await notifier.signInWithICloud();
+
+        when(
+          mockICloudProvider.signOut(),
+        ).thenAnswer((_) async => const Success(null));
+
+        await notifier.signOut();
+
+        verify(mockICloudProvider.signOut()).called(1);
+        verifyNever(mockGoogleProvider.signOut());
+        expect(notifier.state.isAuthenticated, false);
+      });
     });
   });
 }

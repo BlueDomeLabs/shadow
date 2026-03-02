@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Phase 31a: ICloudProvider — dependency + implementation + tests",
+  "task": "Phase 31b: ICloudProvider DI wiring + cloud sync setup screen",
   "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3420,
+  "testCount": 3432,
   "schemaVersion": 18,
-  "notes": "Added icloud_storage ^2.0.0 (resolved 2.2.0). Created ICloudStorageWrapper (thin injectable wrapper around static ICloudStorage API) and ICloudProvider (10-method CloudStorageProvider implementation). Key discoveries from reading package source: (1) no isICloudAvailable() — implemented via gather() probe; (2) gather() returns ICloudFile with contentChangeDate — implemented real getChangesSince(), not stub; (3) download() completes on initiation not completion — used Completer with onProgress.onDone. 24 unit tests, 3420 total passing, analyzer clean. Xcode entitlements required (manual step). Next: Phase 31b — DI wiring + UI."
+  "notes": "Phase 31b complete. DI: added iCloudProviderProvider + activeCloudProviderProvider to di_providers.dart. Bootstrap: reads stored 'cloud_provider_type' from FlutterSecureStorage (key), instantiates both providers, selects active based on stored preference, overrides all three in ProviderScope, passes activeProvider to SyncServiceImpl. Auth notifier: added ICloudProvider + FlutterSecureStorage params (optional for backward compat); added signInWithICloud(), switchProvider(); updated signOut() to dispatch to correct provider based on state.activeProvider; _checkExistingSession reads stored preference. Setup screen: replaced _showComingSoon with _selectProvider(); updated _buildSignedInSection to show correct provider name. +12 new tests (29 auth provider total, 32 setup screen total). 3432 total passing. Analyzer clean. NOTE: Xcode entitlements still required for iCloud on real device. Provider switching requires app restart for SyncService to use new provider. Next: Phase 32 (TBD by Architect)."
 }

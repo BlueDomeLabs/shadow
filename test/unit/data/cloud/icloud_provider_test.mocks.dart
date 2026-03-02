@@ -47,7 +47,7 @@ class MockICloudStorageWrapper extends _i1.Mock
     required String? containerId,
     required String? filePath,
     required String? destinationRelativePath,
-    dynamic onProgress,
+    void Function(_i3.Stream<double>)? onProgress,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#upload, [], {
@@ -66,7 +66,7 @@ class MockICloudStorageWrapper extends _i1.Mock
     required String? containerId,
     required String? relativePath,
     required String? destinationFilePath,
-    dynamic onProgress,
+    void Function(_i3.Stream<double>)? onProgress,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#download, [], {

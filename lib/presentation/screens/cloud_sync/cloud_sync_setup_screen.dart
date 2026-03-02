@@ -2,10 +2,12 @@
 // First-time cloud sync setup wizard.
 // Phase 1c: Wired to real GoogleDriveProvider sign-in.
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 
 /// First-time cloud sync setup screen with onboarding wizard.
@@ -120,7 +122,12 @@ class CloudSyncSetupScreen extends ConsumerWidget {
                     icon: Icons.cloud,
                     title: 'iCloud',
                     subtitle: 'Use your Apple account for sync',
-                    onTap: () => _showComingSoon(context),
+                    onTap: () => _selectProvider(
+                      context,
+                      ref,
+                      authState,
+                      CloudProviderType.icloud,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -245,7 +252,7 @@ class CloudSyncSetupScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Google Drive',
+                        _providerDisplayName(authState.activeProvider),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -428,22 +435,65 @@ class CloudSyncSetupScreen extends ConsumerWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Coming Soon'),
-        content: const Text(
-          'Cloud sync is not yet available. '
-          'Your data is safely stored on this device.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+  /// Returns the display name for a [CloudProviderType].
+  String _providerDisplayName(CloudProviderType? type) => switch (type) {
+    CloudProviderType.icloud => 'iCloud',
+    CloudProviderType.googleDrive => 'Google Drive',
+    CloudProviderType.offline => 'Local Only',
+    null => 'Cloud Sync',
+  };
+
+  /// Handles provider selection from the setup screen.
+  ///
+  /// Shows a confirmation dialog if the user is switching away from an
+  /// existing provider. Otherwise calls [signInWithICloud] or
+  /// [signInWithGoogle] directly.
+  Future<void> _selectProvider(
+    BuildContext context,
+    WidgetRef ref,
+    CloudSyncAuthState authState,
+    CloudProviderType type,
+  ) async {
+    if (authState.isLoading) return;
+
+    // If already authenticated with a different provider, confirm the switch
+    if (authState.isAuthenticated &&
+        authState.activeProvider != null &&
+        authState.activeProvider != type) {
+      final current = _providerDisplayName(authState.activeProvider);
+      final next = _providerDisplayName(type);
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Switch Cloud Provider?'),
+          content: Text(
+            'You are switching from $current to $next. '
+            'Your data will sync to $next going forward. '
+            'A restart may be required for sync to use the new provider.',
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Switch'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+      if (!context.mounted) return;
+      unawaited(ref.read(cloudSyncAuthProvider.notifier).switchProvider(type));
+      return;
+    }
+
+    // Not yet authenticated — sign in with the selected provider
+    if (type == CloudProviderType.icloud) {
+      unawaited(ref.read(cloudSyncAuthProvider.notifier).signInWithICloud());
+    } else {
+      unawaited(ref.read(cloudSyncAuthProvider.notifier).signInWithGoogle());
+    }
   }
 }

@@ -15,7 +15,9 @@ import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
 import 'package:shadow_app/core/services/security_settings_service.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+import 'package:shadow_app/data/cloud/icloud_provider.dart';
 import 'package:shadow_app/data/datasources/local/database.dart';
+import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/data/notifications/notification_scheduler_impl.dart';
 import 'package:shadow_app/data/repositories/activity_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/activity_repository_impl.dart';
@@ -256,8 +258,24 @@ Future<List<Override>> bootstrap() async {
   );
   await encryptionService.initialize();
 
-  // 7. Create cloud storage provider (shared instance for auth + sync)
+  // 7. Create cloud storage providers
   final googleDriveProvider = GoogleDriveProvider();
+  final iCloudProvider = ICloudProvider();
+
+  // Read stored CloudProviderType preference (key: 'cloud_provider_type')
+  // Default to googleDrive for backward compatibility.
+  final storedTypeRaw = await secureStorage.read(key: 'cloud_provider_type');
+  final storedType = storedTypeRaw != null
+      ? CloudProviderType.fromValue(int.tryParse(storedTypeRaw) ?? 0)
+      : CloudProviderType.googleDrive;
+
+  // Active provider: bootstrap selects based on stored preference.
+  // Switching providers requires an app restart to take effect.
+  final activeProvider = switch (storedType) {
+    CloudProviderType.icloud => iCloudProvider,
+    CloudProviderType.googleDrive => googleDriveProvider,
+    CloudProviderType.offline => googleDriveProvider, // fallback
+  };
 
   // 8. Get SharedPreferences for sync timestamp/version storage
   final prefs = await SharedPreferences.getInstance();
@@ -359,7 +377,7 @@ Future<List<Override>> bootstrap() async {
       // is implemented with health plugin integration.
     ],
     encryptionService: encryptionService,
-    cloudProvider: googleDriveProvider,
+    cloudProvider: activeProvider,
     prefs: prefs,
     conflictDao: database.syncConflictDao,
   );
@@ -422,6 +440,8 @@ Future<List<Override>> bootstrap() async {
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),
     googleDriveProviderProvider.overrideWithValue(googleDriveProvider),
+    iCloudProviderProvider.overrideWithValue(iCloudProvider),
+    activeCloudProviderProvider.overrideWithValue(activeProvider),
     syncServiceProvider.overrideWithValue(syncService),
     securityServiceProvider.overrideWithValue(securityService),
     // Guest access services

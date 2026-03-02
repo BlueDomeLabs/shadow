@@ -3,15 +3,18 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
+import 'package:flutter/foundation.dart' as _i10;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
-import 'package:shadow_app/core/errors/app_error.dart' as _i6;
-import 'package:shadow_app/core/types/result.dart' as _i5;
-import 'package:shadow_app/data/cloud/google_drive_provider.dart' as _i2;
+import 'package:mockito/src/dummies.dart' as _i8;
+import 'package:shadow_app/core/errors/app_error.dart' as _i7;
+import 'package:shadow_app/core/types/result.dart' as _i6;
+import 'package:shadow_app/data/cloud/google_drive_provider.dart' as _i3;
+import 'package:shadow_app/data/cloud/icloud_provider.dart' as _i9;
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
-    as _i3;
+    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -27,67 +30,99 @@ import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
+class _FakeIOSOptions_0 extends _i1.SmartFake implements _i2.IOSOptions {
+  _FakeIOSOptions_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeAndroidOptions_1 extends _i1.SmartFake
+    implements _i2.AndroidOptions {
+  _FakeAndroidOptions_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeLinuxOptions_2 extends _i1.SmartFake implements _i2.LinuxOptions {
+  _FakeLinuxOptions_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeWindowsOptions_3 extends _i1.SmartFake
+    implements _i2.WindowsOptions {
+  _FakeWindowsOptions_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeWebOptions_4 extends _i1.SmartFake implements _i2.WebOptions {
+  _FakeWebOptions_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeMacOsOptions_5 extends _i1.SmartFake implements _i2.MacOsOptions {
+  _FakeMacOsOptions_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [GoogleDriveProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockGoogleDriveProvider extends _i1.Mock
-    implements _i2.GoogleDriveProvider {
+    implements _i3.GoogleDriveProvider {
   MockGoogleDriveProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.CloudProviderType get providerType =>
+  _i4.CloudProviderType get providerType =>
       (super.noSuchMethod(
             Invocation.getter(#providerType),
-            returnValue: _i3.CloudProviderType.googleDrive,
+            returnValue: _i4.CloudProviderType.googleDrive,
           )
-          as _i3.CloudProviderType);
+          as _i4.CloudProviderType);
 
   @override
-  _i4.Future<_i5.Result<void, _i6.AppError>> authenticate() =>
+  _i5.Future<_i6.Result<void, _i7.AppError>> authenticate() =>
       (super.noSuchMethod(
             Invocation.method(#authenticate, []),
-            returnValue: _i4.Future<_i5.Result<void, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<void, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
                 this,
                 Invocation.method(#authenticate, []),
               ),
             ),
           )
-          as _i4.Future<_i5.Result<void, _i6.AppError>>);
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<void, _i6.AppError>> signOut() =>
+  _i5.Future<_i6.Result<void, _i7.AppError>> signOut() =>
       (super.noSuchMethod(
             Invocation.method(#signOut, []),
-            returnValue: _i4.Future<_i5.Result<void, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<void, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
                 this,
                 Invocation.method(#signOut, []),
               ),
             ),
           )
-          as _i4.Future<_i5.Result<void, _i6.AppError>>);
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
 
   @override
-  _i4.Future<bool> isAuthenticated() =>
+  _i5.Future<bool> isAuthenticated() =>
       (super.noSuchMethod(
             Invocation.method(#isAuthenticated, []),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<bool> isAvailable() =>
+  _i5.Future<bool> isAvailable() =>
       (super.noSuchMethod(
             Invocation.method(#isAvailable, []),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<_i5.Result<void, _i6.AppError>> uploadEntity(
+  _i5.Future<_i6.Result<void, _i7.AppError>> uploadEntity(
     String? entityType,
     String? entityId,
     String? profileId,
@@ -104,8 +139,8 @@ class MockGoogleDriveProvider extends _i1.Mock
               json,
               version,
             ]),
-            returnValue: _i4.Future<_i5.Result<void, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<void, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
                 this,
                 Invocation.method(#uploadEntity, [
                   entityType,
@@ -118,94 +153,538 @@ class MockGoogleDriveProvider extends _i1.Mock
               ),
             ),
           )
-          as _i4.Future<_i5.Result<void, _i6.AppError>>);
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<Map<String, dynamic>?, _i6.AppError>> downloadEntity(
+  _i5.Future<_i6.Result<Map<String, dynamic>?, _i7.AppError>> downloadEntity(
     String? entityType,
     String? entityId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#downloadEntity, [entityType, entityId]),
             returnValue:
-                _i4.Future<
-                  _i5.Result<Map<String, dynamic>?, _i6.AppError>
+                _i5.Future<
+                  _i6.Result<Map<String, dynamic>?, _i7.AppError>
                 >.value(
-                  _i7.dummyValue<
-                    _i5.Result<Map<String, dynamic>?, _i6.AppError>
+                  _i8.dummyValue<
+                    _i6.Result<Map<String, dynamic>?, _i7.AppError>
                   >(
                     this,
                     Invocation.method(#downloadEntity, [entityType, entityId]),
                   ),
                 ),
           )
-          as _i4.Future<_i5.Result<Map<String, dynamic>?, _i6.AppError>>);
+          as _i5.Future<_i6.Result<Map<String, dynamic>?, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<List<_i3.SyncChange>, _i6.AppError>> getChangesSince(
+  _i5.Future<_i6.Result<List<_i4.SyncChange>, _i7.AppError>> getChangesSince(
     int? sinceTimestamp,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getChangesSince, [sinceTimestamp]),
             returnValue:
-                _i4.Future<
-                  _i5.Result<List<_i3.SyncChange>, _i6.AppError>
+                _i5.Future<
+                  _i6.Result<List<_i4.SyncChange>, _i7.AppError>
                 >.value(
-                  _i7.dummyValue<
-                    _i5.Result<List<_i3.SyncChange>, _i6.AppError>
+                  _i8.dummyValue<
+                    _i6.Result<List<_i4.SyncChange>, _i7.AppError>
                   >(
                     this,
                     Invocation.method(#getChangesSince, [sinceTimestamp]),
                   ),
                 ),
           )
-          as _i4.Future<_i5.Result<List<_i3.SyncChange>, _i6.AppError>>);
+          as _i5.Future<_i6.Result<List<_i4.SyncChange>, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<void, _i6.AppError>> deleteEntity(
+  _i5.Future<_i6.Result<void, _i7.AppError>> deleteEntity(
     String? entityType,
     String? entityId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#deleteEntity, [entityType, entityId]),
-            returnValue: _i4.Future<_i5.Result<void, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<void, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
                 this,
                 Invocation.method(#deleteEntity, [entityType, entityId]),
               ),
             ),
           )
-          as _i4.Future<_i5.Result<void, _i6.AppError>>);
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<void, _i6.AppError>> uploadFile(
+  _i5.Future<_i6.Result<void, _i7.AppError>> uploadFile(
     String? localPath,
     String? remotePath,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#uploadFile, [localPath, remotePath]),
-            returnValue: _i4.Future<_i5.Result<void, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<void, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
                 this,
                 Invocation.method(#uploadFile, [localPath, remotePath]),
               ),
             ),
           )
-          as _i4.Future<_i5.Result<void, _i6.AppError>>);
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
 
   @override
-  _i4.Future<_i5.Result<String, _i6.AppError>> downloadFile(
+  _i5.Future<_i6.Result<String, _i7.AppError>> downloadFile(
     String? remotePath,
     String? localPath,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#downloadFile, [remotePath, localPath]),
-            returnValue: _i4.Future<_i5.Result<String, _i6.AppError>>.value(
-              _i7.dummyValue<_i5.Result<String, _i6.AppError>>(
+            returnValue: _i5.Future<_i6.Result<String, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<String, _i7.AppError>>(
                 this,
                 Invocation.method(#downloadFile, [remotePath, localPath]),
               ),
             ),
           )
-          as _i4.Future<_i5.Result<String, _i6.AppError>>);
+          as _i5.Future<_i6.Result<String, _i7.AppError>>);
+}
+
+/// A class which mocks [ICloudProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockICloudProvider extends _i1.Mock implements _i9.ICloudProvider {
+  MockICloudProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.CloudProviderType get providerType =>
+      (super.noSuchMethod(
+            Invocation.getter(#providerType),
+            returnValue: _i4.CloudProviderType.googleDrive,
+          )
+          as _i4.CloudProviderType);
+
+  @override
+  _i5.Future<bool> isAvailable() =>
+      (super.noSuchMethod(
+            Invocation.method(#isAvailable, []),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<bool> isAuthenticated() =>
+      (super.noSuchMethod(
+            Invocation.method(#isAuthenticated, []),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<_i6.Result<void, _i7.AppError>> authenticate() =>
+      (super.noSuchMethod(
+            Invocation.method(#authenticate, []),
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
+                this,
+                Invocation.method(#authenticate, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<void, _i7.AppError>> signOut() =>
+      (super.noSuchMethod(
+            Invocation.method(#signOut, []),
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
+                this,
+                Invocation.method(#signOut, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<void, _i7.AppError>> uploadEntity(
+    String? entityType,
+    String? entityId,
+    String? profileId,
+    String? clientId,
+    Map<String, dynamic>? json,
+    int? version,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadEntity, [
+              entityType,
+              entityId,
+              profileId,
+              clientId,
+              json,
+              version,
+            ]),
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
+                this,
+                Invocation.method(#uploadEntity, [
+                  entityType,
+                  entityId,
+                  profileId,
+                  clientId,
+                  json,
+                  version,
+                ]),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<Map<String, dynamic>?, _i7.AppError>> downloadEntity(
+    String? entityType,
+    String? entityId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#downloadEntity, [entityType, entityId]),
+            returnValue:
+                _i5.Future<
+                  _i6.Result<Map<String, dynamic>?, _i7.AppError>
+                >.value(
+                  _i8.dummyValue<
+                    _i6.Result<Map<String, dynamic>?, _i7.AppError>
+                  >(
+                    this,
+                    Invocation.method(#downloadEntity, [entityType, entityId]),
+                  ),
+                ),
+          )
+          as _i5.Future<_i6.Result<Map<String, dynamic>?, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<List<_i4.SyncChange>, _i7.AppError>> getChangesSince(
+    int? sinceTimestamp,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getChangesSince, [sinceTimestamp]),
+            returnValue:
+                _i5.Future<
+                  _i6.Result<List<_i4.SyncChange>, _i7.AppError>
+                >.value(
+                  _i8.dummyValue<
+                    _i6.Result<List<_i4.SyncChange>, _i7.AppError>
+                  >(
+                    this,
+                    Invocation.method(#getChangesSince, [sinceTimestamp]),
+                  ),
+                ),
+          )
+          as _i5.Future<_i6.Result<List<_i4.SyncChange>, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<void, _i7.AppError>> deleteEntity(
+    String? entityType,
+    String? entityId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteEntity, [entityType, entityId]),
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
+                this,
+                Invocation.method(#deleteEntity, [entityType, entityId]),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<void, _i7.AppError>> uploadFile(
+    String? localPath,
+    String? remotePath,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#uploadFile, [localPath, remotePath]),
+            returnValue: _i5.Future<_i6.Result<void, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<void, _i7.AppError>>(
+                this,
+                Invocation.method(#uploadFile, [localPath, remotePath]),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<void, _i7.AppError>>);
+
+  @override
+  _i5.Future<_i6.Result<String, _i7.AppError>> downloadFile(
+    String? remotePath,
+    String? localPath,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#downloadFile, [remotePath, localPath]),
+            returnValue: _i5.Future<_i6.Result<String, _i7.AppError>>.value(
+              _i8.dummyValue<_i6.Result<String, _i7.AppError>>(
+                this,
+                Invocation.method(#downloadFile, [remotePath, localPath]),
+              ),
+            ),
+          )
+          as _i5.Future<_i6.Result<String, _i7.AppError>>);
+}
+
+/// A class which mocks [FlutterSecureStorage].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFlutterSecureStorage extends _i1.Mock
+    implements _i2.FlutterSecureStorage {
+  MockFlutterSecureStorage() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.IOSOptions get iOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#iOptions),
+            returnValue: _FakeIOSOptions_0(this, Invocation.getter(#iOptions)),
+          )
+          as _i2.IOSOptions);
+
+  @override
+  _i2.AndroidOptions get aOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#aOptions),
+            returnValue: _FakeAndroidOptions_1(
+              this,
+              Invocation.getter(#aOptions),
+            ),
+          )
+          as _i2.AndroidOptions);
+
+  @override
+  _i2.LinuxOptions get lOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#lOptions),
+            returnValue: _FakeLinuxOptions_2(
+              this,
+              Invocation.getter(#lOptions),
+            ),
+          )
+          as _i2.LinuxOptions);
+
+  @override
+  _i2.WindowsOptions get wOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#wOptions),
+            returnValue: _FakeWindowsOptions_3(
+              this,
+              Invocation.getter(#wOptions),
+            ),
+          )
+          as _i2.WindowsOptions);
+
+  @override
+  _i2.WebOptions get webOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#webOptions),
+            returnValue: _FakeWebOptions_4(
+              this,
+              Invocation.getter(#webOptions),
+            ),
+          )
+          as _i2.WebOptions);
+
+  @override
+  _i2.MacOsOptions get mOptions =>
+      (super.noSuchMethod(
+            Invocation.getter(#mOptions),
+            returnValue: _FakeMacOsOptions_5(
+              this,
+              Invocation.getter(#mOptions),
+            ),
+          )
+          as _i2.MacOsOptions);
+
+  @override
+  void registerListener({
+    required String? key,
+    required _i10.ValueChanged<String?>? listener,
+  }) => super.noSuchMethod(
+    Invocation.method(#registerListener, [], {#key: key, #listener: listener}),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void unregisterListener({
+    required String? key,
+    required _i10.ValueChanged<String?>? listener,
+  }) => super.noSuchMethod(
+    Invocation.method(#unregisterListener, [], {
+      #key: key,
+      #listener: listener,
+    }),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void unregisterAllListenersForKey({required String? key}) =>
+      super.noSuchMethod(
+        Invocation.method(#unregisterAllListenersForKey, [], {#key: key}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void unregisterAllListeners() => super.noSuchMethod(
+    Invocation.method(#unregisterAllListeners, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i5.Future<void> write({
+    required String? key,
+    required String? value,
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#write, [], {
+              #key: key,
+              #value: value,
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<String?> read({
+    required String? key,
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#read, [], {
+              #key: key,
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<String?>.value(),
+          )
+          as _i5.Future<String?>);
+
+  @override
+  _i5.Future<bool> containsKey({
+    required String? key,
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#containsKey, [], {
+              #key: key,
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<void> delete({
+    required String? key,
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [], {
+              #key: key,
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<Map<String, String>> readAll({
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#readAll, [], {
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<Map<String, String>>.value(
+              <String, String>{},
+            ),
+          )
+          as _i5.Future<Map<String, String>>);
+
+  @override
+  _i5.Future<void> deleteAll({
+    _i2.IOSOptions? iOptions,
+    _i2.AndroidOptions? aOptions,
+    _i2.LinuxOptions? lOptions,
+    _i2.WebOptions? webOptions,
+    _i2.MacOsOptions? mOptions,
+    _i2.WindowsOptions? wOptions,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAll, [], {
+              #iOptions: iOptions,
+              #aOptions: aOptions,
+              #lOptions: lOptions,
+              #webOptions: webOptions,
+              #mOptions: mOptions,
+              #wOptions: wOptions,
+            }),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<bool?> isCupertinoProtectedDataAvailable() =>
+      (super.noSuchMethod(
+            Invocation.method(#isCupertinoProtectedDataAvailable, []),
+            returnValue: _i5.Future<bool?>.value(),
+          )
+          as _i5.Future<bool?>);
 }

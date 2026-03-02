@@ -12,6 +12,8 @@ import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+import 'package:shadow_app/data/cloud/icloud_provider.dart';
+import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 // Reports
 import 'package:shadow_app/domain/reports/report_data_service.dart';
 import 'package:shadow_app/domain/reports/report_export_service.dart';
@@ -258,6 +260,23 @@ EncryptionService encryptionService(Ref ref) {
 GoogleDriveProvider googleDriveProvider(Ref ref) {
   throw UnimplementedError(
     'Override googleDriveProviderProvider in ProviderScope',
+  );
+}
+
+/// iCloud provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+ICloudProvider iCloudProvider(Ref ref) {
+  throw UnimplementedError('Override iCloudProviderProvider in ProviderScope');
+}
+
+/// Active cloud provider - override in ProviderScope with implementation.
+///
+/// Bootstrap selects which concrete provider to wire here based on
+/// the stored CloudProviderType preference.
+@Riverpod(keepAlive: true)
+CloudStorageProvider activeCloudProvider(Ref ref) {
+  throw UnimplementedError(
+    'Override activeCloudProviderProvider in ProviderScope',
   );
 }
 
