@@ -541,27 +541,28 @@ If the user is not authenticated, the provider buttons (Google Drive, Local Only
 | Status Icon | Icon | `Icons.cloud_off` | Grey color |
 | Status Label | Text | "Sync Status" | Bold |
 | Status Value | Text | "Not configured" | Grey color |
-| Auto Sync Toggle | Switch | Off | Tapping shows "Coming Soon" dialog |
-| WiFi Only Toggle | Switch | On | Tapping shows "Coming Soon" dialog |
-| Sync Frequency | ListTile | "Every 30 minutes" | Tapping shows "Coming Soon" dialog |
 | Setup Button | ElevatedButton | "Set Up Cloud Sync" | Cloud sync icon; navigates to `CloudSyncSetupScreen` |
 | Platform | Display | Current platform name | e.g., "macos" |
 | Sync Provider | Display | "None" | - |
 | Last Sync | Display | "Never" | - |
+
+No auto-sync toggle, no WiFi-only toggle, no sync frequency row. Shadow uses manual sync only.
 
 #### 13.3.2 Authenticated State (isAuthenticated = true)
 
 | Element | Type | Content | Notes |
 |---------|------|---------|-------|
 | Status Icon | Icon | `Icons.cloud_done` | Green color |
-| Status Value | Text | "Connected to Google Drive" | Green color |
+| Status Value | Text | "Connected to [provider]" | Green color; provider is dynamic ("Google Drive" or "iCloud") |
 | User Email | Text | User's email address | Grey, shown below status value |
-| Sync Now Button | OutlinedButton | "Sync Now" | Sync icon; shows "Coming Soon" until Phase 2-4 wires it up |
+| Conflict Badge | Tappable text | "[N] conflict(s) need review" | Shown only when conflicts > 0; navigates to `ConflictResolutionScreen` |
+| Sync Now Button | OutlinedButton | "Sync Now" | Sync icon; only shown when authenticated |
 | Setup Button | ElevatedButton | "Manage Cloud Sync" | Settings icon; navigates to `CloudSyncSetupScreen` |
-| Sync Provider | Display | "Google Drive" | - |
-| Last Sync | Display | "Never" | Updated when sync is implemented (Phase 4) |
+| Platform | Display | Current platform name | e.g., "macos" |
+| Sync Provider | Display | Dynamic | "Google Drive" or "iCloud" depending on active provider |
+| Last Sync | Display | Timestamp | Formatted relative time (e.g., "Just now", "3 hours ago"); "Never" if no sync yet |
 
-All other elements (App Bar, toggles, frequency) remain the same as the not-authenticated state. The "Sync Now" button is **only visible when authenticated** — it is hidden in the not-authenticated state.
+The "Sync Now" button is **only visible when authenticated** — it is hidden in the not-authenticated state. There are no auto-sync, WiFi-only, or sync frequency controls — Shadow uses manual sync only.
 
 ### 13.4 Security Settings Screen
 

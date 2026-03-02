@@ -227,7 +227,7 @@ When users choose "Hide My Email":
 <!-- ios/Runner/Runner.entitlements -->
 <key>com.apple.developer.icloud-container-identifiers</key>
 <array>
-  <string>iCloud.com.bluedomecolorado.shadow</string>
+  <string>iCloud.com.bluedomecolorado.shadowApp</string>
 </array>
 <key>com.apple.developer.icloud-services</key>
 <array>
@@ -235,7 +235,7 @@ When users choose "Hide My Email":
 </array>
 <key>com.apple.developer.ubiquity-container-identifiers</key>
 <array>
-  <string>iCloud.com.bluedomecolorado.shadow</string>
+  <string>iCloud.com.bluedomecolorado.shadowApp</string>
 </array>
 ```
 
@@ -286,7 +286,7 @@ Shadow uses CloudKit's **Private Database** for user data (not shared/public):
 import 'package:icloud_storage/icloud_storage.dart';
 
 class ICloudProvider implements CloudStorageProvider {
-  static const String _containerIdentifier = 'iCloud.com.bluedomecolorado.shadow';
+  static const String _containerIdentifier = 'iCloud.com.bluedomecolorado.shadowApp';
 
   final EncryptionService _encryptionService;
 
