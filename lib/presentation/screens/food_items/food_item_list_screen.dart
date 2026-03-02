@@ -32,6 +32,9 @@ class _FoodItemListScreenState extends ConsumerState<FoodItemListScreen> {
   List<FoodItem>? _searchResults;
   bool _searchLoading = false;
 
+  /// null = show all types; non-null = show only that type.
+  FoodItemType? _typeFilter;
+
   String get profileId => widget.profileId;
 
   @override
@@ -74,16 +77,26 @@ class _FoodItemListScreenState extends ConsumerState<FoodItemListScreen> {
       ),
       body: Semantics(
         label: 'Food item list',
-        child: _isSearching
-            ? _buildSearchResults(context)
-            : foodItemsAsync.when(
-                data: (foodItems) =>
-                    _buildFoodItemList(context, ref, foodItems),
-                loading: () => const Center(
-                  child: ShadowStatus.loading(label: 'Loading food items'),
-                ),
-                error: (error, stack) => _buildErrorState(context, ref, error),
-              ),
+        child: Column(
+          children: [
+            if (!_isSearching) _buildTypeFilterChips(context),
+            Expanded(
+              child: _isSearching
+                  ? _buildSearchResults(context)
+                  : foodItemsAsync.when(
+                      data: (foodItems) =>
+                          _buildFoodItemList(context, ref, foodItems),
+                      loading: () => const Center(
+                        child: ShadowStatus.loading(
+                          label: 'Loading food items',
+                        ),
+                      ),
+                      error: (error, stack) =>
+                          _buildErrorState(context, ref, error),
+                    ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Semantics(
         label: 'Add new food item',
@@ -95,17 +108,70 @@ class _FoodItemListScreenState extends ConsumerState<FoodItemListScreen> {
     );
   }
 
+  Widget _buildTypeFilterChips(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Row(
+      children: [
+        FilterChip(
+          key: const Key('filter_chip_all'),
+          label: const Text('All'),
+          selected: _typeFilter == null,
+          onSelected: (_) => setState(() => _typeFilter = null),
+        ),
+        const SizedBox(width: 8),
+        FilterChip(
+          key: const Key('filter_chip_simple'),
+          label: const Text('Simple'),
+          selected: _typeFilter == FoodItemType.simple,
+          onSelected: (_) => setState(
+            () => _typeFilter = _typeFilter == FoodItemType.simple
+                ? null
+                : FoodItemType.simple,
+          ),
+        ),
+        const SizedBox(width: 8),
+        FilterChip(
+          key: const Key('filter_chip_composed'),
+          label: const Text('Composed'),
+          selected: _typeFilter == FoodItemType.composed,
+          onSelected: (_) => setState(
+            () => _typeFilter = _typeFilter == FoodItemType.composed
+                ? null
+                : FoodItemType.composed,
+          ),
+        ),
+        const SizedBox(width: 8),
+        FilterChip(
+          key: const Key('filter_chip_packaged'),
+          label: const Text('Packaged'),
+          selected: _typeFilter == FoodItemType.packaged,
+          onSelected: (_) => setState(
+            () => _typeFilter = _typeFilter == FoodItemType.packaged
+                ? null
+                : FoodItemType.packaged,
+          ),
+        ),
+      ],
+    ),
+  );
+
   Widget _buildFoodItemList(
     BuildContext context,
     WidgetRef ref,
     List<FoodItem> foodItems,
   ) {
-    if (foodItems.isEmpty) {
+    // Apply type filter if set.
+    final filteredItems = _typeFilter == null
+        ? foodItems
+        : foodItems.where((f) => f.type == _typeFilter).toList();
+
+    if (filteredItems.isEmpty) {
       return _buildEmptyState(context);
     }
 
-    final activeItems = foodItems.where((f) => f.isActive).toList();
-    final archivedItems = foodItems.where((f) => f.isArchived).toList();
+    final activeItems = filteredItems.where((f) => f.isActive).toList();
+    final archivedItems = filteredItems.where((f) => f.isArchived).toList();
 
     return RefreshIndicator(
       onRefresh: () async {

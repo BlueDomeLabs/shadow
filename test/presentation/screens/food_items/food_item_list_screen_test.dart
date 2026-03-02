@@ -371,7 +371,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Composed'), findsOneWidget);
+        expect(find.text('Composed'), findsWidgets);
       });
 
       testWidgets('displays serving size when present', (tester) async {
@@ -478,6 +478,138 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byIcon(Icons.more_vert), findsOneWidget);
+      });
+    });
+
+    group('type filter chips', () {
+      testWidgets('shows all type filter chips', (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('filter_chip_all')), findsOneWidget);
+        expect(find.byKey(const Key('filter_chip_simple')), findsOneWidget);
+        expect(find.byKey(const Key('filter_chip_composed')), findsOneWidget);
+        expect(find.byKey(const Key('filter_chip_packaged')), findsOneWidget);
+      });
+
+      testWidgets('selecting Simple chip hides composed and packaged items', (
+        tester,
+      ) async {
+        final simpleItem = createTestFoodItem(
+          id: 'simple-1',
+          name: 'Simple Food',
+        );
+        final composedItem = createTestFoodItem(
+          id: 'composed-1',
+          name: 'Composed Food',
+          type: FoodItemType.composed,
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(testProfileId).overrideWith(
+                () => _MockFoodItemList([simpleItem, composedItem]),
+              ),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Both items visible before filtering.
+        expect(find.text('Simple Food'), findsOneWidget);
+        expect(find.text('Composed Food'), findsOneWidget);
+
+        // Tap the Simple filter chip.
+        await tester.tap(find.byKey(const Key('filter_chip_simple')));
+        await tester.pumpAndSettle();
+
+        // Only simple item is visible.
+        expect(find.text('Simple Food'), findsOneWidget);
+        expect(find.text('Composed Food'), findsNothing);
+      });
+
+      testWidgets('selecting All chip shows all items', (tester) async {
+        final simpleItem = createTestFoodItem(
+          id: 'simple-1',
+          name: 'Simple Food',
+        );
+        final composedItem = createTestFoodItem(
+          id: 'composed-1',
+          name: 'Composed Food',
+          type: FoodItemType.composed,
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(testProfileId).overrideWith(
+                () => _MockFoodItemList([simpleItem, composedItem]),
+              ),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Select Simple filter first.
+        await tester.tap(find.byKey(const Key('filter_chip_simple')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Composed Food'), findsNothing);
+
+        // Tap All chip to reset.
+        await tester.tap(find.byKey(const Key('filter_chip_all')));
+        await tester.pumpAndSettle();
+
+        // Both items visible again.
+        expect(find.text('Simple Food'), findsOneWidget);
+        expect(find.text('Composed Food'), findsOneWidget);
+      });
+
+      testWidgets('filter with no matching items shows empty state', (
+        tester,
+      ) async {
+        final simpleItem = createTestFoodItem(
+          id: 'simple-1',
+          name: 'Simple Food',
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              foodItemListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockFoodItemList([simpleItem])),
+            ],
+            child: const MaterialApp(
+              home: FoodItemListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Select Composed filter — no composed items exist.
+        await tester.tap(find.byKey(const Key('filter_chip_composed')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('No food items yet'), findsOneWidget);
       });
     });
 

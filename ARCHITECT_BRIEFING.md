@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-01
-# Briefing Version: 20260301-018
+# Briefing Version: 20260301-019
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Phase 32 docs complete ✅
-# Last Commit:   docs: Phase 32 — fix container ID, update cloud sync spec, record iCloud decision
-# Last Code:     DOCS ONLY — no code changes
-# Next Action:   Phase 33 (TBD by Architect)
+# Status:        IDLE — Phase 33 complete ✅
+# Last Commit:   fix: food item category filtering and supplement log pre-fill (Phase 33)
+# Last Code:     food_item_list_screen.dart (type filter chips), icloud_provider_test.dart (container ID fix)
+# Next Action:   Phase 34 (TBD by Architect)
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
-# Tests:         3,434 passing
+# Tests:         3,449 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,74 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-01 MST] — Phase 33: Food Item Category Filtering + Supplement Log Pre-fill
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Two fixes from the Phase 17a audit. One was a real gap; one was already done.
+
+**Fix 1 — Food item type filter chips:**
+
+The prompt referenced a "FoodItemCategory junction table" that does not exist in the codebase. Investigation confirmed:
+- `FoodItemType` (simple/composed/packaged) is the only food item categorization
+- It is a direct `type` column on the `food_items` table, not a junction table
+- `FoodItemRepository.getByProfile(type: FoodItemType?)` already supports type filtering
+- `GetFoodItemsUseCase` already passes `type` through
+- The `food_item_list_screen.dart` had no filter UI at all
+
+Implemented in-memory filtering on `food_item_list_screen.dart`:
+- Added `FoodItemType? _typeFilter` state variable (null = show all)
+- Added `_buildTypeFilterChips()`: horizontal scroll row with All/Simple/Composed/Packaged `FilterChip` widgets, keyed for testing
+- Applied filter in `_buildFoodItemList()` before splitting into active/archived sections
+- Filter chips toggle: tapping the active chip deselects it (returns to All)
+- No new repository/DAO method needed — existing `getByProfile(type:)` is the equivalent
+
+**Fix 2 — Supplement log pre-fill:**
+
+`_navigateToLogIntake(context, supplement)` in `supplement_list_screen.dart` already passes `supplement: supplement` to `SupplementLogScreen`. `SupplementLogScreen` requires `required this.supplement`. Pre-fill was already fully wired. No code change needed — added 2 missing tests.
+
+**Bonus fix — iCloud container ID in tests:**
+
+Discovered 3 pre-existing test failures in `icloud_provider_test.dart`. The `mockito verify()` calls still used the old container ID `iCloud.com.bluedomecolorado.shadow` after it was corrected to `iCloud.com.bluedomecolorado.shadowApp` in the Phase 31b entitlement session. Updated 3 `containerId:` strings. All 24 iCloud tests now pass. (These were failing before this session — not introduced by Phase 33.)
+
+**New tests: 15 total**
+- 2 DAO tests: `getByProfile_filterByType_returnsOnlyMatchingType`, `getByProfile_filterByType_returnsEmpty_whenNoItemsOfThatType`
+- 4 widget tests (food item screen): shows all chips, Simple chip hides others, All chip resets, empty state when no matches
+- 2 widget tests (supplement screen): Log Intake navigates to SupplementLogScreen, pre-fills supplement name
+- 7 net new passing (3 iCloud failures fixed → +3 restored, +12 new = +15 net from 3,434)
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/food_items/food_item_list_screen.dart | MODIFIED | Added type filter chip row and in-memory type filtering |
+| lib/data/datasources/local/daos/food_item_dao.dart | ALREADY CORRECT | `getByProfile(type: FoodItemType?)` already filters by type |
+| lib/domain/repositories/food_item_repository.dart | ALREADY CORRECT | `getByProfile` already in interface with type param |
+| lib/presentation/screens/supplements/supplement_list_screen.dart | ALREADY CORRECT | `_navigateToLogIntake` already passes supplement |
+| lib/presentation/screens/supplements/supplement_log_screen.dart | ALREADY CORRECT | Requires `supplement` param; shows name in info card |
+| test/unit/data/datasources/local/daos/food_item_dao_test.dart | MODIFIED | Added 2 type-filter tests to getByProfile group |
+| test/presentation/screens/food_items/food_item_list_screen_test.dart | MODIFIED | Added 4 filter chip tests; fixed pre-existing "Composed" ambiguity |
+| test/presentation/screens/supplements/supplement_list_screen_test.dart | MODIFIED | Added 2 supplement log navigation/pre-fill tests |
+| test/unit/data/cloud/icloud_provider_test.dart | MODIFIED | Fixed 3 stale container ID strings (shadow → shadowApp) |
+
+---
+
+### Executive Summary for Reid
+
+**Phase 33 delivered two small fixes that had been on the list since the audit in January.**
+
+**Fix 1 — Food Library filtering:** When you go to your Food Library screen, you'll now see a row of filter chips at the top: All, Simple, Composed, and Packaged. Tapping one of these filters the list to show only that type of food item. Tap it again (or tap All) to show everything again. This makes it easier to find what you're looking for in a large library.
+
+**Fix 2 — Supplement log pre-fill:** When you tap "Log Intake" on a supplement card, the log screen already opens with that supplement selected — this was already working correctly. We added tests to confirm the behavior is locked in so it can't accidentally break in the future.
+
+**Bonus:** I also found and fixed 3 test failures that had been silently failing since the iCloud container ID correction a few weeks ago. Those tests were checking the old container ID name and failing; they now pass. This doesn't affect how the app runs — just confirms the tests are accurate.
+
+Total tests: **3,449 passing** (up from 3,434). Schema and analyzer both clean.
 
 ---
 

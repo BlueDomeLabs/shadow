@@ -440,6 +440,64 @@ void main() {
 
         expect(find.text('Edit Supplement'), findsOneWidget);
       });
+
+      testWidgets('tapping Log Intake navigates to SupplementLogScreen', (
+        tester,
+      ) async {
+        final supplement = createTestSupplement();
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              supplementListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockSupplementList([supplement])),
+            ],
+            child: const MaterialApp(
+              home: SupplementListScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Open popup menu and tap Log Intake.
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Log Intake'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Log Intake'), findsOneWidget);
+      });
+
+      testWidgets(
+        'Log Intake navigation pre-fills supplement name on log screen',
+        (tester) async {
+          final supplement = createTestSupplement(name: 'Magnesium Glycinate');
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                supplementListProvider(
+                  testProfileId,
+                ).overrideWith(() => _MockSupplementList([supplement])),
+              ],
+              child: const MaterialApp(
+                home: SupplementListScreen(profileId: testProfileId),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          // Open popup menu and tap Log Intake.
+          await tester.tap(find.byIcon(Icons.more_vert));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Log Intake'));
+          await tester.pumpAndSettle();
+
+          // SupplementLogScreen shows the supplement name in the info card.
+          expect(find.text('Magnesium Glycinate'), findsOneWidget);
+        },
+      );
     });
 
     group('accessibility', () {

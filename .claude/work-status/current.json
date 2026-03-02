@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Fix iCloud container ID and entitlement files",
+  "task": "Phase 33 — food item category filtering and supplement log pre-fill",
   "timestamp": "2026-03-01T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3434,
+  "testCount": 3449,
   "schemaVersion": 18,
-  "notes": "Manual edits committed: (1) ios/Runner/Runner.entitlements — removed stale HealthKit background-delivery key, added iCloud container/services/ubiquity entitlements for iCloud.com.bluedomecolorado.shadowApp; (2) macos/Runner/DebugProfile.entitlements + Release.entitlements — added same iCloud container/services/ubiquity entitlements; (3) lib/data/cloud/icloud_provider.dart — _containerId and comment corrected from iCloud.com.bluedomecolorado.shadow to iCloud.com.bluedomecolorado.shadowApp. No logic changes. Analyzer clean. iCloud sync fully wired end-to-end on iOS and macOS."
+  "notes": "Fix 1: Added FoodItemType filter chips (All/Simple/Composed/Packaged) to food_item_list_screen.dart. In-memory filtering on loaded items. 6 new tests (2 DAO getByProfile type-filter, 4 widget chip tests). Also fixed 3 pre-existing icloud_provider_test failures — stale container ID 'shadow' → 'shadowApp' from Phase 31b entitlement fix. Fix 2: Supplement log pre-fill was already correctly implemented (_navigateToLogIntake passes supplement). Added 2 missing tests verifying navigation and pre-fill."
 }

@@ -203,6 +203,50 @@ void main() {
 
         expect(result.valueOrNull, hasLength(1));
       });
+
+      test('getByProfile_filterByType_returnsOnlyMatchingType', () async {
+        await database.foodItemDao.create(
+          createTestFoodItem(id: 'simple-1', profileId: 'p-A'),
+        );
+        await database.foodItemDao.create(
+          createTestFoodItem(
+            id: 'composed-1',
+            profileId: 'p-A',
+            type: FoodItemType.composed,
+          ),
+        );
+        await database.foodItemDao.create(
+          createTestFoodItem(
+            id: 'packaged-1',
+            profileId: 'p-A',
+            type: FoodItemType.packaged,
+          ),
+        );
+
+        final result = await database.foodItemDao.getByProfile(
+          'p-A',
+          type: FoodItemType.simple,
+        );
+
+        expect(result.valueOrNull, hasLength(1));
+        expect(result.valueOrNull?.first.type, FoodItemType.simple);
+      });
+
+      test(
+        'getByProfile_filterByType_returnsEmpty_whenNoItemsOfThatType',
+        () async {
+          await database.foodItemDao.create(
+            createTestFoodItem(id: 'simple-1', profileId: 'p-A'),
+          );
+
+          final result = await database.foodItemDao.getByProfile(
+            'p-A',
+            type: FoodItemType.composed,
+          );
+
+          expect(result.valueOrNull, isEmpty);
+        },
+      );
     });
 
     group('getModifiedSince', () {

@@ -253,7 +253,7 @@ void main() {
         expect(result.isSuccess, isTrue);
         final captured = verify(
           mockStorage.upload(
-            containerId: 'iCloud.com.bluedomecolorado.shadow',
+            containerId: 'iCloud.com.bluedomecolorado.shadowApp',
             filePath: captureAnyNamed('filePath'),
             destinationRelativePath: captureAnyNamed('destinationRelativePath'),
             onProgress: anyNamed('onProgress'),
@@ -341,7 +341,7 @@ void main() {
         expect(result.isSuccess, isTrue);
         verify(
           mockStorage.delete(
-            containerId: 'iCloud.com.bluedomecolorado.shadow',
+            containerId: 'iCloud.com.bluedomecolorado.shadowApp',
             relativePath: 'shadow_app/data/supplements/ent-1.json',
           ),
         );
@@ -489,7 +489,7 @@ void main() {
         expect(result.isSuccess, isTrue);
         verify(
           mockStorage.upload(
-            containerId: 'iCloud.com.bluedomecolorado.shadow',
+            containerId: 'iCloud.com.bluedomecolorado.shadowApp',
             filePath: '/local/photo.jpg',
             destinationRelativePath: 'shadow_app/files/photo.jpg',
             onProgress: anyNamed('onProgress'),
