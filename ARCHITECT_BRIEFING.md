@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-027
+# Briefing Version: 20260302-028
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Pass 09 cataloged + Pass 10 complete ✅ ALL 10 PASSES DONE
-# Last Commit:   docs: audit pass 09 findings — performance (4 findings)
+# Status:        IDLE — Convergence Pass A complete (5 new findings in AUDIT_FINDINGS.md)
+# Last Commit:   docs: convergence pass A — profile system findings
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 10 findings → declares convergence → produces FIX_PLAN.md
+# Next Action:   Architect reviews all findings → catalogs Pass 10 → declares convergence → FIX_PLAN.md
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,116 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Convergence Pass A: Profile System End-to-End
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Convergence Pass A — a deep cross-cutting investigation of
+all profile-related code across 5 steps. 5 new findings appended
+to `docs/AUDIT_FINDINGS.md` as AUDIT-CA-001 through AUDIT-CA-005.
+
+**Key architectural confirmation:**
+`ProfileRepositoryImpl` is correctly implemented and wired in
+`bootstrap.dart`. A `SyncEntityAdapter<Profile>` IS registered
+(line 370). The gap is entirely that `ProfileNotifier` never reads
+`profileRepositoryProvider` — all profile operations go through
+SharedPreferences. AUDIT-01-006 fix resolves this completely.
+
+**Step 1 — Profile deletion cascade (no use cases exist):**
+`lib/domain/usecases/profiles/` contains only `profile_inputs.dart`
+(input types). No `CreateProfileUseCase`, `UpdateProfileUseCase`, or
+`DeleteProfileUseCase` implementations exist. Deletion in the UI calls
+`ProfileNotifier.deleteProfile(id)` which only removes the entry from
+SharedPreferences. No cascade to health data in Drift. No DB CASCADE
+constraints on any `profile_id` column. Health data is orphaned
+silently on deletion → AUDIT-CA-001 (HIGH).
+
+**Step 2 — Guest invite profile scoping:**
+Token validation correctly enforces one-device limit. In guest mode,
+`HomeScreen` and all tabs use `guestMode.guestProfileId` for data
+access — correct scoping. The `_buildGuestHeader` widget in `home_tab.dart`
+hides the profile card (and its navigation to `ProfilesScreen`) in guest
+mode, so profile-switching is not possible. Guest data access is
+correctly scoped. However, `deleteProfile()` does not revoke guest invites
+for the deleted profile → AUDIT-CA-002 (MEDIUM).
+
+**Step 3 — Profile list integrity:**
+`_load()` has no try/catch — corrupt SharedPreferences JSON causes
+an unhandled async exception → AUDIT-CA-003 (MEDIUM). The
+`currentProfileId ?? 'test-profile-001'` fallback is a test artifact
+that produces silent empty screens instead of a profile creation prompt
+→ AUDIT-CA-004 (MEDIUM). No duplicate ID risk (UUID v4 generation).
+
+**Step 4 — Profile repository implementation:**
+Correctly implemented. `create()` calls `prepareForCreate()`.
+`update()` calls `prepareForUpdate()`. `delete()` calls
+`_dao.softDelete(id)` directly — same issue as AUDIT-03-002
+(already cataloged, not a new finding). Profile sync adapter
+IS registered in bootstrap.dart.
+
+**Step 5 — Profile deletion UI:**
+Delete confirmation dialog exists. It says "This cannot be undone"
+but does not warn about health data scope → AUDIT-CA-005 (LOW).
+Only `add_edit_profile_screen.dart` is the profile form — AUDIT-06-002
+scope confirmed correct.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Convergence Pass A findings (AUDIT-CA-001 through AUDIT-CA-005) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Session report added |
+| lib/presentation/providers/profile/profile_provider.dart | READ | Steps 1, 3, 4 — confirmed all gaps |
+| lib/presentation/screens/profiles/profiles_screen.dart | READ | Steps 1, 5 — no cascade deletion, dialog text gap |
+| lib/presentation/screens/profiles/add_edit_profile_screen.dart | READ | Step 5 — AUDIT-06-002 scope confirmed |
+| lib/domain/usecases/profiles/ | READ | Step 1 — only input types, no use case impls |
+| lib/domain/services/guest_token_service.dart | READ | Step 2 — token validation correct |
+| lib/domain/usecases/guest_invites/validate_guest_token_use_case.dart | READ | Step 2 — one-device limit correct |
+| lib/presentation/providers/guest_mode/guest_mode_provider.dart | READ | Step 2 — profile scoping correct |
+| lib/presentation/screens/home/home_screen.dart | READ | Steps 2, 3 — fallback ID confirmed |
+| lib/presentation/screens/home/tabs/home_tab.dart | READ | Steps 2, 3 — guest header hides profile navigation |
+| lib/presentation/providers/guest_mode/deep_link_handler.dart | READ | Step 2 — deep link path correct |
+| lib/data/repositories/profile_repository_impl.dart | READ | Step 4 — correctly implemented |
+| lib/core/bootstrap.dart | READ | Step 4 — profile sync adapter confirmed registered |
+| lib/data/datasources/local/tables/guest_invites_table.dart | READ | Step 2 — no FK CASCADE constraint |
+
+### Grand Total (all passes + Convergence Pass A): 53 findings
+
+| Pass | Findings | C | H | M | L |
+|------|----------|---|---|---|---|
+| 01 | 7 | 0 | 2 | 3 | 2 |
+| 02 | 5 | 0 | 1 | 2 | 2 |
+| 03 | 3 | 0 | 1 | 2 | 0 |
+| 04 | 3 | 0 | 0 | 2 | 1 |
+| 05 | 3 | 0 | 0 | 1 | 2 |
+| 06 | 5 | 0 | 0 | 3 | 2 |
+| 07 | 4 | 0 | 1 | 2 | 1 |
+| 08 | 8 | 1 | 4 | 1 | 2 |
+| 09 | 4 | 0 | 1 | 2 | 1 |
+| 10 | 6 | 0 | 1 | 0 | 5 |
+| CA | 5 | 0 | 1 | 3 | 1 |
+| **TOTAL** | **53** | **1** | **12** | **21** | **19** |
+
+### Executive Summary for Reid
+
+This session was a deep investigation of the profile system — how profiles are created, deleted, and shared with guests. Here's what we found:
+
+**The big one (HIGH):** When you delete a profile, the app removes it from the profile list but leaves all of the health data behind in the database — supplements, conditions, food logs, photos, journal entries, everything. The app tells you "this cannot be undone" but doesn't actually delete any of your health data. This is both a storage waste and a potential privacy issue (if someone else uses the device). A proper cascade delete needs to be built.
+
+**Guest invites aren't revoked on profile deletion (MEDIUM):** If you delete a profile that you'd invited a guest to view, their invite token isn't cancelled. They could still attempt to access (now orphaned) data. Not a huge risk given the current sync architecture, but it's a loose end that needs to be tied up.
+
+**Startup resilience gap (MEDIUM):** If the profile list stored on your device gets corrupted (which can happen on Android if the device restarts mid-write), the app silently resets to showing no profiles. Your health data in the database is still there, but your profile list and current profile selection disappear with no warning and no recovery option.
+
+**A placeholder test ID slipped into production code (MEDIUM):** If the app ever reaches the main home screen without a profile selected (which shouldn't happen normally, but can if data is cleared), it uses the ID `"test-profile-001"` as a fallback. This is something I put in during early development that should have been removed — it should route you to profile creation instead of showing silent empty screens.
+
+The good news: the guest invite security system itself is solid. Guests can only access the specific profile they were invited to, the one-device limit is enforced, and navigation is correctly restricted in guest mode. The profile repository and sync adapter infrastructure is also correctly built — the only problem (cataloged in a prior pass) is that the UI doesn't use it yet.
+
+Running total is now 53 findings across all passes. The Architect should now have everything needed to produce FIX_PLAN.md.
 
 ---
 

@@ -990,3 +990,145 @@ Status: OPEN
 ## End of Pass 09 Findings
 
 ---
+
+## Convergence Pass A — Profile System End-to-End
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 5 (0 CRITICAL, 1 HIGH, 3 MEDIUM, 1 LOW)
+
+Note: Profile deletion cascade, guest invite revocation, and startup
+resilience all have gaps. ProfileRepositoryImpl and the SyncEntityAdapter
+for profiles ARE correctly implemented in bootstrap.dart — the gap is
+entirely that ProfileNotifier in the UI layer bypasses the repository
+(AUDIT-01-006 confirmed). AddEditProfileScreen is the only profile edit
+form; AUDIT-06-002 scope confirmed correct.
+
+---
+
+AUDIT-CA-001
+Severity: HIGH
+Category: Profile System — Deletion Cascade
+File: lib/presentation/providers/profile/profile_provider.dart
+Cross-cutting: lib/presentation/screens/profiles/profiles_screen.dart,
+  lib/domain/usecases/profiles/ (DeleteProfileUseCase MISSING),
+  lib/data/datasources/local/ (all health data tables)
+Description: deleteProfile(id) removes the profile entry from
+  SharedPreferences only. It makes no call to any repository
+  or DAO to delete associated health data. No DB CASCADE
+  constraints exist on profileId columns in any health data
+  table (supplements, conditions, food items, activity logs,
+  sleep entries, fluids entries, journal entries, photo entries,
+  condition logs, diet data, fasting sessions). There is no
+  DeleteProfileUseCase. After deletion, all health data for
+  that profileId remains permanently in the Drift database,
+  orphaned and inaccessible. The user believes deletion
+  is permanent but data persists indefinitely.
+Fix approach: Implement DeleteProfileUseCase that (1) soft-
+  deletes all health data by profileId across all entity tables
+  before deleting the profile itself, or (2) relies on DB-level
+  CASCADE if foreign key constraints are added. Also revoke
+  all guest invites for the profile (see AUDIT-CA-002).
+Status: OPEN
+
+---
+
+AUDIT-CA-002
+Severity: MEDIUM
+Category: Profile System — Guest Invite Lifecycle
+File: lib/presentation/providers/profile/profile_provider.dart
+Cross-cutting: lib/data/datasources/local/tables/guest_invites_table.dart,
+  lib/domain/usecases/guest_invites/revoke_guest_invite_use_case.dart
+Description: deleteProfile() makes no call to revoke guest
+  invites for the deleted profile. The guest_invites table
+  has no foreign key REFERENCES profiles(id) ON DELETE CASCADE.
+  After a profile is deleted, any active guest invites for
+  that profile remain with isRevoked = false. A guest device
+  holding a valid token could still attempt sync operations
+  targeting the orphaned profileId. Because profile data is
+  in SharedPreferences (not Drift), a re-created profile with
+  a new ID would not share the orphaned invite tokens, but
+  the tokens remain stale in the database indefinitely.
+Fix approach: In DeleteProfileUseCase (from AUDIT-CA-001),
+  list all non-revoked guest invites for the profileId and
+  revoke them before deleting the profile. Alternatively add
+  FK CASCADE constraint to guest_invites.profile_id.
+Status: OPEN
+
+---
+
+AUDIT-CA-003
+Severity: MEDIUM
+Category: Profile System — Startup Resilience
+File: lib/presentation/providers/profile/profile_provider.dart
+Cross-cutting: None
+Description: ProfileNotifier._load() has no try/catch. If
+  SharedPreferences returns a non-null but corrupt value for
+  shadow_profiles (invalid JSON, missing required fields,
+  wrong type on a field), jsonDecode() or Profile.fromJson()
+  throws an unhandled exception. _load() is called from the
+  constructor as a fire-and-forget (no await, no .catchError),
+  so the exception becomes an unhandled async error. On
+  Android, SharedPreferences writes are not atomic —
+  a mid-write crash can corrupt the JSON blob. Result:
+  the app loads with empty state silently and any subsequent
+  _save() overwrites the corrupted data with an empty list,
+  permanently deleting all profile names. No user feedback.
+Fix approach: Wrap _load() body in try/catch(Object). On
+  error: log the corruption, leave state as empty ProfileState.
+  Optionally show a one-time "Profile data could not be loaded"
+  message. The full fix is AUDIT-01-006 (move to Drift/SQLCipher
+  which uses atomic WAL writes).
+Status: OPEN
+
+---
+
+AUDIT-CA-004
+Severity: MEDIUM
+Category: Profile System — Fallback Safety
+File: lib/presentation/screens/home/home_screen.dart
+Cross-cutting: lib/presentation/screens/home/tabs/home_tab.dart
+Description: When currentProfileId is null (no profile selected,
+  or profile state not yet loaded), the HomeScreen and HomeTab
+  fall back to the hardcoded string 'test-profile-001':
+    state.currentProfileId ?? 'test-profile-001'
+  All data tabs receive this ID and query the Drift database
+  for it, returning empty results. The user sees empty screens
+  with no prompt to create a profile and no error message.
+  A new user who somehow reaches HomeScreen before creating
+  a profile, or a user whose SharedPreferences is cleared,
+  would see silent empty states across all 9 tabs with no
+  recovery path visible. The fallback ID is a test artifact,
+  not a meaningful sentinel value.
+Fix approach: Replace the hardcoded fallback with a guard:
+  if currentProfileId is null, show a "No profile selected"
+  overlay or redirect to ProfilesScreen. Remove the
+  'test-profile-001' string entirely from non-test code.
+Status: OPEN
+
+---
+
+AUDIT-CA-005
+Severity: LOW
+Category: Profile System — Delete Dialog UX
+File: lib/presentation/screens/profiles/profiles_screen.dart
+Cross-cutting: None
+Description: The delete profile confirmation dialog says
+  "This cannot be undone" but does not warn the user that
+  all health data associated with the profile (supplements,
+  conditions, logs, photos, journal entries) will be deleted.
+  Combined with AUDIT-CA-001 (data is currently NOT deleted),
+  the dialog is misleading in the opposite direction —
+  users may not realize the full scope of deletion.
+  Once AUDIT-CA-001 is fixed and cascade deletion is
+  implemented, the dialog must be updated to describe
+  the data destruction scope explicitly.
+Fix approach: Update dialog content to list the categories
+  of data that will be permanently deleted. Add a bold
+  warning line. Resolve after AUDIT-CA-001 is fixed.
+Status: OPEN
+
+---
+
+## End of Convergence Pass A Findings
+
+---
