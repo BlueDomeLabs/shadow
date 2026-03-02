@@ -27,6 +27,57 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-01 MST] — READ-ONLY RECON: SyncServiceImpl + CloudSyncSettingsScreen
+
+**Tests: 3,432 | Schema: v18 | Analyzer: clean | Status: READ-ONLY RECON — no code changes**
+
+### Findings
+
+**1. pull() — Is it implemented or stubbed?**
+Fully implemented. `pullChanges(profileId, {sinceVersion, limit})` (lines 396–472):
+1. Reads `lastSyncTime` from SharedPreferences (key: `sync_last_sync_time_<profileId>`); 0 = first sync
+2. Calls `_cloudProvider.getChangesSince(lastSyncTime)` to fetch remote envelopes
+3. Decrypts each envelope's `encryptedData` field via `_encryptionService.decrypt()`
+4. Filters by `profileId`, sorts by timestamp ASC, applies limit
+5. Returns `Success(List<SyncChange>)`
+
+**2. pushChanges() — Is it implemented?**
+Fully implemented. `pushChanges(List<SyncChange>)` (lines 258–356):
+1. Encrypts each entity's JSON via `_encryptionService.encrypt()`
+2. Builds envelope dict with entityType/entityId/profileId/clientId/version/timestamp/isDeleted/encryptedData
+3. Calls `_cloudProvider.uploadEntity(...)` per change
+4. Calls `adapter.markEntitySynced(entityId)` on success
+5. Updates `_lastSyncTimeKey` and `_lastSyncVersionKey` in SharedPreferences
+Also: `pushPendingChanges()` — best-effort push for all adapters (used at sign-out cleanup).
+
+**3. Background sync loop — does one exist?**
+**NO background loop.** Sync is 100% manual. The only sync trigger is the "Sync Now" button in `CloudSyncSettingsScreen._syncNow()`. There is no timer, Isolate, WorkManager, background fetch, or periodic job anywhere in the codebase. When tapped, `_syncNow` calls: pullChanges → applyChanges → getPendingChanges → pushChanges in sequence.
+
+**4. Auto-sync / WiFi-only / frequency settings — what do they control?**
+**These settings do not exist.** A codebase-wide search for `autoSync`, `auto_sync`, `wifiOnly`, `wifi_only`, `syncFrequency`, `sync_frequency` returns zero results. The settings screen comment at line 70 explicitly states: *"Shadow uses manual sync — auto-sync settings are out of scope."* There are no toggle rows for these features anywhere in the UI.
+
+**5. Conflict resolution — implemented or stubbed?**
+Fully implemented. `resolveConflict(conflictId, resolution)` (lines 638–680):
+- `keepLocal`: calls `adapter.clearEntityConflict()` → sets syncIsDirty=true, queues for re-upload
+- `keepRemote`: calls `adapter.reconstructSynced(remoteData)` + `repository.update(markDirty: false)`
+- `merge`: delegates to `_applyMerge()`:
+  - `journal_entries`: appends local + remote content with `\n\n---\n\n` separator
+  - `photo_entries`: treated as keepLocal (cannot merge images)
+  - All others: falls back to keepRemote
+- Calls `_conflictDao.markResolved(conflictId, resolution, now)` to mark row resolved
+- `applyChanges()` also fully implemented: insert-if-new, overwrite-if-clean, conflict-detect-if-dirty (writes SyncConflict row + marks entity conflicted)
+
+**CloudSyncSettingsScreen — auto-sync/WiFi/frequency row behavior:**
+There are no auto-sync, WiFi-only, or frequency rows. The settings screen has:
+- Status card (cloud icon + sync status text + user email + conflict count badge)
+- "Sync Now" button (only shown when authenticated) — triggers `_syncNow()`
+- "Set Up Cloud Sync" / "Manage Cloud Sync" button — navigates to `CloudSyncSetupScreen`
+- Device Info card: Platform, Sync Provider (hardcoded "Google Drive" or "None"), Last Sync timestamp
+
+**Hardcoded "Google Drive" bug found:** `_buildDeviceInfoSection` line 255 hardcodes `'Google Drive'` for the Sync Provider label regardless of `authState.activeProvider`. Now that iCloud is supported, this should use `_providerDisplayName(authState.activeProvider)` (the same helper in `CloudSyncSetupScreen`). Not fixing — read-only recon only.
+
+---
+
 ## [2026-03-01 MST] — Phase 31b: ICloudProvider DI Wiring + Cloud Sync Setup Screen
 
 **Tests: 3,432 | Schema: v18 | Analyzer: clean**
