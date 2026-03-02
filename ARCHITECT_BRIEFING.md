@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-021
+# Briefing Version: 20260302-022
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Audit Pass 02 complete ✅ Findings reported to Architect
-# Last Commit:   docs: audit pass 01 findings cataloged + pass 02 session report
+# Status:        IDLE — Audit Pass 03 complete ✅ Findings reported to Architect
+# Last Commit:   docs: audit pass 02 findings cataloged + pass 03 session report
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 02 findings → AUDIT_FINDINGS.md → run Pass 03
+# Next Action:   Architect catalogs Pass 03 findings → AUDIT_FINDINGS.md → run Pass 04
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,63 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Audit Pass 03: Sync Correctness
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Pass 03 of the final pre-launch audit. Also completed Part A of the prompt: appended the Architect-supplied Pass 02 findings to `docs/AUDIT_FINDINGS.md` and committed.
+
+Read `sync_service_impl.dart` in full, `base_repository.dart`, `sync_metadata.dart`, `supplement_dao.dart`, `supplement_repository_impl.dart`, `condition_log_repository_impl.dart`, `food_log_repository_impl.dart`, `profile_repository_impl.dart`, `profile.dart`, `create_supplement_use_case.dart`, `archive_supplement_use_case.dart`, and spot-checked `food_log_dao.dart` getPendingSync.
+
+**3 findings: 0 CRITICAL, 1 HIGH, 2 MEDIUM, 0 LOW.**
+
+**AUDIT-03-001 — HIGH**
+`lib/data/services/sync_service_impl.dart` — All 15 entity DAOs' `getById()` filters out soft-deleted records via `WHERE sync_deleted_at IS NULL`. After a successful push, `pushChanges()` calls `adapter.markEntitySynced(entityId)`, which calls `repository.getById(entityId)` — this returns "not found" for soft-deleted entities. The `markEntitySynced` failure is silently ignored (result not checked before `pushedCount++`). Consequence: deleted entities upload correctly once but their local `syncIsDirty` flag is never cleared — they re-upload on every sync cycle indefinitely. Cross-cutting: all 15 entity DAOs.
+Fix approach: Either (a) `markEntitySynced` bypasses the soft-delete filter to fetch the row, or (b) add a DAO-level `markSynced(id)` partial write that doesn't require reading the entity at all.
+
+**AUDIT-03-002 — MEDIUM**
+`lib/core/repositories/base_repository.dart` / all 15 entity DAO `softDelete()` methods — DAO `softDelete()` writes a partial Companion that sets `syncDeletedAt`, `syncUpdatedAt`, `syncIsDirty=true`, `syncStatus=deleted` but does NOT increment `syncVersion` or update `syncDeviceId`. `BaseRepository.prepareForDelete()` (which calls `markDeleted(deviceId)` with proper version increment) exists but is never used by any repository impl — all 15 call `_dao.softDelete(id)` directly. Conflict detection still works (isDirty-based), but syncVersion doesn't reflect delete operations.
+Fix approach: Repository `delete()` methods should call `prepareForDelete()` and then `_dao.updateEntity()`, or each DAO's `softDelete()` must also write syncVersion+1.
+
+**AUDIT-03-003 — MEDIUM**
+`lib/domain/usecases/supplements/archive_supplement_use_case.dart` (and `archive_condition_use_case.dart`, `archive_food_item_use_case.dart`) — All three archive use cases manually set `syncVersion: existing.syncMetadata.syncVersion + 1` before calling `repository.update(updated)`. The `update()` path calls `prepareForUpdate()` → `markModified()`, which increments syncVersion again. Archive operations double-increment syncVersion (N → N+2 instead of N+1).
+Fix approach: Remove manual `syncMetadata.copyWith(...)` block from all three archive use cases. Only set `isArchived` on the entity copy and let `repository.update()` handle sync metadata.
+
+### Step Results
+
+| Step | Result |
+|------|--------|
+| 1 — Adapter registrations | 15 adapters confirmed. All have Freezed-generated `fromJson`. `toJson` via `Syncable` interface. ✓ |
+| 2 — markDirty propagation | create/update correct. delete: isDirty=true but syncVersion not incremented (AUDIT-03-002). Archive: double version increment (AUDIT-03-003). |
+| 3 — getPendingSync coverage | All 15 DAOs: `WHERE sync_is_dirty = true` — includes soft-deleted rows. ✓ |
+| 4 — profileId filtering | All 15 list methods filter by profileId at DAO level. Profile.profileId returns id. ✓ |
+| 5 — clientId at creation | clientId is `required` in CreateSupplementInput (pattern confirmed). ✓ |
+| 6 — Conflict resolution | Generic isDirty-based detection. `_applyMerge` correct for journal_entries and photo_entries. ✓ |
+| 7 — Soft delete verification | DAO soft delete correct (syncDeletedAt set). Pull path applies remote deletions correctly. Push path: AUDIT-03-001. |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 02 findings (5 findings, as supplied by Architect) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added Pass 03 session report |
+
+### Executive Summary for Reid
+
+We completed two tasks this session:
+
+**Part 1 — Cataloged the audit findings from last session.** The Architect reviewed the Pass 02 results and drafted the official findings. We recorded them into the audit register exactly as written.
+
+**Part 2 — Ran Pass 03: Sync Correctness audit.** This pass examined whether the sync system is correctly wired for all 15 entity types. We found 3 issues:
+
+- **High (1):** When you delete a health entry (supplement, journal entry, food log, etc.), the app correctly uploads the deletion to the cloud — but then fails to mark the local copy as "uploaded." Because the deletion flag is never cleared, that deleted entry gets re-uploaded every single time the app syncs, forever. It's a silent infinite loop. No data is lost, but it wastes bandwidth and could slow down sync over time as deletions accumulate.
+
+- **Medium (2):** Two separate, smaller issues with how deletions and archives are tracked internally. No data is lost, but the sync version counter (used for conflict detection) is either not updated when it should be, or updated twice when it should be updated once. These could cause unnecessary "conflict detected" prompts in edge cases.
 
 ---
 
