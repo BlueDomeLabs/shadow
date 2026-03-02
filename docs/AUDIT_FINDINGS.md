@@ -879,3 +879,114 @@ Status: OPEN
 ## End of Pass 08 Findings
 
 ---
+
+## Pass 09 — Performance
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 4 (0 CRITICAL, 1 HIGH, 2 MEDIUM, 1 LOW)
+
+Note: No N+1 query patterns found. No provider
+invalidation in loops. No database calls in build()
+methods. ListView.builder/GridView.builder used
+throughout for virtualization. Issues below are
+contained to photo gallery, sync encryption batch,
+and long-lived list pagination.
+
+---
+
+AUDIT-09-001
+Severity: HIGH
+Category: Performance
+File: lib/presentation/screens/photos/photo_entries/photo_entry_gallery_screen.dart
+Cross-cutting: lib/presentation/widgets/shadow_image.dart
+Description: file.existsSync() — synchronous file
+  system I/O — called in widget build paths.
+  In photo_entry_gallery_screen.dart:118 it is called
+  inside GridView.builder's itemBuilder for every
+  visible tile (O(n) synchronous disk reads per frame
+  during scroll). In shadow_image.dart:270 and :308,
+  existsSync() is called inside _buildFileImage() and
+  _buildPickerImage() during build. Synchronous file
+  stat on the main thread blocks the UI thread.
+Fix approach: Replace existsSync() with async exists()
+  using FutureBuilder, or pre-compute file existence
+  in the provider layer and pass a resolved result
+  to the widget. Do not call synchronous file I/O
+  in build() or itemBuilder.
+Status: OPEN
+
+---
+
+AUDIT-09-002
+Severity: MEDIUM
+Category: Performance
+File: lib/presentation/screens/photos/photo_entries/photo_entry_gallery_screen.dart
+Cross-cutting: lib/presentation/widgets/shadow_image.dart
+Description: Photo gallery grid loads full-resolution
+  images as thumbnails. Image.file(file, fit:
+  BoxFit.cover) in _buildPhotoTile has no cacheWidth/
+  cacheHeight constraints. ShadowImage widget correctly
+  applies ResizeImage when cache dimensions are set,
+  but the gallery screen bypasses ShadowImage and calls
+  Image.file directly. On a phone with 300+ photos
+  each visible tile loads a full-res file (typically
+  200-500KB after processing), pressuring the image
+  cache and increasing memory consumption.
+Fix approach: Replace bare Image.file in _buildPhotoTile
+  with ShadowImage.file (or add cacheWidth/cacheHeight
+  constraints) sized to the grid tile dimensions.
+Status: OPEN
+
+---
+
+AUDIT-09-003
+Severity: MEDIUM
+Category: Performance
+File: lib/data/services/sync_service_impl.dart
+Cross-cutting: lib/core/services/encryption_service.dart
+Description: AES-256-GCM encryption runs on the main
+  isolate during cloud sync push. sync_service_impl.dart
+  lines 276-277 call await _encryptionService.encrypt(
+  jsonString) in a for loop over every pending change.
+  EncryptionService.encrypt() is declared async but
+  contains no async gaps — all AES computation is
+  synchronous work inside a Future. For a large sync
+  batch (100+ entities after extended offline use),
+  this executes synchronous crypto on the main thread.
+  Contrast: BCrypt (PIN hashing) is correctly offloaded
+  via Isolate.run() in security_settings_service.dart.
+Fix approach: Wrap the encrypt/decrypt calls in
+  Isolate.run() for batches above a threshold (e.g.
+  20+ entities), or run the entire sync loop in a
+  background isolate.
+Status: OPEN
+
+---
+
+AUDIT-09-004
+Severity: LOW
+Category: Performance
+File: lib/presentation/screens/journal/journal_entry_list_screen.dart
+Cross-cutting: lib/presentation/screens/photos/photo_entries/photo_entry_gallery_screen.dart
+Description: No pagination on long-lived list screens.
+  All records load into memory. ListView.builder
+  virtualizes rendering but the full Dart list is in
+  memory. Journal entries accumulate over years of
+  daily use (could reach thousands). Photo gallery
+  loads all photo entries for the entire profile then
+  filters by area in memory — a user with 5 photo
+  areas has entries from all 5 areas loaded into a
+  single provider, with 80% discarded client-side.
+  Supplements, food items, and conditions are naturally
+  bounded and are not a concern.
+Fix approach (journal): Add date-range filter loading
+  90 days initially with load-more on scroll.
+Fix approach (photos): Filter by photoAreaId at the
+  DAO/repository level rather than in the UI layer.
+Status: OPEN
+
+---
+
+## End of Pass 09 Findings
+
+---
