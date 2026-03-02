@@ -488,3 +488,118 @@ Status: OPEN
 ## End of Pass 05 Findings
 
 ---
+
+## Pass 06 — UI Completeness
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 5 (0 CRITICAL, 0 HIGH, 3 MEDIUM, 2 LOW)
+
+Note: All 65 screens read. Main feature screens
+(condition, supplement, food, activity, sleep, fluids,
+photo, journal) all pass loading/error/empty/form/
+destructive-action/unsaved-data checks. Gaps concentrated
+in home tabs, profile onboarding, and reports preview.
+
+---
+
+AUDIT-06-001
+Severity: MEDIUM
+Category: UI Completeness
+File: lib/presentation/screens/home/tabs/conditions_tab.dart
+Cross-cutting: lib/presentation/screens/home/tabs/food_tab.dart,
+  lib/presentation/screens/home/tabs/supplements_tab.dart,
+  lib/presentation/screens/home/tabs/activities_tab.dart,
+  lib/presentation/screens/home/tabs/fluids_tab.dart,
+  lib/presentation/screens/home/tabs/photos_tab.dart
+Description: All six home tabs use raw Dart exception
+  text in error state with no retry button:
+  error: (error, _) => Center(child: Text('Error
+  loading conditions: $error')). Exposes raw exception
+  strings to users. No recovery path — user must leave
+  and re-enter the tab. Inconsistent with dedicated list
+  screens (supplement_list_screen, flare_up_list_screen,
+  etc.) which correctly show AppError.userMessage + retry
+  via ref.invalidate().
+Fix approach: Replace raw error text with
+  AppError.userMessage and add a retry button calling
+  ref.invalidate(provider) in all six tabs. Match the
+  pattern in supplement_list_screen.dart.
+Status: OPEN
+
+---
+
+AUDIT-06-002
+Severity: MEDIUM
+Category: UI Completeness
+File: lib/presentation/screens/profiles/add_edit_profile_screen.dart
+Cross-cutting: None
+Description: _save() has no _isSaving guard — double-
+  submit is possible. Save button does not disable
+  during async save. No loading indicator while saving.
+  No _isDirty tracking and no PopScope unsaved-data
+  warning — back navigation during form fill gives no
+  warning. This is the primary onboarding screen for
+  new users and is missing all three standard form
+  protection patterns present in every other form in
+  the app.
+Fix approach: Add _isSaving state and guard in _save().
+  Disable save button while saving; show
+  CircularProgressIndicator in AppBar action.
+  Add _isDirty flag and PopScope confirmation on back.
+  Match pattern in condition_edit_screen.dart.
+Status: OPEN
+
+---
+
+AUDIT-06-003
+Severity: MEDIUM
+Category: UI Completeness
+File: lib/presentation/screens/home/tabs/reports_tab.dart
+Cross-cutting: None
+Description: Both _ActivityReportSheetState._preview()
+  and _ReferenceReportSheetState._preview() swallow
+  exceptions silently: } on Exception { setState(() =>
+  _isLoading = false); }. Loading spinner clears but no
+  error message is shown. User cannot distinguish "no
+  records for this date range" from "query failed".
+  Export correctly shows a SnackBar on failure — only
+  preview is missing the feedback.
+Fix approach: Set a _previewError field in the catch
+  block and render an error message in the sheet.
+  Match the export error pattern (showAccessibleSnackBar)
+  or show inline error text.
+Status: OPEN
+
+---
+
+AUDIT-06-004
+Severity: LOW
+Category: UI Completeness
+File: lib/presentation/screens/health/health_sync_settings_screen.dart
+Cross-cutting: lib/presentation/screens/notifications/notification_settings_screen.dart
+Description: Both screens use error: (e, s) =>
+  Center(child: Text('Error: $e')). Raw exception text,
+  no user-friendly message, no retry button.
+Fix approach: Replace with AppError.userMessage text
+  and a retry button calling ref.invalidate(provider).
+Status: OPEN
+
+---
+
+AUDIT-06-005
+Severity: LOW
+Category: UI Completeness
+File: lib/presentation/screens/guest_invites/guest_invite_list_screen.dart
+Cross-cutting: None
+Description: Error state uses: error: (error, _) =>
+  Center(child: Text('Failed to load invites: $error')).
+  Raw error text exposed to user. No retry button.
+Fix approach: Replace with AppError.userMessage text
+  and a retry button calling ref.invalidate(provider).
+Status: OPEN
+
+---
+
+## End of Pass 06 Findings
+
+---
