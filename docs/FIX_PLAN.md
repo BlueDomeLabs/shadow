@@ -420,7 +420,7 @@ Sub-tasks (in order):
 
 | Order | Group | Findings | C | H | M | L | Estimate | Blocker? |
 |-------|-------|----------|---|---|---|---|----------|----------|
-| 1 | P — Platform & Store Blockers | 8 | 1 | 4 | 1 | 2 | 1 session | YES — App Store |
+| 1 | **P — Platform & Store Blockers** ✓ DONE | 8 | 1 | 4 | 1 | 2 | 1 session | YES — App Store |
 | 2 | Q — Quick Cleanup | 8 | 0 | 0 | 1 | 7 | 1 session | No |
 | 3 | N — Navigation Wiring | 5 | 0 | 3 | 2 | 0 | 1 session | YES — users can't reach features |
 | 4 | U — UI Error States | 5 | 0 | 0 | 3 | 2 | 1 session | No |
@@ -474,5 +474,15 @@ When all groups are complete and deferred items are acknowledged:
 
 ---
 
+---
+
+## Section 5 — Fix Session Log
+
+| Date | Group | Finding IDs | Commit | Notes |
+|------|-------|-------------|--------|-------|
+| 2026-03-02 | GROUP P | AUDIT-08-001, 08-002, 08-003, 08-004, 08-005, 08-006, 08-007(ack), 08-008(ack) | TBD | All 6 code fixes done; 2 launch-checklist items acknowledged |
+
+---
+
 *End of FIX_PLAN.md*
-*Architect: review group definitions and decisions required before issuing GROUP P prompt to Shadow.*
+*Architect: review group definitions and decisions required before issuing GROUP Q prompt to Shadow.*

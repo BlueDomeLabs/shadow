@@ -25,7 +25,7 @@ android {
         applicationId = "com.bluedomecolorado.shadow_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 26 // Health Connect requires API 26+ (Android 8.0); AUDIT-08-005
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

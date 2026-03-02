@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network access for Google Drive sync, Google Sign-In, Open Food Facts, NIH DSLD, AI features -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Biometric authentication for app lock feature -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <!-- Health Connect read permissions per 61_HEALTH_PLATFORM_INTEGRATION.md §Android -->
     <!-- Shadow requests read-only access — never writes to Health Connect. -->
     <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>

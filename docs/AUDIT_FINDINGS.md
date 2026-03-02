@@ -747,7 +747,7 @@ Fix approach: Create ios/Runner/PrivacyInfo.xcprivacy
   NSPrivacyAccessedAPITypes, and
   NSPrivacyCollectedDataTypes for health data.
   Add to Xcode project via project.pbxproj.
-Status: OPEN
+Status: FIXED — 2026-03-02: ios/Runner/PrivacyInfo.xcprivacy created; registered in project.pbxproj
 
 ---
 
@@ -770,7 +770,7 @@ Description: Four required NSUsageDescription keys
 Fix approach: Add all four keys to Info.plist with
   meaningful user-facing descriptions that explain
   why the app needs each permission.
-Status: OPEN
+Status: FIXED — 2026-03-02: NSCameraUsageDescription, NSPhotoLibraryUsageDescription, NSPhotoLibraryAddUsageDescription, NSFaceIDUsageDescription added to ios/Runner/Info.plist.
 
 ---
 
@@ -788,7 +788,7 @@ Description: android.permission.INTERNET is not
 Fix approach: Add <uses-permission
   android:name="android.permission.INTERNET"/> to
   AndroidManifest.xml.
-Status: OPEN
+Status: FIXED — 2026-03-02: android.permission.INTERNET added to AndroidManifest.xml.
 
 ---
 
@@ -805,7 +805,7 @@ Description: android.permission.USE_BIOMETRIC and
   PlatformException on Android.
 Fix approach: Add USE_BIOMETRIC and USE_FINGERPRINT
   permissions to AndroidManifest.xml.
-Status: OPEN
+Status: FIXED — 2026-03-02: android.permission.USE_BIOMETRIC and android.permission.USE_FINGERPRINT added to AndroidManifest.xml.
 
 ---
 
@@ -824,7 +824,7 @@ Description: minSdk = flutter.minSdkVersion resolves
 Fix approach: Set minSdk = 26 explicitly in
   build.gradle.kts. Remove dependency on
   flutter.minSdkVersion default.
-Status: OPEN
+Status: FIXED — 2026-03-02: minSdk = 26 set explicitly in android/app/build.gradle.kts.
 
 ---
 
@@ -841,7 +841,7 @@ Description: IPHONEOS_DEPLOYMENT_TARGET = 13.0 in
   using advanced HealthKit or background sync features.
 Fix approach: Raise IPHONEOS_DEPLOYMENT_TARGET to
   16.0 in all three occurrences in project.pbxproj.
-Status: OPEN
+Status: FIXED — 2026-03-02: IPHONEOS_DEPLOYMENT_TARGET raised to 16.0 in all 3 occurrences in project.pbxproj.
 
 ---
 
@@ -857,7 +857,7 @@ Description: Flutter default TODO comment indicates
   submission.
 Fix approach: Configure release signing configuration
   before first Play Store submission.
-Status: OPEN
+Status: ACKNOWLEDGED — Launch checklist item. No code change. Reid configures release signing before Play Store submission.
 
 ---
 
@@ -872,7 +872,7 @@ Description: Google Play Data Safety declaration must
   This is not a code change but a launch checklist item.
 Fix approach: Complete the Data Safety form in Google
   Play Console before submitting to Play Store.
-Status: OPEN
+Status: ACKNOWLEDGED — External Play Console configuration. No code change. Reid completes Data Safety form before Play Store submission.
 
 ---
 

@@ -64,6 +64,16 @@
 	<string>Shadow reads health data to import your vitals and activity into your health journal.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Shadow requests HealthKit access but never writes to Apple Health.</string>
+	<!-- Camera and photo library access for attaching photos to health journal entries -->
+	<key>NSCameraUsageDescription</key>
+	<string>Shadow uses the camera so you can attach photos to your health journal entries.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Shadow accesses your photo library so you can attach existing photos to your health journal entries.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Shadow may save processed images to your photo library.</string>
+	<!-- Face ID for app lock feature -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Shadow uses Face ID to keep your health data private when you lock the app.</string>
 	<!-- Background modes for flutter_local_notifications per 57_NOTIFICATION_SYSTEM.md §11.1 -->
 	<key>UIBackgroundModes</key>
 	<array>
