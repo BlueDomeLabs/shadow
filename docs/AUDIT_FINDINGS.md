@@ -1384,3 +1384,83 @@ Status: OPEN
 ## End of Pass 10 Findings
 
 ---
+
+## Convergence Pass C — FlareUp System + Conditions Navigation Wiring
+
+**Date:** 2026-03-02 MST
+**Scope:** FlareUp screens/use cases/DAO, conditions tab navigation, ConditionLog wiring
+**Files reviewed:** flare_up_list_screen.dart, report_flare_up_screen.dart,
+  flare_up_list_provider.dart, log_flare_up_use_case.dart, update_flare_up_use_case.dart,
+  delete_flare_up_use_case.dart, flare_up_dao.dart, flare_up_repository_impl.dart,
+  conditions_tab.dart, condition_list_screen.dart, condition_log_screen.dart,
+  condition_log_list_provider.dart, get_condition_logs_use_case.dart
+**New findings:** 3 (0 Critical, 1 High, 2 Medium, 0 Low)
+
+---
+
+AUDIT-CC-001
+Severity: MEDIUM
+Category: UI Completeness — Missing Action
+File: lib/presentation/screens/conditions/flare_up_list_screen.dart
+Cross-cutting: lib/presentation/providers/flare_ups/flare_up_list_provider.dart
+Description: FlareUpListScreen exposes no delete action for flare-up
+  entries. The provider defines `delete(DeleteFlareUpInput)` (line 113)
+  and the underlying use case and soft-delete path are correctly
+  implemented, but no delete button, swipe-to-delete, or context menu
+  exists in the list screen. Tapping a card opens the edit sheet, which
+  has no delete option either. Users have no way to remove a flare-up
+  from within the app.
+Fix approach: Add a delete action to the edit sheet (ReportFlareUpScreen)
+  or to the card's trailing options in FlareUpListScreen. Include a
+  confirmation dialog before calling the provider's delete() method.
+Status: OPEN
+
+---
+
+AUDIT-CC-002
+Severity: HIGH
+Category: Navigation Wiring — Unreachable Screen
+File: lib/presentation/screens/condition_logs/condition_log_screen.dart
+Cross-cutting: lib/presentation/providers/condition_logs/condition_log_list_provider.dart,
+  lib/domain/usecases/condition_logs/log_condition_use_case.dart
+Description: ConditionLogScreen is fully implemented (create + edit,
+  photo picker, trigger chips, severity slider, dirty-state guard) but
+  is not imported or navigated to from any other file in the codebase.
+  A grep for `ConditionLogScreen` returns only the screen's own file.
+  The conditions_tab.dart and condition_list_screen.dart both have no
+  entry point to log a daily condition entry. The full condition-logging
+  use case (log_condition_use_case.dart) and ConditionLogList provider
+  are likewise unreachable via the UI. This is the primary daily-tracking
+  feature for conditions and is silently inaccessible to users.
+Fix approach: Wire ConditionLogScreen into the conditions navigation.
+  Most natural entry: add a "Log Entry" action from each condition card
+  in conditions_tab.dart or condition_list_screen.dart, navigating with
+  Navigator.push(context, MaterialPageRoute(builder: (_) =>
+  ConditionLogScreen(profileId: profileId, condition: condition))).
+Status: OPEN
+
+---
+
+AUDIT-CC-003
+Severity: MEDIUM
+Category: UI Completeness — Non-Functional Stub
+File: lib/presentation/screens/conditions/condition_list_screen.dart
+Cross-cutting: None
+Description: `_FilterBottomSheet` (lines 376–421) renders two Switch
+  widgets both hardcoded to `value: true` with `onChanged: (value) {}`
+  (no-op). The "Apply" button calls `Navigator.pop(context)` only —
+  no filter state is read, stored, or applied to the condition list.
+  The filter UI is purely cosmetic. Tapping "Filter" gives users the
+  impression they are adjusting the displayed conditions, but the list
+  is unaffected in all cases.
+Fix approach: Either (a) implement actual filter state (show archived,
+  active-only) driving the condition list query, or (b) remove the
+  filter button and bottom sheet until the feature is ready for
+  implementation.
+Status: OPEN
+
+---
+
+## End of Convergence Pass C Findings
+
+---

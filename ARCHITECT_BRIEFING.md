@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — All 57 audit findings cataloged; ready for Architect convergence declaration
-# Last Commit:   docs: catalog Pass 10 audit findings (AUDIT-10-001 through AUDIT-10-006)
+# Status:        IDLE — Convergence Pass C complete; 60 total findings cataloged
+# Last Commit:   docs: Convergence Pass C audit findings (AUDIT-CC-001 through AUDIT-CC-003)
 # Last Code:     DOCS ONLY — no code changes
-# Next Action:   Architect reviews full AUDIT_FINDINGS.md → declares convergence → produces FIX_PLAN.md
+# Next Action:   Architect reviews Pass C findings → declares convergence or orders Pass D
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,89 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Convergence Pass C: FlareUp System + Conditions Navigation Wiring
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Convergence Pass C — targeted audit of Phase 18b additions (FlareUp
+screens, use cases, DAO) plus conditions tab navigation wiring and ConditionLog
+use case connectivity. 3 new findings: AUDIT-CC-001 through AUDIT-CC-003.
+
+**Step 1 — FlareUp Screen Flow:**
+All provider calls go through use cases correctly. Result types handled with
+.when() throughout. Loading/error/empty states present. `_isSaving` guard
+present in ReportFlareUpScreen (line 55). AUDIT-CB-002 confirmed: no photo
+picker in report_flare_up_screen.dart. One new finding: FlareUpListScreen
+has no delete UI despite the provider having a fully wired delete() method —
+AUDIT-CC-001 (MEDIUM).
+
+**Step 2 — FlareUp Use Case + DAO Layer:**
+All clean. Authorization before validation in all three use cases. All return
+Result<T, AppError>. Repository correctly uses prepareForCreate/prepareForUpdate
+(confirmed in flare_up_repository_impl.dart). FlareUpDao.getPendingSync()
+filters on syncIsDirty=true. All queries have ORDER BY. AUDIT-CB-004 confirmed:
+DeleteFlareUpUseCase does not clean up photoPath.
+
+**Step 3 — Conditions Tab Navigation Wiring:**
+FlareUpListScreen reachable from conditions_tab via Flare-Ups button. FAB in
+FlareUpListScreen correctly opens ReportFlareUpScreen. ConditionLogScreen not
+reachable — covered in Step 4. New finding: condition_list_screen.dart has a
+_FilterBottomSheet with hardcoded non-functional Switch widgets (value: true,
+onChanged: no-op) and an Apply button that only pops the sheet without applying
+any filter state — AUDIT-CC-003 (MEDIUM).
+
+**Step 4 — ConditionLog Use Case Wiring:**
+ConditionLogScreen is fully implemented (create/edit, photo picker, triggers,
+severity slider, dirty-state guard) but has zero imports outside its own file.
+It is completely unreachable from the conditions navigation path. The
+conditions_tab and condition_list_screen have no entry point to log a daily
+condition entry. The full use case chain (LogConditionUseCase, UpdateConditionLogUseCase,
+ConditionLogList provider) is wired but UI-inaccessible — AUDIT-CC-002 (HIGH).
+The provider query (getByCondition) is correctly structured.
+
+### Grand Total — Audit Findings to Date
+
+| Pass | Findings | C | H | M | L |
+|------|----------|---|---|---|---|
+| 01 Architecture | 7 | 0 | 2 | 3 | 2 |
+| 02 Schema Alignment | 5 | 0 | 1 | 2 | 2 |
+| 03 Sync Correctness | 3 | 0 | 1 | 2 | 0 |
+| 04 Error Handling | 3 | 0 | 0 | 2 | 1 |
+| 05 Security | 3 | 0 | 0 | 1 | 2 |
+| 06 UI Completeness | 5 | 0 | 0 | 3 | 2 |
+| 07 Test Quality | 4 | 0 | 1 | 2 | 1 |
+| 08 Platform Compliance | 8 | 1 | 4 | 1 | 2 |
+| 09 Performance | 4 | 0 | 1 | 2 | 1 |
+| 10 Code Standards | 6 | 0 | 1 | 0 | 5 |
+| Conv. Pass A Profile | 5 | 0 | 1 | 3 | 1 |
+| Conv. Pass B Diet+Photo | 4 | 0 | 0 | 4 | 0 |
+| Conv. Pass C FlareUp+Nav | 3 | 0 | 1 | 2 | 0 |
+| **TOTAL** | **60** | **1** | **12** | **29** | **18** |
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Convergence Pass C section (AUDIT-CC-001 through AUDIT-CC-003) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added this session entry, updated grand total |
+| lib/presentation/screens/conditions/flare_up_list_screen.dart | READ | Step 1 — no delete UI (AUDIT-CC-001) |
+| lib/presentation/screens/conditions/report_flare_up_screen.dart | READ | Step 1 — no photo picker (confirms AUDIT-CB-002); all other checks pass |
+| lib/presentation/providers/flare_ups/flare_up_list_provider.dart | READ | Step 1 — delete() method wired but unreachable from UI |
+| lib/domain/usecases/flare_ups/log_flare_up_use_case.dart | READ | Step 2 — auth before validation, correct Result handling |
+| lib/domain/usecases/flare_ups/update_flare_up_use_case.dart | READ | Step 2 — auth before validation, correct Result handling |
+| lib/domain/usecases/flare_ups/delete_flare_up_use_case.dart | READ | Step 2 — confirms AUDIT-CB-004; no photoPath cleanup |
+| lib/data/datasources/local/daos/flare_up_dao.dart | READ | Step 2 — getPendingSync correct; all queries ordered |
+| lib/data/repositories/flare_up_repository_impl.dart | READ | Step 2 — prepareForCreate/prepareForUpdate used correctly |
+| lib/presentation/screens/home/tabs/conditions_tab.dart | READ | Step 3 — FlareUpListScreen reachable; ConditionLogScreen not wired |
+| lib/presentation/screens/conditions/condition_list_screen.dart | READ | Step 3 — _FilterBottomSheet is non-functional stub (AUDIT-CC-003) |
+| lib/presentation/screens/condition_logs/condition_log_screen.dart | READ | Step 4 — fully implemented but unreachable (AUDIT-CC-002) |
+| lib/presentation/providers/condition_logs/condition_log_list_provider.dart | READ | Step 4 — correctly wired; unreachable from UI |
+| lib/domain/usecases/condition_logs/get_condition_logs_use_case.dart | READ | Step 4 — correctly queries by conditionId |
 
 ---
 
@@ -134,7 +217,8 @@ Step 2.4 — Photo deletion on entity delete:
 | 10 Code Standards | 6 | 0 | 1 | 0 | 5 |
 | Conv. Pass A Profile | 5 | 0 | 1 | 3 | 1 |
 | Conv. Pass B Diet+Photo | 4 | 0 | 0 | 4 | 0 |
-| **TOTAL** | **57** | **1** | **11** | **27** | **18** |
+| Conv. Pass C FlareUp+Nav | 3 | 0 | 1 | 2 | 0 |
+| **TOTAL** | **60** | **1** | **12** | **29** | **18** |
 
 ### File Change Table
 
