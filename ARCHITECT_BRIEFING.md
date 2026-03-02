@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-028
+# Briefing Version: 20260302-029
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,8 +9,8 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Convergence Pass A complete (5 new findings in AUDIT_FINDINGS.md)
-# Last Commit:   docs: convergence pass A — profile system findings
+# Status:        IDLE — Convergence Pass B complete (4 new findings in AUDIT_FINDINGS.md)
+# Last Commit:   docs: convergence pass B — diet sync and photo system findings
 # Last Code:     DOCS ONLY — read-only audit, no code changes
 # Next Action:   Architect reviews all findings → catalogs Pass 10 → declares convergence → FIX_PLAN.md
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
@@ -22,6 +22,171 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Convergence Pass B: Diet Sync + Photo System Cross-Cut
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Executed Convergence Pass B — two focused investigations: (1) sync
+correctness for the three unregistered Diet entities, and (2) photo
+system cross-cut across all entities with photo fields. 4 new findings
+appended to `docs/AUDIT_FINDINGS.md` as AUDIT-CB-001 through AUDIT-CB-004.
+
+**Part 1 — Diet/DietViolation/FastingSession Sync Correctness:**
+
+All three repositories correctly call `prepareForCreate()` on create
+and `prepareForUpdate()` on update. All three call `_dao.softDelete(id)`
+directly on delete (same AUDIT-03-002 pattern — CONFIRMED, no new finding).
+No archive use cases exist for these entities, so the AUDIT-03-003
+double-increment pattern cannot occur. All three DAOs have correct
+`getPendingSync()` implementations filtering on `syncIsDirty = true`.
+
+One new finding: `DietDao.deactivateAll()` writes `isActive: false`
+with no `syncIsDirty`, `syncUpdatedAt`, or `syncVersion` update.
+Both `setActive()` and `deactivate()` in `DietRepositoryImpl` call
+`deactivateAll()` before updating the newly active diet. The new
+active diet IS marked dirty (via `prepareForUpdate()`), but the
+previously active diet's deactivation is invisible to the sync system.
+Result: after syncing a diet switch, the old diet remains `isActive=true`
+on all other devices until they independently modify it. Bug is currently
+dormant (AUDIT-02-003 means Diet sync adapters don't exist yet) but will
+activate when adapters are added → AUDIT-CB-001 (MEDIUM).
+
+**Part 2 — Photo System Cross-Cut:**
+
+Step 2.1 — Photo fields confirmed:
+- `Condition.baselinePhotoPath` — present
+- `ConditionLog.photoPath` + `flarePhotoIds` — present
+- `FlareUp.photoPath` — present
+- `FluidsEntry.bowelPhotoPath` + `urinePhotoPath` — present
+- `Supplement` — NO photo field (AUDIT-10-006 was about scan-flow,
+  not a persistent entity field)
+- `PhotoEntry.filePath` — core photo entity, its own flow
+
+Step 2.2 — Save flow verification:
+- `Condition.baselinePhotoPath`: correctly wired UI → input → use case
+  → repository → DAO ✓
+- `ConditionLog.photoPath`: correctly wired ✓
+- `FluidsEntry.bowelPhotoPath`: correctly wired ✓
+- `FlareUp.photoPath`: `LogFlareUpInput` and `UpdateFlareUpInput`
+  both have the field, but `report_flare_up_screen.dart` has no
+  `_photoPath` state variable and no photo picker — photoPath is
+  always null. Feature exists in data layer only → AUDIT-CB-002 (MEDIUM).
+- `FluidsEntry.urinePhotoPath`: input types have the field, use cases
+  pass it through, but `fluids_entry_screen.dart` has a bowel photo
+  picker with no corresponding urine photo picker — urinePhotoPath
+  is always null → AUDIT-CB-003 (MEDIUM).
+- No "taken but silently dropped" pattern (AUDIT-10-006 type) found
+  for any entity. The Condition, ConditionLog, and FluidsEntry bowel
+  photo paths are all correctly end-to-end wired.
+
+Step 2.3 — existsSync audit:
+Full grep across `lib/`. All six instances are previously cataloged
+or not in build() paths:
+- `photo_entry_gallery_screen.dart:118,525` — CONFIRMED AUDIT-09-001
+- `shadow_image.dart:270,308` — CONFIRMED AUDIT-09-001
+- `google_drive_provider.dart:363` — in async upload function, not build() → clean
+- `database.dart:402` — in initialization debugPrint → clean
+
+Step 2.4 — Photo deletion on entity delete:
+- No `DeleteConditionUseCase` exists — conditions are archived, not
+  deleted. `baselinePhotoPath` is retained (entity persists). No orphan.
+- No `DeleteConditionLogUseCase` exists — no deletion path for logs.
+- `DeleteFlareUpUseCase` soft-deletes the DB row but does not read or
+  delete `FlareUp.photoPath`. When a flare-up has a photo and is deleted,
+  the file is orphaned on disk. Currently no flare-up can have a photo
+  (AUDIT-CB-002), but the cleanup gap will activate when AUDIT-CB-002
+  is fixed → AUDIT-CB-004 (MEDIUM).
+
+### Grand Total — Audit Findings to Date
+
+| Pass | Findings | C | H | M | L |
+|------|----------|---|---|---|---|
+| 01 Architecture | 7 | 0 | 2 | 3 | 2 |
+| 02 Schema Alignment | 5 | 0 | 1 | 2 | 2 |
+| 03 Sync Correctness | 3 | 0 | 1 | 2 | 0 |
+| 04 Error Handling | 3 | 0 | 0 | 2 | 1 |
+| 05 Security | 3 | 0 | 0 | 1 | 2 |
+| 06 UI Completeness | 5 | 0 | 0 | 3 | 2 |
+| 07 Test Quality | 4 | 0 | 1 | 2 | 1 |
+| 08 Platform Compliance | 8 | 1 | 4 | 1 | 2 |
+| 09 Performance | 4 | 0 | 1 | 2 | 1 |
+| Pass 10 (not cataloged) | 6* | 0 | 0 | 2 | 4 |
+| Conv. Pass A Profile | 5 | 0 | 1 | 3 | 1 |
+| Conv. Pass B Diet+Photo | 4 | 0 | 0 | 4 | 0 |
+| **TOTAL** | **57** | **1** | **11** | **27** | **18** |
+
+*Pass 10 findings were reported in chat in a prior session but have
+not yet been cataloged into AUDIT_FINDINGS.md by the Architect.
+Count here is estimated from prior session notes.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Convergence Pass B section (AUDIT-CB-001 through AUDIT-CB-004) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added this session entry |
+| lib/data/repositories/diet_repository_impl.dart | READ | Steps 1.1/1.2 — create/update use prepareForCreate/prepareForUpdate ✓; delete uses softDelete directly (same AUDIT-03-002) |
+| lib/data/repositories/diet_violation_repository_impl.dart | READ | Steps 1.1/1.2 — create correct; update noop (append-only by design); delete same AUDIT-03-002 |
+| lib/data/repositories/fasting_repository_impl.dart | READ | Steps 1.1/1.2 — create/update/endFast all correct; delete same AUDIT-03-002 |
+| lib/data/datasources/local/daos/diet_dao.dart | READ | Step 1.1/1.4 — deactivateAll() missing dirty mark (AUDIT-CB-001); getPendingSync() correct |
+| lib/data/datasources/local/daos/diet_violation_dao.dart | READ | Step 1.4 — getPendingSync() correct |
+| lib/data/datasources/local/daos/fasting_session_dao.dart | READ | Step 1.4 — getPendingSync() correct |
+| lib/domain/usecases/diet/activate_diet_use_case.dart | READ | Step 1.3 — no manual syncMetadata manipulation; no double-increment |
+| lib/domain/usecases/diet/create_diet_use_case.dart | READ | Step 1.3 — _deactivateCurrent calls _repository.deactivate (routes through deactivateAll gap) |
+| lib/domain/entities/condition.dart | READ | Step 2.1 — baselinePhotoPath confirmed |
+| lib/domain/entities/condition_log.dart | READ | Step 2.1 — photoPath + flarePhotoIds confirmed |
+| lib/domain/entities/flare_up.dart | READ | Step 2.1 — photoPath confirmed |
+| lib/domain/entities/fluids_entry.dart | READ | Step 2.1 — bowelPhotoPath + urinePhotoPath confirmed |
+| lib/domain/entities/supplement.dart | READ | Step 2.1 — no photo field |
+| lib/domain/entities/photo_entry.dart | READ | Step 2.1 — filePath is the core photo entity field |
+| lib/presentation/screens/conditions/condition_edit_screen.dart | READ | Step 2.2 — baselinePhotoPath correctly wired to CreateConditionInput/UpdateConditionInput |
+| lib/presentation/screens/condition_logs/condition_log_screen.dart | READ | Step 2.2 — photoPath correctly wired to LogConditionInput/UpdateConditionLogInput |
+| lib/presentation/screens/conditions/report_flare_up_screen.dart | READ | Step 2.2 — NO photo picker; _saveNew()/_saveEdit() never pass photoPath → AUDIT-CB-002 |
+| lib/presentation/screens/fluids_entries/fluids_entry_screen.dart | READ | Step 2.2 — bowelPhotoPath correctly wired; urinePhotoPath never set → AUDIT-CB-003 |
+| lib/domain/usecases/flare_ups/flare_up_inputs.dart | READ | Step 2.2 — LogFlareUpInput/UpdateFlareUpInput have photoPath field, never populated |
+| lib/domain/usecases/flare_ups/delete_flare_up_use_case.dart | READ | Step 2.4 — soft-deletes DB row; does not delete photoPath file → AUDIT-CB-004 |
+| lib/domain/usecases/conditions/ (no delete use case) | ALREADY CORRECT | Step 2.4 — no DeleteConditionUseCase; archive-only path, no orphan risk |
+| lib/domain/usecases/condition_logs/ (no delete use case) | ALREADY CORRECT | Step 2.4 — no deletion path for condition logs |
+
+### Executive Summary for Reid
+
+This session completed a targeted audit of two areas the Architect
+wanted double-checked before declaring the audit complete.
+
+**Diet sync check:** The app's diet tracking (your meal plans and
+fasting sessions) is built with all the right pieces in the database,
+but I found a subtle sync bug: when you switch to a new diet on one
+device, the system correctly marks the new diet for upload to the
+cloud. But it forgets to mark the OLD diet (the one being deactivated)
+for upload. So your other devices would end up showing both the old
+and new diet as "active" simultaneously. This bug is harmless right now
+because diet sync isn't switched on yet (a gap noted in an earlier
+audit), but it would cause real confusion once we turn that on.
+
+**Photo system check:** The app has photo fields built into the data
+layer for flare-up entries and urine tracking in fluids — but the
+screens that let you log those things never actually show a photo
+picker button. You can't attach a photo to a flare-up or to a urine
+entry because the button was never added to those screens. The data
+layer is ready and waiting; the UI just needs the picker added. The
+good news: condition photos (baseline photos for your health conditions),
+condition log photos, and bowel movement photos are all working correctly.
+
+There's also a small housekeeping gap: if you delete a flare-up that
+has a photo attached, the photo file stays on your device forever
+taking up space. Not a problem today (you can't attach photos to
+flare-ups yet), but it'll need to be addressed when that's fixed.
+
+The audit is now at 57 total findings across all passes. The Architect
+will review the full list, catalog any remaining items from Pass 10,
+and then decide whether to declare convergence and produce a fix plan.
+
+---
 
 ---
 

@@ -1132,3 +1132,154 @@ Status: OPEN
 ## End of Convergence Pass A Findings
 
 ---
+
+## Convergence Pass B — Diet Sync + Photo System Cross-Cut
+Date: 2026-03-02
+Status: COMPLETE
+Total findings: 4 (0 CRITICAL, 0 HIGH, 4 MEDIUM, 0 LOW)
+
+CONFIRMED (no new finding needed):
+- Steps 1.2, 1.3, 1.4: Diet/DietViolation/FastingSession delete()
+  all use _dao.softDelete() directly — same AUDIT-03-002 pattern.
+  No new finding.
+- No archive use case for Diet/DietViolation/FastingSession —
+  double-increment pattern from AUDIT-03-003 cannot occur here.
+- All three DAOs have correct getPendingSync() filtering on
+  syncIsDirty=true.
+- Step 2.3 existsSync audit: All synchronous file I/O instances
+  are the same files already cataloged in AUDIT-09-001. Two new
+  instances found (google_drive_provider.dart:363 in async
+  upload fn, database.dart:402 in init debugPrint) are NOT in
+  build() paths — no new finding.
+- Step 2.2 photo save flows: Condition.baselinePhotoPath,
+  ConditionLog.photoPath, and FluidsEntry.bowelPhotoPath are all
+  correctly wired UI → input → use case → repository → DAO. The
+  "silently discarded" pattern from AUDIT-10-006 (supplement label
+  photos) does NOT appear for these entities.
+- Step 2.4: No delete use case for Condition (archive only) or
+  ConditionLog (no deletion path). Photo cleanup concern is limited
+  to FlareUp (see AUDIT-CB-004 below).
+
+---
+
+AUDIT-CB-001
+Severity: MEDIUM
+Category: Diet Sync — markDirty Gap
+File: lib/data/datasources/local/daos/diet_dao.dart
+Cross-cutting: lib/data/repositories/diet_repository_impl.dart,
+  lib/domain/usecases/diet/activate_diet_use_case.dart,
+  lib/domain/usecases/diet/create_diet_use_case.dart
+Description: DietDao.deactivateAll(profileId) writes
+  DietsCompanion(isActive: Value(false)) with no
+  syncIsDirty, syncUpdatedAt, or syncVersion update.
+  Both setActive() and deactivate() in
+  DietRepositoryImpl call deactivateAll() before
+  updating the new active diet. The newly activated
+  diet IS marked dirty (via prepareForUpdate). The
+  previously active diet's deactivation (isActive:
+  false) is NOT marked dirty. On another device,
+  when the new active diet syncs, the old diet
+  remains isActive=true — both diets appear active
+  simultaneously until the other device takes
+  independent action. This bug is currently dormant
+  because AUDIT-02-003 means Diet sync adapters are
+  not registered; it will activate once those
+  adapters are added.
+Fix approach: In DietDao.deactivateAll(), add
+  syncIsDirty: const Value(true),
+  syncUpdatedAt: Value(DateTime.now()
+  .millisecondsSinceEpoch),
+  syncStatus: Value(SyncStatus.modified.value)
+  to the Companion write. Alternatively: deactivate
+  one diet at a time via the repository update path
+  (which calls prepareForUpdate) instead of a bulk
+  DAO write.
+Status: OPEN
+
+---
+
+AUDIT-CB-002
+Severity: MEDIUM
+Category: Photo System — UI Gap
+File: lib/presentation/screens/conditions/report_flare_up_screen.dart
+Cross-cutting: lib/domain/usecases/flare_ups/flare_up_inputs.dart,
+  lib/domain/entities/flare_up.dart
+Description: FlareUp entity has a photoPath: String?
+  field. LogFlareUpInput and UpdateFlareUpInput both
+  declare a photoPath field. The data layer is fully
+  wired to persist photos for flare-ups. However,
+  report_flare_up_screen.dart has no _photoPath state
+  variable and no photo picker widget. _saveNew()
+  constructs LogFlareUpInput without photoPath,
+  defaulting to null. _saveEdit() constructs
+  UpdateFlareUpInput without photoPath, defaulting to
+  null. A user cannot attach a photo to any flare-up
+  from the UI — the feature is designed in the data
+  layer but never exposed in the interface.
+Fix approach: Add a photo picker section to
+  report_flare_up_screen.dart using the existing
+  PhotoPickerUtils pattern from condition_edit_screen
+  and condition_log_screen. Pass _photoPath to both
+  LogFlareUpInput and UpdateFlareUpInput.
+Status: OPEN
+
+---
+
+AUDIT-CB-003
+Severity: MEDIUM
+Category: Photo System — UI Gap
+File: lib/presentation/screens/fluids_entries/fluids_entry_screen.dart
+Cross-cutting: lib/domain/usecases/fluids_entries/fluids_entry_inputs.dart,
+  lib/domain/entities/fluids_entry.dart
+Description: FluidsEntry entity has both
+  bowelPhotoPath: String? and urinePhotoPath: String?
+  fields. Both LogFluidsEntryInput and
+  UpdateFluidsEntryInput declare both fields.
+  fluids_entry_screen.dart implements a complete bowel
+  photo picker (_bowelPhotoPath, picker widget, passed
+  in save inputs). However, there is no
+  _urinePhotoPath state variable and no urine photo
+  picker anywhere in the screen. urinePhotoPath is
+  always null in both inputs. The urine photo feature
+  is half-implemented: complete in the data layer,
+  missing entirely in the UI.
+Fix approach: Add a urine photo picker section in
+  fluids_entry_screen.dart, matching the existing
+  bowel photo picker pattern. Pass _urinePhotoPath
+  to both LogFluidsEntryInput and
+  UpdateFluidsEntryInput.
+Status: OPEN
+
+---
+
+AUDIT-CB-004
+Severity: MEDIUM
+Category: Photo System — File Cleanup
+File: lib/domain/usecases/flare_ups/delete_flare_up_use_case.dart
+Cross-cutting: lib/domain/entities/flare_up.dart,
+  lib/core/services/photo_processing_service.dart
+Description: DeleteFlareUpUseCase fetches the flare-up
+  entity before deletion (the existing entity is
+  available as a local variable) but does not read or
+  delete FlareUp.photoPath. The use case calls only
+  _repository.delete(input.id) — a soft-delete that
+  marks the DB row deleted but leaves any associated
+  photo file on disk permanently. Currently no
+  flare-up can have a photoPath (AUDIT-CB-002),
+  so there is no active data loss. However, when
+  AUDIT-CB-002 is resolved and photos can be
+  attached, every deleted flare-up will orphan its
+  photo file indefinitely.
+Fix approach: In DeleteFlareUpUseCase, after fetching
+  the entity, if existing.photoPath != null, call
+  File(existing.photoPath!).deleteSync() (or async
+  equivalent) before or after the soft-delete.
+  Consider a shared photo file cleanup utility since
+  this pattern will recur across entity types.
+Status: OPEN
+
+---
+
+## End of Convergence Pass B Findings
+
+---
