@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-025
+# Briefing Version: 20260302-026
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Pass 07 cataloged + Pass 08 complete ✅
-# Last Commit:   docs: audit pass 07 findings — test quality (4 findings)
+# Status:        IDLE — Pass 08 cataloged + Pass 09 complete ✅
+# Last Commit:   docs: audit pass 08 findings — platform compliance (8 findings)
 # Last Code:     DOCS ONLY — read-only audit, no code changes
-# Next Action:   Architect catalogs Pass 08 findings → AUDIT_FINDINGS.md → run Pass 09
+# Next Action:   Architect catalogs Pass 09 findings → AUDIT_FINDINGS.md → run Pass 10
 # Open Items:    Provider switching requires app restart for SyncService to use new provider
 # Tests:         3,449 passing
 # Schema:        v18
@@ -22,6 +22,105 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — Pass 08 Cataloged + Pass 09: Performance
+
+**Tests: 3,449 | Schema: v18 | Analyzer: clean | READ-ONLY — no code changes**
+
+### Technical Summary
+
+Part A: Appended the Architect-supplied Pass 08 findings verbatim to
+`docs/AUDIT_FINDINGS.md`. Committed as `a5330b8`.
+
+Part B: Executed Pass 09 — Performance — across all 7 steps. No CRITICAL or HIGH
+N+1 query findings. 4 findings total: 1 HIGH, 2 MEDIUM, 1 LOW.
+
+**AUDIT-09-001 — HIGH**
+`file.existsSync()` (synchronous file system I/O) called in widget build paths:
+- `photo_entry_gallery_screen.dart:118` — called in GridView.builder's itemBuilder
+  for every visible tile. Synchronous file stat on the main thread, O(n) per frame
+  for visible photos.
+- `shadow_image.dart:270` — `_buildFileImage()` called during build.
+- `shadow_image.dart:308` — `_buildPickerImage()` called during build.
+Per audit plan: sync I/O on main thread = HIGH.
+Fix approach: Replace `existsSync()` with async `exists()` using FutureBuilder,
+or pre-compute file existence in the provider layer before passing to UI.
+
+**AUDIT-09-002 — MEDIUM**
+Photo gallery (`photo_entry_gallery_screen.dart:119`) loads full-resolution images
+into Flutter's image cache as grid thumbnails. `Image.file(file, fit: BoxFit.cover)`
+has no `cacheWidth`/`cacheHeight` constraints. The `ShadowImage` widget properly
+applies `ResizeImage` when cache dimensions are set, but the gallery screen bypasses
+`ShadowImage` and calls `Image.file` directly. On a phone with 300+ photos, each
+visible grid tile loads a full-res file (typically 200–500KB after processing) as its
+source image — this pressures the image cache and increases memory use.
+Fix approach: Replace bare `Image.file` in `_buildPhotoTile` with `ShadowImage.file`
+(or add `cacheWidth`/`cacheHeight` constraints) sized to the grid tile dimensions.
+
+**AUDIT-09-003 — MEDIUM**
+AES-256-GCM encryption runs on the main isolate during cloud sync push.
+`sync_service_impl.dart:276-277` calls `await _encryptionService.encrypt(jsonString)`
+in a for loop over every pending change. `EncryptionService.encrypt()` is declared
+`async` but contains no async gaps — all AES computation is synchronous work inside
+a Future. For a large sync batch (100+ entities after a long offline period), this
+executes synchronous crypto on the main thread. Contrast: BCrypt (PIN hashing) is
+correctly offloaded via `Isolate.run()` in `security_settings_service.dart`.
+Fix approach: Wrap the encrypt/decrypt calls in `Isolate.run()` for batches above
+a threshold, or run the entire sync loop in a background isolate.
+
+**AUDIT-09-004 — LOW**
+No pagination on long-lived list screens. All lists load the complete dataset into
+memory before rendering. `ListView.builder`/`GridView.builder` virtualizes rendering
+(only visible items built), but the entire Dart list is in memory.
+Most concerning: `journal_entry_list_screen.dart` loads all journal entries for a
+profile (could reach thousands over 2–3 years of daily use). Second concern:
+`photo_entry_gallery_screen.dart` loads all photo entries for the entire profile
+then filters by area in memory — a user with 5 photo areas accumulates entries
+from all 5 areas into a single provider, then discards 80% client-side.
+Supplements, food items, and conditions are naturally bounded and are not a concern.
+Fix approach (journal): Add date-range filter (e.g., load 90 days, load more on scroll).
+Fix approach (photos): Filter by photoAreaId at the DAO/repository level, not in UI.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/AUDIT_FINDINGS.md | MODIFIED | Appended Pass 08 findings (159 lines, 8 findings) |
+| ARCHITECT_BRIEFING.md | MODIFIED | Updated header + added this session entry |
+
+### Executive Summary for Reid
+
+Two tasks this session.
+
+First: I added the Pass 08 findings (the platform/iOS/Android issues the Architect
+wrote up) to the audit findings document. Eight findings recorded including the
+missing Apple privacy file and the Android internet permission issue.
+
+Second: I ran Pass 09 — Performance — across the entire codebase. The good news is
+that Shadow has no N+1 query patterns, no database calls in the wrong places, no
+provider-invalidation loops, and no streaming data rebuilding giant parts of the UI
+on every tick. The architecture is solid on those fronts.
+
+The issues I did find are all manageable:
+
+The most actionable: the photo gallery calls `existsSync()` — a direct disk read —
+for every photo tile while building the screen. It should be done asynchronously,
+not during rendering. That's the HIGH finding.
+
+Two medium issues: (1) grid thumbnails in the photo gallery are loading full-size
+photos instead of downsized thumbnails — this will waste memory as photo libraries
+grow; (2) encryption during cloud sync runs on the main thread, which could briefly
+freeze the UI if you haven't synced for a long time and have hundreds of records
+queued up.
+
+One low: journal entries and cross-area photo entries have no pagination, so over
+years of daily use they'll all load into memory. Not a problem today, but worth
+addressing before the app has long-term users.
+
+Pass 10 (Code Standards & Dead Code) is the final pass. After that, the Architect
+produces the Fix Plan and we move into the fixing phase.
 
 ---
 
