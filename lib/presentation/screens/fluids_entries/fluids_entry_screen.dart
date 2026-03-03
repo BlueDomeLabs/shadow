@@ -72,6 +72,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
   UrineCondition? _urineCondition;
   late final TextEditingController _urineCustomColorController;
   MovementSize _urineSize = MovementSize.medium;
+  String? _urinePhotoPath;
   // Menstruation
   MenstruationFlow _menstruationFlow = MenstruationFlow.none;
 
@@ -134,6 +135,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     _urineCondition = entry?.urineCondition;
     _urineCustomColorController = TextEditingController();
     _urineSize = entry?.urineSize ?? MovementSize.medium;
+    _urinePhotoPath = entry?.urinePhotoPath;
     // Menstruation
     _menstruationFlow = entry?.menstruationFlow ?? MenstruationFlow.none;
 
@@ -298,6 +300,8 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                   _buildUrineSizeDropdown(theme),
                   // Urgency slider deferred: FluidsEntry has no urgency field.
                   // Hiding until DB support is added in a future phase.
+                  const SizedBox(height: 16),
+                  _buildUrinePhoto(theme),
                 ],
                 const SizedBox(height: 24),
 
@@ -687,6 +691,82 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       if (mounted) {
         setState(() {
           _bowelPhotoPath = processed.localPath;
+          _isDirty = true;
+        });
+      }
+    } on PhotoProcessingException catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.message);
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Could not load photo',
+        );
+      }
+    }
+  }
+
+  Widget _buildUrinePhoto(ThemeData theme) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (_urinePhotoPath != null) ...[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            File(_urinePhotoPath!),
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.broken_image),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: () {
+            setState(() {
+              _urinePhotoPath = null;
+              _isDirty = true;
+            });
+          },
+          icon: const Icon(Icons.close, size: 16),
+          label: const Text('Remove photo'),
+        ),
+        const SizedBox(height: 8),
+      ],
+      Semantics(
+        label: 'Take photo of urine, optional',
+        child: ExcludeSemantics(
+          child: OutlinedButton.icon(
+            key: const Key('add_urine_photo_button'),
+            onPressed: _pickUrinePhoto,
+            icon: const Icon(Icons.photo_camera),
+            label: const Text('Add photo'),
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Future<void> _pickUrinePhoto() async {
+    try {
+      final path = await showPhotoPicker(context);
+      if (path == null || !mounted) return;
+
+      final processed = await PhotoProcessingService().processStandard(path);
+
+      if (mounted) {
+        setState(() {
+          _urinePhotoPath = processed.localPath;
           _isDirty = true;
         });
       }
@@ -1253,6 +1333,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 bowelPhotoPath: _bowelPhotoPath,
                 urineCondition: _hadUrination ? _urineCondition : null,
                 urineSize: _hadUrination ? _urineSize : null,
+                urinePhotoPath: _hadUrination ? _urinePhotoPath : null,
                 menstruationFlow: _menstruationFlow != MenstruationFlow.none
                     ? _menstruationFlow
                     : null,
@@ -1290,6 +1371,7 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 bowelPhotoPath: _bowelPhotoPath,
                 urineCondition: _hadUrination ? _urineCondition : null,
                 urineSize: _hadUrination ? _urineSize : null,
+                urinePhotoPath: _hadUrination ? _urinePhotoPath : null,
                 menstruationFlow: _menstruationFlow != MenstruationFlow.none
                     ? _menstruationFlow
                     : null,

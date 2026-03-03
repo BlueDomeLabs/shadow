@@ -5,16 +5,21 @@
 // Edit mode constraints: UpdateFlareUpInput only accepts severity, notes, triggers,
 // photoPath. Condition, startDate, and endDate are read-only in edit mode.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/services/photo_processing_service.dart';
+import 'package:shadow_app/core/utils/photo_picker_utils.dart';
 import 'package:shadow_app/core/validation/validation_rules.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
 import 'package:shadow_app/domain/entities/flare_up.dart';
 import 'package:shadow_app/domain/usecases/flare_ups/flare_up_inputs.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
 import 'package:shadow_app/presentation/providers/flare_ups/flare_up_list_provider.dart';
+import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
 /// Modal bottom sheet for reporting a new flare-up or editing an existing one.
@@ -51,6 +56,7 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
   DateTime _startDateTime = DateTime.now();
   DateTime? _endDateTime;
   int _severity = 5;
+  String? _photoPath;
   String? _errorMessage;
   bool _isSaving = false;
 
@@ -69,6 +75,7 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
           ? DateTime.fromMillisecondsSinceEpoch(editing.endDate!)
           : null;
       _severity = editing.severity;
+      _photoPath = editing.photoPath;
       _triggersController.text = editing.triggers.join(', ');
       _notesController.text = editing.notes ?? '';
     } else {
@@ -249,7 +256,11 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 6. Notes
+                // 6. Photo
+                _buildPhotosSection(theme),
+                const SizedBox(height: 16),
+
+                // 7. Notes
                 TextFormField(
                   key: const Key('notes_field'),
                   controller: _notesController,
@@ -410,6 +421,75 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
         .toList();
   }
 
+  Widget _buildPhotosSection(ThemeData theme) => Semantics(
+    label: 'Add photo',
+    child: ExcludeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_photoPath != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                File(_photoPath!),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.broken_image),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              key: const Key('remove_photo_button'),
+              onPressed: () => setState(() => _photoPath = null),
+              icon: const Icon(Icons.close, size: 16),
+              label: const Text('Remove photo'),
+            ),
+            const SizedBox(height: 8),
+          ],
+          OutlinedButton.icon(
+            key: const Key('add_photo_button'),
+            onPressed: _pickPhoto,
+            icon: const Icon(Icons.photo_camera),
+            label: const Text('Add photo'),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  Future<void> _pickPhoto() async {
+    try {
+      final path = await showPhotoPicker(context);
+      if (path == null || !mounted) return;
+
+      final processed = await PhotoProcessingService().processStandard(path);
+
+      if (mounted) {
+        setState(() => _photoPath = processed.localPath);
+      }
+    } on PhotoProcessingException catch (e) {
+      if (mounted) {
+        showAccessibleSnackBar(context: context, message: e.message);
+      }
+    } on Exception {
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: 'Could not load photo',
+        );
+      }
+    }
+  }
+
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -454,6 +534,7 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
           ? null
           : _notesController.text.trim(),
       triggers: _parseTriggers(_triggersController.text),
+      photoPath: _photoPath,
     );
 
     await ref.read(flareUpListProvider(widget.profileId).notifier).log(input);
@@ -469,6 +550,7 @@ class _ReportFlareUpScreenState extends ConsumerState<ReportFlareUpScreen> {
           ? null
           : _notesController.text.trim(),
       triggers: _parseTriggers(_triggersController.text),
+      photoPath: _photoPath,
     );
 
     await ref

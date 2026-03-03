@@ -39,6 +39,7 @@ void main() {
       String id = 'flare-001',
       int severity = 6,
       String? notes,
+      String? photoPath,
       List<String> triggers = const ['stress', 'dairy'],
       int? endDate,
     }) => FlareUp(
@@ -50,6 +51,7 @@ void main() {
       endDate: endDate,
       severity: severity,
       notes: notes,
+      photoPath: photoPath,
       triggers: triggers,
       syncMetadata: SyncMetadata.empty(),
     );
@@ -284,6 +286,87 @@ void main() {
       expect(tracker.logCalled, isTrue);
       expect(tracker.updateCalled, isFalse);
     });
+
+    // ── CB-002: Photo Picker Section ──────────────────────────────────────────
+
+    testWidgets('photo picker section renders add photo button', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildSheet());
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('add_photo_button')), findsOneWidget);
+    });
+
+    testWidgets('edit mode pre-fills photo — remove button shown', (
+      tester,
+    ) async {
+      // Use a non-existent path; the remove button renders when _photoPath is
+      // set, regardless of whether the file exists on disk.
+      final flareUp = createTestFlareUp(photoPath: '/tmp/test_photo.jpg');
+      await tester.pumpWidget(buildSheet(editingFlareUp: flareUp));
+      await tester.pumpAndSettle();
+      // Remove button visible when _photoPath is set
+      expect(find.byKey(const Key('remove_photo_button')), findsOneWidget);
+      expect(find.text('Remove photo'), findsOneWidget);
+    });
+
+    testWidgets('removing photo hides remove button', (tester) async {
+      final flareUp = createTestFlareUp(photoPath: '/tmp/test_photo.jpg');
+      await tester.pumpWidget(buildSheet(editingFlareUp: flareUp));
+      await tester.pumpAndSettle();
+
+      // Scroll to remove button and tap
+      await tester.ensureVisible(find.byKey(const Key('remove_photo_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('remove_photo_button')));
+      await tester.pumpAndSettle();
+
+      // Remove button gone, add photo button back
+      expect(find.byKey(const Key('remove_photo_button')), findsNothing);
+      expect(find.byKey(const Key('add_photo_button')), findsOneWidget);
+    });
+
+    testWidgets('edit mode save includes pre-filled photoPath', (tester) async {
+      const photoPath = '/tmp/existing_photo.jpg';
+      final flareUp = createTestFlareUp(photoPath: photoPath);
+      final tracker = _TrackingFlareUpList();
+      await tester.pumpWidget(
+        buildSheet(
+          editingFlareUp: flareUp,
+          conditions: [createTestCondition()],
+          flareUpListFactory: () => tracker,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('save_button')));
+      await tester.tap(find.byKey(const Key('save_button')));
+      await tester.pumpAndSettle();
+
+      expect(tracker.updateCalled, isTrue);
+      expect(tracker.lastUpdateInput?.photoPath, photoPath);
+    });
+
+    testWidgets('new mode save with no photo passes null photoPath', (
+      tester,
+    ) async {
+      final tracker = _TrackingFlareUpList();
+      await tester.pumpWidget(
+        buildSheet(
+          conditions: [createTestCondition()],
+          preselectedConditionId: testConditionId,
+          flareUpListFactory: () => tracker,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('save_button')));
+      await tester.tap(find.byKey(const Key('save_button')));
+      await tester.pumpAndSettle();
+
+      expect(tracker.logCalled, isTrue);
+      expect(tracker.lastLogInput?.photoPath, isNull);
+    });
   });
 }
 
@@ -304,6 +387,8 @@ class _NoOpFlareUpList extends FlareUpList {
 class _TrackingFlareUpList extends FlareUpList {
   bool logCalled = false;
   bool updateCalled = false;
+  LogFlareUpInput? lastLogInput;
+  UpdateFlareUpInput? lastUpdateInput;
 
   @override
   Future<List<FlareUp>> build(String profileId) async => [];
@@ -311,10 +396,12 @@ class _TrackingFlareUpList extends FlareUpList {
   @override
   Future<void> log(LogFlareUpInput input) async {
     logCalled = true;
+    lastLogInput = input;
   }
 
   @override
   Future<void> updateFlareUp(UpdateFlareUpInput input) async {
     updateCalled = true;
+    lastUpdateInput = input;
   }
 }

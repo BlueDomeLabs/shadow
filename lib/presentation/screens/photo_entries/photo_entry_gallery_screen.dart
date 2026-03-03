@@ -115,12 +115,26 @@ class PhotoEntryGalleryScreen extends ConsumerWidget {
         onLongPress: () => _confirmDelete(context, ref, entry),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
-          child: file.existsSync()
-              ? Image.file(file, fit: BoxFit.cover)
-              : ColoredBox(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: const Icon(Icons.broken_image),
-                ),
+          // AUDIT-09-001: Use async exists() to avoid blocking the UI thread.
+          // AUDIT-09-002: Pass cacheWidth/cacheHeight for memory efficiency.
+          child: FutureBuilder<bool>(
+            future: file.exists(),
+            builder: (context, snapshot) {
+              if (snapshot.data ?? false) {
+                return ShadowImage.file(
+                  filePath: file.path,
+                  isDecorative: true,
+                  // Grid tiles are square; 300px covers all screen densities.
+                  cacheWidth: 300,
+                  cacheHeight: 300,
+                );
+              }
+              return ColoredBox(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: const Icon(Icons.broken_image),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -522,9 +536,13 @@ class _FullScreenPhotoView extends StatelessWidget {
       ),
       backgroundColor: Colors.black,
       body: Center(
-        child: file.existsSync()
-            ? InteractiveViewer(child: Image.file(file))
-            : const Icon(Icons.broken_image, color: Colors.white, size: 64),
+        // AUDIT-09-001: Use async exists() to avoid blocking the UI thread.
+        child: FutureBuilder<bool>(
+          future: file.exists(),
+          builder: (context, snapshot) => snapshot.data ?? false
+              ? InteractiveViewer(child: Image.file(file))
+              : const Icon(Icons.broken_image, color: Colors.white, size: 64),
+        ),
       ),
     );
   }

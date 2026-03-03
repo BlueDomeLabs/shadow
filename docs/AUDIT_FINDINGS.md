@@ -923,7 +923,7 @@ Fix approach: Replace existsSync() with async exists()
   in the provider layer and pass a resolved result
   to the widget. Do not call synchronous file I/O
   in build() or itemBuilder.
-Status: OPEN
+Status: FIXED — 2026-03-03 GROUP PH. Replaced existsSync() with async exists() + FutureBuilder in photo_entry_gallery_screen.dart and shadow_image.dart
 
 ---
 
@@ -945,7 +945,7 @@ Description: Photo gallery grid loads full-resolution
 Fix approach: Replace bare Image.file in _buildPhotoTile
   with ShadowImage.file (or add cacheWidth/cacheHeight
   constraints) sized to the grid tile dimensions.
-Status: OPEN
+Status: FIXED — 2026-03-03 GROUP PH. Replaced bare Image.file in _buildPhotoTile with ShadowImage.file(cacheWidth: 300, cacheHeight: 300)
 
 ---
 
@@ -1233,7 +1233,7 @@ Fix approach: Add a photo picker section to
   PhotoPickerUtils pattern from condition_edit_screen
   and condition_log_screen. Pass _photoPath to both
   LogFlareUpInput and UpdateFlareUpInput.
-Status: OPEN
+Status: FIXED — 2026-03-03 GROUP PH. Added photo picker section to report_flare_up_screen.dart; _photoPath wired into LogFlareUpInput and UpdateFlareUpInput
 
 ---
 
@@ -1260,7 +1260,7 @@ Fix approach: Add a urine photo picker section in
   bowel photo picker pattern. Pass _urinePhotoPath
   to both LogFluidsEntryInput and
   UpdateFluidsEntryInput.
-Status: OPEN
+Status: FIXED — 2026-03-03 GROUP PH. Added urine photo picker to fluids_entry_screen.dart matching bowel photo pattern; urinePhotoPath wired into both save inputs
 
 ---
 
@@ -1288,7 +1288,7 @@ Fix approach: In DeleteFlareUpUseCase, after fetching
   equivalent) before or after the soft-delete.
   Consider a shared photo file cleanup utility since
   this pattern will recur across entity types.
-Status: OPEN
+Status: FIXED — 2026-03-03 GROUP PH. Added photo file cleanup to DeleteFlareUpUseCase before soft-delete
 
 ---
 

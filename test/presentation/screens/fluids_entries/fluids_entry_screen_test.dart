@@ -50,6 +50,7 @@ void main() {
       String? bowelPhotoPath,
       UrineCondition? urineCondition,
       MovementSize? urineSize,
+      String? urinePhotoPath,
       MenstruationFlow? menstruationFlow,
       double? basalBodyTemperature,
       int? bbtRecordedTime,
@@ -68,6 +69,7 @@ void main() {
       bowelPhotoPath: bowelPhotoPath,
       urineCondition: urineCondition,
       urineSize: urineSize,
+      urinePhotoPath: urinePhotoPath,
       menstruationFlow: menstruationFlow,
       basalBodyTemperature: basalBodyTemperature,
       bbtRecordedTime: bbtRecordedTime,
@@ -1284,6 +1286,114 @@ void main() {
         expect(
           mock.lastUpdateInput?.bowelPhotoPath,
           equals('/existing/bowel.jpg'),
+        );
+      });
+    });
+
+    // ── CB-003: Urine Photo Picker ────────────────────────────────────────────
+
+    group('urine photo', () {
+      testWidgets('urine photo button renders when urination toggled on', (
+        tester,
+      ) async {
+        await tester.pumpWidget(buildAddScreen());
+        await tester.pumpAndSettle();
+
+        // Scroll to and toggle the urination switch
+        await scrollUntilFound(tester, find.text('Had Urination'));
+        final urineSwitch = find
+            .ancestor(
+              of: find.text('Had Urination'),
+              matching: find.byType(SwitchListTile),
+            )
+            .first;
+        await tester.tap(urineSwitch);
+        await tester.pumpAndSettle();
+
+        // Scroll until urine photo button is visible
+        await scrollUntilFound(
+          tester,
+          find.byKey(const Key('add_urine_photo_button')),
+        );
+        expect(find.byKey(const Key('add_urine_photo_button')), findsOneWidget);
+      });
+
+      testWidgets('Remove photo button shown when urinePhotoPath set', (
+        tester,
+      ) async {
+        final entry = createTestFluidsEntry(
+          urinePhotoPath: '/fake/urine.jpg',
+          urineCondition: UrineCondition.lightYellow,
+        );
+        await tester.pumpWidget(buildEditScreen(entry));
+        await tester.pumpAndSettle();
+
+        // Scroll to the urine photo section — remove button should appear
+        await scrollUntilFound(tester, find.text('Remove photo'));
+        // There may be a bowel and urine remove; both show 'Remove photo'
+        expect(find.text('Remove photo'), findsWidgets);
+      });
+
+      testWidgets('save includes urinePhotoPath (null) in create mode', (
+        tester,
+      ) async {
+        final mock = _CapturingFluidsEntryList();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              fluidsEntryListProvider(
+                testProfileId,
+                startDate,
+                endDate,
+              ).overrideWith(() => mock),
+            ],
+            child: const MaterialApp(
+              home: FluidsEntryScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Scroll to Save and tap — no photo set, urinePhotoPath should be null
+        await scrollUntilFound(tester, find.text('Save'));
+        await tester.tap(find.text('Save'));
+        await tester.pump();
+
+        expect(mock.lastLogInput?.urinePhotoPath, isNull);
+      });
+
+      testWidgets('save includes urinePhotoPath in edit mode', (tester) async {
+        final mock = _CapturingFluidsEntryList();
+        final entry = createTestFluidsEntry(
+          urinePhotoPath: '/existing/urine.jpg',
+          urineCondition: UrineCondition.lightYellow,
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              fluidsEntryListProvider(
+                testProfileId,
+                startDate,
+                endDate,
+              ).overrideWith(() => mock),
+            ],
+            child: MaterialApp(
+              home: FluidsEntryScreen(
+                profileId: testProfileId,
+                fluidsEntry: entry,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await scrollUntilFound(tester, find.text('Save Changes'));
+        await tester.tap(find.text('Save Changes'));
+        await tester.pump();
+
+        expect(
+          mock.lastUpdateInput?.urinePhotoPath,
+          equals('/existing/urine.jpg'),
         );
       });
     });

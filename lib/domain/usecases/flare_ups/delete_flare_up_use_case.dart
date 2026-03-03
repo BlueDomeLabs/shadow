@@ -1,6 +1,8 @@
 // lib/domain/usecases/flare_ups/delete_flare_up_use_case.dart
 // EXACT IMPLEMENTATION FROM 22_API_CONTRACTS.md
 
+import 'dart:io';
+
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/domain/repositories/flare_up_repository.dart';
@@ -35,7 +37,16 @@ class DeleteFlareUpUseCase implements UseCase<DeleteFlareUpInput, void> {
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 3. Soft delete
+    // 3. Delete associated photo file if present
+    if (existing.photoPath != null) {
+      try {
+        File(existing.photoPath!).deleteSync();
+      } on Exception {
+        // File may already be gone — log intent but do not fail the delete.
+      }
+    }
+
+    // 4. Soft delete
     return _repository.delete(input.id);
   }
 }

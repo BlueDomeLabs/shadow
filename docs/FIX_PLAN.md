@@ -198,7 +198,7 @@ all require careful implementation and test coverage.
 
 ---
 
-### GROUP PH — Photo System Gaps
+### GROUP PH — Photo System Gaps ✓ DONE
 **Complexity:** Medium (90-120 min total)
 **Severity:** 0 CRITICAL, 1 HIGH, 3 MEDIUM, 0 LOW
 **Findings:** 5
@@ -484,6 +484,8 @@ When all groups are complete and deferred items are acknowledged:
 | 2026-03-02 | GROUP N | AUDIT-CC-002, CC-003, CD-001, CD-002, CD-004 | 40154aa | All 5 findings fixed; 3,441 tests passing (−1 from removed filter stub test); analyzer clean |
 | 2026-03-02 | GROUP U | AUDIT-06-001, 06-002, 06-003, 06-004, 06-005, CC-001 | TBD | All 6 findings fixed; 3,441 tests passing; analyzer clean |
 | 2026-03-02 | GROUP S | AUDIT-CB-001, AUDIT-02-003, AUDIT-03-002, AUDIT-03-003, AUDIT-03-001 | TBD | All 5 findings fixed; 3,448 tests passing (+7 new); analyzer clean. Session spanned 2 context windows (compaction mid-session). |
+| 2026-03-03 | GROUP T | AUDIT-07-001, 07-002, 07-004 | TBD | 3 test coverage findings fixed; 3,472 tests passing (+24); analyzer clean |
+| 2026-03-03 | GROUP PH | AUDIT-CB-002, CB-003, CB-004, 09-001, 09-002 | TBD | All 5 findings fixed; 3,484 tests passing (+12); analyzer clean |
 
 ---
 

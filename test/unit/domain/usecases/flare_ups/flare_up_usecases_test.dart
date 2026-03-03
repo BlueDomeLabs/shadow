@@ -1,8 +1,11 @@
 // test/unit/domain/usecases/flare_ups/flare_up_usecases_test.dart
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:path/path.dart' as p;
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/domain/entities/condition.dart';
@@ -58,6 +61,7 @@ void main() {
     int severity = 5,
     String? notes,
     List<String> triggers = const [],
+    String? photoPath,
     SyncMetadata? syncMetadata,
   }) => FlareUp(
     id: id,
@@ -69,6 +73,7 @@ void main() {
     severity: severity,
     notes: notes,
     triggers: triggers,
+    photoPath: photoPath,
     syncMetadata: syncMetadata ?? SyncMetadata.create(deviceId: 'test-device'),
   );
 
@@ -645,6 +650,81 @@ void main() {
         expect(result.isFailure, isTrue);
         expect(result.errorOrNull, isA<AuthError>());
         verifyNever(mockRepository.delete(any));
+      },
+    );
+
+    test('delete with no photoPath — no file deletion attempted', () async {
+      // FlareUp has no photo; use case should still succeed without touching disk.
+      final existing = createTestFlareUp(); // photoPath = null
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('flareup-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(
+        mockRepository.delete('flareup-001'),
+      ).thenAnswer((_) async => const Success(null));
+
+      final result = await useCase(
+        const DeleteFlareUpInput(id: 'flareup-001', profileId: testProfileId),
+      );
+
+      expect(result.isSuccess, isTrue);
+      // Repository still called once — no photo cleanup path triggered.
+      verify(mockRepository.delete('flareup-001')).called(1);
+    });
+
+    test('delete with photoPath — file is deleted from disk', () async {
+      // Create a real temp file so deleteSync() has something to remove.
+      final tmpDir = Directory.systemTemp.createTempSync('flare_up_delete_');
+      addTearDown(() => tmpDir.deleteSync(recursive: true));
+      final tmpFile = File(p.join(tmpDir.path, 'photo.jpg'))..createSync();
+      expect(tmpFile.existsSync(), isTrue);
+
+      final existing = createTestFlareUp(photoPath: tmpFile.path);
+      when(
+        mockAuthService.canWrite(testProfileId),
+      ).thenAnswer((_) async => true);
+      when(
+        mockRepository.getById('flareup-001'),
+      ).thenAnswer((_) async => Success(existing));
+      when(
+        mockRepository.delete('flareup-001'),
+      ).thenAnswer((_) async => const Success(null));
+
+      final result = await useCase(
+        const DeleteFlareUpInput(id: 'flareup-001', profileId: testProfileId),
+      );
+
+      expect(result.isSuccess, isTrue);
+      // Photo file must be gone after delete.
+      expect(tmpFile.existsSync(), isFalse);
+    });
+
+    test(
+      'delete with photoPath where file is missing — no exception, still succeeds',
+      () async {
+        // Point to a non-existent file; deleteSync throws but use case swallows it.
+        const missingPath = '/tmp/this_file_does_not_exist_shadow_test.jpg';
+        final existing = createTestFlareUp(photoPath: missingPath);
+        when(
+          mockAuthService.canWrite(testProfileId),
+        ).thenAnswer((_) async => true);
+        when(
+          mockRepository.getById('flareup-001'),
+        ).thenAnswer((_) async => Success(existing));
+        when(
+          mockRepository.delete('flareup-001'),
+        ).thenAnswer((_) async => const Success(null));
+
+        final result = await useCase(
+          const DeleteFlareUpInput(id: 'flareup-001', profileId: testProfileId),
+        );
+
+        // Exception from deleteSync must be swallowed; DB delete proceeds.
+        expect(result.isSuccess, isTrue);
+        verify(mockRepository.delete('flareup-001')).called(1);
       },
     );
   });

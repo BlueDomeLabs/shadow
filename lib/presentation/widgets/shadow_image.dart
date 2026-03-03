@@ -267,23 +267,35 @@ class ShadowImage extends StatelessWidget {
   Widget _buildFileImage(BuildContext context) {
     final file = File(filePath!);
 
-    if (!file.existsSync()) {
-      return _buildErrorWidget(context);
-    }
+    // AUDIT-09-001: Use async exists() — synchronous existsSync() blocks the
+    // UI thread when called in build()/itemBuilder paths.
+    return FutureBuilder<bool>(
+      future: file.exists(),
+      builder: (context, snapshot) {
+        if (!(snapshot.data ?? false)) {
+          return _buildErrorWidget(context);
+        }
 
-    ImageProvider provider = FileImage(file);
+        ImageProvider provider = FileImage(file);
 
-    // Apply cache dimensions for memory optimization
-    if (cacheWidth != null || cacheHeight != null) {
-      provider = ResizeImage(provider, width: cacheWidth, height: cacheHeight);
-    }
+        // Apply cache dimensions for memory optimization
+        if (cacheWidth != null || cacheHeight != null) {
+          provider = ResizeImage(
+            provider,
+            width: cacheWidth,
+            height: cacheHeight,
+          );
+        }
 
-    return Image(
-      image: provider,
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (context, error, stackTrace) => _buildErrorWidget(context),
+        return Image(
+          image: provider,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildErrorWidget(context),
+        );
+      },
     );
   }
 
@@ -304,65 +316,76 @@ class ShadowImage extends StatelessWidget {
   Widget _buildPickerImage(BuildContext context) {
     final theme = Theme.of(context);
 
-    // If we have a file path, show the image
-    if (filePath != null && File(filePath!).existsSync()) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Stack(
-          children: [
-            _buildFileImage(context),
-            Positioned(
-              right: 8,
-              bottom: 8,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface.withAlpha(204),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.edit,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
+    // If we have a file path, check existence asynchronously (AUDIT-09-001)
+    // then show the image with an edit overlay, or fall back to placeholder.
+    if (filePath != null) {
+      return FutureBuilder<bool>(
+        future: File(filePath!).exists(),
+        builder: (context, snapshot) {
+          if (snapshot.data ?? false) {
+            return GestureDetector(
+              onTap: onTap,
+              child: Stack(
+                children: [
+                  _buildFileImage(context),
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withAlpha(204),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.edit,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
+            );
+          }
+          return _buildPlaceholder(context, theme);
+        },
       );
     }
 
-    // Show placeholder
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
-          borderRadius: borderRadius ?? BorderRadius.circular(8),
-          border: Border.all(color: theme.colorScheme.outline, width: 2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              placeholderIcon ?? Icons.add_a_photo,
-              size: 48,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add Photo',
-              style: theme.textTheme.bodyMedium?.copyWith(
+    return _buildPlaceholder(context, theme);
+  }
+
+  Widget _buildPlaceholder(BuildContext context, ThemeData theme) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: borderRadius ?? BorderRadius.circular(8),
+            border: Border.all(color: theme.colorScheme.outline, width: 2),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                placeholderIcon ?? Icons.add_a_photo,
+                size: 48,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Add Photo',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildLoadingWidget(
     BuildContext context,
