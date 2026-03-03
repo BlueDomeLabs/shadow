@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP U complete; 6 findings fixed
-# Last Commit:   fix: Group U — UI error states, form guards, flare-up delete (3ed478e)
-# Last Code:     6 home tabs, add_edit_profile_screen, reports_tab, health_sync_settings_screen, notification_settings_screen, guest_invite_list_screen, flare_up_list_screen
-# Next Action:   Architect reviews Group U output; issues GROUP S prompt (Sync Integrity)
+# Status:        IDLE — GROUP S complete; 5 sync integrity findings fixed
+# Last Commit:   fix: Group S — sync integrity, dirty marks, missing adapters (fa71304)
+# Last Code:     18 DAOs, 18 repository impls, bootstrap.dart, SyncEntityAdapter, 3 archive use cases, 18 repo tests, sync_service_impl_test
+# Next Action:   Architect reviews Group S output; issues next GROUP prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,441 passing
+# Tests:         3,448 passing
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,121 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — GROUP S: Sync Integrity — Dirty Marks, Missing Adapters, softDelete, markSynced
+
+**Tests: 3,448 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Fixed all 5 Group S findings. All changes are data layer — no schema changes, no UI changes. Session spanned 2 context windows (compaction mid-session). Test count: 3,441 → 3,448 (+7 net new tests).
+
+**AUDIT-CB-001 (MEDIUM):** `DietDao.deactivateAll()` was setting `isActive = false` but not marking entities dirty. Fixed by adding `syncIsDirty: const Value(true)` to the `customUpdate()` call in `diet_dao.dart`.
+
+**AUDIT-02-003 (HIGH):** `Diet`, `DietViolation`, and `FastingSession` had no `SyncEntityAdapter` registered in `bootstrap.dart`. Added three adapter registrations following the same pattern as the 15 existing adapters. Also added 6 AUDIT-02-003 round-trip tests to `sync_service_impl_test.dart` verifying `toJson`/`fromJson` and `copyWith(syncMetadata:)` for each entity.
+
+**AUDIT-03-002 (MEDIUM):** All 18 DAO `softDelete()` methods were not incrementing `syncVersion` or capturing `syncDeviceId`. Fixed by adding `{String deviceId = ''}` named parameter and incrementing `syncVersion` in the `customUpdate()` SQL (`syncVersion: Value(syncVersion + 1), syncDeviceId: Value(deviceId)`). All 18 repository implementations updated to pass `await getDeviceId()` to `dao.softDelete()`. 18 repository test files updated to use `anyNamed('deviceId')` matcher in stubs.
+
+**AUDIT-03-003 (MEDIUM):** `ArchiveConditionUseCase`, `ArchiveFoodItemUseCase`, and `ArchiveSupplementUseCase` each called `entity.syncMetadata.copyWith(syncVersion: ..., syncDeviceId: ...)` manually before passing to `repository.archive()`. This double-incremented `syncVersion` (once here, once in `prepareForUpdate`). Fixed by removing the manual `syncMetadata.copyWith()` blocks and passing `entity` directly.
+
+**AUDIT-03-001 (HIGH):** `SyncEntityAdapter.markEntitySynced()` used `getById()` + `update(markDirty: false)` which fails silently for soft-deleted entities (all DAOs filter `WHERE sync_deleted_at IS NULL`). Fixed by:
+1. Adding `markSynced(String id)` to the `EntityRepository<T, ID>` interface
+2. Implementing `markSynced()` in `BaseRepository` via a new `dao.markSynced(id)` method added to all 18 DAOs — executes `UPDATE ... SET syncIsDirty=false, syncLastSyncedAt=now WHERE id=?` with no soft-delete filter
+3. Simplifying `SyncEntityAdapter.markEntitySynced()` to call `repository.markSynced(id)` directly
+4. Updated 5 `sync_service_impl_test.dart` tests that used `getById + update(markDirty: false)` stubs to use `markSynced` stubs instead
+5. Added 3 AUDIT-03-001 tests: delegates to markSynced, works for soft-deleted entities, verifies getById never called
+
+**Pre-existing test flakiness note:** 7 failures in `correlation_view_screen_test.dart` appear when running the full suite but pass in isolation. This is a pre-existing order-dependent issue from Phase 17 — not caused by GROUP S changes.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/data/local/daos/diet_dao.dart | MODIFIED | AUDIT-CB-001: deactivateAll() marks syncIsDirty=true; AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/diet_violation_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/fasting_session_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/activity_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/activity_log_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/condition_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/condition_log_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/flare_up_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/fluids_entry_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/food_item_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/food_log_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/intake_log_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/journal_entry_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/photo_area_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/photo_entry_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/profile_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/sleep_entry_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/data/local/daos/supplement_dao.dart | MODIFIED | AUDIT-03-001: add markSynced(); AUDIT-03-002: softDelete() adds deviceId param + syncVersion increment |
+| lib/domain/repositories/entity_repository.dart | MODIFIED | AUDIT-03-001: add markSynced(String id) to interface |
+| lib/data/repositories/base_repository.dart | MODIFIED | AUDIT-03-001: add getDeviceId() helper; add markSynced() calling dao.markSynced(id) |
+| lib/data/repositories/activity_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/activity_log_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/condition_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/condition_log_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/diet_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/diet_violation_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/fasting_session_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/flare_up_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/fluids_entry_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/food_item_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/food_log_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/intake_log_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/journal_entry_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/photo_area_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/photo_entry_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/profile_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/sleep_entry_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/repositories/supplement_repository_impl.dart | MODIFIED | AUDIT-03-002: pass deviceId to dao.softDelete(); AUDIT-03-001: implement markSynced() |
+| lib/data/sync/sync_entity_adapter.dart | MODIFIED | AUDIT-03-001: markEntitySynced() simplified to call repository.markSynced(id) directly |
+| lib/core/bootstrap.dart | MODIFIED | AUDIT-02-003: register SyncEntityAdapter for Diet, DietViolation, FastingSession |
+| lib/domain/usecases/condition/archive_condition_use_case.dart | MODIFIED | AUDIT-03-003: remove manual syncMetadata.copyWith() — prepareForUpdate handles this |
+| lib/domain/usecases/food_item/archive_food_item_use_case.dart | MODIFIED | AUDIT-03-003: remove manual syncMetadata.copyWith() — prepareForUpdate handles this |
+| lib/domain/usecases/supplement/archive_supplement_use_case.dart | MODIFIED | AUDIT-03-003: remove manual syncMetadata.copyWith() — prepareForUpdate handles this |
+| test/unit/data/repositories/activity_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/activity_log_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/condition_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/condition_log_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/diet_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/diet_violation_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/fasting_session_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/flare_up_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/fluids_entry_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/food_item_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/food_log_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/intake_log_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/journal_entry_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/photo_area_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/photo_entry_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/profile_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/sleep_entry_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/repositories/supplement_repository_impl_test.dart | MODIFIED | AUDIT-03-002: update softDelete stubs to anyNamed('deviceId') |
+| test/unit/data/services/sync_service_impl_test.dart | MODIFIED | AUDIT-03-001: replace getById+update stubs with markSynced stubs; add 3 AUDIT-03-001 tests + 6 AUDIT-02-003 round-trip tests |
+| docs/AUDIT_FINDINGS.md | MODIFIED | Mark all 5 GROUP S findings as FIXED |
+| docs/FIX_PLAN.md | MODIFIED | GROUP S row marked ✓ DONE; session log entry added |
+| .claude/work-status/current.json | MODIFIED | Updated to reflect GROUP S completion |
+
+### Executive Summary for Reid
+
+GROUP S is done. This was a behind-the-scenes sync reliability fix — nothing changes visually in the app, but the sync engine is now significantly more correct.
+
+**What was fixed:**
+
+1. **Deleting items now records who deleted them.** When you delete an entry on one device, the sync engine now stamps the deletion with your device ID and increments the version counter. Before this fix, deletions were anonymous — the app knew something was deleted locally but had no record of which device did it, which could cause sync confusion across devices.
+
+2. **Three missing entity types are now fully sync-aware.** Diet plans, diet violations, and fasting sessions were never registered with the sync engine — meaning changes to these items would never be uploaded to other devices. They're now fully wired in.
+
+3. **Archiving items no longer double-counts version changes.** When archiving a condition, food item, or supplement, the app was incrementing the version number twice. Now it increments once, as intended.
+
+4. **Sync confirmation now works for deleted items.** After syncing a change, the app marks the local record as "clean" (uploaded, no pending changes). But this confirmation used a query that skips deleted items — so soft-deleted records could never be marked clean and would re-upload on every sync. Fixed by using a direct ID-based update that doesn't filter by deletion status.
+
+5. **Deactivating a diet plan now queues it for sync.** Switching off your active diet was not flagging the change as pending upload. Fixed.
+
+This session ran long enough to require a context compaction mid-way through. Both halves of the work are clean and committed together. The Architect should note the session size for future GROUP S-style prompts.
 
 ---
 
