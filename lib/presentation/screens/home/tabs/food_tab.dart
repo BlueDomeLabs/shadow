@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/food_item.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/food_items/food_item_inputs.dart';
@@ -74,8 +75,35 @@ class _FoodTabState extends ConsumerState<FoodTab> {
               loading: () => const Center(
                 child: ShadowStatus.loading(label: 'Loading food items'),
               ),
-              error: (error, _) =>
-                  Center(child: Text('Error loading food items: $error')),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        error is AppError
+                            ? error.userMessage
+                            : 'Something went wrong. Please try again.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      TextButton(
+                        onPressed: () => ref.invalidate(
+                          foodItemListProvider(widget.profileId),
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/guest_invite.dart';
 import 'package:shadow_app/presentation/providers/guest_invites/guest_invite_list_provider.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_qr_screen.dart';
@@ -40,13 +41,24 @@ class GuestInviteListScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
-                Text('Failed to load invites: $error'),
+                Text(
+                  error is AppError
+                      ? error.userMessage
+                      : 'Something went wrong. Please try again.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                TextButton(
+                  onPressed: () =>
+                      ref.invalidate(guestInviteListProvider(profileId)),
+                  child: const Text('Retry'),
+                ),
               ],
             ),
           ),

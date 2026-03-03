@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/anchor_event_time.dart';
 import 'package:shadow_app/domain/entities/notification_category_settings.dart';
 import 'package:shadow_app/domain/enums/notification_enums.dart';
@@ -34,12 +35,61 @@ class NotificationSettingsScreen extends ConsumerWidget {
           loading: () => const Center(
             child: ShadowStatus.loading(label: 'Loading settings'),
           ),
-          error: (e, s) => Center(child: Text('Error: $e')),
+          error: (e, s) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    e is AppError
+                        ? e.userMessage
+                        : 'Something went wrong. Please try again.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () => ref.invalidate(anchorEventTimesProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
           data: (anchorTimes) => settingsAsync.when(
             loading: () => const Center(
               child: ShadowStatus.loading(label: 'Loading settings'),
             ),
-            error: (e, s) => Center(child: Text('Error: $e')),
+            error: (e, s) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      e is AppError
+                          ? e.userMessage
+                          : 'Something went wrong. Please try again.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    TextButton(
+                      onPressed: () =>
+                          ref.invalidate(notificationSettingsProvider),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             data: (settings) => _buildContent(context, anchorTimes, settings),
           ),
         ),

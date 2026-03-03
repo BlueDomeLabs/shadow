@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/flare_up.dart';
+import 'package:shadow_app/domain/usecases/flare_ups/flare_up_inputs.dart';
 import 'package:shadow_app/presentation/providers/conditions/condition_list_provider.dart';
 import 'package:shadow_app/presentation/providers/flare_ups/flare_up_list_provider.dart';
 import 'package:shadow_app/presentation/screens/conditions/report_flare_up_screen.dart';
@@ -77,13 +78,14 @@ class FlareUpListScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         itemCount: sorted.length,
         itemBuilder: (context, index) =>
-            _buildFlareUpCard(context, sorted[index], conditionNames),
+            _buildFlareUpCard(context, ref, sorted[index], conditionNames),
       ),
     );
   }
 
   Widget _buildFlareUpCard(
     BuildContext context,
+    WidgetRef ref,
     FlareUp flareUp,
     Map<String, String> conditionNames,
   ) {
@@ -157,6 +159,22 @@ class FlareUpListScreen extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
               ),
+            // Options menu
+            PopupMenuButton<String>(
+              tooltip: 'Options',
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _openEditSheet(context, flareUp);
+                } else if (value == 'delete') {
+                  _confirmDelete(context, ref, flareUp);
+                }
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'edit', child: Text('Edit')),
+                PopupMenuItem(value: 'delete', child: Text('Delete')),
+              ],
+            ),
           ],
         ),
       ),
@@ -235,6 +253,39 @@ class FlareUpListScreen extends ConsumerWidget {
     if (severity <= 3) return Colors.green.shade50;
     if (severity <= 6) return Colors.amber.shade50;
     return Colors.red.shade50;
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    FlareUp flareUp,
+  ) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context: context,
+      title: 'Delete Flare-Up?',
+      contentText: 'This flare-up will be permanently removed.',
+    );
+    if (confirmed ?? false) {
+      try {
+        await ref
+            .read(flareUpListProvider(profileId).notifier)
+            .delete(DeleteFlareUpInput(id: flareUp.id, profileId: profileId));
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: 'Flare-up deleted');
+        }
+      } on AppError catch (e) {
+        if (context.mounted) {
+          showAccessibleSnackBar(context: context, message: e.userMessage);
+        }
+      } on Exception {
+        if (context.mounted) {
+          showAccessibleSnackBar(
+            context: context,
+            message: 'An unexpected error occurred',
+          );
+        }
+      }
+    }
   }
 
   void _openReportSheet(BuildContext context) {

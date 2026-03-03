@@ -238,6 +238,7 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
   Map<ActivityCategory, int>? _counts;
   bool _isLoading = false;
   bool _isExporting = false;
+  String? _previewError;
 
   @override
   void initState() {
@@ -394,6 +395,16 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
                   const SizedBox(height: 8),
                   ..._buildCountRows(theme),
                 ],
+              ),
+            ),
+          // Preview error message
+          if (_previewError != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                _previewError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
               ),
             ),
           // Action buttons — pinned outside scroll so always visible
@@ -587,7 +598,10 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
   }
 
   Future<void> _preview() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _previewError = null;
+    });
     try {
       final counts = await widget.queryService.countActivity(
         profileId: widget.profileId,
@@ -601,8 +615,13 @@ class _ActivityReportSheetState extends State<_ActivityReportSheet> {
           _isLoading = false;
         });
       }
-    } on Exception {
-      if (mounted) setState(() => _isLoading = false);
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _previewError = 'Preview failed: $e';
+        });
+      }
     }
   }
 
@@ -681,6 +700,7 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
   Map<ReferenceCategory, int>? _counts;
   bool _isLoading = false;
   bool _isExporting = false;
+  String? _previewError;
 
   @override
   void initState() {
@@ -768,6 +788,16 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
                   const SizedBox(height: 8),
                   ..._buildCountRows(theme),
                 ],
+              ),
+            ),
+          // Preview error message
+          if (_previewError != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                _previewError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
               ),
             ),
           // Action buttons — pinned outside scroll so always visible
@@ -911,7 +941,10 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
   }
 
   Future<void> _preview() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _previewError = null;
+    });
     try {
       final counts = await widget.queryService.countReference(
         profileId: widget.profileId,
@@ -923,8 +956,13 @@ class _ReferenceReportSheetState extends State<_ReferenceReportSheet> {
           _isLoading = false;
         });
       }
-    } on Exception {
-      if (mounted) setState(() => _isLoading = false);
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _previewError = 'Preview failed: $e';
+        });
+      }
     }
   }
 

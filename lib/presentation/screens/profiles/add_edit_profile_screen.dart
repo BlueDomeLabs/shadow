@@ -22,6 +22,8 @@ class _AddEditProfileScreenState extends ConsumerState<AddEditProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _notesController;
   DateTime? _dateOfBirth;
+  bool _isSaving = false;
+  bool _isDirty = false;
 
   bool get _isEditing => widget.profile != null;
 
@@ -41,74 +43,100 @@ class _AddEditProfileScreenState extends ConsumerState<AddEditProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(_isEditing ? 'Edit Profile' : 'Create Profile'),
-      backgroundColor: Colors.indigo,
-      foregroundColor: Colors.white,
-    ),
-    body: Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              hintText: 'Enter your name',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Name is required';
-              }
-              return null;
-            },
-            autofocus: !_isEditing,
-          ),
-          const SizedBox(height: 16),
-          ListTile(
-            title: const Text('Date of Birth'),
-            subtitle: Text(
-              _dateOfBirth != null
-                  ? '${_dateOfBirth!.month}/${_dateOfBirth!.day}/${_dateOfBirth!.year}'
-                  : 'Not set',
-            ),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: _pickDateOfBirth,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: Colors.grey[300]!),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
-              hintText: 'Optional notes',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.all(16),
-              ),
-              child: Text(
-                _isEditing ? 'Update Profile' : 'Create Profile',
-                style: const TextStyle(fontSize: 16),
+  Widget build(BuildContext context) => PopScope(
+    canPop: !_isDirty,
+    onPopInvokedWithResult: (didPop, result) async {
+      if (didPop) return;
+      final shouldLeave = await _confirmDiscard();
+      if (shouldLeave && context.mounted) {
+        Navigator.of(context).pop();
+      }
+    },
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text(_isEditing ? 'Edit Profile' : 'Create Profile'),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        actions: [
+          if (_isSaving)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
         ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                hintText: 'Enter your name',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Name is required';
+                }
+                return null;
+              },
+              onChanged: (_) => setState(() => _isDirty = true),
+              autofocus: !_isEditing,
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              title: const Text('Date of Birth'),
+              subtitle: Text(
+                _dateOfBirth != null
+                    ? '${_dateOfBirth!.month}/${_dateOfBirth!.day}/${_dateOfBirth!.year}'
+                    : 'Not set',
+              ),
+              trailing: const Icon(Icons.calendar_today),
+              onTap: _pickDateOfBirth,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _notesController,
+              decoration: const InputDecoration(
+                labelText: 'Notes',
+                hintText: 'Optional notes',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+              onChanged: (_) => setState(() => _isDirty = true),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                ),
+                child: Text(
+                  _isEditing ? 'Update Profile' : 'Create Profile',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -121,41 +149,72 @@ class _AddEditProfileScreenState extends ConsumerState<AddEditProfileScreen> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      setState(() => _dateOfBirth = picked);
+      setState(() {
+        _dateOfBirth = picked;
+        _isDirty = true;
+      });
     }
+  }
+
+  Future<bool> _confirmDiscard() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Discard changes?'),
+        content: const Text('You have unsaved changes. Discard them?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep editing'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isSaving) return;
 
-    final notifier = ref.read(profileProvider.notifier);
+    setState(() => _isSaving = true);
 
-    if (_isEditing) {
-      await notifier.updateProfile(
-        widget.profile!.copyWith(
-          name: _nameController.text.trim(),
-          dateOfBirth: _dateOfBirth,
-          notes: _notesController.text.trim(),
-        ),
-      );
-    } else {
-      await notifier.addProfile(
-        Profile(
-          id: '', // Will be generated by notifier
-          name: _nameController.text.trim(),
-          dateOfBirth: _dateOfBirth,
-          notes: _notesController.text.trim(),
-          createdAt: DateTime.now(),
-        ),
-      );
-    }
+    try {
+      final notifier = ref.read(profileProvider.notifier);
 
-    if (mounted) {
-      showAccessibleSnackBar(
-        context: context,
-        message: _isEditing ? 'Profile updated' : 'Profile created',
-      );
-      Navigator.of(context).pop();
+      if (_isEditing) {
+        await notifier.updateProfile(
+          widget.profile!.copyWith(
+            name: _nameController.text.trim(),
+            dateOfBirth: _dateOfBirth,
+            notes: _notesController.text.trim(),
+          ),
+        );
+      } else {
+        await notifier.addProfile(
+          Profile(
+            id: '', // Will be generated by notifier
+            name: _nameController.text.trim(),
+            dateOfBirth: _dateOfBirth,
+            notes: _notesController.text.trim(),
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
+
+      if (mounted) {
+        showAccessibleSnackBar(
+          context: context,
+          message: _isEditing ? 'Profile updated' : 'Profile created',
+        );
+        Navigator.of(context).pop();
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 }

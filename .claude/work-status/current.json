@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP N — Navigation Wiring (audit fix session)",
+  "task": "GROUP U — UI Error States & Form Guards",
   "timestamp": "2026-03-02T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3441,
   "schemaVersion": 18,
-  "notes": "Fixed 5 Group N findings: AUDIT-CC-002 (ConditionLogScreen wired via conditions_tab.dart popup menu), AUDIT-CC-003 (filter stub removed from condition_list_screen.dart), AUDIT-CD-001 (ActivityLogScreen wired via activities_tab.dart Log Activity button), AUDIT-CD-002 (FastingTimerScreen wired into diet_dashboard_screen.dart when active fast exists), AUDIT-CD-004 (GetBBTEntriesUseCase registered in di_providers.dart; BBTChartScreen bypass documented). All tests passing, analyzer clean."
+  "notes": "Fixed 6 Group U findings: AUDIT-06-001 (6 home tabs now show user-friendly error + retry), AUDIT-06-002 (add_edit_profile_screen _isSaving guard + _isDirty + PopScope), AUDIT-06-003 (reports_tab _previewError set on catch + rendered in both sheets), AUDIT-06-004 (health_sync_settings_screen + notification_settings_screen user-friendly error + retry), AUDIT-06-005 (guest_invite_list_screen user-friendly error + retry), AUDIT-CC-001 (FlareUpListScreen delete action wired via popup menu + confirmation dialog). All tests passing, analyzer clean."
 }

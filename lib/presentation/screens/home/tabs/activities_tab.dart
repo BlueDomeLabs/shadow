@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/domain/entities/activity.dart';
 import 'package:shadow_app/domain/usecases/activities/activity_inputs.dart';
 import 'package:shadow_app/presentation/providers/activities/activity_list_provider.dart';
@@ -91,8 +92,34 @@ class ActivitiesTab extends ConsumerWidget {
               loading: () => const Center(
                 child: ShadowStatus.loading(label: 'Loading activities'),
               ),
-              error: (error, _) =>
-                  Center(child: Text('Error loading activities: $error')),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        error is AppError
+                            ? error.userMessage
+                            : 'Something went wrong. Please try again.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      TextButton(
+                        onPressed: () =>
+                            ref.invalidate(activityListProvider(profileId)),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
