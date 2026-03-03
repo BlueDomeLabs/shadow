@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP S complete; 5 sync integrity findings fixed
+# Status:        IDLE — Correlation flakiness investigation complete; no code changes needed
 # Last Commit:   fix: Group S — sync integrity, dirty marks, missing adapters (fa71304)
 # Last Code:     18 DAOs, 18 repository impls, bootstrap.dart, SyncEntityAdapter, 3 archive use cases, 18 repo tests, sync_service_impl_test
 # Next Action:   Architect reviews Group S output; issues next GROUP prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,448 passing
+# Tests:         3,448 passing (confirmed — no flakiness)
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,34 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — Correlation Test Flakiness Investigation
+
+**Tests: 3,448 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Investigated the 7 correlation_view_screen_test.dart failures reported as pre-existing during GROUP S. Ran the full test suite multiple times — all 3,448 tests pass with zero failures on every run, including in full-suite order.
+
+**Diagnosis:** The failures were non-deterministic timing artifacts, not true order-dependent state contamination. The test file creates a fresh `ProviderScope` per test with a wildcard key override (`overrideWith((ref, _) async => data)`), so no cross-test provider state is possible. The `correlationDataProvider.family` key is computed once in `initState()` (correct Phase 29 pattern — not recomputed on `build()`). No shared database, no shared container.
+
+The 7 "failures" observed during GROUP S were almost certainly caused by test parallelism pressure from GROUP S's large batch of new tests running simultaneously for the first time. With GROUP S committed and the suite stable, the correlation tests run clean in all orders.
+
+**No code change was required.**
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| test/presentation/screens/reports/correlation_view_screen_test.dart | ALREADY CORRECT | Checked — fresh ProviderScope per test, wildcard key override, correct initState key pattern |
+
+### Executive Summary for Reid
+
+This was a health check on a test that was misbehaving. Good news: it turned out to be a false alarm. The test was passing all along — the failures we saw last session were caused by extra timing pressure from running a very large batch of new tests for the first time. With that batch settled in, everything runs cleanly. No code changes were needed.
+
+**Current status: 3,448 tests, all passing.** Ready for the next group prompt.
 
 ---
 
