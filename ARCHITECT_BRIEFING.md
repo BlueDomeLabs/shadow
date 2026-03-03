@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-02
-# Briefing Version: 20260302-034
+# Briefing Version: 20260302-035
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,10 +9,10 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP N complete; 5 findings fixed
-# Last Commit:   fix: Group N — wire unreachable screens into navigation (40154aa)
-# Last Code:     conditions_tab.dart, condition_list_screen.dart, activities_tab.dart, diet_dashboard_screen.dart, di_providers.dart, condition_list_screen_test.dart
-# Next Action:   Architect reviews Group N output; issues GROUP U prompt (UI error states)
+# Status:        IDLE — GROUP U complete; 6 findings fixed
+# Last Commit:   fix: Group U — UI error states, form guards, flare-up delete (3ed478e)
+# Last Code:     6 home tabs, add_edit_profile_screen, reports_tab, health_sync_settings_screen, notification_settings_screen, guest_invite_list_screen, flare_up_list_screen
+# Next Action:   Architect reviews Group U output; issues GROUP S prompt (Sync Integrity)
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
 # Tests:         3,441 passing
 # Schema:        v18
@@ -22,6 +22,68 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-02 MST] — GROUP U: UI Error States, Form Guards, Flare-Up Delete
+
+**Tests: 3,441 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Fixed all 6 Group U findings. All changes are UI-layer only — no schema changes, no new use cases, no new screens. Test count unchanged at 3,441.
+
+**AUDIT-06-001 (MEDIUM):** Replaced raw `Text('Error loading X: $error')` with a user-friendly error widget in all 6 home tabs. Each tab now shows an error icon, an `AppError.userMessage` (or generic fallback), and a `TextButton('Retry')` that calls `ref.invalidate(provider)`. Added `AppError` import to each tab file. Pattern matches supplement_list_screen.dart. Files: conditions_tab.dart, food_tab.dart, supplements_tab.dart, activities_tab.dart, fluids_tab.dart, photos_tab.dart.
+
+**AUDIT-06-002 (MEDIUM):** Added three missing form-protection patterns to `add_edit_profile_screen.dart`:
+- `_isSaving` flag: set true at start of `_save()`, false in finally; disables save button and shows CircularProgressIndicator in AppBar while saving.
+- `_isDirty` flag: set true in `onChanged` for both text fields and in `_pickDateOfBirth()`.
+- `PopScope(canPop: !_isDirty)` wrapping the Scaffold; on pop-invoked, calls `_confirmDiscard()` which shows an AlertDialog. Pattern matches condition_edit_screen.dart.
+
+**AUDIT-06-003 (MEDIUM):** Fixed silent exception swallowing in both `_ActivityReportSheetState._preview()` and `_ReferenceReportSheetState._preview()` in reports_tab.dart. Added `String? _previewError` field to each state class. On `on Exception catch (e)`, sets `_previewError = 'Preview failed: $e'` and clears `_isLoading`. Added a `_previewError != null` conditional just above the action buttons section in each sheet, rendering the error message in the error color. Also clears `_previewError` at the start of each preview call.
+
+**AUDIT-06-004 (LOW):** Fixed raw error display in two settings screens:
+- `health_sync_settings_screen.dart`: replaced `Center(child: Text('Error: $e'))` with user-friendly error widget + retry button calling `ref.invalidate(healthSyncSettingsNotifierProvider(profile.id))`. Added `AppError` import.
+- `notification_settings_screen.dart`: replaced both error states (anchorTimes + settings) with user-friendly error widgets + retry buttons calling their respective providers. Added `AppError` import.
+
+**AUDIT-06-005 (LOW):** Fixed raw error display in `guest_invite_list_screen.dart`. Replaced `Text('Failed to load invites: $error')` with `AppError.userMessage` (or generic fallback) and a retry button calling `ref.invalidate(guestInviteListProvider(profileId))`. Added `AppError` import.
+
+**AUDIT-CC-001 (MEDIUM):** Added delete action to `FlareUpListScreen`. Added `PopupMenuButton` as trailing widget in each flare-up card with 'Edit' and 'Delete' options. The existing Edit action calls `_openEditSheet`. New Delete action calls `_confirmDelete()`, which shows the standard `showDeleteConfirmationDialog()` and then calls `ref.read(flareUpListProvider(profileId).notifier).delete(DeleteFlareUpInput(...))`. Error handling follows the established pattern: catch `AppError` for user message, catch `Exception` for generic fallback. Added `flare_up_inputs.dart` import. Passed `ref` down to `_buildFlareUpCard()`.
+
+**dart format:** Reformatted 6 files post-edit (indentation adjustment in Column-with-Icon widgets). Staged and committed as part of the same commit.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/home/tabs/conditions_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/home/tabs/food_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/home/tabs/supplements_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/home/tabs/activities_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/home/tabs/fluids_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/home/tabs/photos_tab.dart | MODIFIED | AUDIT-06-001: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/profiles/add_edit_profile_screen.dart | MODIFIED | AUDIT-06-002: _isSaving guard, CircularProgressIndicator, _isDirty, PopScope discard warning |
+| lib/presentation/screens/home/tabs/reports_tab.dart | MODIFIED | AUDIT-06-003: _previewError field + catch + render in both activity and reference sheets |
+| lib/presentation/screens/health/health_sync_settings_screen.dart | MODIFIED | AUDIT-06-004: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/notifications/notification_settings_screen.dart | MODIFIED | AUDIT-06-004: import AppError; replace both error states with userMessage + retry |
+| lib/presentation/screens/guest_invites/guest_invite_list_screen.dart | MODIFIED | AUDIT-06-005: import AppError; replace raw error with userMessage + retry |
+| lib/presentation/screens/conditions/flare_up_list_screen.dart | MODIFIED | AUDIT-CC-001: import flare_up_inputs; add PopupMenuButton with delete action + _confirmDelete() |
+
+### Executive Summary for Reid
+
+Group U is complete. This was the "polish and safety" group — fixing things that would show users confusing technical error messages or let them accidentally lose data.
+
+**What changed:**
+
+1. **Error messages everywhere** — Six different screens in the app were showing raw programmer error text (like `Exception: Connection refused` or `FormatException: Unexpected token`) when something went wrong. All six now show plain language like "Something went wrong. Please try again." with a Retry button.
+
+2. **Same fix for three more screens** — The Health Data settings screen, Notification Settings screen, and Guest Invites screen had the same raw-error problem. Fixed those too.
+
+3. **Profile form now protects unsaved work** — The Create/Edit Profile form had no protection against accidental data loss. You could type in a name, tap Back, and lose everything with no warning. Now: (a) the Save button disables while saving to prevent double-submits, (b) a loading spinner appears in the title bar while saving, and (c) if you've made changes and try to go back, you get a "Discard changes?" confirmation dialog.
+
+4. **Report preview now shows errors** — In the Reports tab, if you tapped Preview and the query failed, the loading spinner would just disappear with no explanation. Now an error message appears below the preview results area.
+
+5. **You can now delete flare-ups** — The Flare-Ups list had no way to delete entries. The app had all the code to do it — it was just never wired up. Each flare-up card now has a three-dot menu with Edit and Delete options. Delete shows a confirmation dialog before removing the entry.
 
 ---
 

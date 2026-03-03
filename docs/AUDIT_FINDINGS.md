@@ -524,7 +524,7 @@ Fix approach: Replace raw error text with
   AppError.userMessage and add a retry button calling
   ref.invalidate(provider) in all six tabs. Match the
   pattern in supplement_list_screen.dart.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -547,7 +547,7 @@ Fix approach: Add _isSaving state and guard in _save().
   CircularProgressIndicator in AppBar action.
   Add _isDirty flag and PopScope confirmation on back.
   Match pattern in condition_edit_screen.dart.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -568,7 +568,7 @@ Fix approach: Set a _previewError field in the catch
   block and render an error message in the sheet.
   Match the export error pattern (showAccessibleSnackBar)
   or show inline error text.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -582,7 +582,7 @@ Description: Both screens use error: (e, s) =>
   no user-friendly message, no retry button.
 Fix approach: Replace with AppError.userMessage text
   and a retry button calling ref.invalidate(provider).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -596,7 +596,7 @@ Description: Error state uses: error: (error, _) =>
   Raw error text exposed to user. No retry button.
 Fix approach: Replace with AppError.userMessage text
   and a retry button calling ref.invalidate(provider).
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -1413,7 +1413,7 @@ Description: FlareUpListScreen exposes no delete action for flare-up
 Fix approach: Add a delete action to the edit sheet (ReportFlareUpScreen)
   or to the card's trailing options in FlareUpListScreen. Include a
   confirmation dialog before calling the provider's delete() method.
-Status: OPEN
+Status: FIXED
 
 ---
 
