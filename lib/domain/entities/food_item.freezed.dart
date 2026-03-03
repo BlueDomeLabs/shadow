@@ -31,8 +31,10 @@ mixin _$FoodItem {
   bool get isUserCreated => throw _privateConstructorUsedError;
   bool get isArchived =>
       throw _privateConstructorUsedError; // Nutritional information (optional for all types)
-  String? get servingSize =>
-      throw _privateConstructorUsedError; // e.g., "1 cup", "100g"
+  double? get servingSize =>
+      throw _privateConstructorUsedError; // Numeric serving size (e.g., 1.0, 100.0)
+  String? get servingUnit =>
+      throw _privateConstructorUsedError; // Unit label (e.g., "cup", "g", "oz")
   double? get calories =>
       throw _privateConstructorUsedError; // kcal per serving
   double? get carbsGrams =>
@@ -85,7 +87,8 @@ abstract class $FoodItemCopyWith<$Res> {
     List<String> simpleItemIds,
     bool isUserCreated,
     bool isArchived,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -129,6 +132,7 @@ class _$FoodItemCopyWithImpl<$Res, $Val extends FoodItem>
     Object? isUserCreated = null,
     Object? isArchived = null,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -181,6 +185,10 @@ class _$FoodItemCopyWithImpl<$Res, $Val extends FoodItem>
             servingSize: freezed == servingSize
                 ? _value.servingSize
                 : servingSize // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            servingUnit: freezed == servingUnit
+                ? _value.servingUnit
+                : servingUnit // ignore: cast_nullable_to_non_nullable
                       as String?,
             calories: freezed == calories
                 ? _value.calories
@@ -272,7 +280,8 @@ abstract class _$$FoodItemImplCopyWith<$Res>
     List<String> simpleItemIds,
     bool isUserCreated,
     bool isArchived,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -316,6 +325,7 @@ class __$$FoodItemImplCopyWithImpl<$Res>
     Object? isUserCreated = null,
     Object? isArchived = null,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -368,6 +378,10 @@ class __$$FoodItemImplCopyWithImpl<$Res>
         servingSize: freezed == servingSize
             ? _value.servingSize
             : servingSize // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        servingUnit: freezed == servingUnit
+            ? _value.servingUnit
+            : servingUnit // ignore: cast_nullable_to_non_nullable
                   as String?,
         calories: freezed == calories
             ? _value.calories
@@ -444,6 +458,7 @@ class _$FoodItemImpl extends _FoodItem {
     this.isUserCreated = true,
     this.isArchived = false,
     this.servingSize,
+    this.servingUnit,
     this.calories,
     this.carbsGrams,
     this.fatGrams,
@@ -493,8 +508,11 @@ class _$FoodItemImpl extends _FoodItem {
   final bool isArchived;
   // Nutritional information (optional for all types)
   @override
-  final String? servingSize;
-  // e.g., "1 cup", "100g"
+  final double? servingSize;
+  // Numeric serving size (e.g., 1.0, 100.0)
+  @override
+  final String? servingUnit;
+  // Unit label (e.g., "cup", "g", "oz")
   @override
   final double? calories;
   // kcal per serving
@@ -540,7 +558,7 @@ class _$FoodItemImpl extends _FoodItem {
 
   @override
   String toString() {
-    return 'FoodItem(id: $id, clientId: $clientId, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, isUserCreated: $isUserCreated, isArchived: $isArchived, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl, syncMetadata: $syncMetadata)';
+    return 'FoodItem(id: $id, clientId: $clientId, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, isUserCreated: $isUserCreated, isArchived: $isArchived, servingSize: $servingSize, servingUnit: $servingUnit, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl, syncMetadata: $syncMetadata)';
   }
 
   @override
@@ -565,6 +583,8 @@ class _$FoodItemImpl extends _FoodItem {
                 other.isArchived == isArchived) &&
             (identical(other.servingSize, servingSize) ||
                 other.servingSize == servingSize) &&
+            (identical(other.servingUnit, servingUnit) ||
+                other.servingUnit == servingUnit) &&
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.carbsGrams, carbsGrams) ||
@@ -606,6 +626,7 @@ class _$FoodItemImpl extends _FoodItem {
     isUserCreated,
     isArchived,
     servingSize,
+    servingUnit,
     calories,
     carbsGrams,
     fatGrams,
@@ -646,7 +667,8 @@ abstract class _FoodItem extends FoodItem {
     final List<String> simpleItemIds,
     final bool isUserCreated,
     final bool isArchived,
-    final String? servingSize,
+    final double? servingSize,
+    final String? servingUnit,
     final double? calories,
     final double? carbsGrams,
     final double? fatGrams,
@@ -684,7 +706,9 @@ abstract class _FoodItem extends FoodItem {
   @override
   bool get isArchived; // Nutritional information (optional for all types)
   @override
-  String? get servingSize; // e.g., "1 cup", "100g"
+  double? get servingSize; // Numeric serving size (e.g., 1.0, 100.0)
+  @override
+  String? get servingUnit; // Unit label (e.g., "cup", "g", "oz")
   @override
   double? get calories; // kcal per serving
   @override

@@ -291,7 +291,8 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
     simpleItemIds: _parseJsonList(row.simpleItemIds),
     isUserCreated: row.isUserCreated,
     isArchived: row.isArchived,
-    servingSize: _buildServingSize(row.servingSize, row.servingUnit),
+    servingSize: row.servingSize,
+    servingUnit: row.servingUnit,
     calories: row.calories,
     carbsGrams: row.carbsGrams,
     fatGrams: row.fatGrams,
@@ -319,43 +320,41 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
   );
 
   /// Convert domain entity to database companion.
-  FoodItemsCompanion _entityToCompanion(domain.FoodItem entity) {
-    final (servingSize, servingUnit) = _parseServingSize(entity.servingSize);
-    return FoodItemsCompanion(
-      id: Value(entity.id),
-      clientId: Value(entity.clientId),
-      profileId: Value(entity.profileId),
-      name: Value(entity.name),
-      type: Value(entity.type.value),
-      simpleItemIds: Value(jsonEncode(entity.simpleItemIds)),
-      isUserCreated: Value(entity.isUserCreated),
-      isArchived: Value(entity.isArchived),
-      servingSize: Value(servingSize),
-      servingUnit: Value(servingUnit),
-      calories: Value(entity.calories),
-      carbsGrams: Value(entity.carbsGrams),
-      fatGrams: Value(entity.fatGrams),
-      proteinGrams: Value(entity.proteinGrams),
-      fiberGrams: Value(entity.fiberGrams),
-      sugarGrams: Value(entity.sugarGrams),
-      sodiumMg: Value(entity.sodiumMg),
-      barcode: Value(entity.barcode),
-      brand: Value(entity.brand),
-      ingredientsText: Value(entity.ingredientsText),
-      openFoodFactsId: Value(entity.openFoodFactsId),
-      importSource: Value(entity.importSource),
-      imageUrl: Value(entity.imageUrl),
-      syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
-      syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
-      syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),
-      syncLastSyncedAt: Value(entity.syncMetadata.syncLastSyncedAt),
-      syncStatus: Value(entity.syncMetadata.syncStatus.value),
-      syncVersion: Value(entity.syncMetadata.syncVersion),
-      syncDeviceId: Value(entity.syncMetadata.syncDeviceId),
-      syncIsDirty: Value(entity.syncMetadata.syncIsDirty),
-      conflictData: Value(entity.syncMetadata.conflictData),
-    );
-  }
+  FoodItemsCompanion _entityToCompanion(domain.FoodItem entity) =>
+      FoodItemsCompanion(
+        id: Value(entity.id),
+        clientId: Value(entity.clientId),
+        profileId: Value(entity.profileId),
+        name: Value(entity.name),
+        type: Value(entity.type.value),
+        simpleItemIds: Value(jsonEncode(entity.simpleItemIds)),
+        isUserCreated: Value(entity.isUserCreated),
+        isArchived: Value(entity.isArchived),
+        servingSize: Value(entity.servingSize),
+        servingUnit: Value(entity.servingUnit),
+        calories: Value(entity.calories),
+        carbsGrams: Value(entity.carbsGrams),
+        fatGrams: Value(entity.fatGrams),
+        proteinGrams: Value(entity.proteinGrams),
+        fiberGrams: Value(entity.fiberGrams),
+        sugarGrams: Value(entity.sugarGrams),
+        sodiumMg: Value(entity.sodiumMg),
+        barcode: Value(entity.barcode),
+        brand: Value(entity.brand),
+        ingredientsText: Value(entity.ingredientsText),
+        openFoodFactsId: Value(entity.openFoodFactsId),
+        importSource: Value(entity.importSource),
+        imageUrl: Value(entity.imageUrl),
+        syncCreatedAt: Value(entity.syncMetadata.syncCreatedAt),
+        syncUpdatedAt: Value(entity.syncMetadata.syncUpdatedAt),
+        syncDeletedAt: Value(entity.syncMetadata.syncDeletedAt),
+        syncLastSyncedAt: Value(entity.syncMetadata.syncLastSyncedAt),
+        syncStatus: Value(entity.syncMetadata.syncStatus.value),
+        syncVersion: Value(entity.syncMetadata.syncVersion),
+        syncDeviceId: Value(entity.syncMetadata.syncDeviceId),
+        syncIsDirty: Value(entity.syncMetadata.syncIsDirty),
+        conflictData: Value(entity.syncMetadata.conflictData),
+      );
 
   /// Parse JSON array string to list.
   List<String> _parseJsonList(String? value) {
@@ -369,43 +368,5 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
       );
       return [];
     }
-  }
-
-  /// Build serving size string from numeric value and unit.
-  String? _buildServingSize(double? size, String? unit) {
-    if (size == null) return null;
-    if (unit == null || unit.isEmpty) return size.toString();
-    // Format as "1 cup" or "100 g"
-    final sizeStr = size == size.truncate()
-        ? size.truncate().toString()
-        : size.toString();
-    return '$sizeStr $unit';
-  }
-
-  /// Parse serving size string to numeric value and unit.
-  ///
-  /// Handles formats like "1 cup", "100 g", "100g", "1.5 fl oz".
-  (double?, String?) _parseServingSize(String? servingSize) {
-    if (servingSize == null || servingSize.isEmpty) return (null, null);
-    final trimmed = servingSize.trim();
-    // Try splitting on whitespace first ("1 cup", "1.5 fl oz")
-    final parts = trimmed.split(RegExp(r'\s+'));
-    if (parts.length > 1) {
-      final size = double.tryParse(parts[0]);
-      if (size != null) {
-        return (size, parts.sublist(1).join(' '));
-      }
-    }
-    // Try extracting leading number from concatenated format ("100g", "1.5ml")
-    final match = RegExp(r'^(\d+\.?\d*)\s*(.+)$').firstMatch(trimmed);
-    if (match != null) {
-      final size = double.tryParse(match.group(1)!);
-      final unit = match.group(2)!.trim();
-      return (size, unit.isNotEmpty ? unit : null);
-    }
-    // Try parsing as pure number
-    final size = double.tryParse(trimmed);
-    if (size != null) return (size, null);
-    return (null, null);
   }
 }

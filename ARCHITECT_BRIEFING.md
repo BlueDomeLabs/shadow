@@ -9,19 +9,92 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP PH complete
-# Last Commit:   fix: Group PH — photo system gaps, async file I/O, gallery thumbnails (cf5f00f)
-# Last Code:     5 findings fixed across 5 production files + 3 test files; +12 tests
-# Next Action:   Architect reviews GROUP T + GROUP PH; issues next GROUP prompt
+# Status:        IDLE — GROUP F complete
+# Last Commit:   fix: Group F — schema v19 drop orphan columns, fix FoodItem servingSize type
+# Last Code:     Schema v19 migration, FoodItem entity type fix, DAO/use case/UI/test updates
+# Next Action:   Architect reviews GROUP F; issues next GROUP prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,484 passing (+12 from GROUP PH)
-# Schema:        v18
+# Tests:         3,485 passing (+1 from GROUP F)
+# Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — GROUP F: Schema & Entity Fixes
+
+**Tests: 3,485 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+GROUP F fixed two schema/entity alignment findings per Architect decisions.
+
+**AUDIT-02-001 (MEDIUM) — Drop orphaned fluids_entries columns:**
+- Removed `bowelCustomCondition` and `urineCustomCondition` from `FluidsEntries` table class.
+- Added v19 migration using `m.alterTable(TableMigration(fluidsEntries))` — Drift recreates the table with only the columns present in the Dart class, effectively dropping the two orphaned columns without touching any data in other columns.
+- `schemaVersion` incremented from 18 → 19.
+- Database test updated to assert `equals(19)`.
+- No entity or DAO changes needed — these columns had no entity fields and were never read/written.
+
+**AUDIT-02-002 (HIGH) — Fix FoodItem servingSize type mismatch:**
+- `FoodItem` entity: `String? servingSize` → `double? servingSize`; added `String? servingUnit`.
+- `FoodItemDao._rowToEntity`: removed call to `_buildServingSize()`, now reads `row.servingSize` and `row.servingUnit` directly.
+- `FoodItemDao._entityToCompanion`: removed `_parseServingSize()` call, now writes `entity.servingSize` and `entity.servingUnit` directly. Also converted to expression body to satisfy `prefer_expression_function_bodies` lint.
+- Removed both `_buildServingSize()` and `_parseServingSize()` helper methods entirely.
+- `food_item_inputs.dart` (both `CreateFoodItemInput` and `UpdateFoodItemInput`): `String? servingSize` → `double? servingSize`, added `String? servingUnit`.
+- `create_food_item_use_case.dart`: added `servingUnit: input.servingUnit` to entity constructor; removed `.length > ValidationRules.servingSizeMaxLength` validation (no longer valid on a double).
+- `update_food_item_use_case.dart`: added `servingUnit: input.servingUnit ?? existing.servingUnit`; removed string length validation.
+- `food_item_edit_screen.dart`: renamed `_servingSizeController` → `_servingSizeAmountController`, added `_servingUnitController`. UI now shows a 2-field row (amount + unit). Save logic parses `double.tryParse()`. Display logic joins `[size.toString(), unit].join(' ')`.
+- `food_item_list_screen.dart`: updated serving size display — removed `.isNotEmpty` guard (invalid on double?), now joins `[servingSize.toString(), servingUnit].join(' ')`.
+- `sample_data_generator.dart`: 6 food items updated from String format (`'1 cup'`) to typed format (`servingSize: 1, servingUnit: 'cup'`).
+- Ran codegen: `dart run build_runner build --delete-conflicting-outputs` — 831 outputs written.
+- Updated tests: `food_item_dao_test.dart`, `food_item_test.dart`, `food_item_edit_screen_test.dart`, `food_item_list_screen_test.dart`.
+- Note on test display: `double.toString()` renders `1.0` not `1`, so serving size display shows `'1.0 cup'` not `'1 cup'`. Tests adjusted to match.
+
+**No schema migration needed for AUDIT-02-002**: the `food_items` table already had `serving_size REAL` + `serving_unit TEXT` as separate columns. The fix was purely at the entity/DAO/use-case/UI layers.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/data/datasources/local/tables/fluids_entries_table.dart | MODIFIED | Removed bowelCustomCondition + urineCustomCondition columns (AUDIT-02-001) |
+| lib/data/datasources/local/database.dart | MODIFIED | Schema v19 migration: TableMigration(fluidsEntries) to drop orphaned columns |
+| lib/domain/entities/food_item.dart | MODIFIED | servingSize: String? → double?; added servingUnit: String? (AUDIT-02-002) |
+| lib/domain/entities/food_item.freezed.dart | MODIFIED | Regenerated by codegen |
+| lib/domain/entities/food_item.g.dart | MODIFIED | Regenerated by codegen |
+| lib/data/datasources/local/daos/food_item_dao.dart | MODIFIED | Direct mapping for servingSize/servingUnit; removed helper methods; expression body |
+| lib/data/datasources/local/daos/food_item_dao.g.dart | MODIFIED | Regenerated by codegen |
+| lib/domain/usecases/food_items/food_item_inputs.dart | MODIFIED | servingSize: String? → double?; added servingUnit: String? to Create + Update inputs |
+| lib/domain/usecases/food_items/food_item_inputs.freezed.dart | MODIFIED | Regenerated by codegen |
+| lib/domain/usecases/food_items/create_food_item_use_case.dart | MODIFIED | Added servingUnit; removed serving size string length validation |
+| lib/domain/usecases/food_items/update_food_item_use_case.dart | MODIFIED | Added servingUnit; removed serving size string length validation |
+| lib/presentation/screens/food_items/food_item_edit_screen.dart | MODIFIED | Split serving size into 2 fields (amount + unit); updated save/display logic |
+| lib/presentation/screens/food_items/food_item_list_screen.dart | MODIFIED | Updated serving size display for double? type |
+| lib/core/utils/sample_data_generator.dart | MODIFIED | 6 food items: String servingSize → double servingSize + String servingUnit |
+| test/unit/data/datasources/local/database_test.dart | MODIFIED | schemaVersion equals(18) → equals(19) |
+| test/unit/domain/entities/food_item_test.dart | MODIFIED | servingSize '100g' → 100.0; added servingUnit test |
+| test/unit/data/datasources/local/daos/food_item_dao_test.dart | MODIFIED | servingSize '100g' → 100.0 + servingUnit 'g' |
+| test/presentation/screens/food_items/food_item_edit_screen_test.dart | MODIFIED | helper: String? → double?; updated pre-populate test |
+| test/presentation/screens/food_items/food_item_list_screen_test.dart | MODIFIED | helper: String? → double?; updated serving size display assertion to '1.0 cup' |
+| docs/AUDIT_FINDINGS.md | MODIFIED | AUDIT-02-001 + AUDIT-02-002 marked FIXED |
+| docs/FIX_PLAN.md | MODIFIED | GROUP F marked ✓ DONE |
+
+### Executive Summary for Reid
+
+Group F is complete. Two database integrity fixes were applied.
+
+**Fix 1 — Removed two database columns that were never used.** The fluids tracking table had two columns (`bowel_custom_condition` and `urine_custom_condition`) that had no corresponding fields in the app code. They were always empty. We bumped the database schema from version 18 to version 19 and removed those columns cleanly. No data was lost — the columns were blank for every user.
+
+**Fix 2 — Fixed a data type mismatch for food item serving sizes.** The app was storing serving sizes in the database as a number (like `100.0`) and a separate unit (like `g`), but the code was treating them as a single text string (like `"100g"`). If a serving size couldn't be parsed back from the text format, it would silently disappear — a quiet data loss bug. We fixed this by:
+- Splitting the serving size field into two: a number and a unit label (separately)
+- Updating the food item form so users enter the amount in one box and the unit in another
+- Updating all the places in the app that display serving sizes
+
+The UI change is small and improves clarity — instead of one combined field like "1 cup", users now see two fields: `1` and `cup`.
 
 ---
 

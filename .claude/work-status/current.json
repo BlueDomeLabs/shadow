@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP PH — Photo System Gaps",
+  "task": "GROUP F — Schema & Entity Fixes",
   "timestamp": "2026-03-03T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3484,
-  "schemaVersion": 18,
-  "notes": "Fixed 5 GROUP PH findings: AUDIT-CB-002 (flare-up photo picker in report_flare_up_screen.dart), AUDIT-CB-003 (urine photo picker in fluids_entry_screen.dart), AUDIT-CB-004 (photo file cleanup in DeleteFlareUpUseCase), AUDIT-09-001 (async file existence via FutureBuilder in gallery screen + shadow_image.dart), AUDIT-09-002 (ShadowImage.file with cacheWidth/cacheHeight in gallery grid). Net +12 tests (3472→3484). Analyzer clean."
+  "testCount": 3485,
+  "schemaVersion": 19,
+  "notes": "Fixed AUDIT-02-001 (drop orphaned fluids_entries columns via v19 migration) and AUDIT-02-002 (FoodItem servingSize String? → double?, add servingUnit: String?, remove DAO helper methods, update inputs/use cases/UI/sample data/tests). Codegen rerun. Net +1 test (3484→3485). Analyzer clean."
 }

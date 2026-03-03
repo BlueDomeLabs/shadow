@@ -159,7 +159,7 @@ Description: Two table columns (bowel_custom_condition,
 Fix approach: Either add entity fields for these two
   columns and wire them through the DAO, or drop the
   columns in a migration if they are not needed.
-Status: OPEN
+Status: FIXED
 
 ---
 
@@ -180,7 +180,7 @@ Fix approach: Add a separate servingUnit: String? field
   to the FoodItem entity to match the schema structure.
   Update DAO to read/write both fields independently
   without string parsing.
-Status: OPEN
+Status: FIXED
 
 ---
 

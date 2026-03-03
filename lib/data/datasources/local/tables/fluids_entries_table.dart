@@ -29,8 +29,6 @@ class FluidsEntries extends Table {
       .withDefault(const Constant(false))();
   IntColumn get bowelCondition =>
       integer().named('bowel_condition').nullable()(); // BowelCondition enum
-  TextColumn get bowelCustomCondition =>
-      text().named('bowel_custom_condition').nullable()();
   IntColumn get bowelSize =>
       integer().named('bowel_size').nullable()(); // MovementSize enum
   TextColumn get bowelPhotoPath =>
@@ -42,8 +40,6 @@ class FluidsEntries extends Table {
       .withDefault(const Constant(false))();
   IntColumn get urineCondition =>
       integer().named('urine_condition').nullable()(); // UrineCondition enum
-  TextColumn get urineCustomCondition =>
-      text().named('urine_custom_condition').nullable()();
   IntColumn get urineSize =>
       integer().named('urine_size').nullable()(); // MovementSize enum
   TextColumn get urinePhotoPath =>

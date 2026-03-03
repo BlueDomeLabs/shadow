@@ -267,11 +267,13 @@ class _FoodItemListScreenState extends ConsumerState<FoodItemListScreen> {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (foodItem.servingSize != null &&
-                      foodItem.servingSize!.isNotEmpty) ...[
+                  if (foodItem.servingSize != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      foodItem.servingSize!,
+                      [
+                        foodItem.servingSize!.toString(),
+                        if (foodItem.servingUnit != null) foodItem.servingUnit!,
+                      ].join(' '),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

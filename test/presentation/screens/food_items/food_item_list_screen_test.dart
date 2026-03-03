@@ -19,7 +19,8 @@ void main() {
       String name = 'Grilled Chicken',
       FoodItemType type = FoodItemType.simple,
       bool isArchived = false,
-      String? servingSize,
+      double? servingSize,
+      String? servingUnit,
       double? calories,
     }) => FoodItem(
       id: id,
@@ -29,6 +30,7 @@ void main() {
       type: type,
       isArchived: isArchived,
       servingSize: servingSize,
+      servingUnit: servingUnit,
       calories: calories,
       syncMetadata: SyncMetadata.empty(),
     );
@@ -375,7 +377,7 @@ void main() {
       });
 
       testWidgets('displays serving size when present', (tester) async {
-        final foodItem = createTestFoodItem(servingSize: '1 cup');
+        final foodItem = createTestFoodItem(servingSize: 1, servingUnit: 'cup');
 
         await tester.pumpWidget(
           ProviderScope(
@@ -391,7 +393,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('1 cup'), findsOneWidget);
+        expect(find.text('1.0 cup'), findsOneWidget);
       });
 
       testWidgets('shows nutritional info icon when present', (tester) async {

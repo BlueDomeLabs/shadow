@@ -6884,17 +6884,6 @@ class $FluidsEntriesTable extends FluidsEntries
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _bowelCustomConditionMeta =
-      const VerificationMeta('bowelCustomCondition');
-  @override
-  late final GeneratedColumn<String> bowelCustomCondition =
-      GeneratedColumn<String>(
-        'bowel_custom_condition',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
   static const VerificationMeta _bowelSizeMeta = const VerificationMeta(
     'bowelSize',
   );
@@ -6943,17 +6932,6 @@ class $FluidsEntriesTable extends FluidsEntries
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _urineCustomConditionMeta =
-      const VerificationMeta('urineCustomCondition');
-  @override
-  late final GeneratedColumn<String> urineCustomCondition =
-      GeneratedColumn<String>(
-        'urine_custom_condition',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
   static const VerificationMeta _urineSizeMeta = const VerificationMeta(
     'urineSize',
   );
@@ -7249,12 +7227,10 @@ class $FluidsEntriesTable extends FluidsEntries
     waterIntakeNotes,
     hasBowelMovement,
     bowelCondition,
-    bowelCustomCondition,
     bowelSize,
     bowelPhotoPath,
     hasUrineMovement,
     urineCondition,
-    urineCustomCondition,
     urineSize,
     urinePhotoPath,
     menstruationFlow,
@@ -7358,15 +7334,6 @@ class $FluidsEntriesTable extends FluidsEntries
         ),
       );
     }
-    if (data.containsKey('bowel_custom_condition')) {
-      context.handle(
-        _bowelCustomConditionMeta,
-        bowelCustomCondition.isAcceptableOrUnknown(
-          data['bowel_custom_condition']!,
-          _bowelCustomConditionMeta,
-        ),
-      );
-    }
     if (data.containsKey('bowel_size')) {
       context.handle(
         _bowelSizeMeta,
@@ -7397,15 +7364,6 @@ class $FluidsEntriesTable extends FluidsEntries
         urineCondition.isAcceptableOrUnknown(
           data['urine_condition']!,
           _urineConditionMeta,
-        ),
-      );
-    }
-    if (data.containsKey('urine_custom_condition')) {
-      context.handle(
-        _urineCustomConditionMeta,
-        urineCustomCondition.isAcceptableOrUnknown(
-          data['urine_custom_condition']!,
-          _urineCustomConditionMeta,
         ),
       );
     }
@@ -7662,10 +7620,6 @@ class $FluidsEntriesTable extends FluidsEntries
         DriftSqlType.int,
         data['${effectivePrefix}bowel_condition'],
       ),
-      bowelCustomCondition: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}bowel_custom_condition'],
-      ),
       bowelSize: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}bowel_size'],
@@ -7681,10 +7635,6 @@ class $FluidsEntriesTable extends FluidsEntries
       urineCondition: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}urine_condition'],
-      ),
-      urineCustomCondition: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}urine_custom_condition'],
       ),
       urineSize: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -7804,12 +7754,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
   final String? waterIntakeNotes;
   final bool hasBowelMovement;
   final int? bowelCondition;
-  final String? bowelCustomCondition;
   final int? bowelSize;
   final String? bowelPhotoPath;
   final bool hasUrineMovement;
   final int? urineCondition;
-  final String? urineCustomCondition;
   final int? urineSize;
   final String? urinePhotoPath;
   final int? menstruationFlow;
@@ -7844,12 +7792,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     this.waterIntakeNotes,
     required this.hasBowelMovement,
     this.bowelCondition,
-    this.bowelCustomCondition,
     this.bowelSize,
     this.bowelPhotoPath,
     required this.hasUrineMovement,
     this.urineCondition,
-    this.urineCustomCondition,
     this.urineSize,
     this.urinePhotoPath,
     this.menstruationFlow,
@@ -7893,9 +7839,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     if (!nullToAbsent || bowelCondition != null) {
       map['bowel_condition'] = Variable<int>(bowelCondition);
     }
-    if (!nullToAbsent || bowelCustomCondition != null) {
-      map['bowel_custom_condition'] = Variable<String>(bowelCustomCondition);
-    }
     if (!nullToAbsent || bowelSize != null) {
       map['bowel_size'] = Variable<int>(bowelSize);
     }
@@ -7905,9 +7848,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     map['has_urine_movement'] = Variable<bool>(hasUrineMovement);
     if (!nullToAbsent || urineCondition != null) {
       map['urine_condition'] = Variable<int>(urineCondition);
-    }
-    if (!nullToAbsent || urineCustomCondition != null) {
-      map['urine_custom_condition'] = Variable<String>(urineCustomCondition);
     }
     if (!nullToAbsent || urineSize != null) {
       map['urine_size'] = Variable<int>(urineSize);
@@ -7989,9 +7929,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       bowelCondition: bowelCondition == null && nullToAbsent
           ? const Value.absent()
           : Value(bowelCondition),
-      bowelCustomCondition: bowelCustomCondition == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bowelCustomCondition),
       bowelSize: bowelSize == null && nullToAbsent
           ? const Value.absent()
           : Value(bowelSize),
@@ -8002,9 +7939,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       urineCondition: urineCondition == null && nullToAbsent
           ? const Value.absent()
           : Value(urineCondition),
-      urineCustomCondition: urineCustomCondition == null && nullToAbsent
-          ? const Value.absent()
-          : Value(urineCustomCondition),
       urineSize: urineSize == null && nullToAbsent
           ? const Value.absent()
           : Value(urineSize),
@@ -8083,16 +8017,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       waterIntakeNotes: serializer.fromJson<String?>(json['waterIntakeNotes']),
       hasBowelMovement: serializer.fromJson<bool>(json['hasBowelMovement']),
       bowelCondition: serializer.fromJson<int?>(json['bowelCondition']),
-      bowelCustomCondition: serializer.fromJson<String?>(
-        json['bowelCustomCondition'],
-      ),
       bowelSize: serializer.fromJson<int?>(json['bowelSize']),
       bowelPhotoPath: serializer.fromJson<String?>(json['bowelPhotoPath']),
       hasUrineMovement: serializer.fromJson<bool>(json['hasUrineMovement']),
       urineCondition: serializer.fromJson<int?>(json['urineCondition']),
-      urineCustomCondition: serializer.fromJson<String?>(
-        json['urineCustomCondition'],
-      ),
       urineSize: serializer.fromJson<int?>(json['urineSize']),
       urinePhotoPath: serializer.fromJson<String?>(json['urinePhotoPath']),
       menstruationFlow: serializer.fromJson<int?>(json['menstruationFlow']),
@@ -8134,12 +8062,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       'waterIntakeNotes': serializer.toJson<String?>(waterIntakeNotes),
       'hasBowelMovement': serializer.toJson<bool>(hasBowelMovement),
       'bowelCondition': serializer.toJson<int?>(bowelCondition),
-      'bowelCustomCondition': serializer.toJson<String?>(bowelCustomCondition),
       'bowelSize': serializer.toJson<int?>(bowelSize),
       'bowelPhotoPath': serializer.toJson<String?>(bowelPhotoPath),
       'hasUrineMovement': serializer.toJson<bool>(hasUrineMovement),
       'urineCondition': serializer.toJson<int?>(urineCondition),
-      'urineCustomCondition': serializer.toJson<String?>(urineCustomCondition),
       'urineSize': serializer.toJson<int?>(urineSize),
       'urinePhotoPath': serializer.toJson<String?>(urinePhotoPath),
       'menstruationFlow': serializer.toJson<int?>(menstruationFlow),
@@ -8177,12 +8103,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     Value<String?> waterIntakeNotes = const Value.absent(),
     bool? hasBowelMovement,
     Value<int?> bowelCondition = const Value.absent(),
-    Value<String?> bowelCustomCondition = const Value.absent(),
     Value<int?> bowelSize = const Value.absent(),
     Value<String?> bowelPhotoPath = const Value.absent(),
     bool? hasUrineMovement,
     Value<int?> urineCondition = const Value.absent(),
-    Value<String?> urineCustomCondition = const Value.absent(),
     Value<int?> urineSize = const Value.absent(),
     Value<String?> urinePhotoPath = const Value.absent(),
     Value<int?> menstruationFlow = const Value.absent(),
@@ -8223,9 +8147,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     bowelCondition: bowelCondition.present
         ? bowelCondition.value
         : this.bowelCondition,
-    bowelCustomCondition: bowelCustomCondition.present
-        ? bowelCustomCondition.value
-        : this.bowelCustomCondition,
     bowelSize: bowelSize.present ? bowelSize.value : this.bowelSize,
     bowelPhotoPath: bowelPhotoPath.present
         ? bowelPhotoPath.value
@@ -8234,9 +8155,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     urineCondition: urineCondition.present
         ? urineCondition.value
         : this.urineCondition,
-    urineCustomCondition: urineCustomCondition.present
-        ? urineCustomCondition.value
-        : this.urineCustomCondition,
     urineSize: urineSize.present ? urineSize.value : this.urineSize,
     urinePhotoPath: urinePhotoPath.present
         ? urinePhotoPath.value
@@ -8307,9 +8225,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       bowelCondition: data.bowelCondition.present
           ? data.bowelCondition.value
           : this.bowelCondition,
-      bowelCustomCondition: data.bowelCustomCondition.present
-          ? data.bowelCustomCondition.value
-          : this.bowelCustomCondition,
       bowelSize: data.bowelSize.present ? data.bowelSize.value : this.bowelSize,
       bowelPhotoPath: data.bowelPhotoPath.present
           ? data.bowelPhotoPath.value
@@ -8320,9 +8235,6 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
       urineCondition: data.urineCondition.present
           ? data.urineCondition.value
           : this.urineCondition,
-      urineCustomCondition: data.urineCustomCondition.present
-          ? data.urineCustomCondition.value
-          : this.urineCustomCondition,
       urineSize: data.urineSize.present ? data.urineSize.value : this.urineSize,
       urinePhotoPath: data.urinePhotoPath.present
           ? data.urinePhotoPath.value
@@ -8404,12 +8316,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
           ..write('waterIntakeNotes: $waterIntakeNotes, ')
           ..write('hasBowelMovement: $hasBowelMovement, ')
           ..write('bowelCondition: $bowelCondition, ')
-          ..write('bowelCustomCondition: $bowelCustomCondition, ')
           ..write('bowelSize: $bowelSize, ')
           ..write('bowelPhotoPath: $bowelPhotoPath, ')
           ..write('hasUrineMovement: $hasUrineMovement, ')
           ..write('urineCondition: $urineCondition, ')
-          ..write('urineCustomCondition: $urineCustomCondition, ')
           ..write('urineSize: $urineSize, ')
           ..write('urinePhotoPath: $urinePhotoPath, ')
           ..write('menstruationFlow: $menstruationFlow, ')
@@ -8449,12 +8359,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
     waterIntakeNotes,
     hasBowelMovement,
     bowelCondition,
-    bowelCustomCondition,
     bowelSize,
     bowelPhotoPath,
     hasUrineMovement,
     urineCondition,
-    urineCustomCondition,
     urineSize,
     urinePhotoPath,
     menstruationFlow,
@@ -8493,12 +8401,10 @@ class FluidsEntryRow extends DataClass implements Insertable<FluidsEntryRow> {
           other.waterIntakeNotes == this.waterIntakeNotes &&
           other.hasBowelMovement == this.hasBowelMovement &&
           other.bowelCondition == this.bowelCondition &&
-          other.bowelCustomCondition == this.bowelCustomCondition &&
           other.bowelSize == this.bowelSize &&
           other.bowelPhotoPath == this.bowelPhotoPath &&
           other.hasUrineMovement == this.hasUrineMovement &&
           other.urineCondition == this.urineCondition &&
-          other.urineCustomCondition == this.urineCustomCondition &&
           other.urineSize == this.urineSize &&
           other.urinePhotoPath == this.urinePhotoPath &&
           other.menstruationFlow == this.menstruationFlow &&
@@ -8535,12 +8441,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
   final Value<String?> waterIntakeNotes;
   final Value<bool> hasBowelMovement;
   final Value<int?> bowelCondition;
-  final Value<String?> bowelCustomCondition;
   final Value<int?> bowelSize;
   final Value<String?> bowelPhotoPath;
   final Value<bool> hasUrineMovement;
   final Value<int?> urineCondition;
-  final Value<String?> urineCustomCondition;
   final Value<int?> urineSize;
   final Value<String?> urinePhotoPath;
   final Value<int?> menstruationFlow;
@@ -8576,12 +8480,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     this.waterIntakeNotes = const Value.absent(),
     this.hasBowelMovement = const Value.absent(),
     this.bowelCondition = const Value.absent(),
-    this.bowelCustomCondition = const Value.absent(),
     this.bowelSize = const Value.absent(),
     this.bowelPhotoPath = const Value.absent(),
     this.hasUrineMovement = const Value.absent(),
     this.urineCondition = const Value.absent(),
-    this.urineCustomCondition = const Value.absent(),
     this.urineSize = const Value.absent(),
     this.urinePhotoPath = const Value.absent(),
     this.menstruationFlow = const Value.absent(),
@@ -8618,12 +8520,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     this.waterIntakeNotes = const Value.absent(),
     this.hasBowelMovement = const Value.absent(),
     this.bowelCondition = const Value.absent(),
-    this.bowelCustomCondition = const Value.absent(),
     this.bowelSize = const Value.absent(),
     this.bowelPhotoPath = const Value.absent(),
     this.hasUrineMovement = const Value.absent(),
     this.urineCondition = const Value.absent(),
-    this.urineCustomCondition = const Value.absent(),
     this.urineSize = const Value.absent(),
     this.urinePhotoPath = const Value.absent(),
     this.menstruationFlow = const Value.absent(),
@@ -8664,12 +8564,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     Expression<String>? waterIntakeNotes,
     Expression<bool>? hasBowelMovement,
     Expression<int>? bowelCondition,
-    Expression<String>? bowelCustomCondition,
     Expression<int>? bowelSize,
     Expression<String>? bowelPhotoPath,
     Expression<bool>? hasUrineMovement,
     Expression<int>? urineCondition,
-    Expression<String>? urineCustomCondition,
     Expression<int>? urineSize,
     Expression<String>? urinePhotoPath,
     Expression<int>? menstruationFlow,
@@ -8706,14 +8604,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
       if (waterIntakeNotes != null) 'water_intake_notes': waterIntakeNotes,
       if (hasBowelMovement != null) 'has_bowel_movement': hasBowelMovement,
       if (bowelCondition != null) 'bowel_condition': bowelCondition,
-      if (bowelCustomCondition != null)
-        'bowel_custom_condition': bowelCustomCondition,
       if (bowelSize != null) 'bowel_size': bowelSize,
       if (bowelPhotoPath != null) 'bowel_photo_path': bowelPhotoPath,
       if (hasUrineMovement != null) 'has_urine_movement': hasUrineMovement,
       if (urineCondition != null) 'urine_condition': urineCondition,
-      if (urineCustomCondition != null)
-        'urine_custom_condition': urineCustomCondition,
       if (urineSize != null) 'urine_size': urineSize,
       if (urinePhotoPath != null) 'urine_photo_path': urinePhotoPath,
       if (menstruationFlow != null) 'menstruation_flow': menstruationFlow,
@@ -8753,12 +8647,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     Value<String?>? waterIntakeNotes,
     Value<bool>? hasBowelMovement,
     Value<int?>? bowelCondition,
-    Value<String?>? bowelCustomCondition,
     Value<int?>? bowelSize,
     Value<String?>? bowelPhotoPath,
     Value<bool>? hasUrineMovement,
     Value<int?>? urineCondition,
-    Value<String?>? urineCustomCondition,
     Value<int?>? urineSize,
     Value<String?>? urinePhotoPath,
     Value<int?>? menstruationFlow,
@@ -8795,12 +8687,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
       waterIntakeNotes: waterIntakeNotes ?? this.waterIntakeNotes,
       hasBowelMovement: hasBowelMovement ?? this.hasBowelMovement,
       bowelCondition: bowelCondition ?? this.bowelCondition,
-      bowelCustomCondition: bowelCustomCondition ?? this.bowelCustomCondition,
       bowelSize: bowelSize ?? this.bowelSize,
       bowelPhotoPath: bowelPhotoPath ?? this.bowelPhotoPath,
       hasUrineMovement: hasUrineMovement ?? this.hasUrineMovement,
       urineCondition: urineCondition ?? this.urineCondition,
-      urineCustomCondition: urineCustomCondition ?? this.urineCustomCondition,
       urineSize: urineSize ?? this.urineSize,
       urinePhotoPath: urinePhotoPath ?? this.urinePhotoPath,
       menstruationFlow: menstruationFlow ?? this.menstruationFlow,
@@ -8857,11 +8747,6 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     if (bowelCondition.present) {
       map['bowel_condition'] = Variable<int>(bowelCondition.value);
     }
-    if (bowelCustomCondition.present) {
-      map['bowel_custom_condition'] = Variable<String>(
-        bowelCustomCondition.value,
-      );
-    }
     if (bowelSize.present) {
       map['bowel_size'] = Variable<int>(bowelSize.value);
     }
@@ -8873,11 +8758,6 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
     }
     if (urineCondition.present) {
       map['urine_condition'] = Variable<int>(urineCondition.value);
-    }
-    if (urineCustomCondition.present) {
-      map['urine_custom_condition'] = Variable<String>(
-        urineCustomCondition.value,
-      );
     }
     if (urineSize.present) {
       map['urine_size'] = Variable<int>(urineSize.value);
@@ -8973,12 +8853,10 @@ class FluidsEntriesCompanion extends UpdateCompanion<FluidsEntryRow> {
           ..write('waterIntakeNotes: $waterIntakeNotes, ')
           ..write('hasBowelMovement: $hasBowelMovement, ')
           ..write('bowelCondition: $bowelCondition, ')
-          ..write('bowelCustomCondition: $bowelCustomCondition, ')
           ..write('bowelSize: $bowelSize, ')
           ..write('bowelPhotoPath: $bowelPhotoPath, ')
           ..write('hasUrineMovement: $hasUrineMovement, ')
           ..write('urineCondition: $urineCondition, ')
-          ..write('urineCustomCondition: $urineCustomCondition, ')
           ..write('urineSize: $urineSize, ')
           ..write('urinePhotoPath: $urinePhotoPath, ')
           ..write('menstruationFlow: $menstruationFlow, ')
@@ -34413,12 +34291,10 @@ typedef $$FluidsEntriesTableCreateCompanionBuilder =
       Value<String?> waterIntakeNotes,
       Value<bool> hasBowelMovement,
       Value<int?> bowelCondition,
-      Value<String?> bowelCustomCondition,
       Value<int?> bowelSize,
       Value<String?> bowelPhotoPath,
       Value<bool> hasUrineMovement,
       Value<int?> urineCondition,
-      Value<String?> urineCustomCondition,
       Value<int?> urineSize,
       Value<String?> urinePhotoPath,
       Value<int?> menstruationFlow,
@@ -34456,12 +34332,10 @@ typedef $$FluidsEntriesTableUpdateCompanionBuilder =
       Value<String?> waterIntakeNotes,
       Value<bool> hasBowelMovement,
       Value<int?> bowelCondition,
-      Value<String?> bowelCustomCondition,
       Value<int?> bowelSize,
       Value<String?> bowelPhotoPath,
       Value<bool> hasUrineMovement,
       Value<int?> urineCondition,
-      Value<String?> urineCustomCondition,
       Value<int?> urineSize,
       Value<String?> urinePhotoPath,
       Value<int?> menstruationFlow,
@@ -34539,11 +34413,6 @@ class $$FluidsEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get bowelCustomCondition => $composableBuilder(
-    column: $table.bowelCustomCondition,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<int> get bowelSize => $composableBuilder(
     column: $table.bowelSize,
     builder: (column) => ColumnFilters(column),
@@ -34561,11 +34430,6 @@ class $$FluidsEntriesTableFilterComposer
 
   ColumnFilters<int> get urineCondition => $composableBuilder(
     column: $table.urineCondition,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get urineCustomCondition => $composableBuilder(
-    column: $table.urineCustomCondition,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -34744,11 +34608,6 @@ class $$FluidsEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get bowelCustomCondition => $composableBuilder(
-    column: $table.bowelCustomCondition,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get bowelSize => $composableBuilder(
     column: $table.bowelSize,
     builder: (column) => ColumnOrderings(column),
@@ -34766,11 +34625,6 @@ class $$FluidsEntriesTableOrderingComposer
 
   ColumnOrderings<int> get urineCondition => $composableBuilder(
     column: $table.urineCondition,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get urineCustomCondition => $composableBuilder(
-    column: $table.urineCustomCondition,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -34941,11 +34795,6 @@ class $$FluidsEntriesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get bowelCustomCondition => $composableBuilder(
-    column: $table.bowelCustomCondition,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<int> get bowelSize =>
       $composableBuilder(column: $table.bowelSize, builder: (column) => column);
 
@@ -34961,11 +34810,6 @@ class $$FluidsEntriesTableAnnotationComposer
 
   GeneratedColumn<int> get urineCondition => $composableBuilder(
     column: $table.urineCondition,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get urineCustomCondition => $composableBuilder(
-    column: $table.urineCustomCondition,
     builder: (column) => column,
   );
 
@@ -35126,12 +34970,10 @@ class $$FluidsEntriesTableTableManager
                 Value<String?> waterIntakeNotes = const Value.absent(),
                 Value<bool> hasBowelMovement = const Value.absent(),
                 Value<int?> bowelCondition = const Value.absent(),
-                Value<String?> bowelCustomCondition = const Value.absent(),
                 Value<int?> bowelSize = const Value.absent(),
                 Value<String?> bowelPhotoPath = const Value.absent(),
                 Value<bool> hasUrineMovement = const Value.absent(),
                 Value<int?> urineCondition = const Value.absent(),
-                Value<String?> urineCustomCondition = const Value.absent(),
                 Value<int?> urineSize = const Value.absent(),
                 Value<String?> urinePhotoPath = const Value.absent(),
                 Value<int?> menstruationFlow = const Value.absent(),
@@ -35167,12 +35009,10 @@ class $$FluidsEntriesTableTableManager
                 waterIntakeNotes: waterIntakeNotes,
                 hasBowelMovement: hasBowelMovement,
                 bowelCondition: bowelCondition,
-                bowelCustomCondition: bowelCustomCondition,
                 bowelSize: bowelSize,
                 bowelPhotoPath: bowelPhotoPath,
                 hasUrineMovement: hasUrineMovement,
                 urineCondition: urineCondition,
-                urineCustomCondition: urineCustomCondition,
                 urineSize: urineSize,
                 urinePhotoPath: urinePhotoPath,
                 menstruationFlow: menstruationFlow,
@@ -35210,12 +35050,10 @@ class $$FluidsEntriesTableTableManager
                 Value<String?> waterIntakeNotes = const Value.absent(),
                 Value<bool> hasBowelMovement = const Value.absent(),
                 Value<int?> bowelCondition = const Value.absent(),
-                Value<String?> bowelCustomCondition = const Value.absent(),
                 Value<int?> bowelSize = const Value.absent(),
                 Value<String?> bowelPhotoPath = const Value.absent(),
                 Value<bool> hasUrineMovement = const Value.absent(),
                 Value<int?> urineCondition = const Value.absent(),
-                Value<String?> urineCustomCondition = const Value.absent(),
                 Value<int?> urineSize = const Value.absent(),
                 Value<String?> urinePhotoPath = const Value.absent(),
                 Value<int?> menstruationFlow = const Value.absent(),
@@ -35251,12 +35089,10 @@ class $$FluidsEntriesTableTableManager
                 waterIntakeNotes: waterIntakeNotes,
                 hasBowelMovement: hasBowelMovement,
                 bowelCondition: bowelCondition,
-                bowelCustomCondition: bowelCustomCondition,
                 bowelSize: bowelSize,
                 bowelPhotoPath: bowelPhotoPath,
                 hasUrineMovement: hasUrineMovement,
                 urineCondition: urineCondition,
-                urineCustomCondition: urineCustomCondition,
                 urineSize: urineSize,
                 urinePhotoPath: urinePhotoPath,
                 menstruationFlow: menstruationFlow,

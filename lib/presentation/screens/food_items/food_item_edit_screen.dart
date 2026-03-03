@@ -44,7 +44,8 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
 
   // Basic fields
   late final TextEditingController _nameController;
-  late final TextEditingController _servingSizeController;
+  late final TextEditingController _servingSizeAmountController;
+  late final TextEditingController _servingUnitController;
 
   // Nutritional fields (Simple + Packaged only — Composed are calculated)
   late final TextEditingController _caloriesController;
@@ -87,8 +88,11 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
     final item = widget.foodItem;
 
     _nameController = TextEditingController(text: item?.name ?? '');
-    _servingSizeController = TextEditingController(
-      text: item?.servingSize ?? '',
+    _servingSizeAmountController = TextEditingController(
+      text: item?.servingSize?.toString() ?? '',
+    );
+    _servingUnitController = TextEditingController(
+      text: item?.servingUnit ?? '',
     );
 
     // Nutritional controllers
@@ -137,7 +141,8 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _servingSizeController.dispose();
+    _servingSizeAmountController.dispose();
+    _servingUnitController.dispose();
     _caloriesController.dispose();
     _proteinController.dispose();
     _carbsController.dispose();
@@ -338,12 +343,32 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
   Widget _buildEditableNutrition(ThemeData theme) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      ShadowTextField(
-        controller: _servingSizeController,
-        label: 'Serving Size',
-        hintText: 'e.g., 1 cup, 100g',
-        maxLength: ValidationRules.servingSizeMaxLength,
-        textInputAction: TextInputAction.next,
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: ShadowTextField(
+              controller: _servingSizeAmountController,
+              label: 'Serving Size',
+              hintText: 'e.g., 100',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: ShadowTextField(
+              controller: _servingUnitController,
+              label: 'Unit',
+              hintText: 'e.g., g, cup, oz',
+              textInputAction: TextInputAction.next,
+            ),
+          ),
+        ],
       ),
       const SizedBox(height: 12),
       _buildNutrientRow(_caloriesController, 'Calories', 'kcal'),
@@ -404,10 +429,12 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
         _buildNutrientReadOnly(
           theme,
           'Serving Size',
-          _servingSizeController.text.isEmpty
+          _servingSizeAmountController.text.isEmpty
               ? null
-              : _servingSizeController.text,
-          null,
+              : _servingSizeAmountController.text,
+          _servingUnitController.text.isEmpty
+              ? null
+              : _servingUnitController.text,
         ),
         const SizedBox(height: 8),
         _buildNutrientReadOnly(
@@ -502,7 +529,10 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
-                      item!.servingSize!,
+                      [
+                        item!.servingSize!.toString(),
+                        if (item.servingUnit != null) item.servingUnit!,
+                      ].join(' '),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -737,7 +767,12 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
               return ListTile(
                 title: Text(item.name),
                 subtitle: item.servingSize != null
-                    ? Text(item.servingSize!)
+                    ? Text(
+                        [
+                          item.servingSize!.toString(),
+                          if (item.servingUnit != null) item.servingUnit!,
+                        ].join(' '),
+                      )
                     : null,
                 onTap: () => Navigator.of(ctx).pop(item),
               );
@@ -1015,7 +1050,10 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
         foodItemListProvider(widget.profileId).notifier,
       );
       final name = _nameController.text.trim();
-      final servingSize = _servingSizeController.text.trim();
+      final servingSize = double.tryParse(
+        _servingSizeAmountController.text.trim(),
+      );
+      final servingUnit = _servingUnitController.text.trim();
       final calories = double.tryParse(_caloriesController.text.trim());
       final protein = double.tryParse(_proteinController.text.trim());
       final carbs = double.tryParse(_carbsController.text.trim());
@@ -1051,7 +1089,8 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
             type: _selectedType,
             simpleItemIds: simpleItemIds,
             components: componentInputs,
-            servingSize: servingSize.isNotEmpty ? servingSize : null,
+            servingSize: servingSize,
+            servingUnit: servingUnit.isNotEmpty ? servingUnit : null,
             calories: calories,
             proteinGrams: protein,
             carbsGrams: carbs,
@@ -1078,7 +1117,8 @@ class _FoodItemEditScreenState extends ConsumerState<FoodItemEditScreen> {
             type: _selectedType,
             simpleItemIds: simpleItemIds,
             components: componentInputs,
-            servingSize: servingSize.isNotEmpty ? servingSize : null,
+            servingSize: servingSize,
+            servingUnit: servingUnit.isNotEmpty ? servingUnit : null,
             calories: calories,
             proteinGrams: protein,
             carbsGrams: carbs,

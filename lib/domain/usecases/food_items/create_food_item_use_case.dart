@@ -51,6 +51,7 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
       type: input.type,
       simpleItemIds: componentIds,
       servingSize: input.servingSize,
+      servingUnit: input.servingUnit,
       calories: input.calories,
       carbsGrams: input.carbsGrams,
       fatGrams: input.fatGrams,
@@ -158,14 +159,6 @@ class CreateFoodItemUseCase implements UseCase<CreateFoodItemInput, FoodItem> {
     }
     if (input.sugarGrams != null && input.sugarGrams! < 0) {
       errors['sugarGrams'] = ['Sugar cannot be negative'];
-    }
-
-    // Serving size max length
-    if (input.servingSize != null &&
-        input.servingSize!.length > ValidationRules.servingSizeMaxLength) {
-      errors['servingSize'] = [
-        'Serving size must be ${ValidationRules.servingSizeMaxLength} characters or less',
-      ];
     }
 
     if (errors.isNotEmpty) {

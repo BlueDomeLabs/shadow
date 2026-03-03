@@ -19,7 +19,8 @@ void main() {
         clientId: 'client-001',
         profileId: 'profile-001',
         name: 'Chicken Breast',
-        servingSize: '100g',
+        servingSize: 100,
+        servingUnit: 'g',
         calories: 165,
         carbsGrams: 0,
         fatGrams: 3.6,
@@ -69,8 +70,12 @@ void main() {
         expect(foodItem.isArchived, isFalse);
       });
 
-      test('servingSize is nullable', () {
-        expect(foodItem.servingSize, equals('100g'));
+      test('servingSize is nullable double', () {
+        expect(foodItem.servingSize, equals(100.0));
+      });
+
+      test('servingUnit is nullable string', () {
+        expect(foodItem.servingUnit, equals('g'));
       });
 
       test('calories is nullable', () {

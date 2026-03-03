@@ -28,7 +28,8 @@ class FoodItem with _$FoodItem implements Syncable {
     @Default(false) bool isArchived,
 
     // Nutritional information (optional for all types)
-    String? servingSize, // e.g., "1 cup", "100g"
+    double? servingSize, // Numeric serving size (e.g., 1.0, 100.0)
+    String? servingUnit, // Unit label (e.g., "cup", "g", "oz")
     double? calories, // kcal per serving
     double? carbsGrams, // Carbohydrates in grams
     double? fatGrams, // Fat in grams

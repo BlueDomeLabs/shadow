@@ -24,7 +24,8 @@ mixin _$CreateFoodItemInput {
   List<String> get simpleItemIds => throw _privateConstructorUsedError;
   List<FoodItemComponentInput> get components =>
       throw _privateConstructorUsedError;
-  String? get servingSize => throw _privateConstructorUsedError;
+  double? get servingSize => throw _privateConstructorUsedError;
+  String? get servingUnit => throw _privateConstructorUsedError;
   double? get calories => throw _privateConstructorUsedError;
   double? get carbsGrams => throw _privateConstructorUsedError;
   double? get fatGrams => throw _privateConstructorUsedError;
@@ -61,7 +62,8 @@ abstract class $CreateFoodItemInputCopyWith<$Res> {
     FoodItemType type,
     List<String> simpleItemIds,
     List<FoodItemComponentInput> components,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -100,6 +102,7 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
     Object? simpleItemIds = null,
     Object? components = null,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -143,6 +146,10 @@ class _$CreateFoodItemInputCopyWithImpl<$Res, $Val extends CreateFoodItemInput>
             servingSize: freezed == servingSize
                 ? _value.servingSize
                 : servingSize // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            servingUnit: freezed == servingUnit
+                ? _value.servingUnit
+                : servingUnit // ignore: cast_nullable_to_non_nullable
                       as String?,
             calories: freezed == calories
                 ? _value.calories
@@ -218,7 +225,8 @@ abstract class _$$CreateFoodItemInputImplCopyWith<$Res>
     FoodItemType type,
     List<String> simpleItemIds,
     List<FoodItemComponentInput> components,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -256,6 +264,7 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
     Object? simpleItemIds = null,
     Object? components = null,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -299,6 +308,10 @@ class __$$CreateFoodItemInputImplCopyWithImpl<$Res>
         servingSize: freezed == servingSize
             ? _value.servingSize
             : servingSize // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        servingUnit: freezed == servingUnit
+            ? _value.servingUnit
+            : servingUnit // ignore: cast_nullable_to_non_nullable
                   as String?,
         calories: freezed == calories
             ? _value.calories
@@ -368,6 +381,7 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     final List<String> simpleItemIds = const [],
     final List<FoodItemComponentInput> components = const [],
     this.servingSize,
+    this.servingUnit,
     this.calories,
     this.carbsGrams,
     this.fatGrams,
@@ -412,7 +426,9 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
   }
 
   @override
-  final String? servingSize;
+  final double? servingSize;
+  @override
+  final String? servingUnit;
   @override
   final double? calories;
   @override
@@ -443,7 +459,7 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
 
   @override
   String toString() {
-    return 'CreateFoodItemInput(profileId: $profileId, clientId: $clientId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
+    return 'CreateFoodItemInput(profileId: $profileId, clientId: $clientId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, servingUnit: $servingUnit, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
   }
 
   @override
@@ -467,6 +483,8 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
             ) &&
             (identical(other.servingSize, servingSize) ||
                 other.servingSize == servingSize) &&
+            (identical(other.servingUnit, servingUnit) ||
+                other.servingUnit == servingUnit) &&
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.carbsGrams, carbsGrams) ||
@@ -503,6 +521,7 @@ class _$CreateFoodItemInputImpl implements _CreateFoodItemInput {
     const DeepCollectionEquality().hash(_simpleItemIds),
     const DeepCollectionEquality().hash(_components),
     servingSize,
+    servingUnit,
     calories,
     carbsGrams,
     fatGrams,
@@ -538,7 +557,8 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
     final FoodItemType type,
     final List<String> simpleItemIds,
     final List<FoodItemComponentInput> components,
-    final String? servingSize,
+    final double? servingSize,
+    final String? servingUnit,
     final double? calories,
     final double? carbsGrams,
     final double? fatGrams,
@@ -567,7 +587,9 @@ abstract class _CreateFoodItemInput implements CreateFoodItemInput {
   @override
   List<FoodItemComponentInput> get components;
   @override
-  String? get servingSize;
+  double? get servingSize;
+  @override
+  String? get servingUnit;
   @override
   double? get calories;
   @override
@@ -1028,7 +1050,8 @@ mixin _$UpdateFoodItemInput {
   List<String>? get simpleItemIds => throw _privateConstructorUsedError;
   List<FoodItemComponentInput>? get components =>
       throw _privateConstructorUsedError;
-  String? get servingSize => throw _privateConstructorUsedError;
+  double? get servingSize => throw _privateConstructorUsedError;
+  String? get servingUnit => throw _privateConstructorUsedError;
   double? get calories => throw _privateConstructorUsedError;
   double? get carbsGrams => throw _privateConstructorUsedError;
   double? get fatGrams => throw _privateConstructorUsedError;
@@ -1065,7 +1088,8 @@ abstract class $UpdateFoodItemInputCopyWith<$Res> {
     FoodItemType? type,
     List<String>? simpleItemIds,
     List<FoodItemComponentInput>? components,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -1104,6 +1128,7 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
     Object? simpleItemIds = freezed,
     Object? components = freezed,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -1147,6 +1172,10 @@ class _$UpdateFoodItemInputCopyWithImpl<$Res, $Val extends UpdateFoodItemInput>
             servingSize: freezed == servingSize
                 ? _value.servingSize
                 : servingSize // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            servingUnit: freezed == servingUnit
+                ? _value.servingUnit
+                : servingUnit // ignore: cast_nullable_to_non_nullable
                       as String?,
             calories: freezed == calories
                 ? _value.calories
@@ -1222,7 +1251,8 @@ abstract class _$$UpdateFoodItemInputImplCopyWith<$Res>
     FoodItemType? type,
     List<String>? simpleItemIds,
     List<FoodItemComponentInput>? components,
-    String? servingSize,
+    double? servingSize,
+    String? servingUnit,
     double? calories,
     double? carbsGrams,
     double? fatGrams,
@@ -1260,6 +1290,7 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
     Object? simpleItemIds = freezed,
     Object? components = freezed,
     Object? servingSize = freezed,
+    Object? servingUnit = freezed,
     Object? calories = freezed,
     Object? carbsGrams = freezed,
     Object? fatGrams = freezed,
@@ -1303,6 +1334,10 @@ class __$$UpdateFoodItemInputImplCopyWithImpl<$Res>
         servingSize: freezed == servingSize
             ? _value.servingSize
             : servingSize // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        servingUnit: freezed == servingUnit
+            ? _value.servingUnit
+            : servingUnit // ignore: cast_nullable_to_non_nullable
                   as String?,
         calories: freezed == calories
             ? _value.calories
@@ -1372,6 +1407,7 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     final List<String>? simpleItemIds,
     final List<FoodItemComponentInput>? components,
     this.servingSize,
+    this.servingUnit,
     this.calories,
     this.carbsGrams,
     this.fatGrams,
@@ -1417,7 +1453,9 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
   }
 
   @override
-  final String? servingSize;
+  final double? servingSize;
+  @override
+  final String? servingUnit;
   @override
   final double? calories;
   @override
@@ -1448,7 +1486,7 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
 
   @override
   String toString() {
-    return 'UpdateFoodItemInput(id: $id, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
+    return 'UpdateFoodItemInput(id: $id, profileId: $profileId, name: $name, type: $type, simpleItemIds: $simpleItemIds, components: $components, servingSize: $servingSize, servingUnit: $servingUnit, calories: $calories, carbsGrams: $carbsGrams, fatGrams: $fatGrams, proteinGrams: $proteinGrams, fiberGrams: $fiberGrams, sugarGrams: $sugarGrams, sodiumMg: $sodiumMg, barcode: $barcode, brand: $brand, ingredientsText: $ingredientsText, openFoodFactsId: $openFoodFactsId, importSource: $importSource, imageUrl: $imageUrl)';
   }
 
   @override
@@ -1471,6 +1509,8 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
             ) &&
             (identical(other.servingSize, servingSize) ||
                 other.servingSize == servingSize) &&
+            (identical(other.servingUnit, servingUnit) ||
+                other.servingUnit == servingUnit) &&
             (identical(other.calories, calories) ||
                 other.calories == calories) &&
             (identical(other.carbsGrams, carbsGrams) ||
@@ -1507,6 +1547,7 @@ class _$UpdateFoodItemInputImpl implements _UpdateFoodItemInput {
     const DeepCollectionEquality().hash(_simpleItemIds),
     const DeepCollectionEquality().hash(_components),
     servingSize,
+    servingUnit,
     calories,
     carbsGrams,
     fatGrams,
@@ -1542,7 +1583,8 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
     final FoodItemType? type,
     final List<String>? simpleItemIds,
     final List<FoodItemComponentInput>? components,
-    final String? servingSize,
+    final double? servingSize,
+    final String? servingUnit,
     final double? calories,
     final double? carbsGrams,
     final double? fatGrams,
@@ -1571,7 +1613,9 @@ abstract class _UpdateFoodItemInput implements UpdateFoodItemInput {
   @override
   List<FoodItemComponentInput>? get components;
   @override
-  String? get servingSize;
+  double? get servingSize;
+  @override
+  String? get servingUnit;
   @override
   double? get calories;
   @override

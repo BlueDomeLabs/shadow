@@ -200,8 +200,12 @@ class AppDatabase extends _$AppDatabase {
   /// v18: Sleep quality fields (Phase 21)
   ///      Added time_to_fall_asleep, times_awakened, time_awake_during_night
   ///      columns to sleep_entries.
+  /// v19: Drop orphaned fluids_entries columns (AUDIT-02-001)
+  ///      Removed bowel_custom_condition and urine_custom_condition columns
+  ///      which had no corresponding entity fields. Recreates fluids_entries
+  ///      table via TableMigration, preserving all other data.
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   /// Migration strategy for schema changes.
   ///
@@ -352,6 +356,15 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(sleepEntries, sleepEntries.timeToFallAsleep);
           await m.addColumn(sleepEntries, sleepEntries.timesAwakened);
           await m.addColumn(sleepEntries, sleepEntries.timeAwakeDuringNight);
+        }
+
+        // v19: Drop orphaned fluids_entries columns (AUDIT-02-001)
+        // bowel_custom_condition and urine_custom_condition were never read
+        // or written by the DAO. TableMigration recreates fluids_entries with
+        // only the columns defined in the current Dart table class, copying
+        // all other data intact.
+        if (from < 19) {
+          await m.alterTable(TableMigration(fluidsEntries));
         }
       } on Exception catch (e, stack) {
         debugPrint('[Shadow DB] onUpgrade FAILED (v$from → v$to): $e');

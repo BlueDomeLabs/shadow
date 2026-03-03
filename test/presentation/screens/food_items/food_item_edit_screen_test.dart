@@ -24,7 +24,8 @@ void main() {
       String name = 'Grilled Chicken',
       FoodItemType type = FoodItemType.simple,
       List<String> simpleItemIds = const [],
-      String? servingSize,
+      double? servingSize,
+      String? servingUnit,
     }) => FoodItem(
       id: id,
       clientId: 'client-001',
@@ -33,6 +34,7 @@ void main() {
       type: type,
       simpleItemIds: simpleItemIds,
       servingSize: servingSize,
+      servingUnit: servingUnit,
       syncMetadata: SyncMetadata.empty(),
     );
 
@@ -179,14 +181,16 @@ void main() {
         expect(find.text('Update'), findsOneWidget);
       });
 
-      testWidgets('pre-populates notes from servingSize in edit mode', (
-        tester,
-      ) async {
-        final foodItem = createTestFoodItem(servingSize: '1 serving');
+      testWidgets('pre-populates servingSize in edit mode', (tester) async {
+        final foodItem = createTestFoodItem(
+          servingSize: 1,
+          servingUnit: 'serving',
+        );
         await tester.pumpWidget(buildEditScreen(foodItem));
         await tester.pumpAndSettle();
 
-        expect(find.text('1 serving'), findsOneWidget);
+        expect(find.text('1.0'), findsWidgets);
+        expect(find.text('serving'), findsOneWidget);
       });
     });
 

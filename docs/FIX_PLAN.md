@@ -225,7 +225,7 @@ Photo feature gaps: missing UI pickers, missing file cleanup, and synchronous I/
 
 ---
 
-### GROUP F — Schema & Entity Fixes
+### GROUP F — Schema & Entity Fixes ✓ DONE
 **Complexity:** Medium
 **Severity:** 0 CRITICAL, 1 HIGH, 1 MEDIUM, 0 LOW
 **Findings:** 2

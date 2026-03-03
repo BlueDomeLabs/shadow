@@ -52,6 +52,7 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
       type: input.type ?? existing.type,
       simpleItemIds: componentIds ?? existing.simpleItemIds,
       servingSize: input.servingSize ?? existing.servingSize,
+      servingUnit: input.servingUnit ?? existing.servingUnit,
       calories: input.calories ?? existing.calories,
       carbsGrams: input.carbsGrams ?? existing.carbsGrams,
       fatGrams: input.fatGrams ?? existing.fatGrams,
@@ -166,14 +167,6 @@ class UpdateFoodItemUseCase implements UseCase<UpdateFoodItemInput, FoodItem> {
     }
     if (item.sugarGrams != null && item.sugarGrams! < 0) {
       errors['sugarGrams'] = ['Sugar cannot be negative'];
-    }
-
-    // Serving size max length
-    if (item.servingSize != null &&
-        item.servingSize!.length > ValidationRules.servingSizeMaxLength) {
-      errors['servingSize'] = [
-        'Serving size must be ${ValidationRules.servingSizeMaxLength} characters or less',
-      ];
     }
 
     if (errors.isNotEmpty) {
