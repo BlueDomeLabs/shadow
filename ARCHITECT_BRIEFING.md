@@ -9,9 +9,9 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Correlation flakiness investigation complete; no code changes needed
-# Last Commit:   fix: Group S — sync integrity, dirty marks, missing adapters (fa71304)
-# Last Code:     18 DAOs, 18 repository impls, bootstrap.dart, SyncEntityAdapter, 3 archive use cases, 18 repo tests, sync_service_impl_test
+# Status:        IDLE — Test hygiene rules added to CLAUDE.md
+# Last Commit:   docs: add test hygiene rules to CLAUDE.md
+# Last Code:     CLAUDE.md only
 # Next Action:   Architect reviews Group S output; issues next GROUP prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
 # Tests:         3,448 passing (confirmed — no flakiness)
@@ -22,6 +22,12 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — CLAUDE.md: Test Hygiene Rules
+
+Added 6 test hygiene rules to CLAUDE.md (new `## Test Hygiene — Preventing Flakiness` section): ProviderContainer disposal, pumpAndSettle timeout, database isolation, fake clocks for timestamps, dual-mode verification before commit, and large-session batching. No code changes.
 
 ---
 

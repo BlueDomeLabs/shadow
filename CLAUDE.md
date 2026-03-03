@@ -261,6 +261,61 @@ the response loads.
 
 ---
 
+## Test Hygiene — Preventing Flakiness
+
+These rules apply to every test written in this project.
+
+### 1. Always dispose ProviderContainers
+
+Any test that creates a ProviderContainer manually must dispose it:
+  addTearDown(container.dispose);
+Add this immediately after container creation — never rely on test
+framework cleanup.
+
+### 2. Widget tests: always use pumpAndSettle with a timeout
+
+Replace bare `await tester.pumpAndSettle()` with:
+  await tester.pumpAndSettle(const Duration(seconds: 5));
+This prevents infinite loops on animated widgets while making
+the timeout explicit.
+
+### 3. Never share database state across tests
+
+Each test that touches the database must either:
+a) Use a fresh in-memory database created in setUp(), or
+b) Call the project's resetTestDatabase() helper in tearDown()
+
+Never assume the database is clean at the start of a test.
+
+### 4. Async use cases: use fake clocks, not DateTime.now()
+
+Tests that involve timestamps must use a fixed epoch value, not
+DateTime.now(). This prevents failures when tests cross a second
+boundary between assertion setup and verification.
+
+### 5. Run new test files in both modes before committing
+
+Before committing any new test file, run:
+  # In isolation
+  flutter test path/to/new_test.dart
+
+  # In full suite (last 30 seconds is enough to catch order issues)
+  flutter test
+
+Both must pass. If full-suite fails but isolation passes, fix the
+tearDown/dispose before committing — do not leave it for later.
+
+### 6. Large sessions: commit in smaller batches
+
+When a session adds more than ~15 new tests, commit in two batches:
+- First commit: production code changes
+- Second commit: new tests
+
+This makes it easier to bisect if flakiness appears and keeps the
+test delta reviewable.
+
+---
+
 ## KEY REFERENCE FILES
 
 | Document | Purpose |
