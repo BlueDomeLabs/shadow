@@ -117,6 +117,22 @@ class _FakeAuthService implements ProfileAuthorizationService {
   Future<List<ProfileAccess>> getAccessibleProfiles() async => [];
 }
 
+class _ErrorHealthSyncSettingsRepo implements HealthSyncSettingsRepository {
+  @override
+  Future<Result<HealthSyncSettings?, AppError>> getByProfile(
+    String profileId,
+  ) async => Failure(
+    DatabaseError.queryFailed('health_sync_settings', Exception('db error')),
+  );
+
+  @override
+  Future<Result<HealthSyncSettings, AppError>> save(
+    HealthSyncSettings settings,
+  ) async => Failure(
+    DatabaseError.insertFailed('health_sync_settings', Exception('db error')),
+  );
+}
+
 class _FakeHealthPlatformService implements HealthPlatformService {
   @override
   HealthSourcePlatform get currentPlatform =>
@@ -373,6 +389,56 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Blood Oxygen'), findsOneWidget);
+    });
+
+    // -----------------------------------------------------------------------
+    // AUDIT-07-004: AsyncError state — friendly error + retry button
+    // -----------------------------------------------------------------------
+
+    testWidgets('error state shows user-friendly message and Retry button', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            profileProvider.overrideWith(
+              (ref) => _FakeProfileNotifier(profile: _testProfile),
+            ),
+            // Override the settings repo to return a failure — the notifier
+            // propagates this as an AsyncError state.
+            healthSyncSettingsRepositoryProvider.overrideWithValue(
+              _ErrorHealthSyncSettingsRepo(),
+            ),
+            healthSyncStatusRepositoryProvider.overrideWithValue(
+              _FakeHealthSyncStatusRepo(),
+            ),
+            importedVitalRepositoryProvider.overrideWithValue(
+              _FakeImportedVitalRepo(),
+            ),
+            profileAuthorizationServiceProvider.overrideWithValue(
+              _FakeAuthService(),
+            ),
+            healthPlatformServiceProvider.overrideWithValue(
+              _FakeHealthPlatformService(),
+            ),
+          ],
+          child: const MaterialApp(home: HealthSyncSettingsScreen()),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      // User-friendly error message is shown (not raw exception text)
+      expect(
+        find.text('Unable to load data. Please try again.'),
+        findsOneWidget,
+      );
+
+      // Raw exception text must NOT be shown
+      expect(find.textContaining('Exception'), findsNothing);
+      expect(find.textContaining('db error'), findsNothing);
+
+      // Retry button is present
+      expect(find.text('Retry'), findsOneWidget);
     });
   });
 

@@ -651,7 +651,7 @@ Fix approach: Add test/integration/sync_flow_
   getPendingSync → pushChanges → mock cloud returns
   the change → pullChanges → applyChanges → verify
   entity marked clean and present in DB.
-Status: OPEN
+Status: FIXED (GROUP T — 5 integration tests added)
 
 ---
 
@@ -681,7 +681,7 @@ Fix approach: Add test/unit/domain/usecases/
   Cover happy path, repository failure,
   profile authorization failure, and edge cases
   for all four use cases in the family.
-Status: OPEN
+Status: FIXED (GROUP T — 14 unit tests added)
 
 ---
 
@@ -723,7 +723,7 @@ Fix approach: Add a testWidgets case that overrides
   the provider with an AsyncError state and verifies
   the error message and retry button are rendered.
   Defer addition until AUDIT-06-004 fix lands.
-Status: OPEN
+Status: FIXED (GROUP T — error state testWidgets added)
 
 ---
 
