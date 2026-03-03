@@ -336,13 +336,15 @@ void main() {
     group('delete', () {
       test('delete_delegatesToSoftDelete', () async {
         when(
-          mockDietDao.softDelete('diet-001'),
+          mockDietDao.softDelete('diet-001', deviceId: anyNamed('deviceId')),
         ).thenAnswer((_) async => const Success(null));
 
         final result = await repository.delete('diet-001');
 
         expect(result.isSuccess, isTrue);
-        verify(mockDietDao.softDelete('diet-001')).called(1);
+        verify(
+          mockDietDao.softDelete('diet-001', deviceId: anyNamed('deviceId')),
+        ).called(1);
       });
     });
 

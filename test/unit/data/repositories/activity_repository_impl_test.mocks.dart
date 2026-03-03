@@ -299,13 +299,29 @@ class MockActivityDao extends _i1.Mock implements _i6.ActivityDao {
           as _i5.Future<_i8.Result<_i9.Activity, _i10.AppError>>);
 
   @override
-  _i5.Future<_i8.Result<void, _i10.AppError>> softDelete(String? id) =>
+  _i5.Future<_i8.Result<void, _i10.AppError>> softDelete(
+    String? id, {
+    String? deviceId = '',
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#softDelete, [id]),
+            Invocation.method(#softDelete, [id], {#deviceId: deviceId}),
             returnValue: _i5.Future<_i8.Result<void, _i10.AppError>>.value(
               _i7.dummyValue<_i8.Result<void, _i10.AppError>>(
                 this,
-                Invocation.method(#softDelete, [id]),
+                Invocation.method(#softDelete, [id], {#deviceId: deviceId}),
+              ),
+            ),
+          )
+          as _i5.Future<_i8.Result<void, _i10.AppError>>);
+
+  @override
+  _i5.Future<_i8.Result<void, _i10.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i5.Future<_i8.Result<void, _i10.AppError>>.value(
+              _i7.dummyValue<_i8.Result<void, _i10.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
               ),
             ),
           )

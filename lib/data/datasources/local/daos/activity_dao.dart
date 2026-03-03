@@ -102,27 +102,49 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete an activity.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            activities,
-          )..where((a) => a.id.equals(id) & a.syncDeletedAt.isNull())).write(
-            ActivitiesCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('Activity', id));
-      }
+      final row =
+          await (select(activities)
+                ..where((a) => a.id.equals(id) & a.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('Activity', id));
+      await (update(activities)..where((a) => a.id.equals(id))).write(
+        ActivitiesCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('activities', id, e, stack));
+    }
+  }
+
+  /// Mark an activity as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(activities)..where((a) => a.id.equals(id))).write(
+        ActivitiesCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('activities', id, e, stack));
     }
   }
 

@@ -116,28 +116,55 @@ class SupplementDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete a supplement.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  ///
+  /// [deviceId] is the current device identifier; used to set sync_device_id
+  /// and increment sync_version so conflict detection works (AUDIT-03-002).
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            supplements,
-          )..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull())).write(
-            SupplementsCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('Supplement', id));
-      }
-
+      final row =
+          await (select(supplements)
+                ..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('Supplement', id));
+      await (update(supplements)..where((s) => s.id.equals(id))).write(
+        SupplementsCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('supplements', id, e, stack));
+    }
+  }
+
+  /// Mark a supplement as synced after successful cloud upload.
+  ///
+  /// Bypasses the soft-delete filter so deleted entities can be marked synced
+  /// (AUDIT-03-001). Does not increment syncVersion — sync is not a local change.
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(supplements)..where((s) => s.id.equals(id))).write(
+        SupplementsCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('supplements', id, e, stack));
     }
   }
 

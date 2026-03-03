@@ -353,6 +353,19 @@ class MockSupplementRepository extends _i1.Mock
                 ),
           )
           as _i5.Future<_i7.Result<List<_i8.Supplement>, _i9.AppError>>);
+
+  @override
+  _i5.Future<_i7.Result<void, _i9.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i5.Future<_i7.Result<void, _i9.AppError>>.value(
+              _i10.dummyValue<_i7.Result<void, _i9.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i5.Future<_i7.Result<void, _i9.AppError>>);
 }
 
 /// A class which mocks [EncryptionService].

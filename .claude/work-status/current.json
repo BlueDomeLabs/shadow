@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP U — UI Error States & Form Guards",
+  "task": "GROUP S — Sync Integrity Fixes",
   "timestamp": "2026-03-02T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3441,
+  "testCount": 3448,
   "schemaVersion": 18,
-  "notes": "Fixed 6 Group U findings: AUDIT-06-001 (6 home tabs now show user-friendly error + retry), AUDIT-06-002 (add_edit_profile_screen _isSaving guard + _isDirty + PopScope), AUDIT-06-003 (reports_tab _previewError set on catch + rendered in both sheets), AUDIT-06-004 (health_sync_settings_screen + notification_settings_screen user-friendly error + retry), AUDIT-06-005 (guest_invite_list_screen user-friendly error + retry), AUDIT-CC-001 (FlareUpListScreen delete action wired via popup menu + confirmation dialog). All tests passing, analyzer clean."
+  "notes": "Fixed 5 Group S findings: AUDIT-CB-001 (DietDao.deactivateAll() now marks dirty), AUDIT-02-003 (register 3 missing SyncEntityAdapters for Diet/DietViolation/FastingSession in bootstrap.dart), AUDIT-03-002 (all 18 DAO softDelete() methods now increment syncVersion+1 with deviceId), AUDIT-03-003 (remove double-increment from 3 archive use cases), AUDIT-03-001 (add DAO-level markSynced(id) to all 18 DAOs; SyncEntityAdapter delegates directly, bypassing soft-delete filter). All tests passing, analyzer clean. Session spanned 2 context windows (compaction mid-session)."
 }

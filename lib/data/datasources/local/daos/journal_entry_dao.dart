@@ -105,28 +105,54 @@ class JournalEntryDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete a journal entry.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            journalEntries,
-          )..where((j) => j.id.equals(id) & j.syncDeletedAt.isNull())).write(
-            JournalEntriesCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
+      final row =
+          await (select(journalEntries)
+                ..where((j) => j.id.equals(id) & j.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) {
         return Failure(DatabaseError.notFound('JournalEntry', id));
       }
+      await (update(journalEntries)..where((j) => j.id.equals(id))).write(
+        JournalEntriesCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(
         DatabaseError.deleteFailed('journal_entries', id, e, stack),
+      );
+    }
+  }
+
+  /// Mark a journal entry as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(journalEntries)..where((j) => j.id.equals(id))).write(
+        JournalEntriesCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(
+        DatabaseError.updateFailed('journal_entries', id, e, stack),
       );
     }
   }

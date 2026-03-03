@@ -41,6 +41,10 @@ abstract class EntityRepository<T, ID> {
 
   /// Get entities pending sync (isDirty = true).
   Future<Result<List<T>, AppError>> getPendingSync();
+
+  /// Mark entity as synced (clears isDirty, sets status=synced).
+  /// Works on both live and soft-deleted entities (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(ID id);
 }
 
 /// Alias for EntityRepository used by intelligence and other subsystems.

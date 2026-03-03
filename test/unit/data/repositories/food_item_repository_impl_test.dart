@@ -247,13 +247,15 @@ void main() {
     group('delete', () {
       test('delete_delegatesToDaoSoftDelete', () async {
         when(
-          mockDao.softDelete('food-001'),
+          mockDao.softDelete('food-001', deviceId: anyNamed('deviceId')),
         ).thenAnswer((_) async => const Success(null));
 
         final result = await repository.delete('food-001');
 
         expect(result.isSuccess, isTrue);
-        verify(mockDao.softDelete('food-001')).called(1);
+        verify(
+          mockDao.softDelete('food-001', deviceId: anyNamed('deviceId')),
+        ).called(1);
       });
     });
 

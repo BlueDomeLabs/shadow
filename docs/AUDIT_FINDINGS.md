@@ -206,7 +206,9 @@ Fix approach: Add three SyncEntityAdapter registrations
   for Diet, DietViolation, and FastingSession in
   bootstrap.dart. Implement the required toJson/fromJson
   and repository accessors for each adapter.
-Status: OPEN
+Status: FIXED — 2026-03-02 GROUP S. Added SyncEntityAdapter<Diet>, SyncEntityAdapter<DietViolation>,
+  SyncEntityAdapter<FastingSession> to bootstrap.dart. All three entities have toJson/fromJson
+  via Freezed and full repository stacks. Round-trip tests added to sync_service_impl_test.dart.
 
 ---
 
@@ -268,7 +270,10 @@ Fix approach: Either (a) have markEntitySynced bypass
   the soft-delete filter to fetch the row, or (b) add a
   DAO-level markSynced(id) partial UPDATE that sets
   syncIsDirty=false directly without fetching the entity.
-Status: OPEN
+Status: FIXED — 2026-03-02 GROUP S. Added markSynced(id) partial UPDATE to all 18 DAOs
+  (UPDATE ... SET syncIsDirty=false, syncStatus=synced, syncLastSyncedAt=now WHERE id=?).
+  SyncEntityAdapter.markEntitySynced() now delegates directly to repository.markSynced(id)
+  bypassing the soft-delete filter. EntityRepository interface extended with markSynced().
 
 ---
 
@@ -290,7 +295,10 @@ Fix approach: Repository delete() methods should call
   prepareForDelete() then _dao.updateEntity(), or each
   DAO softDelete() must also write syncVersion+1 and
   syncDeviceId.
-Status: OPEN
+Status: FIXED — 2026-03-02 GROUP S. All 18 DAO softDelete() methods now accept
+  {String deviceId = ''} named parameter and fetch the current row before writing,
+  incrementing syncVersion+1 and writing syncDeviceId. BaseRepository.delete()
+  calls _dao.softDelete(id, deviceId: await getDeviceId()).
 
 ---
 
@@ -311,7 +319,9 @@ Fix approach: Remove the manual syncMetadata.copyWith(...)
   block from all three archive use cases. Only set
   isArchived on the entity copy and let repository.update()
   handle all sync metadata increments.
-Status: OPEN
+Status: FIXED — 2026-03-02 GROUP S. Removed manual syncMetadata.copyWith() block
+  from archive_supplement_use_case.dart, archive_condition_use_case.dart,
+  archive_food_item_use_case.dart. repository.update() now handles all version increments.
 
 ---
 
@@ -1194,7 +1204,9 @@ Fix approach: In DietDao.deactivateAll(), add
   one diet at a time via the repository update path
   (which calls prepareForUpdate) instead of a bulk
   DAO write.
-Status: OPEN
+Status: FIXED — 2026-03-02 GROUP S. DietDao.deactivateAll() now writes syncIsDirty=true,
+  syncUpdatedAt=now, syncStatus=modified.value via customUpdate SQL bypassing Drift's
+  soft-delete filter. Also added softDelete() + markSynced() to DietDao.
 
 ---
 

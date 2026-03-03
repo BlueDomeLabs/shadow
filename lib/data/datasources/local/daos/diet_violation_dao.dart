@@ -106,27 +106,54 @@ class DietViolationDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete a violation.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            dietViolations,
-          )..where((v) => v.id.equals(id) & v.syncDeletedAt.isNull())).write(
-            DietViolationsCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-      if (rowsAffected == 0) {
+      final row =
+          await (select(dietViolations)
+                ..where((v) => v.id.equals(id) & v.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) {
         return Failure(DatabaseError.notFound('DietViolation', id));
       }
+      await (update(dietViolations)..where((v) => v.id.equals(id))).write(
+        DietViolationsCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(
         DatabaseError.deleteFailed('diet_violations', id, e, stack),
+      );
+    }
+  }
+
+  /// Mark a diet violation as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(dietViolations)..where((v) => v.id.equals(id))).write(
+        DietViolationsCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(
+        DatabaseError.updateFailed('diet_violations', id, e, stack),
       );
     }
   }

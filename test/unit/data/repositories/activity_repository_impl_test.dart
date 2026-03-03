@@ -271,17 +271,21 @@ void main() {
     group('delete', () {
       test('delete_delegatesToDaoSoftDelete', () async {
         when(
-          mockDao.softDelete('act-001'),
+          mockDao.softDelete('act-001', deviceId: anyNamed('deviceId')),
         ).thenAnswer((_) async => const Success(null));
 
         final result = await repository.delete('act-001');
 
         expect(result.isSuccess, isTrue);
-        verify(mockDao.softDelete('act-001')).called(1);
+        verify(
+          mockDao.softDelete('act-001', deviceId: anyNamed('deviceId')),
+        ).called(1);
       });
 
       test('delete_returnsFailureWhenNotFound', () async {
-        when(mockDao.softDelete('non-existent')).thenAnswer(
+        when(
+          mockDao.softDelete('non-existent', deviceId: anyNamed('deviceId')),
+        ).thenAnswer(
           (_) async =>
               Failure(DatabaseError.notFound('Activity', 'non-existent')),
         );

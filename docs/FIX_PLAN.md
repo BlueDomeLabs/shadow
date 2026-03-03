@@ -424,7 +424,7 @@ Sub-tasks (in order):
 | 2 | **Q — Quick Cleanup** ✓ DONE | 8 | 0 | 0 | 1 | 7 | 1 session | No |
 | 3 | **N — Navigation Wiring** ✓ DONE | 5 | 0 | 3 | 2 | 0 | 1 session | YES — users can't reach features |
 | 4 | **U — UI Error States** ✓ DONE | 6 | 0 | 0 | 3 | 2 | 1 session | No |
-| 5 | S — Sync Integrity | 5 | 0 | 2 | 2 | 0 (+ comment) | 1-2 sessions | YES — data correctness |
+| 5 | **S — Sync Integrity** ✓ DONE | 5 | 0 | 2 | 2 | 0 (+ comment) | 1-2 sessions | YES — data correctness |
 | 6 | T — Test Coverage | 3 | 0 | 1 | 2 | 0 | 1 session | No |
 | 7 | PH — Photo System | 5 | 0 | 1 | 3 | 0 | 1-2 sessions | No |
 | 8 | F — Schema & Entity | 2 | 0 | 1 | 1 | 0 | 1 session | No |
@@ -483,6 +483,7 @@ When all groups are complete and deferred items are acknowledged:
 | 2026-03-02 | GROUP Q | AUDIT-02-004, 02-005, 04-003, 05-001, 05-003, 07-003, 10-001, 10-002, CA-003 | 458ce90 | All 9 findings fixed; 3,442 tests passing; analyzer clean |
 | 2026-03-02 | GROUP N | AUDIT-CC-002, CC-003, CD-001, CD-002, CD-004 | 40154aa | All 5 findings fixed; 3,441 tests passing (−1 from removed filter stub test); analyzer clean |
 | 2026-03-02 | GROUP U | AUDIT-06-001, 06-002, 06-003, 06-004, 06-005, CC-001 | TBD | All 6 findings fixed; 3,441 tests passing; analyzer clean |
+| 2026-03-02 | GROUP S | AUDIT-CB-001, AUDIT-02-003, AUDIT-03-002, AUDIT-03-003, AUDIT-03-001 | TBD | All 5 findings fixed; 3,448 tests passing (+7 new); analyzer clean. Session spanned 2 context windows (compaction mid-session). |
 
 ---
 

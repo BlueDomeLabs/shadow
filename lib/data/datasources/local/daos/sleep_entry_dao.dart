@@ -98,27 +98,51 @@ class SleepEntryDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete an entry.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            sleepEntries,
-          )..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull())).write(
-            SleepEntriesCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
+      final row =
+          await (select(sleepEntries)
+                ..where((s) => s.id.equals(id) & s.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) {
         return Failure(DatabaseError.notFound('SleepEntry', id));
       }
+      await (update(sleepEntries)..where((s) => s.id.equals(id))).write(
+        SleepEntriesCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('sleep_entries', id, e, stack));
+    }
+  }
+
+  /// Mark a sleep entry as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(sleepEntries)..where((s) => s.id.equals(id))).write(
+        SleepEntriesCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('sleep_entries', id, e, stack));
     }
   }
 

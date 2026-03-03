@@ -112,28 +112,49 @@ class IntakeLogDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete an intake log.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            intakeLogs,
-          )..where((i) => i.id.equals(id) & i.syncDeletedAt.isNull())).write(
-            IntakeLogsCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('IntakeLog', id));
-      }
-
+      final row =
+          await (select(intakeLogs)
+                ..where((i) => i.id.equals(id) & i.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('IntakeLog', id));
+      await (update(intakeLogs)..where((i) => i.id.equals(id))).write(
+        IntakeLogsCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('intake_logs', id, e, stack));
+    }
+  }
+
+  /// Mark an intake log as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(intakeLogs)..where((i) => i.id.equals(id))).write(
+        IntakeLogsCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('intake_logs', id, e, stack));
     }
   }
 

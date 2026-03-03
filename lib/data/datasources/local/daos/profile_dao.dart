@@ -104,28 +104,50 @@ class ProfileDao extends DatabaseAccessor<AppDatabase> with _$ProfileDaoMixin {
   }
 
   /// Soft delete a profile.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            profiles,
-          )..where((p) => p.id.equals(id) & p.syncDeletedAt.isNull())).write(
-            ProfilesCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('Profile', id));
-      }
+      final row =
+          await (select(profiles)
+                ..where((p) => p.id.equals(id) & p.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('Profile', id));
+      await (update(profiles)..where((p) => p.id.equals(id))).write(
+        ProfilesCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
 
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('profiles', id, e, stack));
+    }
+  }
+
+  /// Mark a profile as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(profiles)..where((p) => p.id.equals(id))).write(
+        ProfilesCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('profiles', id, e, stack));
     }
   }
 

@@ -65,7 +65,7 @@ import 'package:uuid/uuid.dart';
 
 /// Initializes the app and returns provider overrides for [ProviderScope].
 ///
-/// Creates the encrypted database, shared services, all 14 repository
+/// Creates the encrypted database, shared services, repository
 /// implementations, encryption service, cloud provider, sync service, and
 /// platform notification scheduler.
 Future<List<Override>> bootstrap() async {
@@ -82,7 +82,7 @@ Future<List<Override>> bootstrap() async {
   // 4. Create local auth service (allows all access for local profiles)
   final authService = LocalProfileAuthorizationService();
 
-  // 5. Create all 14 repository implementations
+  // 5. Create all repository implementations
   final supplementRepo = SupplementRepositoryImpl(
     database.supplementDao,
     uuid,
@@ -280,7 +280,7 @@ Future<List<Override>> bootstrap() async {
   // 8. Get SharedPreferences for sync timestamp/version storage
   final prefs = await SharedPreferences.getInstance();
 
-  // 9. Build sync entity adapters for all 15 entity types
+  // 9. Build sync entity adapters for all 18 entity types (AUDIT-02-003 adds Diet, DietViolation, FastingSession)
   final syncService = SyncServiceImpl(
     adapters: [
       SyncEntityAdapter<Supplement>(
@@ -372,6 +372,25 @@ Future<List<Override>> bootstrap() async {
         repository: profileRepo,
         withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
         fromJson: Profile.fromJson,
+      ),
+      // AUDIT-02-003: Diet, DietViolation, FastingSession adapters were missing.
+      SyncEntityAdapter<Diet>(
+        entityType: 'diets',
+        repository: dietRepo,
+        withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: Diet.fromJson,
+      ),
+      SyncEntityAdapter<DietViolation>(
+        entityType: 'diet_violations',
+        repository: dietViolationRepo,
+        withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: DietViolation.fromJson,
+      ),
+      SyncEntityAdapter<FastingSession>(
+        entityType: 'fasting_sessions',
+        repository: fastingRepo,
+        withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+        fromJson: FastingSession.fromJson,
       ),
       // Phase 16b: ImportedVital sync adapter added when SyncFromHealthPlatformUseCase
       // is implemented with health plugin integration.

@@ -59,6 +59,10 @@ class MockSupplementRepository implements SupplementRepository {
   Future<Result<List<Supplement>, AppError>> getPendingSync() async =>
       Success([_testSupplement]);
 
+  @override
+  Future<Result<void, AppError>> markSynced(String id) async =>
+      const Success(null);
+
   // SupplementRepository-specific methods
   @override
   Future<Result<List<Supplement>, AppError>> getByProfile(

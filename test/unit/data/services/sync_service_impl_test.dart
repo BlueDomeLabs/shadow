@@ -12,6 +12,9 @@ import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
+import 'package:shadow_app/domain/entities/diet.dart';
+import 'package:shadow_app/domain/entities/diet_violation.dart';
+import 'package:shadow_app/domain/entities/fasting_session.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
 import 'package:shadow_app/domain/entities/sync_conflict.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
@@ -201,14 +204,11 @@ void main() {
     });
 
     test(
-      'markEntitySynced loads entity, applies markSynced, and saves',
+      'markEntitySynced delegates to repository.markSynced (AUDIT-03-001)',
       () async {
-        final sup = _testSupplement();
-
-        when(mockRepo.getById('sup-1')).thenAnswer((_) async => Success(sup));
         when(
-          mockRepo.update(any, markDirty: false),
-        ).thenAnswer((_) async => Success(sup));
+          mockRepo.markSynced('sup-1'),
+        ).thenAnswer((_) async => const Success(null));
 
         final adapter = SyncEntityAdapter<Supplement>(
           entityType: 'supplements',
@@ -219,20 +219,38 @@ void main() {
 
         final result = await adapter.markEntitySynced('sup-1');
         expect(result.isSuccess, true);
-
-        // Verify update was called with markDirty: false
-        final captured = verify(
-          mockRepo.update(captureAny, markDirty: false),
-        ).captured;
-        final savedEntity = captured.first as Supplement;
-        expect(savedEntity.syncMetadata.syncIsDirty, false);
-        expect(savedEntity.syncMetadata.syncStatus, SyncStatus.synced);
-        expect(savedEntity.syncMetadata.syncLastSyncedAt, isNotNull);
+        verify(mockRepo.markSynced('sup-1')).called(1);
       },
     );
 
-    test('markEntitySynced returns failure if entity not found', () async {
-      when(mockRepo.getById('missing')).thenAnswer(
+    test(
+      'markEntitySynced works for soft-deleted entities (AUDIT-03-001)',
+      () async {
+        // Previously markEntitySynced used getById() which filters out
+        // soft-deleted entities, causing a silent failure. The new
+        // implementation calls repository.markSynced() directly, which
+        // executes a partial UPDATE bypassing the soft-delete filter.
+        when(
+          mockRepo.markSynced('deleted-sup-1'),
+        ).thenAnswer((_) async => const Success(null));
+
+        final adapter = SyncEntityAdapter<Supplement>(
+          entityType: 'supplements',
+          repository: mockRepo,
+          withSyncMetadata: (e, m) => e.copyWith(syncMetadata: m),
+          fromJson: Supplement.fromJson,
+        );
+
+        final result = await adapter.markEntitySynced('deleted-sup-1');
+        expect(result.isSuccess, true);
+        verify(mockRepo.markSynced('deleted-sup-1')).called(1);
+        // getById is NOT called — soft-delete filter is bypassed
+        verifyNever(mockRepo.getById(any));
+      },
+    );
+
+    test('markEntitySynced returns failure when markSynced fails', () async {
+      when(mockRepo.markSynced('missing')).thenAnswer(
         (_) async => Failure(DatabaseError.notFound('supplement', 'missing')),
       );
 
@@ -336,10 +354,9 @@ void main() {
       when(
         mockCloud.uploadEntity(any, any, any, any, any, any),
       ).thenAnswer((_) async => const Success(null));
-      when(mockRepo.getById('sup-1')).thenAnswer((_) async => Success(sup));
       when(
-        mockRepo.update(any, markDirty: false),
-      ).thenAnswer((_) async => Success(sup));
+        mockRepo.markSynced('sup-1'),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await syncService.pushChanges([change]);
       expect(result.isSuccess, true);
@@ -370,9 +387,8 @@ void main() {
       expect(envelope['encryptedData'], 'nonce:ciphertext:tag');
       expect(uploadCapture[5], 1);
 
-      // Verify entity was marked synced
-      verify(mockRepo.getById('sup-1')).called(1);
-      verify(mockRepo.update(any, markDirty: false)).called(1);
+      // Verify entity was marked synced via repository.markSynced()
+      verify(mockRepo.markSynced('sup-1')).called(1);
     });
 
     test('increments failedCount on upload failure', () async {
@@ -401,7 +417,7 @@ void main() {
       expect(pushResult.failedCount, 1);
 
       // Should NOT call markEntitySynced
-      verifyNever(mockRepo.getById(any));
+      verifyNever(mockRepo.markSynced(any));
     });
 
     test('increments failedCount on encryption exception', () async {
@@ -442,12 +458,9 @@ void main() {
       when(
         mockCloud.uploadEntity(any, any, any, any, any, any),
       ).thenAnswer((_) async => const Success(null));
-
-      final sup = _testSupplement();
-      when(mockRepo.getById('sup-1')).thenAnswer((_) async => Success(sup));
       when(
-        mockRepo.update(any, markDirty: false),
-      ).thenAnswer((_) async => Success(sup));
+        mockRepo.markSynced('sup-1'),
+      ).thenAnswer((_) async => const Success(null));
 
       await syncService.pushChanges([change]);
 
@@ -477,12 +490,9 @@ void main() {
       when(
         mockCloud.uploadEntity(any, any, any, any, any, any),
       ).thenAnswer((_) async => const Success(null));
-
-      final sup = _testSupplement();
-      when(mockRepo.getById('sup-1')).thenAnswer((_) async => Success(sup));
       when(
-        mockRepo.update(any, markDirty: false),
-      ).thenAnswer((_) async => Success(sup));
+        mockRepo.markSynced('sup-1'),
+      ).thenAnswer((_) async => const Success(null));
 
       await syncService.pushChanges([change]);
 
@@ -526,11 +536,9 @@ void main() {
         );
       });
 
-      final sup = _testSupplement();
-      when(mockRepo.getById(any)).thenAnswer((_) async => Success(sup));
       when(
-        mockRepo.update(any, markDirty: false),
-      ).thenAnswer((_) async => Success(sup));
+        mockRepo.markSynced(any),
+      ).thenAnswer((_) async => const Success(null));
 
       final result = await syncService.pushChanges(changes);
       final pushResult = result.valueOrNull!;
@@ -552,10 +560,9 @@ void main() {
       when(
         mockCloud.uploadEntity(any, any, any, any, any, any),
       ).thenAnswer((_) async => const Success(null));
-      when(mockRepo.getById('sup-1')).thenAnswer((_) async => Success(sup));
       when(
-        mockRepo.update(any, markDirty: false),
-      ).thenAnswer((_) async => Success(sup));
+        mockRepo.markSynced('sup-1'),
+      ).thenAnswer((_) async => const Success(null));
 
       // Should not throw
       await syncService.pushPendingChanges();
@@ -1444,5 +1451,200 @@ void main() {
 
       expect(result.isFailure, true);
     });
+  });
+
+  // ===========================================================================
+  // AUDIT-02-003: New adapter round-trip tests — Diet, DietViolation, FastingSession
+  // Verifies toJson() → fromJson() round-trips for each entity type so that
+  // SyncEntityAdapter can reconstruct them from cloud data.
+  // ===========================================================================
+
+  group('AUDIT-02-003: Diet adapter round-trip', () {
+    test('Diet serializes and deserializes via toJson/fromJson', () {
+      const diet = Diet(
+        id: 'diet-1',
+        clientId: 'device-1',
+        profileId: 'profile-1',
+        name: 'Keto',
+        description: 'Low carb diet',
+        presetType: DietPresetType.keto,
+        isActive: true,
+        startDate: 1700000000000,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: 1000,
+          syncUpdatedAt: 1000,
+          syncDeviceId: 'device-1',
+          syncIsDirty: false,
+          syncVersion: 2,
+        ),
+      );
+
+      final json = diet.toJson();
+      final roundTripped = Diet.fromJson(json);
+
+      expect(roundTripped.id, diet.id);
+      expect(roundTripped.clientId, diet.clientId);
+      expect(roundTripped.profileId, diet.profileId);
+      expect(roundTripped.name, diet.name);
+      expect(roundTripped.presetType, diet.presetType);
+      expect(roundTripped.isActive, diet.isActive);
+      expect(roundTripped.startDate, diet.startDate);
+      expect(
+        roundTripped.syncMetadata.syncIsDirty,
+        diet.syncMetadata.syncIsDirty,
+      );
+      expect(
+        roundTripped.syncMetadata.syncVersion,
+        diet.syncMetadata.syncVersion,
+      );
+    });
+
+    test('Diet.copyWith(syncMetadata) wires correctly for adapter', () {
+      const diet = Diet(
+        id: 'diet-1',
+        clientId: 'device-1',
+        profileId: 'profile-1',
+        name: 'Paleo',
+        startDate: 1700000000000,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: 1000,
+          syncUpdatedAt: 1000,
+          syncDeviceId: 'device-1',
+          syncVersion: 2,
+        ),
+      );
+
+      final newMeta = diet.syncMetadata.markSynced();
+      final updated = diet.copyWith(syncMetadata: newMeta);
+
+      expect(updated.syncMetadata.syncIsDirty, false);
+      expect(updated.syncMetadata.syncStatus, SyncStatus.synced);
+    });
+  });
+
+  group('AUDIT-02-003: DietViolation adapter round-trip', () {
+    test('DietViolation serializes and deserializes via toJson/fromJson', () {
+      const violation = DietViolation(
+        id: 'viol-1',
+        clientId: 'device-1',
+        profileId: 'profile-1',
+        dietId: 'diet-1',
+        ruleId: 'rule-1',
+        foodName: 'Bread',
+        ruleDescription: 'No grains allowed',
+        timestamp: 1700000000000,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: 1000,
+          syncUpdatedAt: 1000,
+          syncDeviceId: 'device-1',
+          syncIsDirty: false,
+          syncVersion: 3,
+        ),
+      );
+
+      final json = violation.toJson();
+      final roundTripped = DietViolation.fromJson(json);
+
+      expect(roundTripped.id, violation.id);
+      expect(roundTripped.clientId, violation.clientId);
+      expect(roundTripped.profileId, violation.profileId);
+      expect(roundTripped.dietId, violation.dietId);
+      expect(roundTripped.ruleId, violation.ruleId);
+      expect(roundTripped.foodName, violation.foodName);
+      expect(roundTripped.ruleDescription, violation.ruleDescription);
+      expect(roundTripped.timestamp, violation.timestamp);
+      expect(
+        roundTripped.syncMetadata.syncVersion,
+        violation.syncMetadata.syncVersion,
+      );
+    });
+
+    test(
+      'DietViolation.copyWith(syncMetadata) wires correctly for adapter',
+      () {
+        const violation = DietViolation(
+          id: 'viol-1',
+          clientId: 'device-1',
+          profileId: 'profile-1',
+          dietId: 'diet-1',
+          ruleId: 'rule-1',
+          foodName: 'Bread',
+          ruleDescription: 'No grains',
+          timestamp: 1700000000000,
+          syncMetadata: SyncMetadata(
+            syncCreatedAt: 1000,
+            syncUpdatedAt: 1000,
+            syncDeviceId: 'device-1',
+            syncVersion: 2,
+          ),
+        );
+
+        final newMeta = violation.syncMetadata.markSynced();
+        final updated = violation.copyWith(syncMetadata: newMeta);
+
+        expect(updated.syncMetadata.syncIsDirty, false);
+        expect(updated.syncMetadata.syncStatus, SyncStatus.synced);
+      },
+    );
+  });
+
+  group('AUDIT-02-003: FastingSession adapter round-trip', () {
+    test('FastingSession serializes and deserializes via toJson/fromJson', () {
+      const session = FastingSession(
+        id: 'fast-1',
+        clientId: 'device-1',
+        profileId: 'profile-1',
+        protocol: DietPresetType.if168,
+        startedAt: 1700000000000,
+        targetHours: 16,
+        syncMetadata: SyncMetadata(
+          syncCreatedAt: 1000,
+          syncUpdatedAt: 1000,
+          syncDeviceId: 'device-1',
+          syncIsDirty: false,
+          syncVersion: 2,
+        ),
+      );
+
+      final json = session.toJson();
+      final roundTripped = FastingSession.fromJson(json);
+
+      expect(roundTripped.id, session.id);
+      expect(roundTripped.clientId, session.clientId);
+      expect(roundTripped.profileId, session.profileId);
+      expect(roundTripped.protocol, session.protocol);
+      expect(roundTripped.startedAt, session.startedAt);
+      expect(roundTripped.targetHours, session.targetHours);
+      expect(
+        roundTripped.syncMetadata.syncVersion,
+        session.syncMetadata.syncVersion,
+      );
+    });
+
+    test(
+      'FastingSession.copyWith(syncMetadata) wires correctly for adapter',
+      () {
+        const session = FastingSession(
+          id: 'fast-1',
+          clientId: 'device-1',
+          profileId: 'profile-1',
+          protocol: DietPresetType.omad,
+          startedAt: 1700000000000,
+          targetHours: 23,
+          syncMetadata: SyncMetadata(
+            syncCreatedAt: 1000,
+            syncUpdatedAt: 1000,
+            syncDeviceId: 'device-1',
+            syncVersion: 3,
+          ),
+        );
+
+        final newMeta = session.syncMetadata.markSynced();
+        final updated = session.copyWith(syncMetadata: newMeta);
+
+        expect(updated.syncMetadata.syncIsDirty, false);
+        expect(updated.syncMetadata.syncStatus, SyncStatus.synced);
+      },
+    );
   });
 }

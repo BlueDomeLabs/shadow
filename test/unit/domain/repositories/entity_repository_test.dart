@@ -43,6 +43,10 @@ class MockEntityRepository implements EntityRepository<MockEntity, String> {
   @override
   Future<Result<List<MockEntity>, AppError>> getPendingSync() async =>
       const Success([]);
+
+  @override
+  Future<Result<void, AppError>> markSynced(String id) async =>
+      const Success(null);
 }
 
 /// Simple entity for testing.

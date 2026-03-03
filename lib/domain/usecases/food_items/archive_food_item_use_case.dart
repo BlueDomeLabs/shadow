@@ -43,15 +43,11 @@ class ArchiveFoodItemUseCase
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
 
-    // 4. Update archive status
-    final updated = existing.copyWith(
-      isArchived: input.archive,
-      syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: DateTime.now().millisecondsSinceEpoch,
-        syncVersion: existing.syncMetadata.syncVersion + 1,
-        syncIsDirty: true,
-      ),
-    );
+    // 4. Update archive status — do NOT manually set syncMetadata here;
+    //    repository.update() calls prepareForUpdate() → markModified()
+    //    which handles syncVersion increment, isDirty, and updatedAt.
+    //    Setting syncMetadata here caused double-increment (AUDIT-03-003).
+    final updated = existing.copyWith(isArchived: input.archive);
 
     // 5. Persist
     return _repository.update(updated);

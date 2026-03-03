@@ -91,28 +91,12 @@ class SyncEntityAdapter<T extends Syncable> {
     return withSyncMetadata(entity, entity.syncMetadata.markSynced());
   }
 
-  /// Mark an entity as synced after successful upload.
+  /// Mark an entity as synced after successful upload (AUDIT-03-001).
   ///
-  /// Loads the entity, applies markSynced() to its sync metadata via
-  /// the [withSyncMetadata] callback, then saves with markDirty: false.
-  Future<Result<void, AppError>> markEntitySynced(String entityId) async {
-    final getResult = await repository.getById(entityId);
-    if (getResult.isFailure) return Failure(getResult.errorOrNull!);
-
-    final entity = getResult.valueOrNull!;
-    final syncedEntity = withSyncMetadata(
-      entity,
-      entity.syncMetadata.markSynced(),
-    );
-
-    final updateResult = await repository.update(
-      syncedEntity,
-      markDirty: false,
-    );
-    if (updateResult.isFailure) return Failure(updateResult.errorOrNull!);
-
-    return const Success(null);
-  }
+  /// Delegates directly to repository.markSynced() so that soft-deleted
+  /// entities (which getById() filters out) are also correctly cleared.
+  Future<Result<void, AppError>> markEntitySynced(String entityId) =>
+      repository.markSynced(entityId);
 
   /// Mark an entity as conflicted with a remote version.
   ///

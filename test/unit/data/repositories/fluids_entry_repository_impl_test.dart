@@ -224,13 +224,15 @@ void main() {
     group('delete', () {
       test('delete_delegatesToDaoSoftDelete', () async {
         when(
-          mockDao.softDelete('fluid-001'),
+          mockDao.softDelete('fluid-001', deviceId: anyNamed('deviceId')),
         ).thenAnswer((_) async => const Success(null));
 
         final result = await repository.delete('fluid-001');
 
         expect(result.isSuccess, isTrue);
-        verify(mockDao.softDelete('fluid-001')).called(1);
+        verify(
+          mockDao.softDelete('fluid-001', deviceId: anyNamed('deviceId')),
+        ).called(1);
       });
     });
 

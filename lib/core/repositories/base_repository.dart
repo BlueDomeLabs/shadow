@@ -12,6 +12,9 @@ abstract class BaseRepository<T> {
 
   BaseRepository(this._uuid, this._deviceInfoService);
 
+  /// Get the current device ID (for passing to DAO soft-delete).
+  Future<String> getDeviceId() => _deviceInfoService.getDeviceId();
+
   /// Generate ID if not provided or empty
   String generateId(String? existingId) =>
       (existingId?.isNotEmpty ?? false) ? existingId! : _uuid.v4();

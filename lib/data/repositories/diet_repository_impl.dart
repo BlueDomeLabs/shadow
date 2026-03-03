@@ -98,10 +98,14 @@ class DietRepositoryImpl extends BaseRepository<Diet>
   }
 
   @override
-  Future<Result<void, AppError>> delete(String id) => _dao.softDelete(id);
+  Future<Result<void, AppError>> delete(String id) async =>
+      _dao.softDelete(id, deviceId: await getDeviceId());
 
   @override
   Future<Result<void, AppError>> hardDelete(String id) => _dao.hardDelete(id);
+
+  @override
+  Future<Result<void, AppError>> markSynced(String id) => _dao.markSynced(id);
 
   @override
   Future<Result<List<Diet>, AppError>> getModifiedSince(int since) =>

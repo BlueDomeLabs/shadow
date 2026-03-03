@@ -101,37 +101,70 @@ class DietDao extends DatabaseAccessor<AppDatabase> with _$DietDaoMixin {
   }
 
   /// Deactivate all diets for a profile (used before activating a new one).
+  ///
+  /// Also marks deactivated diets dirty so the sync system picks up the
+  /// isActive=false change (AUDIT-CB-001).
   Future<void> deactivateAll(String profileId) async {
-    await (update(diets)..where(
-          (d) =>
-              d.profileId.equals(profileId) &
-              d.isActive.equals(true) &
-              d.syncDeletedAt.isNull(),
-        ))
-        .write(const DietsCompanion(isActive: Value(false)));
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await customUpdate(
+      'UPDATE diets SET is_active = 0, sync_is_dirty = 1, '
+      'sync_updated_at = ?, sync_status = 2, sync_version = sync_version + 1 '
+      'WHERE profile_id = ? AND is_active = 1 AND sync_deleted_at IS NULL',
+      variables: [Variable.withInt(now), Variable.withString(profileId)],
+      updates: {diets},
+    );
   }
 
   /// Soft delete a diet.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  ///
+  /// [deviceId] is the current device identifier; used to set sync_device_id
+  /// and increment sync_version so conflict detection works (AUDIT-03-002).
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            diets,
-          )..where((d) => d.id.equals(id) & d.syncDeletedAt.isNull())).write(
-            DietsCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('Diet', id));
-      }
+      final row =
+          await (select(diets)
+                ..where((d) => d.id.equals(id) & d.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('Diet', id));
+      await (update(diets)..where((d) => d.id.equals(id))).write(
+        DietsCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('diets', id, e, stack));
+    }
+  }
+
+  /// Mark a diet as synced after successful cloud upload.
+  ///
+  /// Bypasses the soft-delete filter so deleted entities can be marked synced
+  /// (AUDIT-03-001). Does not increment syncVersion — sync is not a local change.
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(diets)..where((d) => d.id.equals(id))).write(
+        DietsCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('diets', id, e, stack));
     }
   }
 

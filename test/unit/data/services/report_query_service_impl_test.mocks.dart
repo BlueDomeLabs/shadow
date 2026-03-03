@@ -275,6 +275,19 @@ class MockFoodLogRepository extends _i1.Mock implements _i2.FoodLogRepository {
                 ),
           )
           as _i3.Future<_i4.Result<List<_i5.FoodLog>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [IntakeLogRepository].
@@ -556,6 +569,19 @@ class MockIntakeLogRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i9.IntakeLog>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [FluidsEntryRepository].
@@ -789,6 +815,19 @@ class MockFluidsEntryRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i12.FluidsEntry>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [SleepEntryRepository].
@@ -1024,6 +1063,19 @@ class MockSleepEntryRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i14.SleepEntry>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [ConditionLogRepository].
@@ -1304,6 +1356,19 @@ class MockConditionLogRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i16.ConditionLog>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [FlareUpRepository].
@@ -1587,6 +1652,19 @@ class MockFlareUpRepository extends _i1.Mock implements _i17.FlareUpRepository {
                 ),
           )
           as _i3.Future<_i4.Result<List<_i18.FlareUp>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [JournalEntryRepository].
@@ -1828,6 +1906,19 @@ class MockJournalEntryRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i20.JournalEntry>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [PhotoEntryRepository].
@@ -2078,6 +2169,19 @@ class MockPhotoEntryRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i22.PhotoEntry>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [FoodItemRepository].
@@ -2368,6 +2472,19 @@ class MockFoodItemRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i24.FoodItem>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [SupplementRepository].
@@ -2593,6 +2710,19 @@ class MockSupplementRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i27.Supplement>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }
 
 /// A class which mocks [ConditionRepository].
@@ -2815,4 +2945,17 @@ class MockConditionRepository extends _i1.Mock
                 ),
           )
           as _i3.Future<_i4.Result<List<_i29.Condition>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> markSynced(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#markSynced, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }

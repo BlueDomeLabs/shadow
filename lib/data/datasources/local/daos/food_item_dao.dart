@@ -107,27 +107,49 @@ class FoodItemDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Soft delete a food item.
-  Future<Result<void, AppError>> softDelete(String id) async {
+  Future<Result<void, AppError>> softDelete(
+    String id, {
+    String deviceId = '',
+  }) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final rowsAffected =
-          await (update(
-            foodItems,
-          )..where((f) => f.id.equals(id) & f.syncDeletedAt.isNull())).write(
-            FoodItemsCompanion(
-              syncDeletedAt: Value(now),
-              syncUpdatedAt: Value(now),
-              syncIsDirty: const Value(true),
-              syncStatus: Value(SyncStatus.deleted.value),
-            ),
-          );
-
-      if (rowsAffected == 0) {
-        return Failure(DatabaseError.notFound('FoodItem', id));
-      }
+      final row =
+          await (select(foodItems)
+                ..where((f) => f.id.equals(id) & f.syncDeletedAt.isNull()))
+              .getSingleOrNull();
+      if (row == null) return Failure(DatabaseError.notFound('FoodItem', id));
+      await (update(foodItems)..where((f) => f.id.equals(id))).write(
+        FoodItemsCompanion(
+          syncDeletedAt: Value(now),
+          syncUpdatedAt: Value(now),
+          syncIsDirty: const Value(true),
+          syncStatus: Value(SyncStatus.deleted.value),
+          syncVersion: Value(row.syncVersion + 1),
+          syncDeviceId: Value(
+            deviceId.isNotEmpty ? deviceId : (row.syncDeviceId ?? ''),
+          ),
+        ),
+      );
       return const Success(null);
     } on Exception catch (e, stack) {
       return Failure(DatabaseError.deleteFailed('food_items', id, e, stack));
+    }
+  }
+
+  /// Mark a food item as synced after successful cloud upload (AUDIT-03-001).
+  Future<Result<void, AppError>> markSynced(String id) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await (update(foodItems)..where((f) => f.id.equals(id))).write(
+        FoodItemsCompanion(
+          syncIsDirty: const Value(false),
+          syncStatus: Value(SyncStatus.synced.value),
+          syncLastSyncedAt: Value(now),
+        ),
+      );
+      return const Success(null);
+    } on Exception catch (e, stack) {
+      return Failure(DatabaseError.updateFailed('food_items', id, e, stack));
     }
   }
 
