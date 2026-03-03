@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-03-02
-# Briefing Version: 20260302-035
+# Last Updated: 2026-03-03
+# Briefing Version: 20260303-036
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,12 +9,12 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP T complete
-# Last Commit:   test: Group T — sync integration test, fluids use case tests, error state test
-# Last Code:     3 new test files, 24 new tests, docs updated
-# Next Action:   Architect reviews GROUP T; issues next GROUP prompt
+# Status:        IDLE — GROUP PH complete
+# Last Commit:   fix: Group PH — photo system gaps, async file I/O, gallery thumbnails (cf5f00f)
+# Last Code:     5 findings fixed across 5 production files + 3 test files; +12 tests
+# Next Action:   Architect reviews GROUP T + GROUP PH; issues next GROUP prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,472 passing (+24 from GROUP T)
+# Tests:         3,484 passing (+12 from GROUP PH)
 # Schema:        v18
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,69 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — GROUP PH: Photo System Gaps
+
+**Tests: 3,484 | Schema: v18 | Analyzer: clean**
+
+### Technical Summary
+
+Fixed 5 findings from the pre-launch audit in strict dependency order (CB-002 → CB-003 → CB-004 → 09-001 → 09-002).
+
+**AUDIT-CB-002 — Flare-up photo picker (report_flare_up_screen.dart):**
+Added `String? _photoPath` state variable. In edit mode, initialized from `editing.photoPath`. Added `_buildPhotosSection(theme)` widget method between Triggers and Notes: when `_photoPath != null`, shows a thumbnail + TextButton.icon (key: `remove_photo_button`) to remove; always shows OutlinedButton.icon (key: `add_photo_button`). `_pickPhoto()` uses `showPhotoPicker()` + `PhotoProcessingService().processStandard()` pattern matching `condition_log_screen.dart`. Wired `photoPath: _photoPath` into `LogFlareUpInput` (_saveNew) and `UpdateFlareUpInput` (_saveEdit). Tests: 5 new tests (add button renders, remove button shown when pre-filled, remove clears state, edit save includes photoPath, new save passes null photoPath).
+
+**AUDIT-CB-003 — Urine photo picker (fluids_entry_screen.dart):**
+Added `String? _urinePhotoPath` state var alongside existing `_bowelPhotoPath`. Initialized from `entry?.urinePhotoPath` in initState. Added `_buildUrinePhoto(theme)` and `_pickUrinePhoto()` matching bowel photo pattern exactly. Key: `add_urine_photo_button`. Wired `urinePhotoPath: _hadUrination ? _urinePhotoPath : null` into both `LogFluidsEntryInput` and `UpdateFluidsEntryInput` (replaced both occurrences simultaneously to avoid missing one). Tests: 4 new tests (button renders when toggle on, remove button shown when pre-filled, null in create mode, path preserved in edit mode).
+
+**AUDIT-CB-004 — Photo cleanup in DeleteFlareUpUseCase:**
+Added `import 'dart:io'`. Added photo cleanup block between profile ownership check and soft-delete: `if (existing.photoPath != null) { try { File(existing.photoPath!).deleteSync(); } on Exception { /* already gone */ } }`. Tests: 3 new tests (no photo — no deletion, with photo — file deleted, missing file — no exception).
+
+**AUDIT-09-001 — Async file existence (photo_entry_gallery_screen.dart + shadow_image.dart):**
+Gallery screen `_buildPhotoTile`: replaced `file.existsSync()` guard with `FutureBuilder<bool>(future: file.exists(), ...)` — shows `ShadowImage.file` when exists, `ColoredBox(Icons.broken_image)` otherwise. `_FullScreenPhotoView._buildFileImage`: same pattern with `file.exists()`. In `shadow_image.dart`: `_buildFileImage()` wrapped in `FutureBuilder<bool>` using `!(snapshot.data ?? false)` for missing file guard. `_buildPickerImage()`: replaced `File(filePath!).existsSync()` with `FutureBuilder<bool>`, extracted `_buildPlaceholder(BuildContext, ThemeData)` helper to avoid code duplication for the null-filePath and missing-file cases.
+
+**AUDIT-09-002 — Gallery thumbnail memory optimization:**
+Replaced `Image.file(file, fit: BoxFit.cover)` in `_buildPhotoTile` with `ShadowImage.file(filePath: file.path, isDecorative: true, cacheWidth: 300, cacheHeight: 300)`. Grid tiles are square; 300px covers all screen densities without loading full-resolution images per tile.
+
+**Analyzer fixes during development:** 4 infos resolved — `fit: BoxFit.cover` redundant on `ShadowImage.file` (removed), 2x `snapshot.data == true` → `snapshot.data ?? false` (`use_if_null_to_convert_nulls_to_bools`), `snapshot.data != true` → `!(snapshot.data ?? false)`. `directives_ordering` fix: moved `package:path/path.dart` import after `package:mockito/` in flare_up_usecases_test.dart. Pre-commit hook formatted 2 test files after first commit attempt — re-staged and committed again.
+
+**One accidental sed change:** During AUDIT_FINDINGS.md update, ran `sed -i '' 's/^Status: OPEN$/Status: FIXED/'` which changed all 27 OPEN findings to FIXED. Immediately ran `git checkout docs/AUDIT_FINDINGS.md` to revert, then applied targeted per-line changes using `sed -i '' 'NNNs/...'` for only the 5 GROUP PH findings.
+
+**Session spanned 2 context windows.** Context compacted during GROUP T completion work. Resumed from summary; verified CB-004 tests (25/25 flare-up unit tests passing), then added CB-002 widget tests (27/27 passing), CB-003 widget tests (104/104 passing). Full suite: 3,484 passing. Analyzer clean.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/conditions/report_flare_up_screen.dart | MODIFIED | CB-002: Added _photoPath, _buildPhotosSection, _pickPhoto; wired into both save inputs |
+| lib/presentation/screens/fluids_entries/fluids_entry_screen.dart | MODIFIED | CB-003: Added _urinePhotoPath, _buildUrinePhoto, _pickUrinePhoto; wired into both save inputs |
+| lib/domain/usecases/flare_ups/delete_flare_up_use_case.dart | MODIFIED | CB-004: Added photo file cleanup before soft-delete |
+| lib/presentation/screens/photo_entries/photo_entry_gallery_screen.dart | MODIFIED | 09-001 + 09-002: FutureBuilder for async exists(); ShadowImage.file with cacheWidth/cacheHeight |
+| lib/presentation/widgets/shadow_image.dart | MODIFIED | 09-001: FutureBuilder in _buildFileImage and _buildPickerImage; extracted _buildPlaceholder |
+| test/presentation/screens/conditions/report_flare_up_screen_test.dart | MODIFIED | Added 5 CB-002 photo picker tests; added photoPath param to createTestFlareUp; captured inputs in _TrackingFlareUpList |
+| test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart | MODIFIED | Added 4 CB-003 urine photo tests; added urinePhotoPath to createTestFluidsEntry helper |
+| test/unit/domain/usecases/flare_ups/flare_up_usecases_test.dart | MODIFIED | Added 3 CB-004 delete tests; added photoPath param to createTestFlareUp; added dart:io + path imports |
+| docs/AUDIT_FINDINGS.md | MODIFIED | Marked AUDIT-09-001, 09-002, CB-002, CB-003, CB-004 as FIXED |
+| docs/FIX_PLAN.md | MODIFIED | Marked GROUP PH ✓ DONE; added session log entry |
+| .claude/work-status/current.json | MODIFIED | Updated to GROUP PH complete, 3,484 tests |
+
+### Executive Summary for Reid
+
+**GROUP PH is done.** This session fixed five gaps in the photo feature — things the back end supported but that users could never actually do from the app.
+
+1. **Flare-up photos** — You can now attach a photo when logging or editing a flare-up. There was a photo field in the database the whole time, but the screen to report flare-ups never had a camera button. It does now.
+
+2. **Urine photos** — The app already let you photo a bowel movement. Now you can do the same for urination. Same design, same button style — we just forgot to add it the first time.
+
+3. **Photo cleanup on delete** — When you delete a flare-up that had a photo attached, the photo file now gets deleted from your device too. Before, the database record would disappear but the image file would stay on disk forever (an orphan). This is fixed.
+
+4. **Faster photo gallery (no more main thread blocking)** — The photo gallery screen was checking whether each image file exists by blocking the entire UI thread while it waited for the file system. On a phone with many photos, this was the kind of thing that makes scrolling feel sluggish. It now checks asynchronously in the background so the UI stays responsive.
+
+5. **Lower memory use in photo gallery** — The gallery grid was loading full-size photos for thumbnails. A 300-photo gallery was using roughly 60–150MB just for thumbnails. Now it loads small cached versions sized to the grid tile (300px), which is all the screen needs to show.
+
+12 new tests verify all of this. The suite is at 3,484 passing and the analyzer is clean.
 
 ---
 
