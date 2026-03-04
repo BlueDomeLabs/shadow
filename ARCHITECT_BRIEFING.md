@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-03
-# Briefing Version: 20260303-036
+# Briefing Version: 20260303-037
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,12 +9,14 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP F complete
-# Last Commit:   fix: Group F — schema v19 drop orphan columns, fix FoodItem servingSize type
-# Last Code:     Schema v19 migration, FoodItem entity type fix, DAO/use case/UI/test updates
-# Next Action:   Architect reviews GROUP F; issues next GROUP prompt
+# Status:        IDLE — GROUP X (partial) complete
+# Last Commit:   fix: Group X — supplement label photos wired, imported vitals Phase 3 comment
+# Last Code:     AUDIT-10-006: label photos now saved on supplement create/update
+#                AUDIT-CD-003: getImportedVitalsUseCaseProvider documented as Phase 3 deferral
+#                AUDIT-12-001/002/003: investigated, all already correct (use ValidationRules)
+# Next Action:   Architect reviews GROUP X; issues next prompt
 # Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,485 passing (+1 from GROUP F)
+# Tests:         3,488 passing (+3 from GROUP X)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +24,50 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — GROUP X (partial): Supplement Label Photos + Imported Vitals Deferral
+
+**Tests: 3,488 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+SESSION NOTE: Context was compacted mid-session. Work was split across two context windows but all items were completed and committed in this session. Compaction introduced no errors — tests and analyzer are clean.
+
+**AUDIT-10-006 (HIGH) — Wired supplement label photo save flow**
+- `SupplementListProvider.create()` changed from `Future<void>` to `Future<Supplement>` so `_handleSave()` can capture the new supplement's ID.
+- `_handleSave()` now calls `addSupplementLabelPhotoUseCaseProvider` for each path in `_labelPhotoPaths` after create/update, reading bytes via `File(path).readAsBytes()`.
+- Failure from use case shows a snackbar ("Failed to save a label photo") but supplement is still considered saved — consistent with "best-effort photo save" UX.
+- `SupplementEditScreen.testInitialLabelPhotoPaths` (static `@visibleForTesting` field) allows tests to inject photo paths without rendering `Image.file` in the widget tree (injection happens in `_handleSave`, not `initState`).
+- Fixed bug: `Image.asset(path)` → `Image.file(File(path))` in `_buildLabelPhotosSection` (camera/gallery paths are absolute file paths, not asset keys).
+- TODO comment added: no `DeleteSupplementLabelPhotoUseCase` exists; removed photos silently discarded on save (future phase work).
+- 3 new tests in `supplement_edit_screen_test.dart`:
+  - save without label photos does not call use case ✓
+  - save with label photos calls use case ✓
+  - use case failure shows error snackbar ✓
+- Key test hygiene finding: `File.writeAsBytes()` called inside a `testWidgets` callback hangs indefinitely because `testWidgets` runs under `FakeAsync`. Real I/O must run in `setUp()` (outside FakeAsync) or wrapped in `tester.runAsync()`. Fixed by pre-creating the photo file in `setUp()`.
+
+**AUDIT-CD-003 (MEDIUM) — Documented getImportedVitalsUseCaseProvider as Phase 3 deferral**
+- Added doc comment to `getImportedVitalsUseCaseProvider` in `di_providers.dart` explaining it is intentionally unused in v1 and will be consumed by the health sync provider in Phase 3 / HealthKit integration.
+
+**AUDIT-12-001 / 12-002 / 12-003 — Investigated, all already correct**
+- These findings do not appear in AUDIT_FINDINGS.md (likely from a pre-audit checklist).
+- `CreateActivityUseCase` calls `ValidationRules.activityName()` → 200 char max. ✓
+- `CreateFoodItemUseCase` calls `ValidationRules.foodName()` → 200 char max. ✓
+- `CreateJournalEntryUseCase` calls `ValidationRules.journalContent()` → 10 char min. ✓
+- All delegate to `ValidationRules` helpers which match spec. No code change needed.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/presentation/screens/supplements/supplement_edit_screen.dart | MODIFIED | Wired label photo save (AUDIT-10-006): readAsBytes + use case loop; testInitialLabelPhotoPaths hook; Image.file fix |
+| lib/presentation/providers/supplements/supplement_list_provider.dart | MODIFIED | create() returns Future<Supplement> (was void) so screen can get new supplement's ID |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | AUDIT-CD-003: added Phase 3 deferral comment to getImportedVitalsUseCaseProvider |
+| test/presentation/screens/supplements/supplement_edit_screen_test.dart | MODIFIED | 3 new label photo tests; fixed mock create() return type; FakeAsync/setUp fix for file I/O |
+| docs/AUDIT_FINDINGS.md | MODIFIED | AUDIT-10-006 marked FIXED with explanation |
+| docs/FIX_PLAN.md | MODIFIED | GROUP X marked partial-done |
 
 ---
 

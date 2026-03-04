@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP F — Schema & Entity Fixes",
+  "task": "GROUP X (partial) — Supplement Label Photos + Imported Vitals Deferral",
   "timestamp": "2026-03-03T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3485,
+  "testCount": 3488,
   "schemaVersion": 19,
-  "notes": "Fixed AUDIT-02-001 (drop orphaned fluids_entries columns via v19 migration) and AUDIT-02-002 (FoodItem servingSize String? → double?, add servingUnit: String?, remove DAO helper methods, update inputs/use cases/UI/sample data/tests). Codegen rerun. Net +1 test (3484→3485). Analyzer clean."
+  "notes": "AUDIT-10-006: Wired label photo save flow. SupplementListProvider.create() now returns Supplement. _handleSave() calls addSupplementLabelPhotoUseCaseProvider per photo path. Image.asset bug fixed to Image.file. 3 new tests. AUDIT-CD-003: Phase 3 deferral comment added to getImportedVitalsUseCaseProvider. AUDIT-12-001/002/003: Investigated, all already correct. Net +3 tests (3485→3488). Analyzer clean."
 }

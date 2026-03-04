@@ -1,13 +1,20 @@
 // test/presentation/screens/supplements/supplement_edit_screen_test.dart
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/domain/entities/supplement.dart';
+import 'package:shadow_app/domain/entities/supplement_label_photo.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
+import 'package:shadow_app/domain/repositories/supplement_label_photo_repository.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
+import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
 import 'package:shadow_app/presentation/screens/supplements/supplement_edit_screen.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
@@ -1392,6 +1399,245 @@ void main() {
       });
     });
 
+    group('label photos (AUDIT-10-006)', () {
+      late Directory tempDir;
+      // photoFile is pre-created in setUp (outside FakeAsync) so that
+      // File.writeAsBytes() completes — real I/O inside testWidgets callbacks
+      // runs under FakeAsync and never resolves without tester.runAsync().
+      late File photoFile;
+
+      setUp(() async {
+        tempDir = await Directory.systemTemp.createTemp('label_photo_test_');
+        photoFile = File('${tempDir.path}/test_photo.jpg');
+        await photoFile.writeAsBytes(Uint8List.fromList([1, 2, 3]));
+      });
+
+      tearDown(() async {
+        SupplementEditScreen.testInitialLabelPhotoPaths = null;
+        await tempDir.delete(recursive: true);
+      });
+
+      testWidgets(
+        'save without label photos does not call addSupplementLabelPhotoUseCase',
+        (tester) async {
+          var useCallCount = 0;
+          final mockUseCase = _TrackingLabelPhotoUseCase(
+            onCall: (_) {
+              useCallCount++;
+              return Future.value(
+                Failure(DatabaseError.insertFailed('supplement_label_photos')),
+              );
+            },
+          );
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                supplementListProvider(
+                  testProfileId,
+                ).overrideWith(() => _MockSupplementList([])),
+                addSupplementLabelPhotoUseCaseProvider.overrideWithValue(
+                  mockUseCase,
+                ),
+              ],
+              child: const MaterialApp(
+                home: SupplementEditScreen(profileId: testProfileId),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          // Fill in required fields and save
+          await tester.enterText(
+            find.descendant(
+              of: find.byWidgetPredicate(
+                (w) =>
+                    w is Semantics &&
+                    w.properties.label == 'Supplement name, required',
+              ),
+              matching: find.byType(TextField),
+            ),
+            'Vitamin D3',
+          );
+          await tester.enterText(
+            find.descendant(
+              of: find.byWidgetPredicate(
+                (w) =>
+                    w is Semantics &&
+                    w.properties.label ==
+                        'Dosage amount, required, enter number',
+              ),
+              matching: find.byType(TextField),
+            ),
+            '2000',
+          );
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          await scrollToBottom(tester);
+          await tester.tap(find.text('Save'));
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          expect(useCallCount, 0);
+        },
+      );
+
+      testWidgets(
+        'save with label photos calls addSupplementLabelPhotoUseCase',
+        (tester) async {
+          // photoFile is pre-created in setUp (outside FakeAsync).
+          SupplementEditScreen.testInitialLabelPhotoPaths = [photoFile.path];
+
+          final calledWith = <AddSupplementLabelPhotoInput>[];
+          final mockUseCase = _TrackingLabelPhotoUseCase(
+            onCall: (input) {
+              calledWith.add(input);
+              return Future.value(
+                Success(
+                  SupplementLabelPhoto(
+                    id: 'photo-001',
+                    supplementId: input.supplementId,
+                    filePath: '/saved/photo.jpg',
+                    capturedAt: 1000,
+                  ),
+                ),
+              );
+            },
+          );
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                supplementListProvider(
+                  testProfileId,
+                ).overrideWith(() => _MockSupplementList([])),
+                addSupplementLabelPhotoUseCaseProvider.overrideWithValue(
+                  mockUseCase,
+                ),
+              ],
+              child: const MaterialApp(
+                home: SupplementEditScreen(profileId: testProfileId),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          // Fill in required fields and save.
+          await tester.enterText(
+            find.descendant(
+              of: find.byWidgetPredicate(
+                (w) =>
+                    w is Semantics &&
+                    w.properties.label == 'Supplement name, required',
+              ),
+              matching: find.byType(TextField),
+            ),
+            'Vitamin D3',
+          );
+          await tester.enterText(
+            find.descendant(
+              of: find.byWidgetPredicate(
+                (w) =>
+                    w is Semantics &&
+                    w.properties.label ==
+                        'Dosage amount, required, enter number',
+              ),
+              matching: find.byType(TextField),
+            ),
+            '2000',
+          );
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          await scrollToBottom(tester);
+          // runAsync allows real file I/O (File.readAsBytes) to complete.
+          await tester.runAsync(() async {
+            await tester.tap(find.text('Save'));
+            await Future<void>.delayed(const Duration(milliseconds: 500));
+          });
+          await tester.pumpAndSettle(const Duration(seconds: 5));
+
+          expect(calledWith.length, 1);
+          expect(calledWith.first.supplementId, isNotEmpty);
+        },
+      );
+
+      testWidgets('label photo use case failure shows error snackbar', (
+        tester,
+      ) async {
+        // photoFile is pre-created in setUp (outside FakeAsync).
+        SupplementEditScreen.testInitialLabelPhotoPaths = [photoFile.path];
+
+        final mockUseCase = _TrackingLabelPhotoUseCase(
+          onCall: (_) => Future.value(
+            Failure<SupplementLabelPhoto, AppError>(
+              DatabaseError.insertFailed(
+                'supplement_label_photos',
+                Exception('disk full'),
+                StackTrace.current,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              supplementListProvider(
+                testProfileId,
+              ).overrideWith(() => _MockSupplementList([])),
+              addSupplementLabelPhotoUseCaseProvider.overrideWithValue(
+                mockUseCase,
+              ),
+            ],
+            child: const MaterialApp(
+              home: SupplementEditScreen(profileId: testProfileId),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await tester.enterText(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (w) =>
+                  w is Semantics &&
+                  w.properties.label == 'Supplement name, required',
+            ),
+            matching: find.byType(TextField),
+          ),
+          'Vitamin D3',
+        );
+        await tester.enterText(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (w) =>
+                  w is Semantics &&
+                  w.properties.label == 'Dosage amount, required, enter number',
+            ),
+            matching: find.byType(TextField),
+          ),
+          '2000',
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        await scrollToBottom(tester);
+        await tester.runAsync(() async {
+          await tester.tap(find.text('Save'));
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        });
+        // Pump a few frames — enough to render the error snackbar without
+        // waiting for all animations (two snackbars + pop) to fully settle.
+        for (var i = 0; i < 10; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        // Use case returns Failure — error snackbar should be shown.
+        expect(
+          find.textContaining('Failed to save a label photo'),
+          findsOneWidget,
+        );
+      });
+    });
+
     group('placeholders', () {
       testWidgets('name field has correct placeholder', (tester) async {
         await tester.pumpWidget(buildAddScreen());
@@ -1473,9 +1719,27 @@ class _MockSupplementList extends SupplementList {
   Future<List<Supplement>> build(String profileId) async => _supplements;
 
   @override
-  Future<void> create(CreateSupplementInput input) async {
-    // Success - no-op for testing
-  }
+  Future<Supplement> create(CreateSupplementInput input) async =>
+      _supplements.isNotEmpty
+      ? _supplements.first
+      : Supplement(
+          id: 'new-supp-001',
+          clientId: input.clientId,
+          profileId: input.profileId,
+          name: input.name,
+          form: input.form,
+          customForm: input.customForm,
+          dosageQuantity: input.dosageQuantity,
+          dosageUnit: input.dosageUnit,
+          customDosageUnit: input.customDosageUnit,
+          brand: input.brand,
+          notes: input.notes,
+          ingredients: input.ingredients,
+          schedules: input.schedules,
+          startDate: input.startDate,
+          endDate: input.endDate,
+          syncMetadata: SyncMetadata.empty(),
+        );
 
   @override
   Future<void> updateSupplement(UpdateSupplementInput input) async {
@@ -1489,7 +1753,48 @@ class _ErrorOnCreateSupplementList extends SupplementList {
   Future<List<Supplement>> build(String profileId) async => [];
 
   @override
-  Future<void> create(CreateSupplementInput input) async {
+  Future<Supplement> create(CreateSupplementInput input) async {
     throw DatabaseError.insertFailed('test');
   }
+}
+
+/// Fake AddSupplementLabelPhotoUseCase that delegates to a callback.
+/// Passes a _NullSupplementLabelPhotoRepository to super so the
+/// constructor completes; call() is overridden and uses [onCall] instead.
+class _TrackingLabelPhotoUseCase extends AddSupplementLabelPhotoUseCase {
+  final Future<Result<SupplementLabelPhoto, AppError>> Function(
+    AddSupplementLabelPhotoInput,
+  )
+  onCall;
+
+  _TrackingLabelPhotoUseCase({required this.onCall})
+    : super(_NullSupplementLabelPhotoRepository());
+
+  @override
+  Future<Result<SupplementLabelPhoto, AppError>> call(
+    AddSupplementLabelPhotoInput input,
+  ) => onCall(input);
+}
+
+/// Stub repository — never called because _TrackingLabelPhotoUseCase
+/// overrides call().
+class _NullSupplementLabelPhotoRepository
+    implements SupplementLabelPhotoRepository {
+  @override
+  Future<Result<List<SupplementLabelPhoto>, AppError>> getForSupplement(
+    String supplementId,
+  ) => throw UnimplementedError();
+
+  @override
+  Future<Result<SupplementLabelPhoto, AppError>> add(
+    SupplementLabelPhoto photo,
+  ) => throw UnimplementedError();
+
+  @override
+  Future<Result<void, AppError>> deleteById(String id) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> deleteForSupplement(String supplementId) =>
+      throw UnimplementedError();
 }

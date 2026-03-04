@@ -1389,7 +1389,12 @@ Fix approach: Wire `_labelPhotoPaths` into the save flow by calling
   create/update. If the feature is intentionally deferred, remove
   the label photo UI section entirely and delete the dead provider
   wiring.
-Status: OPEN
+Status: FIXED — wired into save flow. `_handleSave()` now calls
+  `addSupplementLabelPhotoUseCaseProvider` for each path in
+  `_labelPhotoPaths` after create/update. Errors show a snackbar;
+  supplement is still considered saved. `SupplementListProvider.create()`
+  now returns `Future<Supplement>` so the new supplement's ID is available
+  for the photo use case call. (Phase 18b, 2026-03-03)
 
 ---
 

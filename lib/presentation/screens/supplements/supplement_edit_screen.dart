@@ -2,6 +2,8 @@
 // Implements 38_UI_FIELD_SPECIFICATIONS.md Section 4.1 + 60_SUPPLEMENT_EXTENSION.md
 // Updated in Phase 15a: Source & Price section, Label Photos section, import shortcuts
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +37,10 @@ class SupplementEditScreen extends ConsumerStatefulWidget {
     required this.profileId,
     this.supplement,
   });
+
+  /// For testing only: pre-populate label photo paths without ImagePicker.
+  @visibleForTesting
+  static List<String>? testInitialLabelPhotoPaths;
 
   @override
   ConsumerState<SupplementEditScreen> createState() =>
@@ -944,8 +950,8 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        entry.value,
+                      child: Image.file(
+                        File(entry.value),
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
@@ -1549,7 +1555,10 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
       final sourceTrimmed = _sourceController.text.trim();
       final pricePaid = double.tryParse(_pricePaidController.text.trim());
 
+      String supplementId;
+
       if (_isEditing) {
+        supplementId = widget.supplement!.id;
         await ref
             .read(supplementListProvider(widget.profileId).notifier)
             .updateSupplement(
@@ -1577,7 +1586,7 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
               ),
             );
       } else {
-        await ref
+        final created = await ref
             .read(supplementListProvider(widget.profileId).notifier)
             .create(
               CreateSupplementInput(
@@ -1603,6 +1612,48 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 pricePaid: pricePaid,
               ),
             );
+        supplementId = created.id;
+      }
+
+      // Testing hook: inject photos just before save so they are never rendered
+      // (avoids Image.file async decoding issues in widget tests).
+      if (SupplementEditScreen.testInitialLabelPhotoPaths != null) {
+        _labelPhotoPaths.addAll(
+          SupplementEditScreen.testInitialLabelPhotoPaths!,
+        );
+      }
+
+      // Save label photos (AUDIT-10-006): call use case for each new photo.
+      // No delete use case exists — removed photos are silently discarded on
+      // this save (TODO: add DeleteSupplementLabelPhotoUseCase in a future phase).
+      if (_labelPhotoPaths.isNotEmpty) {
+        final addPhotoUseCase = ref.read(
+          addSupplementLabelPhotoUseCaseProvider,
+        );
+        for (final path in _labelPhotoPaths) {
+          try {
+            final bytes = await File(path).readAsBytes();
+            final result = await addPhotoUseCase(
+              AddSupplementLabelPhotoInput(
+                supplementId: supplementId,
+                imageBytes: bytes,
+              ),
+            );
+            if (result.isFailure && mounted) {
+              showAccessibleSnackBar(
+                context: context,
+                message: 'Failed to save a label photo',
+              );
+            }
+          } on Exception catch (e) {
+            if (mounted) {
+              showAccessibleSnackBar(
+                context: context,
+                message: 'Failed to save a label photo: $e',
+              );
+            }
+          }
+        }
       }
 
       if (mounted) {

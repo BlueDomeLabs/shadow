@@ -41,8 +41,8 @@ class SupplementList extends _$SupplementList {
     );
   }
 
-  /// Creates a new supplement.
-  Future<void> create(CreateSupplementInput input) async {
+  /// Creates a new supplement and returns the created entity.
+  Future<Supplement> create(CreateSupplementInput input) async {
     _log.debug('Creating supplement for profile: ${input.profileId}');
 
     // Defense-in-depth: Provider-level auth check
@@ -54,10 +54,11 @@ class SupplementList extends _$SupplementList {
     final useCase = ref.read(createSupplementUseCaseProvider);
     final result = await useCase(input);
 
-    result.when(
-      success: (_) {
+    return result.when(
+      success: (supplement) {
         _log.info('Supplement created successfully');
         ref.invalidateSelf();
+        return supplement;
       },
       failure: (error) {
         _log.error('Create failed: ${error.message}');

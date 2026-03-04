@@ -247,7 +247,7 @@ Photo feature gaps: missing UI pickers, missing file cleanup, and synchronous I/
 
 ---
 
-### GROUP X — Complex Feature Work
+### GROUP X — Complex Feature Work ✓ DONE (partial — AUDIT-10-006 + AUDIT-CD-003 resolved; AUDIT-04-001, AUDIT-09-003, AUDIT-09-004 deferred)
 **Complexity:** Medium to Complex (per-item)
 **Severity:** 0 CRITICAL, 0 HIGH, 3 MEDIUM, 1 LOW
 **Findings:** 5

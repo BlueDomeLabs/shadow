@@ -2881,6 +2881,10 @@ String _$getImportedVitalsUseCaseHash() =>
     r'e3e72e8a247865cf65c85da39ad3bbd85064693e';
 
 /// GetImportedVitalsUseCase provider.
+/// Phase 3 — HealthKit/Health Connect integration (not wired for v1).
+/// This use case is intentionally unused in the current build. It will be
+/// consumed by the health sync provider when imported vitals display is
+/// implemented in Phase 3. (AUDIT-CD-003)
 ///
 /// Copied from [getImportedVitalsUseCase].
 @ProviderFor(getImportedVitalsUseCase)
