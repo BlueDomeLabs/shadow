@@ -9,14 +9,13 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP X (partial) complete
-# Last Commit:   fix: Group X — supplement label photos wired, imported vitals Phase 3 comment
-# Last Code:     AUDIT-10-006: label photos now saved on supplement create/update
-#                AUDIT-CD-003: getImportedVitalsUseCaseProvider documented as Phase 3 deferral
-#                AUDIT-12-001/002/003: investigated, all already correct (use ValidationRules)
-# Next Action:   Architect reviews GROUP X; issues next prompt
-# Open Items:    5 decisions required before specific sessions (see FIX_PLAN.md Section 3)
-# Tests:         3,488 passing (+3 from GROUP X)
+# Status:        IDLE — GROUP A planning pass complete; awaiting Architect review
+# Last Commit:   docs: Group A planning pass — implementation plan for profile architecture
+# Last Code:     READ-ONLY session — no production code changed
+#                docs/GROUP_A_PLAN.md created with 2-session implementation plan
+# Next Action:   Architect reviews GROUP_A_PLAN.md + 3 open questions; issues Session A1 prompt
+# Open Items:    3 open questions for Architect (see GROUP_A_PLAN.md Section 6)
+# Tests:         3,488 passing (unchanged — read-only session)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -24,6 +23,63 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — GROUP A Planning Pass: Profile Architecture
+
+**Tests: 3,488 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+READ-ONLY session. No production code was modified. No schema migration. Sole output: `docs/GROUP_A_PLAN.md`.
+
+**Findings covered (7 open):**
+- AUDIT-01-006: ProfileNotifier uses SharedPreferences directly, bypasses ProfileRepositoryImpl
+- AUDIT-04-002: No cascade delete for health data when profile is deleted
+- AUDIT-05-002: Guest invite revocation uses hardcoded sentinel, not real revocation
+- AUDIT-CA-001: No CreateProfileUseCase class (input exists, class doesn't)
+- AUDIT-CA-002: No UpdateProfileUseCase class
+- AUDIT-CA-004: No DeleteProfileUseCase class
+- AUDIT-CA-005: Local `Profile` class in profile_provider.dart shadows domain entity
+
+**What already exists (no change needed):**
+- ProfileRepositoryImpl (lib/data/repositories/profile_repository_impl.dart) — fully correct
+- ProfileDao (lib/data/datasources/local/daos/profile_dao.dart) — fully correct
+- SyncEntityAdapter<Profile> (lib/data/sync/adapters/profile_sync_adapter.dart) — fully correct
+- Use case INPUT classes (CreateProfileInput, UpdateProfileInput, DeleteProfileInput) — all exist
+- Domain Profile entity (lib/domain/entities/profile.dart) — correct
+- profiles table in Drift schema v19 — no migration needed
+
+**Session A1 plan (use cases + notifier migration + sentinel fix):**
+- Create CreateProfileUseCase, UpdateProfileUseCase, DeleteProfileUseCase (lib/domain/usecases/profiles/)
+- Migrate ProfileNotifier to use use cases + ProfileRepositoryImpl
+- Remove local `Profile` class; import domain entity in all consumers
+- Fix 'test-profile-001' sentinel in home_screen.dart
+- Wire providers in di_providers.dart
+
+**Session A2 plan (cascade delete + delete dialog):**
+- Add deleteProfileCascade(profileId) transaction to AppDatabase (19 tables, no FK CASCADE)
+- Implement delete confirmation dialog in profiles_screen.dart
+- Guest invite revocation stub (AUDIT-05-002)
+
+**3 open questions for Architect (in GROUP_A_PLAN.md Section 6):**
+1. ownerId strategy: domain Profile.ownerId is nullable — use getAll() for now?
+2. currentProfileId persistence: stays in SharedPreferences as UUID (no migration)?
+3. Dev data migration: delete existing dev profiles on upgrade, or seed migration?
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| docs/GROUP_A_PLAN.md | CREATED | Full implementation plan for Group A Profile Architecture |
+| ARCHITECT_BRIEFING.md | MODIFIED | Added this session log entry |
+
+### Executive Summary for Reid
+
+This was a planning-only session — I read all the profile-related code and audit findings, then wrote a detailed implementation plan for the Architect to review. No app code was changed.
+
+The plan breaks the Profile Architecture work into two focused sessions: the first wires up the missing use cases and fixes the notification system to use them properly; the second handles the data cleanup work (making sure deleting a profile also deletes all its health data). Once the Architect approves the plan and answers three clarifying questions, Session A1 can begin.
 
 ---
 
