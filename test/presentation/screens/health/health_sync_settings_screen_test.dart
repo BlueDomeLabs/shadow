@@ -10,6 +10,8 @@ import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/domain/entities/health_sync_settings.dart';
 import 'package:shadow_app/domain/entities/health_sync_status.dart';
 import 'package:shadow_app/domain/entities/imported_vital.dart';
+import 'package:shadow_app/domain/entities/profile.dart';
+import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/health_platform_service.dart';
 import 'package:shadow_app/domain/repositories/health_sync_settings_repository.dart';
@@ -28,8 +30,13 @@ const _testProfileId = 'profile-001';
 
 final _testProfile = Profile(
   id: _testProfileId,
+  clientId: 'client-001',
   name: 'Alice',
-  createdAt: DateTime(2025),
+  syncMetadata: SyncMetadata(
+    syncCreatedAt: DateTime(2025).millisecondsSinceEpoch,
+    syncUpdatedAt: DateTime(2025).millisecondsSinceEpoch,
+    syncDeviceId: 'test-device',
+  ),
 );
 
 final _defaultSettings = HealthSyncSettings.defaultsForProfile(_testProfileId);
@@ -156,12 +163,13 @@ class _FakeHealthPlatformService implements HealthPlatformService {
 
 /// Fake ProfileNotifier holding a preset profile (or empty state when null).
 class _FakeProfileNotifier extends ProfileNotifier {
-  _FakeProfileNotifier({Profile? profile}) {
-    state = ProfileState(
-      profiles: profile != null ? [profile] : [],
-      currentProfileId: profile?.id,
-    );
-  }
+  _FakeProfileNotifier({Profile? profile})
+    : super.forTesting(
+        ProfileState(
+          profiles: profile != null ? [profile] : [],
+          currentProfileId: profile?.id,
+        ),
+      );
 }
 
 // ---------------------------------------------------------------------------

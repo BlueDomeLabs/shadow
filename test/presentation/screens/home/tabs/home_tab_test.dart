@@ -3,11 +3,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/home_tab.dart';
 
 void main() {
   group('HomeTab', () {
     Widget buildTab({String? profileName}) => ProviderScope(
+      overrides: [
+        profileProvider.overrideWith(
+          (ref) => ProfileNotifier.forTesting(
+            const ProfileState(currentProfileId: 'test-profile-001'),
+          ),
+        ),
+      ],
       child: MaterialApp(
         home: Scaffold(
           body: HomeTab(

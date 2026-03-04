@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/utils/sample_data_generator.dart';
+import 'package:shadow_app/domain/entities/profile.dart';
+import 'package:shadow_app/domain/usecases/profiles/profile_inputs.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_list_screen.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/guest_invite_qr_screen.dart';
@@ -194,10 +196,13 @@ class ProfilesScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          subtitle: profile.dateOfBirth != null
-              ? Text(
-                  'Born ${profile.dateOfBirth!.month}/${profile.dateOfBirth!.day}/${profile.dateOfBirth!.year}',
-                )
+          subtitle: profile.birthDate != null
+              ? Text(() {
+                  final dob = DateTime.fromMillisecondsSinceEpoch(
+                    profile.birthDate!,
+                  );
+                  return 'Born ${dob.month}/${dob.day}/${dob.year}';
+                }())
               : null,
           trailing: PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
@@ -332,11 +337,11 @@ class ProfilesScreen extends ConsumerWidget {
   ) async {
     final notifier = ref.read(profileProvider.notifier);
     await notifier.addProfile(
-      Profile(
-        id: '',
+      CreateProfileInput(
+        clientId: generateProfileClientId(),
+        ownerId: '', // Overridden by CreateProfileUseCase with device ID
         name: 'Sample User',
-        dateOfBirth: DateTime(1990),
-        createdAt: DateTime.now(),
+        birthDate: DateTime(1990).millisecondsSinceEpoch,
       ),
     );
     if (context.mounted) {

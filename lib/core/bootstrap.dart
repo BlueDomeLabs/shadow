@@ -449,6 +449,7 @@ Future<List<Override>> bootstrap() async {
     photoAreaRepositoryProvider.overrideWithValue(photoAreaRepo),
     photoEntryRepositoryProvider.overrideWithValue(photoEntryRepo),
     profileRepositoryProvider.overrideWithValue(profileRepo),
+    deviceInfoServiceProvider.overrideWithValue(deviceInfoService),
     guestInviteRepositoryProvider.overrideWithValue(guestInviteRepo),
     anchorEventTimeRepositoryProvider.overrideWithValue(anchorEventTimeRepo),
     notificationCategorySettingsRepositoryProvider.overrideWithValue(

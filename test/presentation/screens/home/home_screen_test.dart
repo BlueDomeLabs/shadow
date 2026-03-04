@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
+import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/home/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,10 +17,19 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
+    const testProfileId = 'test-profile-001';
+
     Widget buildScreen() => ProviderScope(
       overrides: [
         notificationTapHandlerProvider.overrideWithValue(
           NotificationTapHandler(),
+        ),
+        // Always override profileProvider — avoids UnimplementedError from
+        // repository/service providers not wired in tests.
+        profileProvider.overrideWith(
+          (ref) => ProfileNotifier.forTesting(
+            const ProfileState(currentProfileId: testProfileId),
+          ),
         ),
       ],
       child: const MaterialApp(home: HomeScreen()),
@@ -92,6 +102,11 @@ void main() {
             notificationTapHandlerProvider.overrideWithValue(
               NotificationTapHandler(),
             ),
+            profileProvider.overrideWith(
+              (ref) => ProfileNotifier.forTesting(
+                const ProfileState(currentProfileId: testProfileId),
+              ),
+            ),
           ],
         );
         addTearDown(container.dispose);
@@ -124,6 +139,11 @@ void main() {
           overrides: [
             notificationTapHandlerProvider.overrideWithValue(
               NotificationTapHandler(),
+            ),
+            profileProvider.overrideWith(
+              (ref) => ProfileNotifier.forTesting(
+                const ProfileState(currentProfileId: testProfileId),
+              ),
             ),
           ],
         );

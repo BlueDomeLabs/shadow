@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "GROUP X (partial) — Supplement Label Photos + Imported Vitals Deferral",
-  "timestamp": "2026-03-03T00:00:00Z",
+  "task": "Group A Session 1 — Profile use cases + migrate ProfileNotifier",
+  "timestamp": "2026-03-03T12:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3488,
+  "testCount": 3501,
   "schemaVersion": 19,
-  "notes": "AUDIT-10-006: Wired label photo save flow. SupplementListProvider.create() now returns Supplement. _handleSave() calls addSupplementLabelPhotoUseCaseProvider per photo path. Image.asset bug fixed to Image.file. 3 new tests. AUDIT-CD-003: Phase 3 deferral comment added to getImportedVitalsUseCaseProvider. AUDIT-12-001/002/003: Investigated, all already correct. Net +3 tests (3485→3488). Analyzer clean."
+  "notes": "Created 4 profile use cases (Get/Create/Update/Delete). GetProfilesUseCase filters by ownerId=deviceId. CreateProfileUseCase always populates ownerId from DeviceInfoService. UpdateProfileUseCase: auth→fetch→validate→merge→save. DeleteProfileUseCase: A1 stub (auth+delete). Registered all in di_providers.dart with deviceInfoServiceProvider. Wired deviceInfoServiceProvider in bootstrap.dart. Migrated ProfileNotifier: removed _save(), uses repository + use cases, added forTesting() named constructor with no-op stubs. Removed local Profile class shadowing domain entity. Fixed home_screen.dart sentinel (removed ?? 'test-profile-001'). Added 13 use case unit tests. Updated 6 test files to override profileProvider/syncServiceProvider. Tests: 3488→3501. Analyzer clean."
 }

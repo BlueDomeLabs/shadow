@@ -3,14 +3,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/domain/entities/profile.dart';
+import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
 import 'package:shadow_app/presentation/screens/profiles/profiles_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('ProfilesScreen', () {
-    Widget buildScreen() =>
-        const ProviderScope(child: MaterialApp(home: ProfilesScreen()));
+    Widget buildScreen() => ProviderScope(
+      overrides: [
+        // Avoid UnimplementedError from repository/service providers not
+        // wired in tests — profileProvider needs them via use cases.
+        profileProvider.overrideWith(
+          (ref) => ProfileNotifier.forTesting(const ProfileState()),
+        ),
+      ],
+      child: const MaterialApp(home: ProfilesScreen()),
+    );
 
     testWidgets('renders app bar with title', (tester) async {
       await tester.pumpWidget(buildScreen());
@@ -52,10 +61,30 @@ void main() {
       testWidgets('shows Invite Device and Manage Invites options', (
         tester,
       ) async {
-        SharedPreferences.setMockInitialValues({});
-
-        // Create a screen with a pre-populated profile
-        final container = ProviderContainer();
+        // Use a pre-populated profile state to avoid needing real use cases.
+        final container = ProviderContainer(
+          overrides: [
+            profileProvider.overrideWith(
+              (ref) => ProfileNotifier.forTesting(
+                const ProfileState(
+                  profiles: [
+                    Profile(
+                      id: 'profile-test-001',
+                      clientId: 'client-001',
+                      name: 'Test Profile',
+                      syncMetadata: SyncMetadata(
+                        syncCreatedAt: 0,
+                        syncUpdatedAt: 0,
+                        syncDeviceId: 'test-device',
+                      ),
+                    ),
+                  ],
+                  currentProfileId: 'profile-test-001',
+                ),
+              ),
+            ),
+          ],
+        );
         addTearDown(container.dispose);
 
         await tester.pumpWidget(
@@ -64,14 +93,6 @@ void main() {
             child: const MaterialApp(home: ProfilesScreen()),
           ),
         );
-        await tester.pump();
-
-        // Add a profile programmatically
-        await container
-            .read(profileProvider.notifier)
-            .addProfile(
-              Profile(id: '', name: 'Test Profile', createdAt: DateTime.now()),
-            );
         await tester.pumpAndSettle();
 
         // Open the options menu for the profile

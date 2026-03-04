@@ -368,6 +368,25 @@ final notificationCategorySettingsRepositoryProvider =
 // ignore: unused_element
 typedef NotificationCategorySettingsRepositoryRef =
     ProviderRef<NotificationCategorySettingsRepository>;
+String _$deviceInfoServiceHash() => r'302efd53adef70964ae067bdb22b294dc7fae731';
+
+/// Device info service provider - override in ProviderScope with implementation.
+///
+/// Copied from [deviceInfoService].
+@ProviderFor(deviceInfoService)
+final deviceInfoServiceProvider = Provider<DeviceInfoService>.internal(
+  deviceInfoService,
+  name: r'deviceInfoServiceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$deviceInfoServiceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DeviceInfoServiceRef = ProviderRef<DeviceInfoService>;
 String _$profileAuthorizationServiceHash() =>
     r'43ec282813a778ca3774baf9e1c4ee1b180301e0';
 
@@ -956,6 +975,90 @@ final reportExportServiceProvider = Provider<ReportExportService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ReportExportServiceRef = ProviderRef<ReportExportService>;
+String _$getProfilesUseCaseHash() =>
+    r'7cd78abb15a24242883e84c338802c9fee16b44c';
+
+/// GetProfilesUseCase provider.
+///
+/// Copied from [getProfilesUseCase].
+@ProviderFor(getProfilesUseCase)
+final getProfilesUseCaseProvider =
+    AutoDisposeProvider<GetProfilesUseCase>.internal(
+      getProfilesUseCase,
+      name: r'getProfilesUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getProfilesUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetProfilesUseCaseRef = AutoDisposeProviderRef<GetProfilesUseCase>;
+String _$createProfileUseCaseHash() =>
+    r'09b82dc0e3e8bdd948ea1f8bd9228be27e575e46';
+
+/// CreateProfileUseCase provider.
+///
+/// Copied from [createProfileUseCase].
+@ProviderFor(createProfileUseCase)
+final createProfileUseCaseProvider =
+    AutoDisposeProvider<CreateProfileUseCase>.internal(
+      createProfileUseCase,
+      name: r'createProfileUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$createProfileUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CreateProfileUseCaseRef = AutoDisposeProviderRef<CreateProfileUseCase>;
+String _$updateProfileUseCaseHash() =>
+    r'52ab73139dc8b1720707cfcc570eb453e68c629a';
+
+/// UpdateProfileUseCase provider.
+///
+/// Copied from [updateProfileUseCase].
+@ProviderFor(updateProfileUseCase)
+final updateProfileUseCaseProvider =
+    AutoDisposeProvider<UpdateProfileUseCase>.internal(
+      updateProfileUseCase,
+      name: r'updateProfileUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$updateProfileUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UpdateProfileUseCaseRef = AutoDisposeProviderRef<UpdateProfileUseCase>;
+String _$deleteProfileUseCaseHash() =>
+    r'0bdbff14ede4d1968cac7142b73b19dab5bed007';
+
+/// DeleteProfileUseCase provider.
+///
+/// Copied from [deleteProfileUseCase].
+@ProviderFor(deleteProfileUseCase)
+final deleteProfileUseCaseProvider =
+    AutoDisposeProvider<DeleteProfileUseCase>.internal(
+      deleteProfileUseCase,
+      name: r'deleteProfileUseCaseProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$deleteProfileUseCaseHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DeleteProfileUseCaseRef = AutoDisposeProviderRef<DeleteProfileUseCase>;
 String _$getSupplementsUseCaseHash() =>
     r'5ca28232f58efb9652b1602967ee25a9645d493c';
 

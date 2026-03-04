@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 // Services
 import 'package:shadow_app/core/services/anthropic_api_client.dart';
 import 'package:shadow_app/core/services/deep_link_service.dart';
+import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
@@ -75,6 +76,11 @@ import 'package:shadow_app/domain/usecases/notifications/update_notification_cat
 import 'package:shadow_app/domain/usecases/photo_areas/photo_areas_usecases.dart';
 // Use Cases - Photo Entries
 import 'package:shadow_app/domain/usecases/photo_entries/photo_entries_usecases.dart';
+// Use Cases - Profiles
+import 'package:shadow_app/domain/usecases/profiles/create_profile_use_case.dart';
+import 'package:shadow_app/domain/usecases/profiles/delete_profile_use_case.dart';
+import 'package:shadow_app/domain/usecases/profiles/get_profiles_use_case.dart';
+import 'package:shadow_app/domain/usecases/profiles/update_profile_use_case.dart';
 // Use Cases - Settings
 import 'package:shadow_app/domain/usecases/settings/get_user_settings_use_case.dart';
 import 'package:shadow_app/domain/usecases/settings/update_user_settings_use_case.dart';
@@ -238,6 +244,14 @@ NotificationCategorySettingsRepository notificationCategorySettingsRepository(
 // =============================================================================
 // SERVICES
 // =============================================================================
+
+/// Device info service provider - override in ProviderScope with implementation.
+@Riverpod(keepAlive: true)
+DeviceInfoService deviceInfoService(Ref ref) {
+  throw UnimplementedError(
+    'Override deviceInfoServiceProvider in ProviderScope',
+  );
+}
 
 /// Profile authorization service provider - override in ProviderScope with implementation.
 @Riverpod(keepAlive: true)
@@ -463,6 +477,38 @@ ReportExportService reportExportService(Ref ref) {
     'Override reportExportServiceProvider in ProviderScope',
   );
 }
+
+// =============================================================================
+// USE CASES - PROFILES (4)
+// =============================================================================
+
+/// GetProfilesUseCase provider.
+@riverpod
+GetProfilesUseCase getProfilesUseCase(Ref ref) => GetProfilesUseCase(
+  ref.read(profileRepositoryProvider),
+  ref.read(deviceInfoServiceProvider),
+);
+
+/// CreateProfileUseCase provider.
+@riverpod
+CreateProfileUseCase createProfileUseCase(Ref ref) => CreateProfileUseCase(
+  ref.read(profileRepositoryProvider),
+  ref.read(deviceInfoServiceProvider),
+);
+
+/// UpdateProfileUseCase provider.
+@riverpod
+UpdateProfileUseCase updateProfileUseCase(Ref ref) => UpdateProfileUseCase(
+  ref.read(profileRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
+
+/// DeleteProfileUseCase provider.
+@riverpod
+DeleteProfileUseCase deleteProfileUseCase(Ref ref) => DeleteProfileUseCase(
+  ref.read(profileRepositoryProvider),
+  ref.read(profileAuthorizationServiceProvider),
+);
 
 // =============================================================================
 // USE CASES - SUPPLEMENTS (4)

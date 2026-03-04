@@ -129,11 +129,8 @@ class _FakeSyncService implements SyncService {
 // ════════════════════════════════════════════════════════════════════════════
 
 class _FakeProfileNotifier extends ProfileNotifier {
-  final String fakeProfileId;
-
-  _FakeProfileNotifier(this.fakeProfileId) {
-    state = ProfileState(currentProfileId: fakeProfileId);
-  }
+  _FakeProfileNotifier(String fakeProfileId)
+    : super.forTesting(ProfileState(currentProfileId: fakeProfileId));
 }
 
 // ════════════════════════════════════════════════════════════════════════════

@@ -25,12 +25,15 @@ void main() {
         cloudSyncAuthProvider.overrideWith(
           (ref) => _FakeCloudSyncAuthNotifier(authState),
         ),
-        if (syncService != null)
-          syncServiceProvider.overrideWithValue(syncService),
-        if (profileId != null)
-          profileProvider.overrideWith(
-            (ref) => _FakeProfileNotifier(profileId),
-          ),
+        syncServiceProvider.overrideWithValue(
+          syncService ??
+              const _FakeSyncService(lastSyncTime: null, conflictCount: 0),
+        ),
+        // Always override profileProvider — avoids UnimplementedError from
+        // repository/service providers that aren't wired in tests.
+        profileProvider.overrideWith(
+          (ref) => _FakeProfileNotifier(profileId ?? ''),
+        ),
       ],
       child: const MaterialApp(home: CloudSyncSettingsScreen()),
     );
@@ -389,12 +392,9 @@ class _FakeSyncService implements SyncService {
 }
 
 /// Fake ProfileNotifier that immediately holds a preset profileId.
-///
-/// Calls ProfileNotifier() (which starts async _load()), then immediately
-/// overwrites state. Since SharedPreferences is empty in these tests, _load()
-/// will not update state (it only updates when the profiles JSON key exists).
 class _FakeProfileNotifier extends ProfileNotifier {
-  _FakeProfileNotifier(String profileId) {
-    state = ProfileState(currentProfileId: profileId);
-  }
+  _FakeProfileNotifier(String profileId)
+    : super.forTesting(
+        ProfileState(currentProfileId: profileId.isEmpty ? null : profileId),
+      );
 }

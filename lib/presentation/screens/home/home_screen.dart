@@ -58,8 +58,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final state = ref.read(profileProvider);
     final guestMode = ref.read(guestModeProvider);
     final profileId = guestMode.isGuestMode
-        ? (guestMode.guestProfileId ?? 'test-profile-001')
-        : (state.currentProfileId ?? 'test-profile-001');
+        ? guestMode.guestProfileId
+        : state.currentProfileId;
+
+    // No profile selected — skip the quick entry sheet.
+    if (profileId == null) return;
 
     showModalBottomSheet<void>(
       context: context,
@@ -98,11 +101,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final state = ref.watch(profileProvider);
     final guestMode = ref.watch(guestModeProvider);
 
-    // In guest mode, use the guest's profile ID instead of the selected profile
+    // In guest mode, use the guest's profile ID instead of the selected profile.
     final profileId = guestMode.isGuestMode
-        ? (guestMode.guestProfileId ?? 'test-profile-001')
-        : (state.currentProfileId ?? 'test-profile-001');
+        ? guestMode.guestProfileId
+        : state.currentProfileId;
     final profileName = state.currentProfile?.name;
+
+    // Guard: if profiles are still loading or none is selected, show a spinner.
+    // main.dart redirects to WelcomeScreen when profiles is empty after load,
+    // so this is only reached briefly during the async load or on first launch.
+    if (profileId == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Semantics(
       container: true,
