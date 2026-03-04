@@ -9,13 +9,13 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — GROUP A planning pass complete; awaiting Architect review
-# Last Commit:   docs: Group A planning pass — implementation plan for profile architecture
-# Last Code:     READ-ONLY session — no production code changed
-#                docs/GROUP_A_PLAN.md created with 2-session implementation plan
-# Next Action:   Architect reviews GROUP_A_PLAN.md + 3 open questions; issues Session A1 prompt
-# Open Items:    3 open questions for Architect (see GROUP_A_PLAN.md Section 6)
-# Tests:         3,488 passing (unchanged — read-only session)
+# Status:        IDLE — Group A Session 1 complete; awaiting Architect review
+# Last Commit:   feat: Group A s1 — profile use cases, ownerId, migrate ProfileNotifier (59c5fc2)
+# Last Code:     4 profile use cases, di_providers wired, ProfileNotifier migrated,
+#                home_screen sentinel removed, 13 unit tests, 6 test files updated
+# Next Action:   Architect reviews Group A s1 output; issues Session A2 prompt
+# Open Items:    None — all Architect questions from planning pass answered and implemented
+# Tests:         3,501 passing (+13 from opening 3,488)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -23,6 +23,76 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-03 MST] — Group A Session 1: Profile Use Cases + ProfileNotifier Migration
+
+**Tests: 3,501 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Implemented all items from the Group A Session 1 prompt. Architect's 3 open questions were resolved per decisions issued with the prompt:
+1. **ownerId**: `CreateProfileUseCase` always populates from `DeviceInfoService.getDeviceId()`, overriding any caller-supplied value. `GetProfilesUseCase` filters by `getByOwner(deviceId)`.
+2. **currentProfileId**: Stays in SharedPreferences (only the UUID string, not profile data).
+3. **Dev migration**: None needed — profiles table is already in schema v19 with `ownerId` column.
+
+**Use cases created:**
+- `GetProfilesUseCase`: calls `DeviceInfoService.getDeviceId()` then `repository.getByOwner(deviceId)`
+- `CreateProfileUseCase`: validates name, populates ownerId from device, creates Profile with SyncMetadata, calls `repository.create()`
+- `UpdateProfileUseCase`: auth check → `getById()` → validate name → merge fields → `repository.update()`
+- `DeleteProfileUseCase`: auth check → `repository.delete()` (A2 cascade stub with TODO comment)
+
+**di_providers.dart**: Added `deviceInfoServiceProvider` (keepAlive: true, throws if not overridden), plus 4 use case providers in a new "USE CASES - PROFILES" section.
+
+**bootstrap.dart**: Added `deviceInfoServiceProvider.overrideWithValue(deviceInfoService)`.
+
+**ProfileNotifier migration**: Removed local `Profile` class, `_save()`, `_uuid`, JSON imports. New constructor takes 4 use cases. `_load()` calls `GetProfilesUseCase`. `addProfile/updateProfile/deleteProfile` delegate to use cases. `setCurrentProfile()` still saves to SharedPreferences. Added `ProfileNotifier.forTesting(super.testState)` named constructor with 4 no-op stubs (`_NoOp*UseCase`) — this is the key to keeping all widget tests passing without a full dependency chain.
+
+**home_screen.dart (AUDIT-CA-004)**: Removed `?? 'test-profile-001'` sentinel from `_showQuickEntrySheet` and `build`. Added null guard returning `CircularProgressIndicator` scaffold when `currentProfileId == null`.
+
+**Test fixes**: 6 test files updated to override `profileProvider` (and in cloud_sync case, `syncServiceProvider`) to avoid `UnimplementedError` from providers that throw when not overridden. The cloud_sync `_FakeProfileNotifier` was updated to map `''` → `null` so the "Sync Now shows no profile snackbar" test continued working.
+
+**Context note**: This session ran across a compaction boundary. Work was completed after reorientation from compacted context. No issues introduced by compaction — full test suite confirmed clean post-compaction.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/usecases/profiles/create_profile_use_case.dart | CREATED | Validates name, populates ownerId from DeviceInfoService, calls repository.create() |
+| lib/domain/usecases/profiles/get_profiles_use_case.dart | CREATED | Gets deviceId, calls repository.getByOwner() |
+| lib/domain/usecases/profiles/update_profile_use_case.dart | CREATED | Auth check → fetch → validate → merge → repository.update() |
+| lib/domain/usecases/profiles/delete_profile_use_case.dart | CREATED | Auth check → repository.delete() (A2 cascade stub) |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | Added deviceInfoServiceProvider + 4 profile use case providers |
+| lib/presentation/providers/di/di_providers.g.dart | MODIFIED | Codegen output |
+| lib/core/bootstrap.dart | MODIFIED | Added deviceInfoServiceProvider override |
+| lib/presentation/providers/profile/profile_provider.dart | MODIFIED | Migrated to use cases; added forTesting() + no-op stubs; removed local Profile class |
+| lib/presentation/screens/home/home_screen.dart | MODIFIED | Removed ?? 'test-profile-001' sentinel; null guard for no-profile state |
+| lib/presentation/screens/home/tabs/home_tab.dart | MODIFIED | Added domain Profile import (was using profile_provider.dart's now-removed local class) |
+| lib/presentation/screens/profiles/add_edit_profile_screen.dart | MODIFIED | Uses CreateProfileInput/UpdateProfileInput; reads birthDate as int epoch ms |
+| lib/presentation/screens/profiles/profiles_screen.dart | MODIFIED | Uses domain Profile + CreateProfileInput for sample data |
+| test/unit/domain/usecases/profiles/profile_usecases_test.dart | CREATED | 13 tests for 4 use cases |
+| test/unit/domain/usecases/profiles/profile_usecases_test.mocks.dart | CREATED | Mockito generated mocks |
+| test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart | MODIFIED | Always overrides profileProvider + syncServiceProvider; _FakeProfileNotifier maps '' → null |
+| test/presentation/screens/cloud_sync/conflict_resolution_screen_test.dart | MODIFIED | _FakeProfileNotifier uses forTesting() |
+| test/presentation/screens/health/health_sync_settings_screen_test.dart | MODIFIED | Domain Profile + forTesting() |
+| test/presentation/screens/home/home_screen_test.dart | MODIFIED | Overrides profileProvider with forTesting() in all containers |
+| test/presentation/screens/home/tabs/home_tab_test.dart | MODIFIED | Overrides profileProvider with forTesting() |
+| test/presentation/screens/profiles/profiles_screen_test.dart | MODIFIED | Overrides profileProvider with forTesting(); rewrote profile options test |
+
+### Executive Summary for Reid
+
+Group A Session 1 is complete. Here's what was built and why it matters:
+
+**Profile use cases**: The app now has a proper separation between "what you ask for" and "how it gets done" for profiles. When you create a profile, the app automatically records which device created it (your device ID), so when you later support multi-device sync, it knows which device owns which profile. When you load the profiles list, it only shows profiles owned by the current device. This is the foundation for the invitation/guest-sharing system in Group B.
+
+**ProfileNotifier cleanup**: The profile state manager was rewritten to use the new use cases instead of writing directly to SharedPreferences. Profile data now goes through the proper database layer. The "who is currently selected" preference (just the profile UUID) still lives in SharedPreferences — that's intentional and correct.
+
+**Home screen fix**: Removed a developer placeholder that was using a fake "test-profile-001" ID in production code. The app now handles the "no profile selected" state properly — it shows a loading indicator instead of silently using a fake ID.
+
+**13 new tests**: All four use cases are covered with unit tests proving: profiles filter by device owner, the device ID is always used (not whatever the caller passes in), authorization is checked before updates/deletes, and validation catches empty names.
+
+Tests went from 3,488 → 3,501. Analyzer clean. All prior tests still passing.
 
 ---
 
