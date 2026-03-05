@@ -428,45 +428,26 @@ final encryptionServiceProvider = Provider<EncryptionService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef EncryptionServiceRef = ProviderRef<EncryptionService>;
-String _$googleDriveProviderHash() =>
-    r'5c3787abdc241a7cfd55f7d1db73cfb4a41230db';
+String _$cloudSyncAuthServiceHash() =>
+    r'621b3cb1512021bb7929d11bae5b1b752746bdbf';
 
-/// Google Drive provider - override in ProviderScope with implementation.
+/// CloudSyncAuthService provider - override in ProviderScope with implementation.
 ///
-/// Copied from [googleDriveProvider].
-@ProviderFor(googleDriveProvider)
-final googleDriveProviderProvider = Provider<GoogleDriveProvider>.internal(
-  googleDriveProvider,
-  name: r'googleDriveProviderProvider',
+/// Copied from [cloudSyncAuthService].
+@ProviderFor(cloudSyncAuthService)
+final cloudSyncAuthServiceProvider = Provider<CloudSyncAuthService>.internal(
+  cloudSyncAuthService,
+  name: r'cloudSyncAuthServiceProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$googleDriveProviderHash,
+      : _$cloudSyncAuthServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef GoogleDriveProviderRef = ProviderRef<GoogleDriveProvider>;
-String _$iCloudProviderHash() => r'ab054744c0eddbffcfd15d06aa6be3258afb0aac';
-
-/// iCloud provider - override in ProviderScope with implementation.
-///
-/// Copied from [iCloudProvider].
-@ProviderFor(iCloudProvider)
-final iCloudProviderProvider = Provider<ICloudProvider>.internal(
-  iCloudProvider,
-  name: r'iCloudProviderProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$iCloudProviderHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ICloudProviderRef = ProviderRef<ICloudProvider>;
+typedef CloudSyncAuthServiceRef = ProviderRef<CloudSyncAuthService>;
 String _$activeCloudProviderHash() =>
     r'fdc10d145427c60b073dd73267bf45242f6ff710';
 

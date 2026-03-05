@@ -11,9 +11,6 @@ import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/notification_permission_service.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
-// Cloud
-import 'package:shadow_app/data/cloud/google_drive_provider.dart';
-import 'package:shadow_app/data/cloud/icloud_provider.dart';
 // Reports
 import 'package:shadow_app/domain/reports/report_data_service.dart';
 import 'package:shadow_app/domain/reports/report_export_service.dart';
@@ -23,6 +20,7 @@ import 'package:shadow_app/domain/repositories/health_platform_service.dart';
 import 'package:shadow_app/domain/repositories/notification_scheduler.dart';
 import 'package:shadow_app/domain/repositories/repositories.dart';
 import 'package:shadow_app/domain/repositories/user_settings_repository.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
 import 'package:shadow_app/domain/services/diet_compliance_service.dart';
 import 'package:shadow_app/domain/services/food_barcode_service.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
@@ -269,18 +267,12 @@ EncryptionService encryptionService(Ref ref) {
   );
 }
 
-/// Google Drive provider - override in ProviderScope with implementation.
+/// CloudSyncAuthService provider - override in ProviderScope with implementation.
 @Riverpod(keepAlive: true)
-GoogleDriveProvider googleDriveProvider(Ref ref) {
+CloudSyncAuthService cloudSyncAuthService(Ref ref) {
   throw UnimplementedError(
-    'Override googleDriveProviderProvider in ProviderScope',
+    'Override cloudSyncAuthServiceProvider in ProviderScope',
   );
-}
-
-/// iCloud provider - override in ProviderScope with implementation.
-@Riverpod(keepAlive: true)
-ICloudProvider iCloudProvider(Ref ref) {
-  throw UnimplementedError('Override iCloudProviderProvider in ProviderScope');
 }
 
 /// Active cloud provider - override in ProviderScope with implementation.

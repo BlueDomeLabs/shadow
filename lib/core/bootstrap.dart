@@ -44,6 +44,7 @@ import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_label_photo_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
+import 'package:shadow_app/data/services/cloud_sync_auth_service_impl.dart';
 import 'package:shadow_app/data/services/diet_compliance_service_impl.dart';
 import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
 import 'package:shadow_app/data/services/health_platform_service_impl.dart';
@@ -269,6 +270,13 @@ Future<List<Override>> bootstrap() async {
       ? CloudProviderType.fromValue(int.tryParse(storedTypeRaw) ?? 0)
       : CloudProviderType.googleDrive;
 
+  // 7b. Create CloudSyncAuthServiceImpl (holds both concrete providers)
+  final cloudSyncAuthService = CloudSyncAuthServiceImpl(
+    googleDriveProvider,
+    iCloudProvider,
+    secureStorage,
+  );
+
   // Active provider: bootstrap selects based on stored preference.
   // Switching providers requires an app restart to take effect.
   final activeProvider = switch (storedType) {
@@ -459,8 +467,7 @@ Future<List<Override>> bootstrap() async {
     // Services
     profileAuthorizationServiceProvider.overrideWithValue(authService),
     encryptionServiceProvider.overrideWithValue(encryptionService),
-    googleDriveProviderProvider.overrideWithValue(googleDriveProvider),
-    iCloudProviderProvider.overrideWithValue(iCloudProvider),
+    cloudSyncAuthServiceProvider.overrideWithValue(cloudSyncAuthService),
     activeCloudProviderProvider.overrideWithValue(activeProvider),
     syncServiceProvider.overrideWithValue(syncService),
     securityServiceProvider.overrideWithValue(securityService),

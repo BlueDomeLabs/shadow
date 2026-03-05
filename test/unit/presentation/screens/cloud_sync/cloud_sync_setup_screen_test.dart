@@ -4,7 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shadow_app/data/cloud/google_drive_provider.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
+import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
@@ -19,7 +21,7 @@ class _SpyCloudSyncAuthNotifier extends CloudSyncAuthNotifier {
   bool signInWithICloudCalled = false;
 
   _SpyCloudSyncAuthNotifier(CloudSyncAuthState initialState)
-    : super(_FakeGoogleDriveProvider()) {
+    : super(_FakeCloudSyncAuthService()) {
     state = initialState;
   }
 
@@ -389,7 +391,7 @@ void main() {
 /// Fake notifier that holds a static state (does not call any provider).
 class _FakeCloudSyncAuthNotifier extends CloudSyncAuthNotifier {
   _FakeCloudSyncAuthNotifier(CloudSyncAuthState initialState)
-    : super(_FakeGoogleDriveProvider()) {
+    : super(_FakeCloudSyncAuthService()) {
     state = initialState;
   }
 
@@ -400,12 +402,27 @@ class _FakeCloudSyncAuthNotifier extends CloudSyncAuthNotifier {
   Future<void> switchProvider(CloudProviderType type) async {} // no-op
 }
 
-/// Minimal fake GoogleDriveProvider for testing.
-/// The _FakeCloudSyncAuthNotifier overrides state directly,
-/// so this provider's methods are never called.
-class _FakeGoogleDriveProvider extends GoogleDriveProvider {
-  _FakeGoogleDriveProvider() : super();
+/// Minimal fake CloudSyncAuthService for testing — returns no session.
+class _FakeCloudSyncAuthService implements CloudSyncAuthService {
+  @override
+  Future<CloudSyncAuthState?> checkExistingSession() async => null;
 
   @override
-  Future<bool> isAuthenticated() async => false;
+  Future<Result<CloudSyncAuthState, AppError>> signInWithGoogle() async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<CloudSyncAuthState, AppError>> signInWithICloud() async =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<CloudSyncAuthState, AppError>> switchProvider(
+    CloudProviderType type,
+    CloudProviderType? currentProvider,
+  ) async => throw UnimplementedError();
+
+  @override
+  Future<Result<void, AppError>> signOut(
+    CloudProviderType? activeProvider,
+  ) async => throw UnimplementedError();
 }

@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Group B Session 1 — Layer boundary fixes (file moves: AUDIT-01-001, AUDIT-01-002, AUDIT-01-003) + tech debt TODO",
-  "timestamp": "2026-03-05T10:00:00Z",
+  "task": "Group B Session 2 — CloudSyncAuthService refactor (AUDIT-01-004, 01-005, 01-007)",
+  "timestamp": "2026-03-05T14:00:00Z",
   "testsStatus": "passing",
   "testCount": 3508,
   "schemaVersion": 19,
-  "notes": "3 file moves: CloudStorageProvider (abstract interface) from data/datasources/remote/ to domain/sync/; LocalProfileAuthorizationService (concrete) from domain/services/ to data/services/; NotificationSeedService (concrete) from domain/services/ to data/services/. Updated imports in 26 files. Fixed 10 directives_ordering lint violations from new alphabetical sort positions. Added tech-debt TODO above attachedDatabase call in ProfileRepositoryImpl.cascadeDeleteProfileData(). No logic changes, no schema changes, no new tests. Tests: 3508 (unchanged)."
+  "notes": "New domain interface: CloudSyncAuthService. New data impl: CloudSyncAuthServiceImpl (holds GoogleDriveProvider, ICloudProvider, FlutterSecureStorage). CloudSyncAuthNotifier refactored to thin delegate — zero data-layer imports. googleDriveProviderProvider + iCloudProviderProvider removed from DI; cloudSyncAuthServiceProvider added. bootstrap.dart wired. Test file fully rewritten (29 tests via MockCloudSyncAuthService). 4 screen test files updated (fake notifier pattern). No logic changes, no schema changes. Tests: 3508 (unchanged)."
 }

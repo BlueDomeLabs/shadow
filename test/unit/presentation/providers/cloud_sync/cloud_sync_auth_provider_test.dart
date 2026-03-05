@@ -1,31 +1,30 @@
 // test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart
-// Tests for CloudSyncAuthProvider and CloudSyncAuthState.
+// Tests for CloudSyncAuthNotifier state transitions.
+//
+// After the AUDIT-01-004/01-005/01-007 refactor, CloudSyncAuthNotifier
+// delegates all logic to CloudSyncAuthService. These tests verify that
+// the notifier correctly handles Success/Failure from the service and
+// updates state accordingly.
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
-import 'package:shadow_app/data/cloud/google_drive_provider.dart';
-import 'package:shadow_app/data/cloud/icloud_provider.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart'
-    show CloudProviderType, SyncChange;
+    show CloudProviderType;
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 
-@GenerateMocks([GoogleDriveProvider, ICloudProvider, FlutterSecureStorage])
+@GenerateMocks([CloudSyncAuthService])
 import 'cloud_sync_auth_provider_test.mocks.dart';
 
 void main() {
-  // Required: FlutterSecureStorage uses platform channels which need the binding
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  // Register dummy values for sealed Result types so Mockito can handle them
   setUpAll(() {
+    provideDummy<Result<CloudSyncAuthState, AppError>>(
+      const Success(CloudSyncAuthState()),
+    );
     provideDummy<Result<void, AppError>>(const Success(null));
-    provideDummy<Result<Map<String, dynamic>?, AppError>>(const Success(null));
-    provideDummy<Result<List<SyncChange>, AppError>>(const Success([]));
-    provideDummy<Result<String, AppError>>(const Success(''));
   });
 
   group('CloudSyncAuthState', () {
@@ -106,24 +105,14 @@ void main() {
   });
 
   group('CloudSyncAuthNotifier', () {
-    late MockGoogleDriveProvider mockProvider;
-    late MockFlutterSecureStorage mockStorageForLegacy;
+    late MockCloudSyncAuthService mockService;
     late CloudSyncAuthNotifier notifier;
 
     setUp(() {
-      mockProvider = MockGoogleDriveProvider();
-      mockStorageForLegacy = MockFlutterSecureStorage();
+      mockService = MockCloudSyncAuthService();
       // Default: no existing session
-      when(mockProvider.isAuthenticated()).thenAnswer((_) async => false);
-      when(mockProvider.userEmail).thenReturn(null);
-      // No stored preference → defaults to Google Drive session check
-      when(
-        mockStorageForLegacy.read(key: anyNamed('key')),
-      ).thenAnswer((_) async => null);
-      notifier = CloudSyncAuthNotifier(
-        mockProvider,
-        storage: mockStorageForLegacy,
-      );
+      when(mockService.checkExistingSession()).thenAnswer((_) async => null);
+      notifier = CloudSyncAuthNotifier(mockService);
     });
 
     test('initial state is not authenticated and not loading', () {
@@ -133,23 +122,21 @@ void main() {
     });
 
     test('checks existing session on creation', () async {
-      // Give time for async _checkExistingSession to complete
       await Future<void>.delayed(Duration.zero);
-      verify(mockProvider.isAuthenticated()).called(1);
+      verify(mockService.checkExistingSession()).called(1);
     });
 
-    test('restores existing session if authenticated', () async {
-      when(mockProvider.isAuthenticated()).thenAnswer((_) async => true);
-      when(mockProvider.userEmail).thenReturn('restored@gmail.com');
-      when(
-        mockStorageForLegacy.read(key: anyNamed('key')),
-      ).thenAnswer((_) async => null);
-
-      final restoreNotifier = CloudSyncAuthNotifier(
-        mockProvider,
-        storage: mockStorageForLegacy,
+    test('restores existing session if service returns state', () async {
+      const restoredState = CloudSyncAuthState(
+        isAuthenticated: true,
+        userEmail: 'restored@gmail.com',
+        activeProvider: CloudProviderType.googleDrive,
       );
-      // Wait for async init
+      when(
+        mockService.checkExistingSession(),
+      ).thenAnswer((_) async => restoredState);
+
+      final restoreNotifier = CloudSyncAuthNotifier(mockService);
       await Future<void>.delayed(Duration.zero);
 
       expect(restoreNotifier.state.isAuthenticated, true);
@@ -160,23 +147,42 @@ void main() {
       );
     });
 
+    test('handles exception in session check gracefully', () async {
+      when(
+        mockService.checkExistingSession(),
+      ).thenThrow(Exception('Storage error'));
+
+      final errorNotifier = CloudSyncAuthNotifier(mockService);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(errorNotifier.state.isAuthenticated, false);
+      expect(errorNotifier.state.isLoading, false);
+    });
+
     group('signInWithGoogle', () {
       test('sets loading state while signing in', () async {
-        when(mockProvider.authenticate()).thenAnswer((_) async {
-          // Verify loading state during operation
+        when(mockService.signInWithGoogle()).thenAnswer((_) async {
           expect(notifier.state.isLoading, true);
-          return const Success(null);
+          return const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          );
         });
-        when(mockProvider.userEmail).thenReturn('new@gmail.com');
 
         await notifier.signInWithGoogle();
       });
 
       test('updates to authenticated state on success', () async {
+        const successState = CloudSyncAuthState(
+          isAuthenticated: true,
+          userEmail: 'success@gmail.com',
+          activeProvider: CloudProviderType.googleDrive,
+        );
         when(
-          mockProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockProvider.userEmail).thenReturn('success@gmail.com');
+          mockService.signInWithGoogle(),
+        ).thenAnswer((_) async => const Success(successState));
 
         await notifier.signInWithGoogle();
 
@@ -188,7 +194,7 @@ void main() {
       });
 
       test('sets error state on failure', () async {
-        when(mockProvider.authenticate()).thenAnswer(
+        when(mockService.signInWithGoogle()).thenAnswer(
           (_) async => Failure(AuthError.signInFailed('User cancelled')),
         );
 
@@ -197,41 +203,42 @@ void main() {
         expect(notifier.state.isAuthenticated, false);
         expect(notifier.state.isLoading, false);
         expect(notifier.state.errorMessage, isNotNull);
-        expect(notifier.state.userEmail, isNull);
-        expect(notifier.state.activeProvider, isNull);
       });
 
       test('clears previous error when starting sign-in', () async {
-        // Set up an error state first
-        when(mockProvider.authenticate()).thenAnswer(
+        when(mockService.signInWithGoogle()).thenAnswer(
           (_) async => Failure(AuthError.signInFailed('First error')),
         );
         await notifier.signInWithGoogle();
         expect(notifier.state.errorMessage, isNotNull);
 
-        // Now try again - error should clear during sign-in
-        when(mockProvider.authenticate()).thenAnswer((_) async {
+        when(mockService.signInWithGoogle()).thenAnswer((_) async {
           expect(notifier.state.errorMessage, isNull);
-          return const Success(null);
+          return const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          );
         });
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
 
         await notifier.signInWithGoogle();
       });
 
       test('ignores concurrent sign-in attempts', () async {
         var callCount = 0;
-        when(mockProvider.authenticate()).thenAnswer((_) async {
+        when(mockService.signInWithGoogle()).thenAnswer((_) async {
           callCount++;
-          // Simulate slow operation
           await Future<void>.delayed(const Duration(milliseconds: 10));
-          return const Success(null);
+          return const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          );
         });
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
 
-        // Start first sign-in
         final future1 = notifier.signInWithGoogle();
-        // Try concurrent sign-in (should be ignored since isLoading)
         final future2 = notifier.signInWithGoogle();
         await Future.wait([future1, future2]);
 
@@ -239,162 +246,30 @@ void main() {
       });
     });
 
-    group('signOut', () {
-      test('resets state to default on success', () async {
-        // First sign in
-        when(
-          mockProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
-        await notifier.signInWithGoogle();
-        expect(notifier.state.isAuthenticated, true);
-
-        // Sign out
-        when(
-          mockProvider.signOut(),
-        ).thenAnswer((_) async => const Success(null));
-        await notifier.signOut();
-
-        expect(notifier.state.isAuthenticated, false);
-        expect(notifier.state.isLoading, false);
-        expect(notifier.state.userEmail, isNull);
-        expect(notifier.state.activeProvider, isNull);
-        expect(notifier.state.errorMessage, isNull);
-      });
-
-      test('sets error state on failure', () async {
-        // First sign in
-        when(
-          mockProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
-        await notifier.signInWithGoogle();
-
-        // Sign out fails
-        when(
-          mockProvider.signOut(),
-        ).thenAnswer((_) async => Failure(AuthError.signOutFailed()));
-        await notifier.signOut();
-
-        expect(notifier.state.isLoading, false);
-        expect(notifier.state.errorMessage, isNotNull);
-      });
-
-      test('ignores concurrent sign-out attempts', () async {
-        when(
-          mockProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
-        await notifier.signInWithGoogle();
-
-        var callCount = 0;
-        when(mockProvider.signOut()).thenAnswer((_) async {
-          callCount++;
-          await Future<void>.delayed(const Duration(milliseconds: 10));
-          return const Success(null);
-        });
-
-        final future1 = notifier.signOut();
-        final future2 = notifier.signOut();
-        await Future.wait([future1, future2]);
-
-        expect(callCount, 1);
-      });
-    });
-
-    group('clearError', () {
-      test('clears error message from state', () async {
-        when(mockProvider.authenticate()).thenAnswer(
-          (_) async => Failure(AuthError.signInFailed('Test error')),
-        );
-        await notifier.signInWithGoogle();
-        expect(notifier.state.errorMessage, isNotNull);
-
-        notifier.clearError();
-        expect(notifier.state.errorMessage, isNull);
-      });
-
-      test('preserves other state when clearing error', () async {
-        when(
-          mockProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockProvider.userEmail).thenReturn('user@gmail.com');
-        await notifier.signInWithGoogle();
-
-        // Manually set error
-        notifier.clearError();
-        expect(notifier.state.isAuthenticated, true);
-        expect(notifier.state.userEmail, 'user@gmail.com');
-      });
-    });
-
-    test('handles exception in session check gracefully', () async {
-      when(
-        mockProvider.isAuthenticated(),
-      ).thenThrow(Exception('Storage error'));
-      when(
-        mockStorageForLegacy.read(key: anyNamed('key')),
-      ).thenAnswer((_) async => null);
-
-      final errorNotifier = CloudSyncAuthNotifier(
-        mockProvider,
-        storage: mockStorageForLegacy,
-      );
-      // Should not throw - wait for async init
-      await Future<void>.delayed(Duration.zero);
-
-      expect(errorNotifier.state.isAuthenticated, false);
-      expect(errorNotifier.state.isLoading, false);
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // Phase 31b: iCloud support
-  // ---------------------------------------------------------------------------
-
-  group('iCloud support', () {
-    late MockGoogleDriveProvider mockGoogleProvider;
-    late MockICloudProvider mockICloudProvider;
-    late MockFlutterSecureStorage mockStorage;
-    late CloudSyncAuthNotifier notifier;
-
-    setUp(() {
-      mockGoogleProvider = MockGoogleDriveProvider();
-      mockICloudProvider = MockICloudProvider();
-      mockStorage = MockFlutterSecureStorage();
-      // Default: no existing session, no stored preference
-      when(mockGoogleProvider.isAuthenticated()).thenAnswer((_) async => false);
-      when(mockGoogleProvider.userEmail).thenReturn(null);
-      when(
-        mockStorage.read(key: anyNamed('key')),
-      ).thenAnswer((_) async => null);
-      notifier = CloudSyncAuthNotifier(
-        mockGoogleProvider,
-        iCloudProvider: mockICloudProvider,
-        storage: mockStorage,
-      );
-    });
-
     group('signInWithICloud', () {
       test(
         'updates to authenticated state with icloud provider on success',
         () async {
+          const successState = CloudSyncAuthState(
+            isAuthenticated: true,
+            activeProvider: CloudProviderType.icloud,
+          );
           when(
-            mockICloudProvider.authenticate(),
-          ).thenAnswer((_) async => const Success(null));
+            mockService.signInWithICloud(),
+          ).thenAnswer((_) async => const Success(successState));
 
           await notifier.signInWithICloud();
 
           expect(notifier.state.isAuthenticated, true);
           expect(notifier.state.isLoading, false);
           expect(notifier.state.activeProvider, CloudProviderType.icloud);
-          expect(notifier.state.userEmail, isNull); // iCloud has no email
+          expect(notifier.state.userEmail, isNull);
           expect(notifier.state.errorMessage, isNull);
         },
       );
 
       test('sets error state on failure', () async {
-        when(mockICloudProvider.authenticate()).thenAnswer(
+        when(mockService.signInWithICloud()).thenAnswer(
           (_) async => Failure(AuthError.signInFailed('iCloud not available')),
         );
 
@@ -408,10 +283,15 @@ void main() {
 
       test('ignores concurrent sign-in attempts', () async {
         var callCount = 0;
-        when(mockICloudProvider.authenticate()).thenAnswer((_) async {
+        when(mockService.signInWithICloud()).thenAnswer((_) async {
           callCount++;
           await Future<void>.delayed(const Duration(milliseconds: 10));
-          return const Success(null);
+          return const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.icloud,
+            ),
+          );
         });
 
         final future1 = notifier.signInWithICloud();
@@ -425,23 +305,29 @@ void main() {
     group('switchProvider', () {
       test('authenticates new provider and updates state on success', () async {
         // Start: authenticated with Google Drive
-        when(
-          mockGoogleProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(mockGoogleProvider.userEmail).thenReturn('user@gmail.com');
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@gmail.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
         await notifier.signInWithGoogle();
         expect(notifier.state.activeProvider, CloudProviderType.googleDrive);
 
         // Switch to iCloud
+        const switchedState = CloudSyncAuthState(
+          isAuthenticated: true,
+          activeProvider: CloudProviderType.icloud,
+        );
         when(
-          mockGoogleProvider.signOut(),
-        ).thenAnswer((_) async => const Success(null));
-        when(
-          mockICloudProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(
-          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-        ).thenAnswer((_) async {});
+          mockService.switchProvider(
+            CloudProviderType.icloud,
+            CloudProviderType.googleDrive,
+          ),
+        ).thenAnswer((_) async => const Success(switchedState));
 
         await notifier.switchProvider(CloudProviderType.icloud);
 
@@ -452,7 +338,9 @@ void main() {
       });
 
       test('sets error state if new provider authentication fails', () async {
-        when(mockICloudProvider.authenticate()).thenAnswer(
+        when(
+          mockService.switchProvider(CloudProviderType.icloud, any),
+        ).thenAnswer(
           (_) async => Failure(AuthError.signInFailed('iCloud not available')),
         );
 
@@ -463,42 +351,164 @@ void main() {
         expect(notifier.state.isLoading, false);
       });
 
-      test('persists new provider type to storage on success', () async {
+      test('passes currentProvider from state to service', () async {
+        // Set authenticated state with Google
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await notifier.signInWithGoogle();
+
         when(
-          mockICloudProvider.authenticate(),
-        ).thenAnswer((_) async => const Success(null));
-        when(
-          mockStorage.write(key: anyNamed('key'), value: anyNamed('value')),
-        ).thenAnswer((_) async {});
+          mockService.switchProvider(
+            CloudProviderType.icloud,
+            CloudProviderType.googleDrive,
+          ),
+        ).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.icloud,
+            ),
+          ),
+        );
 
         await notifier.switchProvider(CloudProviderType.icloud);
 
         verify(
-          mockStorage.write(
-            key: 'cloud_provider_type',
-            value: CloudProviderType.icloud.value.toString(),
+          mockService.switchProvider(
+            CloudProviderType.icloud,
+            CloudProviderType.googleDrive,
           ),
         ).called(1);
       });
     });
 
-    group('signOut dispatches to correct provider', () {
-      test('calls iCloud signOut when active provider is iCloud', () async {
-        // Sign in with iCloud first
+    group('signOut', () {
+      test('resets state to default on success', () async {
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@gmail.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await notifier.signInWithGoogle();
+        expect(notifier.state.isAuthenticated, true);
+
         when(
-          mockICloudProvider.authenticate(),
+          mockService.signOut(CloudProviderType.googleDrive),
         ).thenAnswer((_) async => const Success(null));
+        await notifier.signOut();
+
+        expect(notifier.state.isAuthenticated, false);
+        expect(notifier.state.isLoading, false);
+        expect(notifier.state.userEmail, isNull);
+        expect(notifier.state.activeProvider, isNull);
+        expect(notifier.state.errorMessage, isNull);
+      });
+
+      test('sets error state on failure', () async {
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@gmail.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await notifier.signInWithGoogle();
+
+        when(
+          mockService.signOut(CloudProviderType.googleDrive),
+        ).thenAnswer((_) async => Failure(AuthError.signOutFailed()));
+        await notifier.signOut();
+
+        expect(notifier.state.isLoading, false);
+        expect(notifier.state.errorMessage, isNotNull);
+      });
+
+      test('ignores concurrent sign-out attempts', () async {
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@gmail.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await notifier.signInWithGoogle();
+
+        var callCount = 0;
+        when(mockService.signOut(any)).thenAnswer((_) async {
+          callCount++;
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          return const Success(null);
+        });
+
+        final future1 = notifier.signOut();
+        final future2 = notifier.signOut();
+        await Future.wait([future1, future2]);
+
+        expect(callCount, 1);
+      });
+
+      test('passes activeProvider from state to service', () async {
+        when(mockService.signInWithICloud()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              activeProvider: CloudProviderType.icloud,
+            ),
+          ),
+        );
         await notifier.signInWithICloud();
 
         when(
-          mockICloudProvider.signOut(),
+          mockService.signOut(CloudProviderType.icloud),
         ).thenAnswer((_) async => const Success(null));
 
         await notifier.signOut();
 
-        verify(mockICloudProvider.signOut()).called(1);
-        verifyNever(mockGoogleProvider.signOut());
-        expect(notifier.state.isAuthenticated, false);
+        verify(mockService.signOut(CloudProviderType.icloud)).called(1);
+      });
+    });
+
+    group('clearError', () {
+      test('clears error message from state', () async {
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => Failure(AuthError.signInFailed('Test error')),
+        );
+        await notifier.signInWithGoogle();
+        expect(notifier.state.errorMessage, isNotNull);
+
+        notifier.clearError();
+        expect(notifier.state.errorMessage, isNull);
+      });
+
+      test('preserves other state when clearing error', () async {
+        when(mockService.signInWithGoogle()).thenAnswer(
+          (_) async => const Success(
+            CloudSyncAuthState(
+              isAuthenticated: true,
+              userEmail: 'user@gmail.com',
+              activeProvider: CloudProviderType.googleDrive,
+            ),
+          ),
+        );
+        await notifier.signInWithGoogle();
+
+        notifier.clearError();
+        expect(notifier.state.isAuthenticated, true);
+        expect(notifier.state.userEmail, 'user@gmail.com');
       });
     });
   });

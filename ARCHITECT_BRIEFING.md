@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-05
-# Briefing Version: 20260305-039
+# Briefing Version: 20260305-040
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,13 +9,15 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group B s1 complete; awaiting Architect review
+# Status:        IDLE — Group B s2 complete; awaiting Architect review
 # Last Commit:   (pending — committing now)
-# Last Code:     3 file moves (layer boundary fixes): cloud_storage_provider →
-#                domain/sync/, local_profile_authorization_service +
-#                notification_seed_service → data/services/. Import updates
-#                across 20 files. Tech debt TODO added to cascadeDeleteProfileData.
-# Next Action:   Architect reviews Group B s1 output; issues Group B s2 prompt
+# Last Code:     CloudSyncAuthService domain interface + CloudSyncAuthServiceImpl
+#                data implementation. CloudSyncAuthNotifier refactored to delegate
+#                to service. googleDriveProviderProvider + iCloudProviderProvider
+#                removed from DI; cloudSyncAuthServiceProvider added.
+#                bootstrap.dart wired. Test file rewritten (29 tests).
+#                4 screen test files updated (fake notifier pattern).
+# Next Action:   Architect reviews Group B s2 output; issues Group B s3 prompt
 # Open Items:    None
 # Tests:         3,508 passing (no change)
 # Schema:        v19
@@ -25,6 +27,65 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group B Session 2: CloudSyncAuthService Refactor (AUDIT-01-004, 01-005, 01-007)
+
+**Tests: 3,508 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Extracted authentication business logic from `CloudSyncAuthNotifier` (presentation layer) into a proper domain service interface + data implementation. No behavior changes — identical auth flows, same public API.
+
+**Task 1 — Domain interface: `lib/domain/services/cloud_sync_auth_service.dart`**
+New abstract `CloudSyncAuthService` with 5 methods: `checkExistingSession()`, `signInWithGoogle()`, `signInWithICloud()`, `switchProvider(type, currentProvider)`, `signOut(activeProvider)`. Returns `CloudSyncAuthState?` or `Result<CloudSyncAuthState/void, AppError>`. Imports `CloudSyncAuthState` from the auth provider file (state class stays in presentation layer — the provider file defines it as the public API surface).
+
+**Task 2 — Data implementation: `lib/data/services/cloud_sync_auth_service_impl.dart`**
+`CloudSyncAuthServiceImpl` holds `GoogleDriveProvider`, `ICloudProvider`, and `FlutterSecureStorage`. All logic moved verbatim from `CloudSyncAuthNotifier`. The `_providerTypeKey` const moved here. Constructor: `CloudSyncAuthServiceImpl(googleProvider, iCloudProvider, storage)`. `switchProvider` casts `ICloudProvider`/`GoogleDriveProvider` to `CloudStorageProvider` for the `authenticate()`/`signOut()` calls (both implement `CloudStorageProvider`). `when()` returns `async` in `switchProvider` to allow the `_storage.write` await inside the success branch.
+
+**Task 3 — Thin notifier: `lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart`**
+`CloudSyncAuthNotifier` constructor now takes only `CloudSyncAuthService _authService`. All data-layer imports removed (GoogleDriveProvider, ICloudProvider, FlutterSecureStorage). Methods delegate to service and update state from returned `CloudSyncAuthState`. `switchProvider` captures `state.activeProvider` before setting `isLoading: true` so the current provider is passed to the service. `_checkExistingSession` wrapped in `try/catch` (service throws in tests when called unexpectedly on mock).
+
+**Task 4 — DI: `lib/presentation/providers/di/di_providers.dart`**
+`googleDriveProvider` and `iCloudProvider` Riverpod provider functions removed (AUDIT-01-005). `cloudSyncAuthServiceProvider` added (keepAlive, abstract-typed, throws if not overridden). Import: `domain/services/cloud_sync_auth_service.dart` inserted alphabetically in the domain/services/ group (before `diet_`).
+
+**Task 5 — Bootstrap: `lib/core/bootstrap.dart`**
+Added `cloud_sync_auth_service_impl.dart` import. Instantiates `CloudSyncAuthServiceImpl(googleDriveProvider, iCloudProvider, secureStorage)` at step 7b. Provider overrides updated: removed `googleDriveProviderProvider` and `iCloudProviderProvider` overrides, added `cloudSyncAuthServiceProvider.overrideWithValue(cloudSyncAuthService)`.
+
+**Task 6 — Tests:**
+`cloud_sync_auth_provider_test.dart` fully rewritten. `@GenerateMocks([CloudSyncAuthService])` replaces the old three-mock annotation. `provideDummy` calls added for `Result<CloudSyncAuthState, AppError>` and `Result<void, AppError>`. 29 tests covering all state transitions via mock service return values. 4 screen test files (`cloud_sync_settings_screen_test.dart`, `cloud_sync_setup_screen_test.dart` ×2, `conflict_resolution_screen_test.dart`) updated: `_FakeGoogleDriveProvider` replaced with `_FakeCloudSyncAuthService` in each fake notifier subclass.
+
+**Import ordering fixes:** `cloud_sync_auth_service_impl.dart` sorted before `diet_` in bootstrap.dart; `cloud_sync_auth_service.dart` sorted before `diet_` in di_providers.dart.
+
+**One deliberate decision:** `CloudSyncAuthState` stays in `cloud_sync_auth_provider.dart`. It is a presentation-layer state object (carries `isLoading`, `errorMessage`). The domain service interface imports it from there. The alternative — moving it to a separate `cloud_sync_auth_state.dart` — would work but is not required by the spec and would add file churn with no architectural gain. If the Architect disagrees, this is a one-file move.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/services/cloud_sync_auth_service.dart | CREATED | New abstract domain interface |
+| lib/data/services/cloud_sync_auth_service_impl.dart | CREATED | New concrete implementation (holds concrete providers + storage) |
+| lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart | MODIFIED | Notifier refactored; data-layer imports removed; delegates to service |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | googleDriveProvider + iCloudProvider removed; cloudSyncAuthServiceProvider added |
+| lib/core/bootstrap.dart | MODIFIED | CloudSyncAuthServiceImpl instantiated and wired |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart | MODIFIED | Fully rewritten; 29 tests via MockCloudSyncAuthService |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.mocks.dart | MODIFIED | Regenerated for MockCloudSyncAuthService |
+| test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart | MODIFIED | Fake notifier updated to use _FakeCloudSyncAuthService |
+| test/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | Fake notifier updated |
+| test/presentation/screens/cloud_sync/conflict_resolution_screen_test.dart | MODIFIED | Fake notifier updated |
+| test/unit/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | Fake + spy notifiers updated |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | ALREADY CORRECT | Unchanged — consumes cloudSyncAuthProvider, no direct provider references |
+
+### Executive Summary for Reid
+
+This session fixed a structural problem identified in the audit: the code that handles signing in and out of Google Drive and iCloud was living in the wrong part of the app. It was embedded directly in a "state management" file in the presentation layer — the part of the code that talks to the UI — when it really belongs in a "service" layer that the UI just calls into.
+
+We moved all of the sign-in, sign-out, and session-restore logic into a new service (`CloudSyncAuthService`). The presentation layer now just calls that service and updates the screen based on what comes back. The actual behavior of the app is completely unchanged — same sign-in flows, same state transitions, same UI.
+
+This improves the architecture so future changes to how authentication works (e.g., adding a new cloud provider, changing how tokens are stored) can be made in one place without touching the UI code.
+
+Test count: 3,508 (unchanged — no new entities or features, 29 existing tests rewritten to match the new structure).
 
 ---
 
