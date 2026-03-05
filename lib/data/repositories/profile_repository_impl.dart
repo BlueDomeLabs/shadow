@@ -88,4 +88,18 @@ class ProfileRepositoryImpl extends BaseRepository<Profile>
   @override
   Future<Result<List<Profile>, AppError>> getByUser(String userId) =>
       _dao.getByOwner(userId);
+
+  @override
+  Future<Result<void, AppError>> cascadeDeleteProfileData(
+    String profileId,
+  ) async {
+    try {
+      await _dao.attachedDatabase.deleteProfileCascade(profileId);
+      return const Success(null);
+    } on Exception catch (e) {
+      return Failure(
+        DatabaseError.transactionFailed('deleteProfileCascade', e),
+      );
+    }
+  }
 }

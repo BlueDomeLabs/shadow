@@ -276,8 +276,9 @@ class ProfilesScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Profile'),
         content: Text(
-          'Are you sure you want to delete "${profile.name}"? '
-          'This cannot be undone.',
+          "This will permanently delete all of ${profile.name}'s data, "
+          'including supplements, conditions, activity logs, food logs, photos, '
+          'journal entries, sleep records, and fluids. This cannot be undone.',
         ),
         actions: [
           TextButton(

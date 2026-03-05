@@ -508,6 +508,7 @@ UpdateProfileUseCase updateProfileUseCase(Ref ref) => UpdateProfileUseCase(
 DeleteProfileUseCase deleteProfileUseCase(Ref ref) => DeleteProfileUseCase(
   ref.read(profileRepositoryProvider),
   ref.read(profileAuthorizationServiceProvider),
+  ref.read(guestInviteRepositoryProvider),
 );
 
 // =============================================================================

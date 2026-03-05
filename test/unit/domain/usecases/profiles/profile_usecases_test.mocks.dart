@@ -10,7 +10,10 @@ import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:shadow_app/core/errors/app_error.dart' as _i6;
 import 'package:shadow_app/core/services/device_info_service.dart' as _i9;
 import 'package:shadow_app/core/types/result.dart' as _i4;
+import 'package:shadow_app/domain/entities/guest_invite.dart' as _i11;
 import 'package:shadow_app/domain/entities/profile.dart' as _i5;
+import 'package:shadow_app/domain/repositories/guest_invite_repository.dart'
+    as _i10;
 import 'package:shadow_app/domain/repositories/profile_repository.dart' as _i2;
 import 'package:shadow_app/domain/services/profile_authorization_service.dart'
     as _i8;
@@ -84,6 +87,21 @@ class MockProfileRepository extends _i1.Mock implements _i2.ProfileRepository {
                 ),
           )
           as _i3.Future<_i4.Result<List<_i5.Profile>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> cascadeDeleteProfileData(
+    String? profileId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#cascadeDeleteProfileData, [profileId]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#cascadeDeleteProfileData, [profileId]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 
   @override
   _i3.Future<_i4.Result<List<_i5.Profile>, _i6.AppError>> getAll({
@@ -317,4 +335,119 @@ class MockDeviceInfoService extends _i1.Mock implements _i9.DeviceInfoService {
             ),
           )
           as String);
+}
+
+/// A class which mocks [GuestInviteRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGuestInviteRepository extends _i1.Mock
+    implements _i10.GuestInviteRepository {
+  MockGuestInviteRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>> create(
+    _i11.GuestInvite? invite,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#create, [invite]),
+            returnValue:
+                _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>.value(
+                  _i7.dummyValue<_i4.Result<_i11.GuestInvite, _i6.AppError>>(
+                    this,
+                    Invocation.method(#create, [invite]),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>> getById(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#getById, [id]),
+            returnValue:
+                _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>.value(
+                  _i7.dummyValue<_i4.Result<_i11.GuestInvite, _i6.AppError>>(
+                    this,
+                    Invocation.method(#getById, [id]),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<_i11.GuestInvite?, _i6.AppError>> getByToken(
+    String? token,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getByToken, [token]),
+            returnValue:
+                _i3.Future<_i4.Result<_i11.GuestInvite?, _i6.AppError>>.value(
+                  _i7.dummyValue<_i4.Result<_i11.GuestInvite?, _i6.AppError>>(
+                    this,
+                    Invocation.method(#getByToken, [token]),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<_i11.GuestInvite?, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<List<_i11.GuestInvite>, _i6.AppError>> getByProfile(
+    String? profileId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getByProfile, [profileId]),
+            returnValue:
+                _i3.Future<
+                  _i4.Result<List<_i11.GuestInvite>, _i6.AppError>
+                >.value(
+                  _i7.dummyValue<
+                    _i4.Result<List<_i11.GuestInvite>, _i6.AppError>
+                  >(this, Invocation.method(#getByProfile, [profileId])),
+                ),
+          )
+          as _i3.Future<_i4.Result<List<_i11.GuestInvite>, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>> update(
+    _i11.GuestInvite? invite,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#update, [invite]),
+            returnValue:
+                _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>.value(
+                  _i7.dummyValue<_i4.Result<_i11.GuestInvite, _i6.AppError>>(
+                    this,
+                    Invocation.method(#update, [invite]),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Result<_i11.GuestInvite, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> revoke(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#revoke, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#revoke, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
+
+  @override
+  _i3.Future<_i4.Result<void, _i6.AppError>> hardDelete(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#hardDelete, [id]),
+            returnValue: _i3.Future<_i4.Result<void, _i6.AppError>>.value(
+              _i7.dummyValue<_i4.Result<void, _i6.AppError>>(
+                this,
+                Invocation.method(#hardDelete, [id]),
+              ),
+            ),
+          )
+          as _i3.Future<_i4.Result<void, _i6.AppError>>);
 }

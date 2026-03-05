@@ -103,6 +103,56 @@ void main() {
         expect(find.text('Invite Device'), findsOneWidget);
         expect(find.text('Manage Invites'), findsOneWidget);
       });
+
+      testWidgets('delete dialog shows cascade warning with profile name', (
+        tester,
+      ) async {
+        final container = ProviderContainer(
+          overrides: [
+            profileProvider.overrideWith(
+              (ref) => ProfileNotifier.forTesting(
+                const ProfileState(
+                  profiles: [
+                    Profile(
+                      id: 'profile-test-001',
+                      clientId: 'client-001',
+                      name: 'Alice',
+                      syncMetadata: SyncMetadata(
+                        syncCreatedAt: 0,
+                        syncUpdatedAt: 0,
+                        syncDeviceId: 'test-device',
+                      ),
+                    ),
+                  ],
+                  currentProfileId: 'profile-test-001',
+                ),
+              ),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const MaterialApp(home: ProfilesScreen()),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        // Open profile options menu
+        await tester.tap(find.byIcon(Icons.more_vert).first);
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        // Tap Delete
+        await tester.tap(find.text('Delete'));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        // Dialog should show cascade warning mentioning the profile name
+        expect(find.textContaining("Alice's data"), findsOneWidget);
+        expect(find.textContaining('supplements'), findsOneWidget);
+        expect(find.textContaining('This cannot be undone'), findsOneWidget);
+      });
     });
   });
 }

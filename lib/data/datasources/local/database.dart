@@ -391,6 +391,76 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
+  /// Soft-deletes all health data for a profile and the profile itself,
+  /// then hard-deletes all guest invites for the profile.
+  ///
+  /// All 18 health data tables are updated in a single transaction:
+  /// sync_deleted_at is set to now, sync_is_dirty = 1,
+  /// sync_status = SyncStatus.deleted (4), WHERE profile_id = ? AND not yet deleted.
+  ///
+  /// guest_invites has no sync columns — rows are hard-deleted.
+  ///
+  /// Called by DeleteProfileUseCase after revoking all guest invites.
+  Future<void> deleteProfileCascade(String profileId) async {
+    await transaction(() async {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      const deletedStatus = 4; // SyncStatus.deleted.value
+
+      // 18 health data tables with sync columns
+      const healthTables = [
+        'supplements',
+        'conditions',
+        'condition_logs',
+        'flare_ups',
+        'fluids_entries',
+        'sleep_entries',
+        'activities',
+        'activity_logs',
+        'food_items',
+        'food_logs',
+        'journal_entries',
+        'photo_areas',
+        'photo_entries',
+        'diets',
+        'diet_violations',
+        'fasting_sessions',
+        'imported_vitals',
+        'intake_logs',
+      ];
+
+      for (final table in healthTables) {
+        await customUpdate(
+          'UPDATE $table SET sync_deleted_at = ?, sync_is_dirty = 1, '
+          'sync_status = ? WHERE profile_id = ? AND sync_deleted_at IS NULL',
+          variables: [
+            Variable.withInt(now),
+            Variable.withInt(deletedStatus),
+            Variable.withString(profileId),
+          ],
+        );
+      }
+
+      // guest_invites has no sync columns — hard delete
+      await customUpdate(
+        'DELETE FROM guest_invites WHERE profile_id = ?',
+        variables: [Variable.withString(profileId)],
+      );
+
+      // Soft-delete the profile itself
+      await customUpdate(
+        'UPDATE profiles SET sync_deleted_at = ?, sync_updated_at = ?, '
+        'sync_is_dirty = 1, sync_status = ?, sync_version = sync_version + 1 '
+        'WHERE id = ? AND sync_deleted_at IS NULL',
+        variables: [
+          Variable.withInt(now),
+          Variable.withInt(now),
+          Variable.withInt(deletedStatus),
+          Variable.withString(profileId),
+        ],
+      );
+    });
+  }
+
   /// Close the database connection.
   ///
   /// Call this when the app is being disposed to release resources.

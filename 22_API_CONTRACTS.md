@@ -2327,29 +2327,40 @@ class SetCurrentProfileUseCase implements UseCase<String, void> {
   }
 }
 
+// NOTE: Signatures below reflect actual implementation as of Group A Session 2.
+// AuthTokenService references above were the original spec; replaced by DeviceInfoService
+// and ProfileAuthorizationService per Group A implementation decisions.
+
+class GetProfilesUseCase implements UseCaseNoInput<List<Profile>> {
+  final ProfileRepository _repository;
+  final DeviceInfoService _deviceInfo;
+
+  GetProfilesUseCase(this._repository, this._deviceInfo);
+
+  @override
+  Future<Result<List<Profile>, AppError>> call() async {
+    final deviceId = await _deviceInfo.getDeviceId();
+    return _repository.getByOwner(deviceId);
+  }
+}
+
 class CreateProfileUseCase implements UseCase<CreateProfileInput, Profile> {
   final ProfileRepository _repository;
-  final AuthTokenService _tokenService;
+  final DeviceInfoService _deviceInfo;
 
-  CreateProfileUseCase(this._repository, this._tokenService);
+  CreateProfileUseCase(this._repository, this._deviceInfo);
 
   @override
   Future<Result<Profile, AppError>> call(CreateProfileInput input) async {
-    final userId = await _tokenService.getCurrentUserId();
-    if (userId == null) {
-      return Failure(AuthError.notAuthenticated());
+    if (input.name.trim().isEmpty) {
+      return Failure(ValidationError.required('name'));
     }
-    if (input.ownerId != userId) {
-      return Failure(AuthError.profileAccessDenied(input.ownerId));
-    }
-
+    final deviceId = await _deviceInfo.getDeviceId();
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = const Uuid().v4();
-
     final profile = Profile(
-      id: id,
+      id: '',
       clientId: input.clientId,
-      ownerId: input.ownerId,
+      ownerId: deviceId,
       name: input.name,
       biologicalSex: input.biologicalSex,
       birthDate: input.birthDate,
@@ -2360,26 +2371,10 @@ class CreateProfileUseCase implements UseCase<CreateProfileInput, Profile> {
       syncMetadata: SyncMetadata(
         syncCreatedAt: now,
         syncUpdatedAt: now,
-        syncDeviceId: '',
+        syncDeviceId: deviceId,
       ),
     );
-
     return _repository.create(profile);
-  }
-}
-
-class DeleteProfileUseCase implements UseCase<DeleteProfileInput, void> {
-  final ProfileRepository _repository;
-  final ProfileAuthorizationService _authService;
-
-  DeleteProfileUseCase(this._repository, this._authService);
-
-  @override
-  Future<Result<void, AppError>> call(DeleteProfileInput input) async {
-    if (!await _authService.canWrite(input.profileId)) {
-      return Failure(AuthError.profileAccessDenied(input.profileId));
-    }
-    return _repository.delete(input.profileId);
   }
 }
 
@@ -2394,12 +2389,12 @@ class UpdateProfileUseCase implements UseCase<UpdateProfileInput, Profile> {
     if (!await _authService.canWrite(input.profileId)) {
       return Failure(AuthError.profileAccessDenied(input.profileId));
     }
-
     final existingResult = await _repository.getById(input.profileId);
     if (existingResult.isFailure) return Failure(existingResult.errorOrNull!);
     final existing = existingResult.valueOrNull!;
-
-    final now = DateTime.now().millisecondsSinceEpoch;
+    if ((input.name ?? existing.name).trim().isEmpty) {
+      return Failure(ValidationError.required('name'));
+    }
     final updated = existing.copyWith(
       name: input.name ?? existing.name,
       biologicalSex: input.biologicalSex ?? existing.biologicalSex,
@@ -2408,44 +2403,67 @@ class UpdateProfileUseCase implements UseCase<UpdateProfileInput, Profile> {
       dietDescription: input.dietDescription ?? existing.dietDescription,
       ethnicity: input.ethnicity ?? existing.ethnicity,
       notes: input.notes ?? existing.notes,
-      syncMetadata: existing.syncMetadata.copyWith(
-        syncUpdatedAt: now,
-        syncVersion: existing.syncMetadata.syncVersion + 1,
-        syncIsDirty: true,
-      ),
     );
-
     return _repository.update(updated);
   }
 }
 
-@riverpod
-GetAccessibleProfilesUseCase getAccessibleProfilesUseCase(Ref ref) =>
-    GetAccessibleProfilesUseCase(
-      ref.read(profileRepositoryProvider),
-      ref.read(userAccountRepositoryProvider),
-      ref.read(authTokenServiceProvider),
-    );
+class DeleteProfileUseCase implements UseCaseNoOutput<DeleteProfileInput> {
+  final ProfileRepository _repository;
+  final ProfileAuthorizationService _authService;
+  final GuestInviteRepository _guestInviteRepository;
+
+  DeleteProfileUseCase(
+    this._repository,
+    this._authService,
+    this._guestInviteRepository,
+  );
+
+  @override
+  Future<Result<void, AppError>> call(DeleteProfileInput input) async {
+    if (!await _authService.canWrite(input.profileId)) {
+      return Failure(AuthError.profileAccessDenied(input.profileId));
+    }
+    final invitesResult =
+        await _guestInviteRepository.getByProfile(input.profileId);
+    if (invitesResult.isFailure) return Failure(invitesResult.errorOrNull!);
+    for (final invite in invitesResult.valueOrNull!) {
+      if (!invite.isRevoked) {
+        final revokeResult = await _guestInviteRepository.revoke(invite.id);
+        if (revokeResult.isFailure) return Failure(revokeResult.errorOrNull!);
+      }
+    }
+    return _repository.cascadeDeleteProfileData(input.profileId);
+  }
+}
 
 @riverpod
-SetCurrentProfileUseCase setCurrentProfileUseCase(Ref ref) =>
-    SetCurrentProfileUseCase(
+GetProfilesUseCase getProfilesUseCase(Ref ref) =>
+    GetProfilesUseCase(
       ref.read(profileRepositoryProvider),
-      ref.read(authTokenServiceProvider),
+      ref.read(deviceInfoServiceProvider),
     );
 
 @riverpod
 CreateProfileUseCase createProfileUseCase(Ref ref) =>
     CreateProfileUseCase(
       ref.read(profileRepositoryProvider),
-      ref.read(authTokenServiceProvider),
+      ref.read(deviceInfoServiceProvider),
+    );
+
+@riverpod
+UpdateProfileUseCase updateProfileUseCase(Ref ref) =>
+    UpdateProfileUseCase(
+      ref.read(profileRepositoryProvider),
+      ref.read(profileAuthorizationServiceProvider),
     );
 
 @riverpod
 DeleteProfileUseCase deleteProfileUseCase(Ref ref) =>
     DeleteProfileUseCase(
       ref.read(profileRepositoryProvider),
-      ref.read(profileAuthServiceProvider),
+      ref.read(profileAuthorizationServiceProvider),
+      ref.read(guestInviteRepositoryProvider),
     );
 
 @riverpod

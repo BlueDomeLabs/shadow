@@ -6,8 +6,10 @@ import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/device_info_service.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/domain/entities/guest_invite.dart';
 import 'package:shadow_app/domain/entities/profile.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
+import 'package:shadow_app/domain/repositories/guest_invite_repository.dart';
 import 'package:shadow_app/domain/repositories/profile_repository.dart';
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/usecases/profiles/create_profile_use_case.dart';
@@ -20,6 +22,7 @@ import 'package:shadow_app/domain/usecases/profiles/update_profile_use_case.dart
   ProfileRepository,
   ProfileAuthorizationService,
   DeviceInfoService,
+  GuestInviteRepository,
 ])
 import 'profile_usecases_test.mocks.dart';
 
@@ -40,6 +43,7 @@ void main() {
     ),
   );
   provideDummy<Result<void, AppError>>(const Success(null));
+  provideDummy<Result<List<GuestInvite>, AppError>>(const Success([]));
 
   const testDeviceId = 'device-001';
   const testProfileId = 'profile-001';
@@ -275,18 +279,34 @@ void main() {
   group('DeleteProfileUseCase', () {
     late MockProfileRepository mockRepo;
     late MockProfileAuthorizationService mockAuth;
+    late MockGuestInviteRepository mockInvites;
     late DeleteProfileUseCase useCase;
+
+    GuestInvite makeInvite({
+      String id = 'invite-001',
+      bool isRevoked = false,
+    }) => GuestInvite(
+      id: id,
+      profileId: testProfileId,
+      token: 'token-$id',
+      createdAt: 0,
+      isRevoked: isRevoked,
+    );
 
     setUp(() {
       mockRepo = MockProfileRepository();
       mockAuth = MockProfileAuthorizationService();
-      useCase = DeleteProfileUseCase(mockRepo, mockAuth);
+      mockInvites = MockGuestInviteRepository();
+      useCase = DeleteProfileUseCase(mockRepo, mockAuth, mockInvites);
     });
 
-    test('deletes profile when authorized', () async {
+    test('cascade-deletes profile when authorized and no invites', () async {
       when(mockAuth.canWrite(testProfileId)).thenAnswer((_) async => true);
       when(
-        mockRepo.delete(testProfileId),
+        mockInvites.getByProfile(testProfileId),
+      ).thenAnswer((_) async => const Success([]));
+      when(
+        mockRepo.cascadeDeleteProfileData(testProfileId),
       ).thenAnswer((_) async => const Success(null));
 
       final result = await useCase(
@@ -294,7 +314,30 @@ void main() {
       );
 
       expect(result, isA<Success<void, AppError>>());
-      verify(mockRepo.delete(testProfileId)).called(1);
+      verify(mockRepo.cascadeDeleteProfileData(testProfileId)).called(1);
+      verifyNever(mockInvites.revoke(any));
+    });
+
+    test('revokes non-revoked invites before cascade delete', () async {
+      final invite1 = makeInvite();
+      final invite2 = makeInvite(id: 'invite-002', isRevoked: true);
+
+      when(mockAuth.canWrite(testProfileId)).thenAnswer((_) async => true);
+      when(
+        mockInvites.getByProfile(testProfileId),
+      ).thenAnswer((_) async => Success([invite1, invite2]));
+      when(
+        mockInvites.revoke('invite-001'),
+      ).thenAnswer((_) async => const Success(null));
+      when(
+        mockRepo.cascadeDeleteProfileData(testProfileId),
+      ).thenAnswer((_) async => const Success(null));
+
+      await useCase(const DeleteProfileInput(profileId: testProfileId));
+
+      verify(mockInvites.revoke('invite-001')).called(1);
+      verifyNever(mockInvites.revoke('invite-002')); // already revoked
+      verify(mockRepo.cascadeDeleteProfileData(testProfileId)).called(1);
     });
 
     test('returns AuthError when access denied', () async {
@@ -307,20 +350,28 @@ void main() {
       expect(result, isA<Failure<void, AppError>>());
       final error = (result as Failure<void, AppError>).error;
       expect(error, isA<AuthError>());
-      verifyNever(mockRepo.delete(any));
+      verifyNever(mockInvites.getByProfile(any));
+      verifyNever(mockRepo.cascadeDeleteProfileData(any));
     });
 
-    test('propagates repository failure', () async {
-      when(mockAuth.canWrite(testProfileId)).thenAnswer((_) async => true);
-      when(
-        mockRepo.delete(testProfileId),
-      ).thenAnswer((_) async => Failure(DatabaseError.queryFailed('test')));
+    test(
+      'propagates repository failure from cascadeDeleteProfileData',
+      () async {
+        when(mockAuth.canWrite(testProfileId)).thenAnswer((_) async => true);
+        when(
+          mockInvites.getByProfile(testProfileId),
+        ).thenAnswer((_) async => const Success([]));
+        when(mockRepo.cascadeDeleteProfileData(testProfileId)).thenAnswer(
+          (_) async =>
+              Failure(DatabaseError.transactionFailed('deleteProfileCascade')),
+        );
 
-      final result = await useCase(
-        const DeleteProfileInput(profileId: testProfileId),
-      );
+        final result = await useCase(
+          const DeleteProfileInput(profileId: testProfileId),
+        );
 
-      expect(result, isA<Failure<void, AppError>>());
-    });
+        expect(result, isA<Failure<void, AppError>>());
+      },
+    );
   });
 }

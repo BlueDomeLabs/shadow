@@ -1039,7 +1039,7 @@ final updateProfileUseCaseProvider =
 // ignore: unused_element
 typedef UpdateProfileUseCaseRef = AutoDisposeProviderRef<UpdateProfileUseCase>;
 String _$deleteProfileUseCaseHash() =>
-    r'0bdbff14ede4d1968cac7142b73b19dab5bed007';
+    r'935beb164488e1b352385ea6a9f8ce7148ec3f90';
 
 /// DeleteProfileUseCase provider.
 ///

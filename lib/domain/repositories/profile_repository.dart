@@ -21,4 +21,8 @@ abstract class ProfileRepository implements EntityRepository<Profile, String> {
 
   /// Get all profiles for a user (alias for getByOwner for clarity in user context).
   Future<Result<List<Profile>, AppError>> getByUser(String userId);
+
+  /// Soft-deletes all health data rows and the profile itself in a single transaction.
+  /// Guest invites for the profile are hard-deleted (no sync columns).
+  Future<Result<void, AppError>> cascadeDeleteProfileData(String profileId);
 }

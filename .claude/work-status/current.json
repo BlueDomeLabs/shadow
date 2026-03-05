@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Group A Session 1 — Profile use cases + migrate ProfileNotifier",
-  "timestamp": "2026-03-03T12:00:00Z",
+  "task": "Group A Session 2 — Cascade delete + guest invite revocation + delete dialog + API contracts fix",
+  "timestamp": "2026-03-04T12:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3501,
+  "testCount": 3508,
   "schemaVersion": 19,
-  "notes": "Created 4 profile use cases (Get/Create/Update/Delete). GetProfilesUseCase filters by ownerId=deviceId. CreateProfileUseCase always populates ownerId from DeviceInfoService. UpdateProfileUseCase: auth→fetch→validate→merge→save. DeleteProfileUseCase: A1 stub (auth+delete). Registered all in di_providers.dart with deviceInfoServiceProvider. Wired deviceInfoServiceProvider in bootstrap.dart. Migrated ProfileNotifier: removed _save(), uses repository + use cases, added forTesting() named constructor with no-op stubs. Removed local Profile class shadowing domain entity. Fixed home_screen.dart sentinel (removed ?? 'test-profile-001'). Added 13 use case unit tests. Updated 6 test files to override profileProvider/syncServiceProvider. Tests: 3488→3501. Analyzer clean."
+  "notes": "Expanded DeleteProfileUseCase: auth→revoke non-revoked guest invites→cascade delete all 18 health data tables + profile. Added deleteProfileCascade() to AppDatabase (single transaction, soft-delete for 18 health tables, hard-delete for guest_invites which has no sync columns). Added cascadeDeleteProfileData() to ProfileRepository interface and impl. Updated di_providers.dart to inject guestInviteRepositoryProvider into deleteProfileUseCase. Updated delete confirmation dialog text to list all data types. Updated 22_API_CONTRACTS.md profile use case signatures to match actual implementation. Added MockGuestInviteRepository to test file. Added 4 new DeleteProfileUseCase unit tests. Added 5 database cascade integration tests. Added 1 widget test for delete dialog copy. Tests: 3501→3508. Analyzer clean."
 }
