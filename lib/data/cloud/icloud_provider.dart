@@ -24,7 +24,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/core/types/result.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 
 /// Thin wrapper around the static [ICloudStorage] API to allow injection
 /// and mocking in unit tests.

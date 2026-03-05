@@ -1,7 +1,7 @@
-// test/domain/services/local_profile_authorization_service_test.dart
+// test/data/services/local_profile_authorization_service_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shadow_app/domain/services/local_profile_authorization_service.dart';
+import 'package:shadow_app/data/services/local_profile_authorization_service.dart';
 
 void main() {
   group('LocalProfileAuthorizationService', () {

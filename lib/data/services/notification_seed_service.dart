@@ -1,4 +1,4 @@
-// lib/domain/services/notification_seed_service.dart
+// lib/data/services/notification_seed_service.dart
 // Seeds default anchor event times and notification category settings on first run.
 // Per 57_NOTIFICATION_SYSTEM.md defaults.
 

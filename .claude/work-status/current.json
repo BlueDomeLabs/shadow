@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Group A Session 2 — Cascade delete + guest invite revocation + delete dialog + API contracts fix",
-  "timestamp": "2026-03-04T12:00:00Z",
+  "task": "Group B Session 1 — Layer boundary fixes (file moves: AUDIT-01-001, AUDIT-01-002, AUDIT-01-003) + tech debt TODO",
+  "timestamp": "2026-03-05T10:00:00Z",
   "testsStatus": "passing",
   "testCount": 3508,
   "schemaVersion": 19,
-  "notes": "Expanded DeleteProfileUseCase: auth→revoke non-revoked guest invites→cascade delete all 18 health data tables + profile. Added deleteProfileCascade() to AppDatabase (single transaction, soft-delete for 18 health tables, hard-delete for guest_invites which has no sync columns). Added cascadeDeleteProfileData() to ProfileRepository interface and impl. Updated di_providers.dart to inject guestInviteRepositoryProvider into deleteProfileUseCase. Updated delete confirmation dialog text to list all data types. Updated 22_API_CONTRACTS.md profile use case signatures to match actual implementation. Added MockGuestInviteRepository to test file. Added 4 new DeleteProfileUseCase unit tests. Added 5 database cascade integration tests. Added 1 widget test for delete dialog copy. Tests: 3501→3508. Analyzer clean."
+  "notes": "3 file moves: CloudStorageProvider (abstract interface) from data/datasources/remote/ to domain/sync/; LocalProfileAuthorizationService (concrete) from domain/services/ to data/services/; NotificationSeedService (concrete) from domain/services/ to data/services/. Updated imports in 26 files. Fixed 10 directives_ordering lint violations from new alphabetical sort positions. Added tech-debt TODO above attachedDatabase call in ProfileRepositoryImpl.cascadeDeleteProfileData(). No logic changes, no schema changes, no new tests. Tests: 3508 (unchanged)."
 }

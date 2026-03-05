@@ -1,4 +1,4 @@
-// test/unit/domain/services/notification_seed_service_test.dart
+// test/unit/data/services/notification_seed_service_test.dart
 // Tests for NotificationSeedService per 57_NOTIFICATION_SYSTEM.md
 
 import 'package:flutter_test/flutter_test.dart';
@@ -6,12 +6,12 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/data/services/notification_seed_service.dart';
 import 'package:shadow_app/domain/entities/anchor_event_time.dart';
 import 'package:shadow_app/domain/entities/notification_category_settings.dart';
 import 'package:shadow_app/domain/enums/notification_enums.dart';
 import 'package:shadow_app/domain/repositories/anchor_event_time_repository.dart';
 import 'package:shadow_app/domain/repositories/notification_category_settings_repository.dart';
-import 'package:shadow_app/domain/services/notification_seed_service.dart';
 
 @GenerateMocks([
   AnchorEventTimeRepository,

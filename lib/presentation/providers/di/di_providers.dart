@@ -14,7 +14,6 @@ import 'package:shadow_app/core/services/notification_tap_handler.dart';
 // Cloud
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/cloud/icloud_provider.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 // Reports
 import 'package:shadow_app/domain/reports/report_data_service.dart';
 import 'package:shadow_app/domain/reports/report_export_service.dart';
@@ -33,6 +32,7 @@ import 'package:shadow_app/domain/services/profile_authorization_service.dart';
 import 'package:shadow_app/domain/services/security_service.dart';
 import 'package:shadow_app/domain/services/supplement_barcode_service.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 // Use Cases - Activities
 import 'package:shadow_app/domain/usecases/activities/activities_usecases.dart';
 // Use Cases - Activity Logs

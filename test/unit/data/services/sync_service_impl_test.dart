@@ -10,7 +10,6 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/data/services/sync_service_impl.dart';
 import 'package:shadow_app/domain/entities/diet.dart';
 import 'package:shadow_app/domain/entities/diet_violation.dart';
@@ -20,6 +19,7 @@ import 'package:shadow_app/domain/entities/sync_conflict.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/repositories/supplement_repository.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @GenerateMocks([

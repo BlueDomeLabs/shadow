@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 
 /// First-time cloud sync setup screen with onboarding wizard.

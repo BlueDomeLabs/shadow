@@ -24,7 +24,7 @@ import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/cloud/google_auth_client.dart';
 import 'package:shadow_app/data/cloud/macos_google_oauth.dart';
 import 'package:shadow_app/data/cloud/oauth_exception.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 
 /// Google Drive implementation of [CloudStorageProvider].
 ///

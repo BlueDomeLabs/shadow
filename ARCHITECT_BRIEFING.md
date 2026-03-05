@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-03-04
-# Briefing Version: 20260304-038
+# Last Updated: 2026-03-05
+# Briefing Version: 20260305-039
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,16 +9,15 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group A complete (s1+s2); awaiting Architect review
-# Last Commit:   feat: Group A s2 — cascade delete, guest invite revocation, delete dialog (ee26c54)
-# Last Code:     deleteProfileCascade transaction (18 health tables + profile soft-delete,
-#                guest_invites hard-delete), cascadeDeleteProfileData() on repo,
-#                DeleteProfileUseCase expanded (auth→revoke invites→cascade),
-#                delete dialog copy updated, 22_API_CONTRACTS.md signatures fixed,
-#                +7 tests (4 use case unit, 5 cascade integration, 1 dialog widget)
-# Next Action:   Architect reviews Group A s2 output; issues Group B s1 prompt
+# Status:        IDLE — Group B s1 complete; awaiting Architect review
+# Last Commit:   (pending — committing now)
+# Last Code:     3 file moves (layer boundary fixes): cloud_storage_provider →
+#                domain/sync/, local_profile_authorization_service +
+#                notification_seed_service → data/services/. Import updates
+#                across 20 files. Tech debt TODO added to cascadeDeleteProfileData.
+# Next Action:   Architect reviews Group B s1 output; issues Group B s2 prompt
 # Open Items:    None
-# Tests:         3,508 passing (+7 from A2 baseline 3,501)
+# Tests:         3,508 passing (no change)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -26,6 +25,73 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group B Session 1: Layer Boundary Fixes (File Moves)
+
+**Tests: 3,508 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Three mechanical file moves to fix layer boundary violations (AUDIT-01-001, AUDIT-01-002, AUDIT-01-003). No logic changes, no new entities, no schema changes.
+
+**AUDIT-01-001 — cloud_storage_provider.dart → domain/sync/**
+`CloudStorageProvider` is an abstract interface. Moved from `lib/data/datasources/remote/` to `lib/domain/sync/` (new directory). Updated imports in 19 files across lib/ and test/. The import ordering fixes required extra passes — moving the import to a new package path (`domain/sync/`) caused `directives_ordering` lint violations in every consumer file that had any `domain/` imports. Each file needed the `domain/sync/cloud_storage_provider.dart` import placed after `domain/services/` imports and before any `domain/usecases/` imports (alphabetical: `se` < `sy`).
+
+**AUDIT-01-002 — local_profile_authorization_service.dart → data/services/**
+`LocalProfileAuthorizationService` is a concrete class. Moved from `lib/domain/services/` to `lib/data/services/`. Updated imports in `lib/core/bootstrap.dart` and `test/domain/services/local_profile_authorization_service_test.dart`. Import in bootstrap.dart required reordering to keep `data/services/` before `domain/services/`.
+
+**AUDIT-01-003 — notification_seed_service.dart → data/services/**
+`NotificationSeedService` is a concrete class. Moved from `lib/domain/services/` to `lib/data/services/`. Updated imports in `lib/core/bootstrap.dart` and `test/unit/domain/services/notification_seed_service_test.dart`. Test file required reordering (moved `data/services/notification_seed_service` before `domain/repositories/` imports).
+
+**Task 4 — Tech debt TODO**
+Added 4-line TODO comment above `_dao.attachedDatabase` call in `cascadeDeleteProfileData()` in `profile_repository_impl.dart` per the A2 carry-forward note.
+
+**Import ordering** was the main complication — 10 `directives_ordering` lint violations after the mechanical path updates. Fixed by re-sorting imports alphabetically in each flagged file. No logic was changed in any file — purely path strings and import statement ordering.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/sync/cloud_storage_provider.dart | CREATED (moved) | Abstract interface moved from data/datasources/remote/ |
+| lib/data/services/local_profile_authorization_service.dart | CREATED (moved) | Concrete class moved from domain/services/ |
+| lib/data/services/notification_seed_service.dart | CREATED (moved) | Concrete class moved from domain/services/ |
+| lib/data/datasources/remote/cloud_storage_provider.dart | DELETED | Old location removed |
+| lib/domain/services/local_profile_authorization_service.dart | DELETED | Old location removed |
+| lib/domain/services/notification_seed_service.dart | DELETED | Old location removed |
+| lib/core/bootstrap.dart | MODIFIED | Import paths updated + reordered for lint compliance |
+| lib/data/cloud/google_drive_provider.dart | MODIFIED | cloud_storage_provider import path updated |
+| lib/data/cloud/icloud_provider.dart | MODIFIED | cloud_storage_provider import path updated |
+| lib/data/repositories/profile_repository_impl.dart | MODIFIED | Tech debt TODO added above attachedDatabase call |
+| lib/data/services/sync_service_impl.dart | MODIFIED | cloud_storage_provider import path updated + reordered |
+| lib/domain/services/sync_service.dart | MODIFIED | cloud_storage_provider import path updated + reordered |
+| lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart | MODIFIED | cloud_storage_provider import path updated |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | cloud_storage_provider import path updated + reordered |
+| lib/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart | MODIFIED | cloud_storage_provider import path updated |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/domain/services/local_profile_authorization_service_test.dart | MODIFIED | Import path updated |
+| test/integration/sync_flow_integration_test.dart | MODIFIED | Import paths updated + reordered |
+| test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart | MODIFIED | Import paths updated + reordered |
+| test/presentation/screens/cloud_sync/conflict_resolution_screen_test.dart | MODIFIED | Import paths updated + reordered |
+| test/unit/data/cloud/google_drive_provider_test.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/unit/data/cloud/icloud_provider_test.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/unit/data/services/sync_service_impl_test.dart | MODIFIED | Import paths updated + reordered |
+| test/unit/data/services/sync_service_impl_test.mocks.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/unit/domain/services/notification_seed_service_test.dart | MODIFIED | Import path updated + reordered |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.mocks.dart | MODIFIED | cloud_storage_provider import path updated |
+| test/unit/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | cloud_storage_provider import path updated |
+
+### Executive Summary for Reid
+
+This session was all housekeeping — no new features, no behavior changes. We moved three files to the folders where they belong.
+
+The Shadow codebase has a layer structure: "domain" contains abstract rules and interfaces, "data" contains concrete implementations. Over time, two concrete implementation files ended up in the domain layer, and one abstract interface ended up in the data layer. This session fixes all three misplacements.
+
+Moving a file in Dart means updating every import statement across the whole codebase that references the old path. In total, that was 26 files touched. There were no tricky parts in the moves themselves — just careful find-and-replace. The only complication was that the Dart analyzer enforces alphabetical import ordering, and the new paths sorted differently than the old ones, so I had to reorder import blocks in several files to keep the linter happy.
+
+All 3,508 tests pass. No features changed. The app behaves identically — this was structure cleanup that the Architect flagged in the audit.
 
 ---
 

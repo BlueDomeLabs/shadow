@@ -1,4 +1,4 @@
-// lib/data/datasources/remote/cloud_storage_provider.dart
+// lib/domain/sync/cloud_storage_provider.dart
 // Abstract interface for cloud storage operations.
 // Implements 22_API_CONTRACTS.md cloud sync contracts.
 

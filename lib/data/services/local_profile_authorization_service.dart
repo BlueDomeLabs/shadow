@@ -1,4 +1,4 @@
-// lib/domain/services/local_profile_authorization_service.dart
+// lib/data/services/local_profile_authorization_service.dart
 // Local-only implementation that allows full access for all profiles.
 
 import 'package:shadow_app/domain/services/profile_authorization_service.dart';

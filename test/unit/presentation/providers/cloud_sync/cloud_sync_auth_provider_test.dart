@@ -9,7 +9,7 @@ import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/cloud/icloud_provider.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart'
     show CloudProviderType, SyncChange;
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 

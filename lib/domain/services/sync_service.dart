@@ -3,8 +3,8 @@
 
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/domain/entities/sync_conflict.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 
 /// Domain-layer sync orchestration service.
 ///

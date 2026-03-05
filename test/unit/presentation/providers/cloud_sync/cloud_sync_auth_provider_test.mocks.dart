@@ -13,8 +13,7 @@ import 'package:shadow_app/core/errors/app_error.dart' as _i7;
 import 'package:shadow_app/core/types/result.dart' as _i6;
 import 'package:shadow_app/data/cloud/google_drive_provider.dart' as _i3;
 import 'package:shadow_app/data/cloud/icloud_provider.dart' as _i9;
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
-    as _i4;
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

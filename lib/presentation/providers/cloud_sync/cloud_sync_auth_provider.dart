@@ -11,7 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/cloud/icloud_provider.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 
 /// Key used to persist the selected CloudProviderType in secure storage.

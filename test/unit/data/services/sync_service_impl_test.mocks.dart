@@ -16,8 +16,7 @@ import 'package:shadow_app/core/types/result.dart' as _i7;
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart'
     as _i14;
 import 'package:shadow_app/data/datasources/local/database.dart' as _i2;
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart'
-    as _i13;
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart' as _i13;
 import 'package:shadow_app/domain/entities/supplement.dart' as _i8;
 import 'package:shadow_app/domain/entities/sync_conflict.dart' as _i15;
 import 'package:shadow_app/domain/repositories/supplement_repository.dart'

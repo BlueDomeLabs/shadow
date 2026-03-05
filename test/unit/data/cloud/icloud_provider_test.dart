@@ -21,7 +21,7 @@ import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/cloud/icloud_provider.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 
 @GenerateMocks([ICloudStorageWrapper])
 import 'icloud_provider_test.mocks.dart';

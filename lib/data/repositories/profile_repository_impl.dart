@@ -94,6 +94,10 @@ class ProfileRepositoryImpl extends BaseRepository<Profile>
     String profileId,
   ) async {
     try {
+      // TODO(tech-debt): Uses attachedDatabase which is a Drift internal API.
+      // If Drift upgrades break this accessor, replace with a dedicated
+      // ProfileRepository method that accepts AppDatabase directly via constructor.
+      // Tracked: Group A Session 2 carry-forward note.
       await _dao.attachedDatabase.deleteProfileCascade(profileId);
       return const Success(null);
     } on Exception catch (e) {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart';
 

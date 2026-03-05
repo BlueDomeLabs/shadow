@@ -9,11 +9,11 @@ import 'package:shadow_app/core/services/encryption_service.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
-import 'package:shadow_app/data/datasources/remote/cloud_storage_provider.dart';
 import 'package:shadow_app/domain/entities/sync_conflict.dart';
 import 'package:shadow_app/domain/entities/sync_metadata.dart';
 import 'package:shadow_app/domain/repositories/entity_repository.dart';
 import 'package:shadow_app/domain/services/sync_service.dart';
+import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
