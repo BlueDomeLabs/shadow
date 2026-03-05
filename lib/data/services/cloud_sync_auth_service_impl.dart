@@ -10,8 +10,8 @@ import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/data/cloud/google_drive_provider.dart';
 import 'package:shadow_app/data/cloud/icloud_provider.dart';
 import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_state.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
-import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
 
 /// Key used to persist the selected CloudProviderType in secure storage.
 const _providerTypeKey = 'cloud_provider_type';

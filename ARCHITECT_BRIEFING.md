@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-05
-# Briefing Version: 20260305-040
+# Briefing Version: 20260305-041
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,15 +9,13 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group B s2 complete; awaiting Architect review
+# Status:        IDLE — Group B s3 complete; awaiting Architect review
 # Last Commit:   (pending — committing now)
-# Last Code:     CloudSyncAuthService domain interface + CloudSyncAuthServiceImpl
-#                data implementation. CloudSyncAuthNotifier refactored to delegate
-#                to service. googleDriveProviderProvider + iCloudProviderProvider
-#                removed from DI; cloudSyncAuthServiceProvider added.
-#                bootstrap.dart wired. Test file rewritten (29 tests).
-#                4 screen test files updated (fake notifier pattern).
-# Next Action:   Architect reviews Group B s2 output; issues Group B s3 prompt
+# Last Code:     CloudSyncAuthState moved to lib/domain/services/cloud_sync_auth_state.dart.
+#                Domain→presentation import inversion resolved: cloud_sync_auth_service.dart
+#                now imports from domain, not presentation. 1 new file, 11 modified.
+#                Imports only — no logic changes.
+# Next Action:   Architect reviews Group B s3 output; issues next prompt
 # Open Items:    None
 # Tests:         3,508 passing (no change)
 # Schema:        v19
@@ -27,6 +25,56 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group B Session 3: CloudSyncAuthState Domain Move
+
+**Tests: 3,508 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Moved `CloudSyncAuthState` from `lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart` to a new domain-layer file at `lib/domain/services/cloud_sync_auth_state.dart`. This resolves the layer boundary violation introduced in Group B s2 where `cloud_sync_auth_service.dart` (domain interface) imported from the presentation layer.
+
+**Task 1 — New file: `lib/domain/services/cloud_sync_auth_state.dart`**
+`CloudSyncAuthState` class (constructor, all fields, `copyWith`) moved verbatim. Sole import: `package:shadow_app/domain/sync/cloud_storage_provider.dart`. No Flutter or Riverpod dependencies confirmed — the class is pure Dart.
+
+**Task 2 — Provider file: `lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart`**
+`CloudSyncAuthState` class definition removed. Added import for `cloud_sync_auth_state.dart`. All notifier and provider logic unchanged.
+
+**Task 3 — Consumer updates (imports only, no logic changes):**
+- `lib/domain/services/cloud_sync_auth_service.dart` — replaced `presentation/providers/cloud_sync/cloud_sync_auth_provider.dart` import with `domain/services/cloud_sync_auth_state.dart` (resolves domain→presentation inversion)
+- `lib/data/services/cloud_sync_auth_service_impl.dart` — same replacement
+- `lib/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart` — added domain state import (kept provider import for notifier/provider)
+- `lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart` — same
+- 5 test files — added `cloud_sync_auth_state.dart` import alongside existing `cloud_sync_auth_provider.dart` import
+
+**Mocks regenerated** via build_runner after test file import updates.
+
+**Verification:** `grep -r "cloud_sync_auth_provider.dart" lib/domain/` — zero results. The domain layer no longer imports from presentation.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/domain/services/cloud_sync_auth_state.dart | CREATED | CloudSyncAuthState moved here from provider file |
+| lib/domain/services/cloud_sync_auth_service.dart | MODIFIED | Import swapped: domain state instead of presentation provider |
+| lib/data/services/cloud_sync_auth_service_impl.dart | MODIFIED | Import swapped: domain state instead of presentation provider |
+| lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart | MODIFIED | CloudSyncAuthState class removed; domain state import added |
+| lib/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart | MODIFIED | Added domain state import |
+| lib/presentation/screens/cloud_sync/cloud_sync_setup_screen.dart | MODIFIED | Added domain state import |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.dart | MODIFIED | Added domain state import |
+| test/unit/presentation/providers/cloud_sync/cloud_sync_auth_provider_test.mocks.dart | MODIFIED | Regenerated (import path update) |
+| test/presentation/screens/cloud_sync/cloud_sync_settings_screen_test.dart | MODIFIED | Added domain state import |
+| test/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | Added domain state import |
+| test/presentation/screens/cloud_sync/conflict_resolution_screen_test.dart | MODIFIED | Added domain state import |
+| test/unit/presentation/screens/cloud_sync/cloud_sync_setup_screen_test.dart | MODIFIED | Added domain state import |
+
+### Executive Summary for Reid
+
+This session did exactly one thing: moved the `CloudSyncAuthState` class to where it belongs in the codebase. Last session we created the cloud sync service layer — but one piece was in the wrong place. The state object that represents "are you signed in to Google Drive or iCloud?" was living in a UI layer file, and the new service layer was importing from it there. That's a backwards dependency — lower layers shouldn't depend on higher layers.
+
+Now it lives in the domain layer with the service interface, which is correct. No behavior changed, no tests changed, no logic moved. This is pure housekeeping to keep the architecture clean as we continue building.
 
 ---
 

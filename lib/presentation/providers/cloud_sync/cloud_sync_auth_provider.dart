@@ -7,56 +7,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/services/logger_service.dart';
 import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_state.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
-
-/// Authentication state for cloud sync.
-class CloudSyncAuthState {
-  /// Whether a sign-in or sign-out operation is in progress.
-  final bool isLoading;
-
-  /// Whether the user is currently authenticated.
-  final bool isAuthenticated;
-
-  /// The authenticated user's email address.
-  final String? userEmail;
-
-  /// The active cloud provider type.
-  final CloudProviderType? activeProvider;
-
-  /// User-facing error message from the last operation.
-  final String? errorMessage;
-
-  const CloudSyncAuthState({
-    this.isLoading = false,
-    this.isAuthenticated = false,
-    this.userEmail,
-    this.activeProvider,
-    this.errorMessage,
-  });
-
-  /// Creates a copy with the given fields replaced.
-  CloudSyncAuthState copyWith({
-    bool? isLoading,
-    bool? isAuthenticated,
-    String? userEmail,
-    CloudProviderType? activeProvider,
-    String? errorMessage,
-    bool clearUserEmail = false,
-    bool clearActiveProvider = false,
-    bool clearErrorMessage = false,
-  }) => CloudSyncAuthState(
-    isLoading: isLoading ?? this.isLoading,
-    isAuthenticated: isAuthenticated ?? this.isAuthenticated,
-    userEmail: clearUserEmail ? null : (userEmail ?? this.userEmail),
-    activeProvider: clearActiveProvider
-        ? null
-        : (activeProvider ?? this.activeProvider),
-    errorMessage: clearErrorMessage
-        ? null
-        : (errorMessage ?? this.errorMessage),
-  );
-}
 
 /// Notifier managing cloud sync authentication state.
 ///

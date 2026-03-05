@@ -10,9 +10,8 @@ import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:shadow_app/core/errors/app_error.dart' as _i6;
 import 'package:shadow_app/core/types/result.dart' as _i5;
 import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart' as _i2;
+import 'package:shadow_app/domain/services/cloud_sync_auth_state.dart' as _i4;
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart' as _i8;
-import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart'
-    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

@@ -12,6 +12,7 @@ import 'package:mockito/mockito.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/types/result.dart';
 import 'package:shadow_app/domain/services/cloud_sync_auth_service.dart';
+import 'package:shadow_app/domain/services/cloud_sync_auth_state.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart'
     show CloudProviderType;
 import 'package:shadow_app/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart';
