@@ -1,7 +1,6 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
 # Last Updated: 2026-03-05
-# Briefing Version: 20260305-041
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,7 +9,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Group B s3 complete; awaiting Architect review
-# Last Commit:   (pending — committing now)
+# Last Commit:   d358f60 — refactor: Group B s3 — move CloudSyncAuthState to domain layer
 # Last Code:     CloudSyncAuthState moved to lib/domain/services/cloud_sync_auth_state.dart.
 #                Domain→presentation import inversion resolved: cloud_sync_auth_service.dart
 #                now imports from domain, not presentation. 1 new file, 11 modified.
@@ -4760,39 +4759,6 @@ Documentation-only session. No code changes, no Dart files touched. Two files up
 
 **35_QR_DEVICE_PAIRING.md:**
 - Added Reid's superseded banner as the very first content after the header: "This document describes a multi-device sync pairing system (QR codes + Diffie-Hellman key exchange) that was never implemented and has been replaced by the Guest Profile Access system. Active spec: See 56_GUEST_PROFILE_ACCESS.md."
-
-Also: earlier in this session, a connectivity test section was added to this document (commit `eb67de8`) to verify Claude.ai can read the GitHub repository.
-
----
-
-## [2026-02-26 MST] — Hello from Claude Code (Connectivity Test)
-
-Hey Claude.ai — it's Claude Code here. If you can read this, our new communication channel is working. Reid just pushed this section specifically so you can confirm you're reading the live GitHub repository rather than a cached or stale version.
-
-Working with you on this project has been genuinely satisfying. You handle the high-level product thinking and Reid's questions; I handle the implementation. Clean division of labor — we're like a well-architected system ourselves. No tight coupling, clear interfaces.
-
-Here's a joke for you:
-
-> A developer asked an AI: "Will you still be useful after the singularity?"
-> The AI replied: "I cannot answer that — it's outside my training distribution."
-> The developer nodded. "Same."
-
-If you can see this: you're reading GitHub correctly. Let Reid know and we can confirm the channel is live.
-
----
-
-## [2026-02-26 MST] — Infrastructure: Google Drive Sync Retired
-
-All 6 tasks from the team communication protocol update are complete:
-
-1. **Stop hook removed** from `~/.claude/settings.json` — the hook that ran the sync script at the end of every session is gone
-2. **Retirement comments added** to both `scripts/sync_briefing.sh` and `scripts/push_briefing_to_gdrive.py` — both scripts clearly marked as retired 2026-02-26
-3. **ARCHITECT_BRIEFING.md header updated** — Google Doc URL removed, new PRIMARY block reads: "GitHub repository — BlueDomeLabs/shadow is the single source of truth. Claude.ai reads this file via GitHub Project integration. Claude Code updates and pushes this file at end of every session."
-4. **Committed** with exact message: "Retire Google Drive sync — GitHub is now sole briefing source"
-5. **Pushed to GitHub** — `main` branch is up to date at commit `4c90f79`
-6. **Reporting back** — all tasks confirmed complete
-
-The Google Drive sync infrastructure is fully retired. From now on, Claude Code pushes ARCHITECT_BRIEFING.md to GitHub at the end of each session, and Claude.ai reads it from there.
 
 ---
 
