@@ -1,7 +1,7 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-03-03
-# Briefing Version: 20260303-037
+# Last Updated: 2026-03-04
+# Briefing Version: 20260304-038
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -9,13 +9,16 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group A Session 1 complete; awaiting Architect review
-# Last Commit:   feat: Group A s1 — profile use cases, ownerId, migrate ProfileNotifier (59c5fc2)
-# Last Code:     4 profile use cases, di_providers wired, ProfileNotifier migrated,
-#                home_screen sentinel removed, 13 unit tests, 6 test files updated
-# Next Action:   Architect reviews Group A s1 output; issues Session A2 prompt
-# Open Items:    None — all Architect questions from planning pass answered and implemented
-# Tests:         3,501 passing (+13 from opening 3,488)
+# Status:        IDLE — Group A complete (s1+s2); awaiting Architect review
+# Last Commit:   feat: Group A s2 — cascade delete, guest invite revocation, delete dialog (ee26c54)
+# Last Code:     deleteProfileCascade transaction (18 health tables + profile soft-delete,
+#                guest_invites hard-delete), cascadeDeleteProfileData() on repo,
+#                DeleteProfileUseCase expanded (auth→revoke invites→cascade),
+#                delete dialog copy updated, 22_API_CONTRACTS.md signatures fixed,
+#                +7 tests (4 use case unit, 5 cascade integration, 1 dialog widget)
+# Next Action:   Architect reviews Group A s2 output; issues Group B s1 prompt
+# Open Items:    None
+# Tests:         3,508 passing (+7 from A2 baseline 3,501)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -23,6 +26,66 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-04 MST] — Group A Session 2: Cascade Delete + Guest Invite Revocation + Delete Dialog + API Contracts Fix
+
+**Tests: 3,508 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Completed Group A by expanding `DeleteProfileUseCase` from its A1 stub into the full cascade implementation.
+
+**AppDatabase.deleteProfileCascade** (new method in `lib/data/datasources/local/database.dart`):
+Single Drift `transaction()` block. Iterates 18 health data tables via `customUpdate` setting `sync_deleted_at = now`, `sync_is_dirty = 1`, `sync_status = 4 (deleted)` where `profile_id = ?` and `sync_deleted_at IS NULL`. Then hard-deletes `guest_invites` via `DELETE FROM guest_invites WHERE profile_id = ?` (no sync columns on that table). Finally soft-deletes the profile itself via `customUpdate` on `profiles`. Uses literal integer 4 for SyncStatus.deleted to avoid importing sync_metadata.dart into the database file.
+
+**ProfileRepository** (interface + impl):
+Added `cascadeDeleteProfileData(String profileId)` to the abstract class. Implemented in `ProfileRepositoryImpl` via `_dao.attachedDatabase.deleteProfileCascade(profileId)` wrapped in try/catch returning `DatabaseError.transactionFailed`. Note: must use `attachedDatabase` not `db` — the `db` extension getter from `OldDbFieldInDatabaseAccessor` is not accessible from outside the drift package without explicitly importing drift.
+
+**DeleteProfileUseCase** (full expansion):
+Constructor now takes 3 args: `ProfileRepository`, `ProfileAuthorizationService`, `GuestInviteRepository`. Flow: auth check → `getByProfile()` → iterate and `revoke()` non-revoked invites → `cascadeDeleteProfileData()`. Already-revoked invites are skipped (checked via `invite.isRevoked`).
+
+**di_providers.dart**: Updated `deleteProfileUseCase` to inject `guestInviteRepositoryProvider`.
+
+**profiles_screen.dart**: Updated delete confirmation dialog body text to: "This will permanently delete all of [profile name]'s data, including supplements, conditions, activity logs, food logs, photos, journal entries, sleep records, and fluids. This cannot be undone."
+
+**22_API_CONTRACTS.md**: Replaced stale `AuthTokenService`-based use case signatures (lines 2330–2456) with the actual implementations: `GetProfilesUseCase(ProfileRepository, DeviceInfoService)`, `CreateProfileUseCase(ProfileRepository, DeviceInfoService)`, `UpdateProfileUseCase(ProfileRepository, ProfileAuthorizationService)`, `DeleteProfileUseCase(ProfileRepository, ProfileAuthorizationService, GuestInviteRepository)`.
+
+**Tests**: Added `GuestInviteRepository` to `@GenerateMocks`, added `provideDummy<Result<List<GuestInvite>, AppError>>`. Replaced 3 old stub-based `DeleteProfileUseCase` tests with 4 new tests covering cascade+revocation behavior. Created `database_cascade_test.dart` with 5 integration tests using in-memory Drift DB and raw SQL inserts. Added 1 widget test for delete dialog copy.
+
+**Import note**: `database_cascade_test.dart` imports only `shadow_app/data/datasources/local/database.dart` — importing `drift/drift.dart` directly causes `DatabaseConnection` and `isNull/isNotNull` symbol conflicts with the project's re-exports.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| lib/data/datasources/local/database.dart | MODIFIED | Added deleteProfileCascade() transaction method |
+| lib/domain/repositories/profile_repository.dart | MODIFIED | Added cascadeDeleteProfileData() abstract method |
+| lib/data/repositories/profile_repository_impl.dart | MODIFIED | Implemented cascadeDeleteProfileData() |
+| lib/domain/usecases/profiles/delete_profile_use_case.dart | MODIFIED | Full cascade: auth→revoke invites→cascadeDeleteProfileData |
+| lib/presentation/providers/di/di_providers.dart | MODIFIED | Inject guestInviteRepositoryProvider into deleteProfileUseCase |
+| lib/presentation/providers/di/di_providers.g.dart | MODIFIED | Codegen output |
+| lib/presentation/screens/profiles/profiles_screen.dart | MODIFIED | Delete dialog: new body text listing all data types |
+| 22_API_CONTRACTS.md | MODIFIED | Profile use case signatures updated to match implementation |
+| test/unit/domain/usecases/profiles/profile_usecases_test.dart | MODIFIED | Added GuestInviteRepository mock, 4 new delete use case tests |
+| test/unit/domain/usecases/profiles/profile_usecases_test.mocks.dart | MODIFIED | Regenerated with MockGuestInviteRepository |
+| test/unit/data/datasources/local/database_cascade_test.dart | CREATED | 5 integration tests for deleteProfileCascade |
+| test/presentation/screens/profiles/profiles_screen_test.dart | MODIFIED | Added widget test for delete dialog copy |
+
+### Executive Summary for Reid
+
+Group A is complete. Here's what changed in Session 2:
+
+**Deleting a profile now cleans up everything.** Before this session, deleting a profile only removed the profile record itself — all the health data associated with it (supplements, conditions, food logs, sleep records, photos, etc.) was left behind as orphaned data. Now, when you delete a profile, all 18 types of health data belonging to that profile are marked for deletion in one atomic database operation. If a sync error interrupts the process midway, the database transaction rolls back and nothing is partially deleted.
+
+**Guest invites are revoked before deletion.** If a profile had any active guest invites (invite links shared with another device), those are revoked automatically before the profile is deleted. Already-revoked invites are skipped.
+
+**The delete confirmation dialog now tells you exactly what you're deleting.** Instead of just "Are you sure? This cannot be undone," it now reads: "This will permanently delete all of [profile name]'s data, including supplements, conditions, activity logs, food logs, photos, journal entries, sleep records, and fluids. This cannot be undone." No surprises.
+
+**API documentation updated.** The spec document that describes how our profile use cases work was still showing outdated code from before we implemented these features. It now reflects the actual implementation.
+
+Group A is done. Next up is Group B (Cloud Sync Architecture) — but that needs Architect review first before I see a prompt.
 
 ---
 
