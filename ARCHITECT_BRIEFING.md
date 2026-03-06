@@ -8,14 +8,15 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group L s1 complete; awaiting Architect review
-# Last Commit:   6370e64 — refactor: Group L s1 — extract 3 widget components from supplement_edit_screen
-# Last Code:     Extracted SupplementScanShortcutsBar, SupplementLabelPhotosSection,
-#                SupplementScheduleSection from supplement_edit_screen.dart.
-#                Parent: 1,685 → 1,323 lines. No logic changes. 38 new tests.
-# Next Action:   Architect reviews Group L s1; issues next prompt (L2 or other)
+# Status:        IDLE — Group L s2 complete; awaiting Architect review
+# Last Commit:   5470d79 — refactor: Group L s2 — extract 3 widget components from fluids_entry_screen
+# Last Code:     Extracted FluidsEntryBowelSection, FluidsEntryUrineSection,
+#                FluidsEntryBBTSection from fluids_entry_screen.dart.
+#                Parent: 1,419 → 1,078 lines. No logic changes. 35 new tests.
+#                2 existing screen tests fixed (ensureVisible after scrollUntilFound).
+# Next Action:   Architect reviews Group L s2; issues next prompt (L3 or other)
 # Open Items:    None
-# Tests:         3,546 passing (+38 new widget tests)
+# Tests:         3,581 passing (+35 new widget tests)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -23,6 +24,51 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group L Session 2: Widget Component Extraction from fluids_entry_screen (AUDIT-10-004)
+
+**Tests: 3,581 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+Extracted 3 stateless widget components from `fluids_entry_screen.dart` (1,419 → 1,078 lines, -341 lines).
+
+**FluidsEntryBowelSection** (`fluids_entry_bowel_section.dart`, 193 lines): Encapsulates the bowel movement toggle, condition dropdown (with Bristol scale labels), custom condition text field (conditional on `BowelCondition.custom`), size dropdown, and photo add/remove UI. `_bowelConditionLabel` and `_movementSizeLabel` helpers moved into the widget. `onToggleChanged` uses `ValueChanged<bool>` to satisfy `avoid_positional_boolean_parameters` lint.
+
+**FluidsEntryUrineSection** (`fluids_entry_urine_section.dart`, 177 lines): Same pattern for urine — toggle, color dropdown (`_urineConditionLabel` moved in), custom color field, size dropdown (hardcoded Small/Medium/Large — no label helper needed), and photo add/remove. `Key('add_urine_photo_button')` preserved on the Add photo button.
+
+**FluidsEntryBBTSection** (`fluids_entry_bbt_section.dart`, 104 lines): Temperature field + unit dropdown row, plus InkWell time picker. The time picker dialog (`showTimePicker`) runs in the extracted widget's `BuildContext`; `onRecordedTimeChanged(DateTime)` fires with the full reconstructed DateTime. `_formatTime` removed from parent (no longer used there). `DateFormatters.time12h` used directly.
+
+Parent screen refactoring: Replaced 7 builder methods with 3 widget instantiations. Removed `_bowelConditionLabel`, `_movementSizeLabel`, `_urineConditionLabel`, `_formatTime`, `_buildBowelToggle`, `_buildBowelConditionDropdown`, `_buildBowelCustomCondition`, `_buildBowelSizeDropdown`, `_buildBowelPhoto`, `_buildUrineToggle`, `_buildUrineColorDropdown`, `_buildUrineCustomColor`, `_buildUrineSizeDropdown`, `_buildBBTRow`, `_buildBBTTimePicker`. All clearing/validation logic preserved in parent callbacks. `dart:io` import removed (no longer directly uses `File`).
+
+**Test failures fixed (2):** `fluids_entry_screen_test.dart` — "bowel condition dropdown shows all options" and "bowel custom condition shown only when Custom selected" both failed because `scrollUntilFound` left the target widget at y=614, just outside the 600px viewport. The existing `_buildBowelConditionDropdown` was directly in the parent's `ListView`; after extraction into `FluidsEntryBowelSection > Column`, the layout positions the Condition field slightly lower. Fix: added `await tester.ensureVisible(...)` + `pumpAndSettle` between `scrollUntilFound` and the tap in both tests.
+
+**New tests: 35** — bowel section (13), urine section (13), BBT section (9). Test patterns mirror supplement section tests: toggle off hides detail fields, toggle on shows them, custom field only visible when custom condition selected, photo remove only visible when path set, all callbacks fire with correct values.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/presentation/screens/fluids_entries/fluids_entry_screen.dart` | MODIFIED | Removed 3 section builders + 4 label/format helpers; added 3 imports; wired 3 new widget calls |
+| `lib/presentation/screens/fluids_entries/fluids_entry_bowel_section.dart` | NEW | Bowel movement section widget |
+| `lib/presentation/screens/fluids_entries/fluids_entry_urine_section.dart` | NEW | Urine section widget |
+| `lib/presentation/screens/fluids_entries/fluids_entry_bbt_section.dart` | NEW | BBT section widget |
+| `test/presentation/screens/fluids_entries/fluids_entry_bowel_section_test.dart` | NEW | 13 tests |
+| `test/presentation/screens/fluids_entries/fluids_entry_urine_section_test.dart` | NEW | 13 tests |
+| `test/presentation/screens/fluids_entries/fluids_entry_bbt_section_test.dart` | NEW | 9 tests |
+| `test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart` | MODIFIED | 2 tests fixed (ensureVisible after scrollUntilFound) |
+| `.claude/work-status/current.json` | MODIFIED | Updated to Group L s2 complete |
+
+### Executive Summary for Reid
+
+Three more UI sections got pulled out of the fluids entry screen and turned into their own standalone pieces:
+
+1. **Bowel Movement section** — the toggle, the dropdown to describe the movement, the custom description field, the size selection, and the photo button all moved to their own file.
+2. **Urine section** — same treatment: toggle, color dropdown, custom color field, size selection, and photo button.
+3. **BBT (Basal Body Temperature) section** — the temperature input, the °F/°C unit toggle, and the "time recorded" picker moved to their own file.
+
+The screen itself went from 1,419 lines down to 1,078 — a 341-line reduction. The app works identically. Two existing tests needed a small fix: after scrolling to find a dropdown, we now also make sure the dropdown is fully visible on screen before trying to tap it. That was a fragile test setup that happened to work before the extraction but broke afterward.
 
 ---
 
