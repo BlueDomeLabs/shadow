@@ -16,6 +16,9 @@ import 'package:shadow_app/domain/enums/health_enums.dart';
 import 'package:shadow_app/domain/usecases/supplements/supplements_usecases.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/supplements/supplement_list_provider.dart';
+import 'package:shadow_app/presentation/screens/supplements/supplement_label_photos_section.dart';
+import 'package:shadow_app/presentation/screens/supplements/supplement_scan_shortcuts_bar.dart';
+import 'package:shadow_app/presentation/screens/supplements/supplement_schedule_section.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -249,26 +252,9 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 _buildSectionHeader(theme, 'Basic Information'),
                 const SizedBox(height: 8),
                 // Import shortcut buttons (Phase 15a)
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: _scanBarcode,
-                      icon: const Icon(Icons.qr_code_scanner, size: 18),
-                      label: const Text('Scan Barcode'),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton.icon(
-                      onPressed: _scanLabel,
-                      icon: const Icon(Icons.camera_alt, size: 18),
-                      label: const Text('Scan Label'),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ),
-                  ],
+                SupplementScanShortcutsBar(
+                  onScanBarcode: _scanBarcode,
+                  onScanLabel: _scanLabel,
                 ),
                 const SizedBox(height: 8),
                 Semantics(
@@ -431,7 +417,81 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 const SizedBox(height: 8),
                 _buildSectionHeader(theme, 'Schedule'),
                 const SizedBox(height: 16),
-                _buildScheduleSection(theme),
+                SupplementScheduleSection(
+                  selectedFrequency: _selectedFrequency,
+                  selectedWeekdays: _selectedWeekdays,
+                  selectedAnchorEvent: _selectedAnchorEvent,
+                  selectedTimingType: _selectedTimingType,
+                  offsetMinutes: _offsetMinutes,
+                  specificTimeMinutes: _specificTimeMinutes,
+                  startDate: _startDate,
+                  endDate: _endDate,
+                  everyXDaysController: _everyXDaysController,
+                  everyXDaysError: _everyXDaysError,
+                  specificDaysError: _specificDaysError,
+                  offsetMinutesError: _offsetMinutesError,
+                  specificTimeError: _specificTimeError,
+                  endDateError: _endDateError,
+                  onFrequencyChanged: (value) {
+                    setState(() {
+                      _selectedFrequency = value;
+                      _isDirty = true;
+                      _everyXDaysError = null;
+                      _specificDaysError = null;
+                    });
+                  },
+                  onWeekdaysChanged: (days) {
+                    setState(() {
+                      _selectedWeekdays = days;
+                      _isDirty = true;
+                      _specificDaysError = null;
+                    });
+                  },
+                  onAnchorEventChanged: (event) {
+                    setState(() {
+                      _selectedAnchorEvent = event;
+                      _isDirty = true;
+                      _specificTimeError = null;
+                    });
+                  },
+                  onTimingTypeChanged: (type) {
+                    setState(() {
+                      _selectedTimingType = type;
+                      _isDirty = true;
+                      _offsetMinutesError = null;
+                      _specificTimeError = null;
+                    });
+                  },
+                  onOffsetMinutesChanged: (minutes) {
+                    setState(() {
+                      _offsetMinutes = minutes;
+                      _isDirty = true;
+                      _offsetMinutesError = null;
+                    });
+                  },
+                  onSpecificTimeChanged: (minutes) {
+                    setState(() {
+                      _specificTimeMinutes = minutes;
+                      _isDirty = true;
+                      _specificTimeError = null;
+                    });
+                  },
+                  onStartDateChanged: (date) {
+                    setState(() {
+                      _startDate = date;
+                      _isDirty = true;
+                      _endDateError = null;
+                    });
+                  },
+                  onEndDateChanged: (date) {
+                    setState(() {
+                      _endDate = date;
+                      _isDirty = true;
+                      _endDateError = null;
+                    });
+                  },
+                  onEveryXDaysChanged: _validateEveryXDays,
+                ),
                 const SizedBox(height: 16),
                 const SizedBox(height: 8),
                 _buildSectionHeader(theme, 'Notes'),
@@ -462,7 +522,17 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
                 const SizedBox(height: 8),
                 _buildSectionHeader(theme, 'Label Photos'),
                 const SizedBox(height: 16),
-                _buildLabelPhotosSection(theme),
+                SupplementLabelPhotosSection(
+                  photoPaths: _labelPhotoPaths,
+                  onTakePhoto: _takePhoto,
+                  onPickFromLibrary: _pickPhoto,
+                  onRemovePhoto: (index) {
+                    setState(() {
+                      _labelPhotoPaths.removeAt(index);
+                      _isDirty = true;
+                    });
+                  },
+                ),
                 const SizedBox(height: 32),
                 Row(
                   children: [
@@ -579,295 +649,6 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     });
   }
 
-  Widget _buildScheduleSection(ThemeData theme) {
-    final isSpecificTime =
-        _selectedTimingType == SupplementTimingType.specificTime;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Frequency
-        Semantics(
-          label: 'How often to take, required',
-          child: ExcludeSemantics(
-            child: DropdownButtonFormField<SupplementFrequencyType>(
-              initialValue: _selectedFrequency,
-              decoration: const InputDecoration(labelText: 'Frequency'),
-              items: SupplementFrequencyType.values
-                  .map(
-                    (freq) => DropdownMenuItem<SupplementFrequencyType>(
-                      value: freq,
-                      child: Text(_frequencyLabel(freq)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedFrequency = value;
-                    _isDirty = true;
-                    _everyXDaysError = null;
-                    _specificDaysError = null;
-                  });
-                }
-              },
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Every X Days (conditional)
-        if (_selectedFrequency == SupplementFrequencyType.everyXDays) ...[
-          Semantics(
-            label: 'Every how many days, required, 2 to 365',
-            textField: true,
-            child: ExcludeSemantics(
-              child: ShadowTextField.numeric(
-                controller: _everyXDaysController,
-                label: 'Every X Days',
-                hintText: '2',
-                errorText: _everyXDaysError,
-                maxLength: 3,
-                textInputAction: TextInputAction.next,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (_) => _validateEveryXDays(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Specific Days (conditional)
-        if (_selectedFrequency == SupplementFrequencyType.specificWeekdays) ...[
-          ShadowPicker.weekday(
-            label: 'Which days to take',
-            selectedDays: _selectedWeekdays,
-            onDaysChanged: (days) {
-              setState(() {
-                _selectedWeekdays = days;
-                _isDirty = true;
-                _specificDaysError = null;
-              });
-            },
-          ),
-          if (_specificDaysError != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              _specificDaysError!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-        ],
-
-        // Anchor Event
-        Semantics(
-          label: 'When to take supplement, required',
-          child: ExcludeSemantics(
-            child: DropdownButtonFormField<String>(
-              initialValue: isSpecificTime
-                  ? 'specificTime'
-                  : _selectedAnchorEvent.name,
-              decoration: const InputDecoration(labelText: 'Anchor Event'),
-              items: [
-                ...SupplementAnchorEvent.values.map(
-                  (event) => DropdownMenuItem<String>(
-                    value: event.name,
-                    child: Text(_anchorEventLabel(event)),
-                  ),
-                ),
-                const DropdownMenuItem<String>(
-                  value: 'specificTime',
-                  child: Text('Specific Time'),
-                ),
-              ],
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  _isDirty = true;
-                  if (value == 'specificTime') {
-                    _selectedTimingType = SupplementTimingType.specificTime;
-                  } else {
-                    final event = SupplementAnchorEvent.values.firstWhere(
-                      (e) => e.name == value,
-                    );
-                    _selectedAnchorEvent = event;
-                    if (_selectedTimingType ==
-                        SupplementTimingType.specificTime) {
-                      _selectedTimingType = SupplementTimingType.withEvent;
-                    }
-                  }
-                  _specificTimeError = null;
-                });
-              },
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Timing (With/Before/After) - hidden when Specific Time
-        if (!isSpecificTime) ...[
-          Semantics(
-            label: 'Timing relative to anchor event, required',
-            child: ExcludeSemantics(
-              child: DropdownButtonFormField<SupplementTimingType>(
-                initialValue: _selectedTimingType,
-                decoration: const InputDecoration(labelText: 'Timing'),
-                items:
-                    [
-                          SupplementTimingType.withEvent,
-                          SupplementTimingType.beforeEvent,
-                          SupplementTimingType.afterEvent,
-                        ]
-                        .map(
-                          (type) => DropdownMenuItem<SupplementTimingType>(
-                            value: type,
-                            child: Text(_timingTypeLabel(type)),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedTimingType = value;
-                      _isDirty = true;
-                      _offsetMinutesError = null;
-                      // Clear offset when switching to "With"
-                      if (value == SupplementTimingType.withEvent) {
-                        _offsetMinutes = 0;
-                      } else if (_offsetMinutes == 0) {
-                        _offsetMinutes = 30;
-                      }
-                    });
-                  }
-                },
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Offset Minutes (conditional: Before or After)
-        if (_selectedTimingType == SupplementTimingType.beforeEvent ||
-            _selectedTimingType == SupplementTimingType.afterEvent) ...[
-          Semantics(
-            label: 'Minutes before or after, required, 5 to 120',
-            child: ExcludeSemantics(
-              child: DropdownButtonFormField<int>(
-                initialValue: _offsetMinutes,
-                decoration: const InputDecoration(labelText: 'Offset Minutes'),
-                items: List.generate(24, (i) => (i + 1) * 5)
-                    .map(
-                      (minutes) => DropdownMenuItem<int>(
-                        value: minutes,
-                        child: Text('$minutes min'),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _offsetMinutes = value;
-                      _isDirty = true;
-                      _offsetMinutesError = null;
-                    });
-                  }
-                },
-              ),
-            ),
-          ),
-          if (_offsetMinutesError != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              _offsetMinutesError!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
-          ],
-          const SizedBox(height: 16),
-        ],
-
-        // Specific Time picker (conditional: specificTime timing)
-        if (isSpecificTime) ...[
-          Semantics(
-            label:
-                'Specific time to take supplement, required, ${_specificTimeMinutes != null ? _formatMinutesAsTime(_specificTimeMinutes!) : "not set"}',
-            child: ExcludeSemantics(
-              child: InkWell(
-                onTap: _pickSpecificTime,
-                borderRadius: BorderRadius.circular(8),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Specific Time',
-                    errorText: _specificTimeError,
-                    suffixIcon: const Icon(Icons.access_time),
-                    border: const OutlineInputBorder(),
-                  ),
-                  child: Text(
-                    _specificTimeMinutes != null
-                        ? _formatMinutesAsTime(_specificTimeMinutes!)
-                        : 'Select time',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: _specificTimeMinutes != null
-                          ? null
-                          : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Start Date
-        ShadowPicker.date(
-          label: 'Start Date',
-          hint: 'When to start taking this supplement',
-          dateValue: _startDate,
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2100),
-          onDateChanged: (date) {
-            setState(() {
-              _startDate = date;
-              _isDirty = true;
-              _endDateError = null;
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-
-        // End Date
-        ShadowPicker.date(
-          label: 'End Date',
-          hint: 'When to stop taking this supplement (optional)',
-          dateValue: _endDate,
-          firstDate: _startDate ?? DateTime(2020),
-          lastDate: DateTime(2100),
-          onDateChanged: (date) {
-            setState(() {
-              _endDate = date;
-              _isDirty = true;
-              _endDateError = null;
-            });
-          },
-        ),
-        if (_endDateError != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            _endDateError!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.error,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
   // ---- Phase 15a: Source & Price section ----
 
   Widget _buildSourceAndPriceSection(ThemeData theme) {
@@ -932,94 +713,6 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
       ],
     );
   }
-
-  // ---- Phase 15a: Label Photos section ----
-
-  Widget _buildLabelPhotosSection(ThemeData theme) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (_labelPhotoPaths.isNotEmpty) ...[
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _labelPhotoPaths
-              .asMap()
-              .entries
-              .map(
-                (entry) => Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(entry.value),
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.broken_image),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, size: 16),
-                        tooltip: 'Remove photo',
-                        onPressed: () {
-                          setState(() {
-                            _labelPhotoPaths.removeAt(entry.key);
-                            _isDirty = true;
-                          });
-                        },
-                        style: IconButton.styleFrom(
-                          backgroundColor: theme.colorScheme.surface.withAlpha(
-                            180,
-                          ),
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(24, 24),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 12),
-      ],
-      if (_labelPhotoPaths.length < 3) ...[
-        Row(
-          children: [
-            OutlinedButton.icon(
-              onPressed: _takePhoto,
-              icon: const Icon(Icons.camera_alt, size: 18),
-              label: const Text('Take Photo'),
-            ),
-            const SizedBox(width: 12),
-            OutlinedButton.icon(
-              onPressed: _pickPhoto,
-              icon: const Icon(Icons.photo_library, size: 18),
-              label: const Text('Choose from Library'),
-            ),
-          ],
-        ),
-      ] else ...[
-        Text(
-          'Maximum 3 label photos per supplement',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    ],
-  );
 
   Future<void> _takePhoto() async {
     final picker = image_picker.ImagePicker();
@@ -1206,40 +899,6 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     }
   }
 
-  Future<void> _pickSpecificTime() async {
-    final initialTime = _specificTimeMinutes != null
-        ? TimeOfDay(
-            hour: _specificTimeMinutes! ~/ 60,
-            minute: _specificTimeMinutes! % 60,
-          )
-        : const TimeOfDay(hour: 8, minute: 0);
-
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: initialTime,
-    );
-
-    if (picked != null) {
-      setState(() {
-        _specificTimeMinutes = picked.hour * 60 + picked.minute;
-        _isDirty = true;
-        _specificTimeError = null;
-      });
-    }
-  }
-
-  String _formatMinutesAsTime(int minutes) {
-    final hour = minutes ~/ 60;
-    final minute = minutes % 60;
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour == 0
-        ? 12
-        : hour > 12
-        ? hour - 12
-        : hour;
-    return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
-  }
-
   Widget _buildSectionHeader(ThemeData theme, String title) => Semantics(
     header: true,
     child: Text(
@@ -1268,27 +927,6 @@ class _SupplementEditScreenState extends ConsumerState<SupplementEditScreen> {
     DosageUnit.drops => 'drops',
     DosageUnit.tsp => 'tsp',
     DosageUnit.custom => 'custom',
-  };
-
-  String _frequencyLabel(SupplementFrequencyType freq) => switch (freq) {
-    SupplementFrequencyType.daily => 'Daily',
-    SupplementFrequencyType.everyXDays => 'Every X Days',
-    SupplementFrequencyType.specificWeekdays => 'Specific Days',
-  };
-
-  String _anchorEventLabel(SupplementAnchorEvent event) => switch (event) {
-    SupplementAnchorEvent.wake => 'Morning',
-    SupplementAnchorEvent.breakfast => 'Breakfast',
-    SupplementAnchorEvent.lunch => 'Lunch',
-    SupplementAnchorEvent.dinner => 'Dinner',
-    SupplementAnchorEvent.bed => 'Bedtime',
-  };
-
-  String _timingTypeLabel(SupplementTimingType type) => switch (type) {
-    SupplementTimingType.withEvent => 'With',
-    SupplementTimingType.beforeEvent => 'Before',
-    SupplementTimingType.afterEvent => 'After',
-    SupplementTimingType.specificTime => 'At Specific Time',
   };
 
   bool _validateName() {
