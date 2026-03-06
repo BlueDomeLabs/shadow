@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Group L Session 3 — Extract 3 widget components from food_item_edit_screen.dart (AUDIT-10-005)",
-  "timestamp": "2026-03-05T22:00:00Z",
+  "task": "Housekeeping Session — docs reorganization, stale .claude/ cleanup, 22_API_CONTRACTS.md fixes",
+  "timestamp": "2026-03-06T22:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "notes": "Extracted FoodItemEditableNutritionSection, FoodItemComposedSection, FoodItemPackagedSection from food_item_edit_screen.dart. Renamed _ComponentEntry → FoodItemComponentEntry. Parent: 1,171 → 694 lines (-477 lines). 30 new tests. All Group L audit findings resolved."
+  "notes": "Doc-only session. 65 numbered spec files + ARCHITECT_BRIEFING files moved to docs/. 23 stale .claude/ files deleted (approved by Reid). 22_API_CONTRACTS.md §16.11–16.12 updated to current CloudSyncAuthService architecture. CLAUDE.md and skills paths updated."
 }
