@@ -8,15 +8,15 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group L s2 complete; awaiting Architect review
-# Last Commit:   5470d79 — refactor: Group L s2 — extract 3 widget components from fluids_entry_screen
-# Last Code:     Extracted FluidsEntryBowelSection, FluidsEntryUrineSection,
-#                FluidsEntryBBTSection from fluids_entry_screen.dart.
-#                Parent: 1,419 → 1,078 lines. No logic changes. 35 new tests.
-#                2 existing screen tests fixed (ensureVisible after scrollUntilFound).
-# Next Action:   Architect reviews Group L s2; issues next prompt (L3 or other)
+# Status:        IDLE — Group L s3 complete (final Group L session); awaiting Architect review
+# Last Commit:   d5d2247 — test: Group L s3 — 30 new widget tests for food item section extractions
+# Last Code:     Extracted FoodItemEditableNutritionSection, FoodItemComposedSection,
+#                FoodItemPackagedSection from food_item_edit_screen.dart.
+#                Renamed _ComponentEntry → FoodItemComponentEntry (public, moved).
+#                Parent: 1,171 → 694 lines (-477 lines). No logic changes. 30 new tests.
+# Next Action:   Architect reviews Group L s3; all 64 audit findings now resolved
 # Open Items:    None
-# Tests:         3,581 passing (+35 new widget tests)
+# Tests:         3,611 passing (+30 new widget tests)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -24,6 +24,51 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group L Session 3: Widget Component Extraction from food_item_edit_screen (AUDIT-10-005)
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+Extracted 3 stateless widget components from `food_item_edit_screen.dart` (1,171 → 694 lines, -477 lines). This is the final Group L session; all 64 audit findings are now resolved.
+
+**_ComponentEntry renamed → FoodItemComponentEntry:** Made public, moved into `food_item_composed_section.dart`. Every reference in the parent screen updated. The `_Incomplete` sentinel class also moved into the composed section file (still private there).
+
+**FoodItemEditableNutritionSection** (`food_item_editable_nutrition_section.dart`, 97 lines): Encapsulates serving size row, unit field, and 7 nutrient rows (Calories, Protein, Total Carbohydrates, Dietary Fiber, Sugar, Total Fat, Sodium). `_buildNutrientRow` moved in as private method. Removed `onChanged: (_) => setState(() {})` from nutrient rows — those setState calls drove no visible reactive UI in the parent (nutrition fields feed only into `_saveForm`). No callbacks needed; parent passes all 9 controllers.
+
+**FoodItemComposedSection** (`food_item_composed_section.dart`, 349 lines): Encapsulates ingredient rows with qty editing, add-ingredient dialog, "no simple items" empty state, and calculated nutrition totals. `FoodItemComponentEntry`, `_Incomplete`, `_buildComposedIngredients`, `_buildComposedNutrition`, `_buildNutrientReadOnly`, `_calcComposedNutrition`, `_addNutrient`, and `_showAddIngredientDialog` all moved in. `_showAddIngredientDialog` works in a StatelessWidget by accepting `BuildContext context` as a parameter (called with build's context). Component mutations (add, remove, qty change) fire `onComponentsChanged(List<FoodItemComponentEntry>)`. Two separate `foodItemsAsync.when` blocks in the parent collapsed into one: the single widget renders both ingredient rows AND nutrition totals.
+
+**FoodItemPackagedSection** (`food_item_packaged_section.dart`, 123 lines): Encapsulates scan shortcuts (top row), brand field, barcode field + inline scan icon, ingredients text field, and import source badge. `_buildPackagedFields`, `_buildImportSourceBadge`, and `_buildScanShortcuts` all moved in. The original layout had scan shortcuts above the Nutritional Data section and packaged fields below — after extraction both are rendered together in a single `FoodItemPackagedSection` in the packaged block (below Nutritional Data). The barcode field's `onChanged: (_) => setState(() {})` was removed as it drove no visible reactive UI (barcode value read only in `_validateForm`).
+
+**Parent screen cleanup:** Removed `_buildScanShortcuts`, `_buildEditableNutrition`, `_buildNutrientRow`, `_buildComposedNutrition`, `_buildNutrientReadOnly`, `_buildComposedIngredients`, `_buildPackagedFields`, `_buildImportSourceBadge`, `_calcComposedNutrition`, `_addNutrient`, `_showAddIngredientDialog`. Removed `_ComponentEntry`, `_Incomplete` class definitions. Removed `package:flutter/services.dart` import (FilteringTextInputFormatter moved to packaged/composed sections). Kept `_buildSectionHeader` in parent (shared by nutritional data and product information headers).
+
+**New tests: 30** — editable nutrition section (12), composed section (8), packaged section (10). All existing food_item_edit_screen_test.dart tests pass without modification.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/presentation/screens/food_items/food_item_edit_screen.dart` | MODIFIED | Removed 3 section builders + calc/dialog helpers; added 3 imports; wired 3 new widget calls; renamed _ComponentEntry |
+| `lib/presentation/screens/food_items/food_item_editable_nutrition_section.dart` | NEW | Editable nutrition section widget (9 fields) |
+| `lib/presentation/screens/food_items/food_item_composed_section.dart` | NEW | Composed section widget (ingredient list + nutrition totals) |
+| `lib/presentation/screens/food_items/food_item_packaged_section.dart` | NEW | Packaged section widget (scan shortcuts + product fields) |
+| `test/presentation/screens/food_items/food_item_editable_nutrition_section_test.dart` | NEW | 12 tests |
+| `test/presentation/screens/food_items/food_item_composed_section_test.dart` | NEW | 8 tests |
+| `test/presentation/screens/food_items/food_item_packaged_section_test.dart` | NEW | 10 tests |
+| `test/presentation/screens/food_items/food_item_edit_screen_test.dart` | ALREADY CORRECT | No changes needed; all 26 tests pass |
+| `.claude/work-status/current.json` | MODIFIED | Updated to Group L s3 complete |
+
+### Executive Summary for Reid
+
+The food item editing screen got the same treatment we gave the fluids screen last session — three big sections pulled out into their own standalone pieces:
+
+1. **Nutrition fields** — the serving size, unit, and all seven nutrient inputs (calories, protein, carbs, fiber, sugar, fat, sodium) now live in their own file.
+2. **Composed item section** — the ingredient list (with the quantity fields and remove buttons), the "Add Ingredient" dialog, and the calculated nutrition totals that appear when you've added ingredients all moved together into one file.
+3. **Packaged item section** — the scan buttons, brand, barcode, and ingredients text field, plus the "Source: Open Food Facts" badge, all moved together.
+
+The screen went from 1,171 lines down to 694 — a 477-line reduction. The app works identically. All 64 items from the original audit are now resolved. This was the final Group L session.
 
 ---
 
