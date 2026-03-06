@@ -8,15 +8,14 @@
 # Claude Code updates and pushes this file at end of every session.
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group B s3 complete; awaiting Architect review
-# Last Commit:   d358f60 — refactor: Group B s3 — move CloudSyncAuthState to domain layer
-# Last Code:     CloudSyncAuthState moved to lib/domain/services/cloud_sync_auth_state.dart.
-#                Domain→presentation import inversion resolved: cloud_sync_auth_service.dart
-#                now imports from domain, not presentation. 1 new file, 11 modified.
-#                Imports only — no logic changes.
-# Next Action:   Architect reviews Group B s3 output; issues next prompt
+# Status:        IDLE — Group L s1 complete; awaiting Architect review
+# Last Commit:   6370e64 — refactor: Group L s1 — extract 3 widget components from supplement_edit_screen
+# Last Code:     Extracted SupplementScanShortcutsBar, SupplementLabelPhotosSection,
+#                SupplementScheduleSection from supplement_edit_screen.dart.
+#                Parent: 1,685 → 1,323 lines. No logic changes. 38 new tests.
+# Next Action:   Architect reviews Group L s1; issues next prompt (L2 or other)
 # Open Items:    None
-# Tests:         3,508 passing (no change)
+# Tests:         3,546 passing (+38 new widget tests)
 # Schema:        v19
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
@@ -24,6 +23,65 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-05 MST] — Group L Session 1: Widget Component Extraction (AUDIT-10-003)
+
+**Tests: 3,546 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Extracted three self-contained UI sections from `supplement_edit_screen.dart` (1,685 lines → 1,323 lines) into dedicated stateless widget classes. No logic changes anywhere — purely structural.
+
+**Extraction 1: SupplementScanShortcutsBar**
+- File: `lib/presentation/screens/supplements/supplement_scan_shortcuts_bar.dart`
+- Simple two-button Row (Scan Barcode + Scan Label) with `onScanBarcode` and `onScanLabel` VoidCallback parameters
+- 35 lines
+
+**Extraction 2: SupplementLabelPhotosSection**
+- File: `lib/presentation/screens/supplements/supplement_label_photos_section.dart`
+- Spec defined single `onAddPhoto` callback, but actual code had two separate buttons (Take Photo + Choose from Library). Per the spec note "verify exact method name", I adapted the signature to use `onTakePhoto` and `onPickFromLibrary` (two VoidCallbacks) to match the real UI.
+- Also `onRemovePhoto(int index)` callback
+- 109 lines
+
+**Extraction 3: SupplementScheduleSection**
+- File: `lib/presentation/screens/supplements/supplement_schedule_section.dart`
+- Largest extraction — frequency picker, weekday selector, anchor event/timing dropdowns, offset minutes, specific time picker, start/end date pickers, all conditional visibility logic
+- Stateless widget; parent owns all schedule state, all user actions fire callbacks
+- The anchor event dropdown is complex (combines anchor event + specificTime into one control) — when user selects "specificTime", calls `onTimingTypeChanged`; when selecting an anchor event while timing is specificTime, calls both `onAnchorEventChanged` AND `onTimingTypeChanged(withEvent)`. This causes two parent setState calls per interaction in that path — functionally correct, minor inefficiency, acceptable for a no-logic-change extraction.
+- `_formatMinutesAsTime`, `_frequencyLabel`, `_anchorEventLabel`, `_timingTypeLabel` moved from parent to this widget
+- 372 lines
+
+**Parent screen after extraction:**
+- Removed: `_buildScheduleSection`, `_buildLabelPhotosSection`, `_pickSpecificTime`, `_formatMinutesAsTime`, `_frequencyLabel`, `_anchorEventLabel`, `_timingTypeLabel`
+- Replaced the scan shortcuts Row inline with `SupplementScanShortcutsBar`
+- All schedule callbacks are inline lambdas in `build()` that call parent `setState`
+
+**Tests:** 38 new widget tests across 3 files. One test note: `ShadowPicker.weekday`'s `label` parameter goes only to `Semantics`, not a visible Text widget — weekday selector presence verified via "Every day" / "Weekdays" quick-select button chips. `Image.file` `errorBuilder` does not fire in widget tests (no real disk I/O), so that test was replaced with a close-button presence check.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/presentation/screens/supplements/supplement_scan_shortcuts_bar.dart` | NEW | Extracted scan barcode/label two-button row |
+| `lib/presentation/screens/supplements/supplement_label_photos_section.dart` | NEW | Extracted label photos section (thumbnails + add/remove) |
+| `lib/presentation/screens/supplements/supplement_schedule_section.dart` | NEW | Extracted full schedule section (frequency, anchor, timing, dates) |
+| `lib/presentation/screens/supplements/supplement_edit_screen.dart` | MODIFIED | Replaced inline sections with new widgets; removed extracted methods |
+| `test/presentation/screens/supplements/supplement_scan_shortcuts_bar_test.dart` | NEW | 6 tests for scan shortcuts bar |
+| `test/presentation/screens/supplements/supplement_label_photos_section_test.dart` | NEW | 10 tests for label photos section |
+| `test/presentation/screens/supplements/supplement_schedule_section_test.dart` | NEW | 22 tests for schedule section |
+| `.claude/work-status/current.json` | MODIFIED | Updated session status |
+
+### Executive Summary for Reid
+
+This session cleaned up one of the largest files in the supplement area of the app. The supplement edit form screen was 1,685 lines long — well over the 800-line threshold where code becomes hard to review and maintain. Three self-contained sections were pulled out into their own files:
+
+1. **Scan Shortcuts Bar** — the two buttons at the top (Scan Barcode + Scan Label)
+2. **Label Photos Section** — the photo thumbnails and add/remove buttons
+3. **Schedule Section** — the full scheduling area (how often, when, what time, start/end dates)
+
+The screen still works exactly the same way. Nothing about the app's behavior changed — this was purely a housekeeping improvement. The parent screen is now 362 lines shorter, and each extracted section has its own test file. The Architect asked for this as part of a broader effort to keep files reviewable and maintainable.
 
 ---
 
