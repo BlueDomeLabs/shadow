@@ -1,29 +1,88 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-03-05
+# Last Updated: 2026-03-06
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
 # Claude.ai reads this file via GitHub Project integration.
 # Claude Code updates and pushes this file at end of every session.
+# NOTE: File moved to docs/ARCHITECT_BRIEFING.md (2026-03-06 housekeeping)
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Group L s3 complete (final Group L session); awaiting Architect review
-# Last Commit:   d5d2247 — test: Group L s3 — 30 new widget tests for food item section extractions
-# Last Code:     Extracted FoodItemEditableNutritionSection, FoodItemComposedSection,
-#                FoodItemPackagedSection from food_item_edit_screen.dart.
-#                Renamed _ComponentEntry → FoodItemComponentEntry (public, moved).
-#                Parent: 1,171 → 694 lines (-477 lines). No logic changes. 30 new tests.
-# Next Action:   Architect reviews Group L s3; all 64 audit findings now resolved
+# Status:        IDLE — Housekeeping session complete; awaiting Architect review
+# Last Commit:   7efca3d — Housekeeping: move spec files to docs/, delete stale .claude/ folders, fix 22_API_CONTRACTS.md
+# Last Code:     Doc-only session. No production code changes. Tests unchanged.
+# Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
 # Open Items:    None
-# Tests:         3,611 passing (+30 new widget tests)
+# Tests:         3,611 passing
 # Schema:        v19
 # Analyzer:      Clean
-# Archive:       Session entries older than current phase → ARCHITECT_BRIEFING_ARCHIVE.md
+# Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-06 MST] — Housekeeping Session: Docs Reorganization + 22_API_CONTRACTS.md Fixes
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+Doc-only session. No production code changes. No test changes.
+
+**Step 1 — 22_API_CONTRACTS.md §16.11 and §16.12 updated:**
+- §16.11 (CloudSyncAuthNotifier): Replaced stale `GoogleDriveProvider`-coupled implementation with current `CloudSyncAuthService` thin delegate pattern. Updated constructor signature (`this._authService`), removed `_checkExistingSession` detail (now delegates to `_authService.checkExistingSession()`), added `signInWithICloud()` and `switchProvider()` methods, simplified `signOut()` signature.
+- §16.12 (Provider Declarations): Removed `googleDriveProviderProvider` (deleted in Phase 17b), updated `cloudSyncAuthProvider` to use `cloudSyncAuthServiceProvider`.
+
+**Step 2 — .claude/ subfolder cleanup (Reid approved):**
+Deleted 23 stale files across 4 folders:
+- `audit-reports/` (16 files, Feb 4–10 2026 — superseded by `docs/AUDIT_FINDINGS.md`)
+- `fix-plans/` (3 files, all COMPLETE — superseded by `docs/FIX_PLAN.md`)
+- `handoff/` (2 files — superseded by `ARCHITECT_BRIEFING.md`)
+- `plans/` (2 files — superseded by current workflow)
+Kept: `.claude/work-status/current.json` (still active; used by pre-commit hook)
+
+**Steps 3 & 4 — Spec files moved to docs/ and path references updated:**
+- `git mv` of all 65 numbered spec files (01_–61_) + ARCHITECT_BRIEFING.md + ARCHITECT_BRIEFING_ARCHIVE.md → `docs/`
+- Updated `CLAUDE.md` path references for ARCHITECT_BRIEFING.md and all key spec files
+- Updated all `.claude/skills/` files with corrected paths
+- Note: prompt referenced "section 13.13" but the stale CloudSyncAuthNotifier spec was at section 16.11; 13.13 is the FoodItem entity mapping (was not stale)
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/22_API_CONTRACTS.md` | MODIFIED | §16.11 and §16.12 updated to current CloudSyncAuthService architecture |
+| `CLAUDE.md` | MODIFIED | Path references updated (ARCHITECT_BRIEFING.md, spec files) |
+| `.claude/skills/startup/SKILL.md` | MODIFIED | ARCHITECT_BRIEFING.md → docs/ path |
+| `.claude/skills/compliance/SKILL.md` | MODIFIED | ARCHITECT_BRIEFING.md, 22_API_CONTRACTS.md paths |
+| `.claude/skills/coding/SKILL.md` | MODIFIED | 22_API_CONTRACTS.md, 25_DEFINITION_OF_DONE.md paths |
+| `.claude/skills/handoff/SKILL.md` | MODIFIED | ARCHITECT_BRIEFING.md path |
+| `.claude/skills/context-lost.md` | MODIFIED | ARCHITECT_BRIEFING.md path |
+| `.claude/skills/implementation-review/SKILL.md` | MODIFIED | 22_API_CONTRACTS.md, 10_DATABASE_SCHEMA.md paths |
+| `.claude/skills/launch-shadow/skill.md` | MODIFIED | 10_DATABASE_SCHEMA.md path |
+| `.claude/skills/spec-review/SKILL.md` | MODIFIED | 02_CODING_STANDARDS.md, 22_API_CONTRACTS.md paths |
+| 65 numbered spec files (01_–61_) | MOVED | Root → docs/ via git mv (history preserved) |
+| `docs/ARCHITECT_BRIEFING.md` | MOVED | Root → docs/ via git mv |
+| `docs/ARCHITECT_BRIEFING_ARCHIVE.md` | MOVED | Root → docs/ via git mv |
+| `.claude/audit-reports/` (16 files) | DELETED | Superseded by docs/AUDIT_FINDINGS.md |
+| `.claude/fix-plans/` (3 files) | DELETED | All COMPLETE; superseded by docs/FIX_PLAN.md |
+| `.claude/handoff/` (2 files) | DELETED | Superseded by ARCHITECT_BRIEFING.md |
+| `.claude/plans/` (2 files) | DELETED | Superseded by current workflow |
+
+### Executive Summary for Reid
+
+This was a cleanup session — no new features, no bug fixes. Three things happened:
+
+1. **The spec document for cloud sign-in was out of date.** It still described old code that was replaced back in Phase 17b. I rewrote that section to match what the app actually does today.
+
+2. **Twenty-three old working files were deleted.** These were audit reports, fix plans, and planning documents from February that have been superseded by the current `docs/` folder. You approved this in the session. The only thing kept was the active work-status file that the pre-commit hook needs.
+
+3. **All 65 spec documents and the ARCHITECT_BRIEFING files moved into the `docs/` folder.** The project root is now much cleaner — only `CLAUDE.md`, `README.md`, `VISION.md`, `DECISIONS.md`, and `MCP_CONFIGURATION_PLAN.md` remain at the top level. All the technical spec files are organized under `docs/`. All internal path references were updated to match.
+
+No tests changed. 3,611 still passing.
 
 ---
 
