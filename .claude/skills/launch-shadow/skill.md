@@ -74,7 +74,7 @@ Launch as a **background task** so the conversation can continue while the app b
 If the app fails to build after code generation:
 1. Check `flutter analyze` output for errors
 2. Try `flutter clean && flutter pub get` then re-run from Step 2
-3. If Drift schema errors: check that table definitions match `10_DATABASE_SCHEMA.md`
+3. If Drift schema errors: check that table definitions match `docs/docs/10_DATABASE_SCHEMA.md`
 
 If the app launches but all queries fail:
 1. Check console for `[Shadow DB]` lines — they show the real error

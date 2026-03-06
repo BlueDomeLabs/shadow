@@ -5,7 +5,7 @@ description: Verify code matches specs exactly. No agents - do this yourself.
 
 # Implementation Review
 
-Compare implementations against `22_API_CONTRACTS.md`. Code must EXACTLY match specs.
+Compare implementations against `docs/docs/22_API_CONTRACTS.md`. Code must EXACTLY match specs.
 
 ## When to Use
 
@@ -18,7 +18,7 @@ Compare implementations against `22_API_CONTRACTS.md`. Code must EXACTLY match s
 Work through these checks yourself, sequentially:
 
 ### 1. Entity Implementations
-Compare each entity in `lib/domain/entities/` against `22_API_CONTRACTS.md`:
+Compare each entity in `lib/domain/entities/` against `docs/docs/22_API_CONTRACTS.md`:
 - Field names match exactly (including casing)
 - Field types match exactly
 - Required vs optional matches
@@ -39,7 +39,7 @@ Compare `lib/domain/usecases/` against contracts:
 - Return types match
 
 ### 4. DAO Implementations
-Compare `lib/data/datasources/local/daos/` against `10_DATABASE_SCHEMA.md`:
+Compare `lib/data/datasources/local/daos/` against `docs/docs/10_DATABASE_SCHEMA.md`:
 - Table columns match
 - All 9 sync metadata columns present
 - CRUD methods wrap in `Result<T, AppError>`

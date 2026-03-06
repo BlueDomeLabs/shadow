@@ -8,7 +8,7 @@ have lost track of where you are.
 
 ## Steps
 
-1. Read ARCHITECT_BRIEFING.md — this is the single source of
+1. Read docs/ARCHITECT_BRIEFING.md — this is the single source of
    truth for current project state
 2. Note the handoff header: Status, Last Action, Next Action,
    Tests, Schema

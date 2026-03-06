@@ -15028,138 +15028,103 @@ class CloudSyncAuthState {
 
 ### 16.11 CloudSyncAuthNotifier
 
-Notifier managing cloud sync authentication state. Wraps `GoogleDriveProvider` to provide sign-in/sign-out operations and expose authentication state to the UI.
+Thin notifier that delegates all authentication business logic to `CloudSyncAuthService`. Manages `CloudSyncAuthState` and exposes sign-in/sign-out/switch operations to the UI.
+
+> **Updated**: Refactored from direct `GoogleDriveProvider` coupling to `CloudSyncAuthService` delegation (AUDIT-01-004, 01-005, 01-007). The notifier no longer contains auth logic — it only holds state and calls service methods.
 
 ```dart
 // lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart
 
 class CloudSyncAuthNotifier extends StateNotifier<CloudSyncAuthState> {
-  final GoogleDriveProvider _provider;
+  final CloudSyncAuthService _authService;
   final ScopedLogger _log;
 
-  CloudSyncAuthNotifier(this._provider)
+  CloudSyncAuthNotifier(this._authService)
     : _log = logger.scope('CloudSyncAuth'),
       super(const CloudSyncAuthState()) {
     _checkExistingSession();
   }
 
-  /// Check if there's an existing authenticated session on startup.
-  ///
-  /// If the user previously signed in and tokens are still valid,
-  /// restores the authenticated state without requiring re-sign-in.
-  /// Non-fatal on failure (user can still sign in manually).
   Future<void> _checkExistingSession() async {
     try {
-      final authenticated = await _provider.isAuthenticated();
-      if (authenticated) {
-        state = state.copyWith(
-          isAuthenticated: true,
-          userEmail: _provider.userEmail,
-          activeProvider: CloudProviderType.googleDrive,
-        );
-      }
+      final restored = await _authService.checkExistingSession();
+      if (restored != null) state = restored;
     } on Exception catch (e, stack) {
       _log.error('Failed to check existing session', e, stack);
     }
   }
 
   /// Sign in with Google Drive.
-  ///
-  /// Opens the browser for OAuth sign-in (macOS) or shows the
-  /// Google Sign-In sheet (iOS). Updates state with result.
-  ///
-  /// Behavior:
-  /// - Ignores concurrent calls while isLoading is true
-  /// - Clears previous error before starting
-  /// - Sets isLoading=true during the operation
-  /// - On success: isAuthenticated=true, userEmail populated, activeProvider=googleDrive
-  /// - On failure: isAuthenticated=false, errorMessage set, userEmail/activeProvider cleared
   Future<void> signInWithGoogle() async {
     if (state.isLoading) return;
-
     state = state.copyWith(isLoading: true, clearErrorMessage: true);
-
-    final result = await _provider.authenticate();
-
+    final result = await _authService.signInWithGoogle();
     result.when(
-      success: (_) {
-        state = state.copyWith(
-          isLoading: false,
-          isAuthenticated: true,
-          userEmail: _provider.userEmail,
-          activeProvider: CloudProviderType.googleDrive,
-        );
-      },
-      failure: (error) {
-        state = state.copyWith(
-          isLoading: false,
-          isAuthenticated: false,
-          errorMessage: error.userMessage,
-          clearUserEmail: true,
-          clearActiveProvider: true,
-        );
-      },
+      success: (s) => state = s,
+      failure: (e) => state = state.copyWith(isLoading: false, errorMessage: e.userMessage),
+    );
+  }
+
+  /// Sign in with iCloud.
+  Future<void> signInWithICloud() async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+    final result = await _authService.signInWithICloud();
+    result.when(
+      success: (s) => state = s,
+      failure: (e) => state = state.copyWith(isLoading: false, errorMessage: e.userMessage),
+    );
+  }
+
+  /// Switch from the current provider to [type].
+  ///
+  /// NOTE: Requires an app restart for the active SyncService provider to change.
+  /// Auth state updates immediately; sync routing changes take effect after restart.
+  Future<void> switchProvider(CloudProviderType type) async {
+    if (state.isLoading) return;
+    final currentProvider = state.activeProvider;
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+    final result = await _authService.switchProvider(type, currentProvider);
+    result.when(
+      success: (s) => state = s,
+      failure: (e) => state = state.copyWith(isLoading: false, errorMessage: e.userMessage),
     );
   }
 
   /// Sign out from the current cloud provider.
-  ///
-  /// Behavior:
-  /// - Ignores concurrent calls while isLoading is true
-  /// - Clears previous error before starting
-  /// - On success: resets state to default (const CloudSyncAuthState())
-  /// - On failure: keeps current auth state, sets errorMessage
   Future<void> signOut() async {
     if (state.isLoading) return;
-
+    final activeProvider = state.activeProvider;
     state = state.copyWith(isLoading: true, clearErrorMessage: true);
-
-    final result = await _provider.signOut();
-
+    final result = await _authService.signOut(activeProvider);
     result.when(
-      success: (_) {
-        state = const CloudSyncAuthState();
-      },
-      failure: (error) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: error.userMessage,
-        );
-      },
+      success: (_) => state = const CloudSyncAuthState(),
+      failure: (e) => state = state.copyWith(isLoading: false, errorMessage: e.userMessage),
     );
   }
 
   /// Clear any error message displayed to the user.
-  ///
-  /// Preserves all other state fields (isAuthenticated, userEmail, etc.).
-  void clearError() {
-    state = state.copyWith(clearErrorMessage: true);
-  }
+  void clearError() => state = state.copyWith(clearErrorMessage: true);
 }
 ```
 
-**Concurrency guard**: Both `signInWithGoogle()` and `signOut()` check `state.isLoading` at entry and return immediately if another operation is already in progress. This prevents duplicate OAuth windows or conflicting sign-out requests.
+**Concurrency guard**: All public methods check `state.isLoading` at entry and return immediately if another operation is in progress. This prevents duplicate OAuth windows or conflicting requests.
 
 ### 16.12 Cloud Sync Provider Declarations
 
 ```dart
 // lib/presentation/providers/cloud_sync/cloud_sync_auth_provider.dart
 
-/// Provider for the GoogleDriveProvider instance.
-///
-/// Override in ProviderScope for testing.
-final googleDriveProviderProvider = Provider<GoogleDriveProvider>(
-  (ref) => GoogleDriveProvider(),
-);
-
 /// Provider for cloud sync authentication state.
 final cloudSyncAuthProvider =
     StateNotifierProvider<CloudSyncAuthNotifier, CloudSyncAuthState>(
-      (ref) => CloudSyncAuthNotifier(ref.read(googleDriveProviderProvider)),
+      (ref) => CloudSyncAuthNotifier(ref.read(cloudSyncAuthServiceProvider)),
     );
 ```
 
-**Pattern justification**: These use `StateNotifierProvider` (legacy Riverpod) rather than the `@riverpod` annotation required by Coding Standards Section 6.1. This follows the `ProfileProvider` precedent — the auth domain layer (use cases, `UserAccount` entity, `AuthTokenService`) does not yet exist. When the domain layer is built in a future phase, these providers will be refactored to `@riverpod` annotation syntax with `UseCase` delegation per Section 6.2.
+> **Updated**: `googleDriveProviderProvider` removed; notifier now receives `CloudSyncAuthService` from DI layer (AUDIT-01-004, 01-005, 01-007).
+
+**Pattern justification**: Uses `StateNotifierProvider` (legacy Riverpod) rather than the `@riverpod` annotation required by Coding Standards Section 6.1. This follows the `ProfileProvider` precedent — the auth domain layer (use cases, `UserAccount` entity, `AuthTokenService`) does not yet exist. When the domain layer is built in a future phase, these providers will be refactored to `@riverpod` annotation syntax with `UseCase` delegation per Section 6.2.
 
 **Testing**: Both providers can be overridden in `ProviderScope` for widget tests:
 ```dart

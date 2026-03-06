@@ -5,7 +5,7 @@ description: Audit spec documents against Coding Standards. No agents - do this 
 
 # Spec Review
 
-Audit specification documents against `02_CODING_STANDARDS.md` to ensure specs are consistent and compliant.
+Audit specification documents against `docs/docs/02_CODING_STANDARDS.md` to ensure specs are consistent and compliant.
 
 ## When to Use
 
@@ -17,7 +17,7 @@ Audit specification documents against `02_CODING_STANDARDS.md` to ensure specs a
 
 Work through these checks yourself, sequentially:
 
-### 1. Entity Specifications (22_API_CONTRACTS.md)
+### 1. Entity Specifications (docs/22_API_CONTRACTS.md)
 For each entity, verify:
 - Required fields: `id`, `clientId`, `profileId`, `syncMetadata`
 - All timestamps are `int` (epoch milliseconds)

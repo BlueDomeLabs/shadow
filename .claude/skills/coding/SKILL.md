@@ -124,7 +124,7 @@ A task is done when:
 
 ## API Contracts
 
-All code must follow the exact signatures in `22_API_CONTRACTS.md`. If a method isn't defined there, ask before implementing.
+All code must follow the exact signatures in `docs/docs/22_API_CONTRACTS.md`. If a method isn't defined there, ask before implementing.
 
 Result type pattern:
 ```dart
@@ -138,6 +138,6 @@ Error codes must use constants from the contracts - no ad-hoc strings.
 ## When Stuck
 
 1. Read the spec documents (01-34 in /Development/Shadow/)
-2. Check `22_API_CONTRACTS.md` for exact method signatures
-3. Check `25_DEFINITION_OF_DONE.md` for completion criteria
+2. Check `docs/docs/22_API_CONTRACTS.md` for exact method signatures
+3. Check `docs/docs/25_DEFINITION_OF_DONE.md` for completion criteria
 4. Ask the user before making assumptions

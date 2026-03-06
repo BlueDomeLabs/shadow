@@ -25,5 +25,5 @@ Run this when your conversation is ending or about to be compacted.
 
 Minimum viable handoff:
 1. Commit whatever is in a passing state
-2. Update ARCHITECT_BRIEFING.md even briefly
-3. Never leave the test count in ARCHITECT_BRIEFING.md wrong
+2. Update docs/ARCHITECT_BRIEFING.md even briefly
+3. Never leave the test count in docs/ARCHITECT_BRIEFING.md wrong

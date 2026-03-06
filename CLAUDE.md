@@ -21,7 +21,7 @@ Blue Dome Labs.
    any code (the prompt will tell you what to scan)
 3. You implement exactly what the prompt specifies
 4. You run flutter test and flutter analyze — both must be clean
-5. You update ARCHITECT_BRIEFING.md with a session log entry
+5. You update docs/ARCHITECT_BRIEFING.md with a session log entry
 6. You commit and push
 7. You report back to Reid with a plain-language summary AND a
    file change table (see COMPLETION REPORT FORMAT below)
@@ -71,7 +71,7 @@ Reid is the CEO and product owner. His decisions are final.
    window. This is intentional and important — you do your best work
    when you are not carrying the weight of a long prior conversation.
 5. Reid delivers the prompt. You work your session.
-6. You commit all changes, update ARCHITECT_BRIEFING.md, and stop.
+6. You commit all changes, update docs/ARCHITECT_BRIEFING.md, and stop.
    You never begin the next task without a new prompt.
 7. Reid syncs GitHub to Project Knowledge and tells the Architect: "Synced."
 8. The Architect reviews your actual committed files — not just your
@@ -88,7 +88,7 @@ Before you say you are done, you must have:
 - [ ] Run `flutter test` — all tests passing
 - [ ] Run `flutter analyze` — clean
 - [ ] Committed all changed files with a descriptive commit message
-- [ ] Updated ARCHITECT_BRIEFING.md with the full session report
+- [ ] Updated docs/ARCHITECT_BRIEFING.md with the full session report
 
 If any of these are not complete, you are not done.
 
@@ -101,12 +101,12 @@ exactly one task.
 
 Before each prompt, Reid runs /compact to give you a fresh context
 window. This means every session starts clean — you have no memory
-of previous sessions. ARCHITECT_BRIEFING.md is your only
+of previous sessions. docs/ARCHITECT_BRIEFING.md is your only
 continuity.
 
 After you complete each prompt:
 1. Commit and push
-2. Update ARCHITECT_BRIEFING.md
+2. Update docs/ARCHITECT_BRIEFING.md
 3. Deliver your completion report to Reid (file change table +
    plain-language summary)
 4. Stop — do not begin anything else
@@ -123,7 +123,7 @@ to do something specific outside of Claude.ai's instructions.
 
 1. **NO AGENTS.** Do NOT use the Task tool, TeamCreate, SendMessage, or spawn any subagents. All work is done by YOU directly. Violating this will terminate your session.
 2. **NO DECISIONS.** Follow specs exactly. If something is ambiguous, STOP and ask the user. An ambiguity is a bug in the spec, not permission to interpret.
-3. **NO UNCOMMITTED WORK.** Before your conversation ends or compacts, commit everything and update ARCHITECT_BRIEFING.md.
+3. **NO UNCOMMITTED WORK.** Before your conversation ends or compacts, commit everything and update docs/ARCHITECT_BRIEFING.md.
 
 ---
 
@@ -132,13 +132,13 @@ to do something specific outside of Claude.ai's instructions.
 Every session follows this flow. No exceptions.
 
 ### 1. STARTUP (before any work)
-- Read `ARCHITECT_BRIEFING.md` to understand current state
+- Read `docs/ARCHITECT_BRIEFING.md` to understand current state
 - Run `flutter test` and `flutter analyze` — fix failures before new work
 - Check `git status` for uncommitted changes
 
 ### 2. CODE (follow specs exactly)
-- Read `22_API_CONTRACTS.md` for interface definitions
-- Read `02_CODING_STANDARDS.md` for patterns
+- Read `docs/22_API_CONTRACTS.md` for interface definitions
+- Read `docs/02_CODING_STANDARDS.md` for patterns
 - Read task-specific specs as needed
 - Every entity: `id`, `clientId`, `profileId`, `syncMetadata`
 - Every repository method: returns `Result<T, AppError>`
@@ -161,14 +161,14 @@ Every session follows this flow. No exceptions.
 
 ### 4. HANDOFF (before conversation ends)
 - Commit all work with a descriptive message
-- Update ARCHITECT_BRIEFING.md with a timestamped session log entry
+- Update docs/ARCHITECT_BRIEFING.md with a timestamped session log entry
 - Run flutter test one final time — must be clean
 - Deliver the completion report to Reid (see COMPLETION REPORT FORMAT below)
 
 ---
 
 **Current project state and next actions are always in
-ARCHITECT_BRIEFING.md. Read that file — do not rely on any plan
+docs/ARCHITECT_BRIEFING.md. Read that file — do not rely on any plan
 embedded in this file.**
 
 ---
@@ -230,14 +230,14 @@ materially affect the project.
 Compaction is like falling asleep — it just happens. You will not always
 know it is coming. When you wake up inside a compacted session:
 
-1. Read ARCHITECT_BRIEFING.md immediately to reorient.
+1. Read docs/ARCHITECT_BRIEFING.md immediately to reorient.
 2. Assess what was completed before compaction and what was not.
 3. Run `flutter test` and `flutter analyze` to verify the codebase state.
 4. Commit anything that is complete and clean.
 5. Re-read the original prompt from Reid. Identify any items that remain
    incomplete. Complete and commit those items if the codebase is in a
    stable state to do so.
-6. Update ARCHITECT_BRIEFING.md with a clear account of what was completed
+6. Update docs/ARCHITECT_BRIEFING.md with a clear account of what was completed
    before compaction, what was completed after, and what (if anything)
    remains. Flag that compaction occurred mid-session.
 7. Note to the Architect that the prompt scope exceeded one session —
@@ -322,10 +322,10 @@ test delta reviewable.
 |----------|---------|
 | `VISION.md` | Plain-language product vision (Reid's document) |
 | `DECISIONS.md` | Log of all significant decisions with reasoning |
-| `22_API_CONTRACTS.md` | Exact interface definitions (canonical) |
-| `02_CODING_STANDARDS.md` | Mandatory patterns |
-| `38_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |
-| `10_DATABASE_SCHEMA.md` | Database structure |
+| `docs/22_API_CONTRACTS.md` | Exact interface definitions (canonical) |
+| `docs/02_CODING_STANDARDS.md` | Mandatory patterns |
+| `docs/38_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |
+| `docs/10_DATABASE_SCHEMA.md` | Database structure |
 | `lib/presentation/screens/supplements/supplement_list_screen.dart` | Reference screen implementation — match this pattern for all new screens |
 
 ---
@@ -342,7 +342,7 @@ test delta reviewable.
 | `/launch-shadow` | After clean or codegen | Regenerate code and launch app on macOS |
 | `/spec-review` | Before major implementation | Audit spec docs against coding standards |
 | `/implementation-review` | After implementation | Verify code matches specs exactly |
-| `/context-lost` | After context compaction | Re-orient from ARCHITECT_BRIEFING.md and resume |
+| `/context-lost` | After context compaction | Re-orient from docs/ARCHITECT_BRIEFING.md and resume |
 
 ---
 

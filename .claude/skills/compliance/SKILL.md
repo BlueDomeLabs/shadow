@@ -13,13 +13,13 @@ Run this BEFORE telling the user work is complete.
 [ ] flutter test                       -> All passing
 [ ] flutter analyze                    -> No issues
 [ ] dart format --set-exit-if-changed lib/ test/  -> Exit 0
-[ ] Entity fields match 22_API_CONTRACTS.md EXACTLY
+[ ] Entity fields match docs/22_API_CONTRACTS.md EXACTLY
 [ ] Repository methods match contracts EXACTLY
 [ ] All timestamps are int (not DateTime)
 [ ] All error codes from approved list
 [ ] Tests cover success AND failure paths
 [ ] Authorization checked where required (every use case)
-[ ] ARCHITECT_BRIEFING.md updated with session log entry
+[ ] docs/ARCHITECT_BRIEFING.md updated with session log entry
 ```
 
 ## If Any Check Fails
@@ -30,4 +30,4 @@ Fix the issue, re-run the check. Do NOT claim complete until all pass.
 
 1. Commit your work
 2. Deliver the completion report to Reid (see COMPLETION REPORT FORMAT in CLAUDE.md)
-3. Update ARCHITECT_BRIEFING.md handoff header with current status, test count, and next action
+3. Update docs/ARCHITECT_BRIEFING.md handoff header with current status, test count, and next action

@@ -7,7 +7,7 @@ Run this FIRST every session before any work.
 
 ## Steps
 
-1. Read ARCHITECT_BRIEFING.md — understand current phase status,
+1. Read docs/ARCHITECT_BRIEFING.md — understand current phase status,
    test count, open items, and what comes next
 2. Run flutter test — fix any failures before new work
 3. Run flutter analyze — fix any issues before new work
@@ -16,7 +16,7 @@ Run this FIRST every session before any work.
 
 ## If Your Context Was Just Compacted
 
-Re-read ARCHITECT_BRIEFING.md immediately. Do not continue from
+Re-read docs/ARCHITECT_BRIEFING.md immediately. Do not continue from
 memory — compaction clears your working state. Verify where you
 are from the file, then resume.
 
