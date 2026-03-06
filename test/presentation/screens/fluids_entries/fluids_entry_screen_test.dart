@@ -295,6 +295,8 @@ void main() {
         await tester.pumpAndSettle();
 
         await scrollUntilFound(tester, find.text('Condition'));
+        await tester.ensureVisible(find.text('Condition'));
+        await tester.pumpAndSettle();
 
         // Open the condition dropdown
         await tester.tap(find.text('Condition'));
@@ -510,6 +512,8 @@ void main() {
         await tester.pumpAndSettle();
 
         await scrollUntilFound(tester, find.text('Condition'));
+        await tester.ensureVisible(find.text('Condition'));
+        await tester.pumpAndSettle();
 
         // Custom Condition should not be visible initially
         expect(find.text('Custom Condition'), findsNothing);

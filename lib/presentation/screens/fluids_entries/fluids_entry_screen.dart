@@ -1,8 +1,6 @@
 // lib/presentation/screens/fluids_entries/fluids_entry_screen.dart
 // Implements 38_UI_FIELD_SPECIFICATIONS.md Section 6.1 - Fluids Entry Screen
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/core/errors/app_error.dart';
@@ -17,6 +15,9 @@ import 'package:shadow_app/domain/enums/settings_enums.dart';
 import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecases.dart';
 import 'package:shadow_app/presentation/providers/fluids_entries/fluids_entry_list_provider.dart';
 import 'package:shadow_app/presentation/providers/settings/user_settings_provider.dart';
+import 'package:shadow_app/presentation/screens/fluids_entries/fluids_entry_bbt_section.dart';
+import 'package:shadow_app/presentation/screens/fluids_entries/fluids_entry_bowel_section.dart';
+import 'package:shadow_app/presentation/screens/fluids_entries/fluids_entry_urine_section.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
 import 'package:uuid/uuid.dart';
 
@@ -270,39 +271,81 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 // === Bowel Movement Section ===
                 _buildSectionHeader(theme, 'Bowel Movement'),
                 const SizedBox(height: 16),
-                _buildBowelToggle(theme),
-                if (_hadBowelMovement) ...[
-                  const SizedBox(height: 16),
-                  _buildBowelConditionDropdown(theme),
-                  if (_bowelCondition == BowelCondition.custom) ...[
-                    const SizedBox(height: 16),
-                    _buildBowelCustomCondition(theme),
-                  ],
-                  const SizedBox(height: 16),
-                  _buildBowelSizeDropdown(theme),
-                  const SizedBox(height: 16),
-                  _buildBowelPhoto(theme),
-                ],
+                FluidsEntryBowelSection(
+                  hadBowelMovement: _hadBowelMovement,
+                  bowelCondition: _bowelCondition,
+                  customConditionController: _bowelCustomConditionController,
+                  customConditionError: _bowelCustomConditionError,
+                  bowelSize: _bowelSize,
+                  bowelPhotoPath: _bowelPhotoPath,
+                  onToggleChanged: (val) => setState(() {
+                    _hadBowelMovement = val;
+                    _isDirty = true;
+                    if (!val) {
+                      _bowelCondition = null;
+                      _bowelCustomConditionController.clear();
+                      _bowelSize = MovementSize.medium;
+                    }
+                  }),
+                  onConditionChanged: (val) => setState(() {
+                    _bowelCondition = val;
+                    _isDirty = true;
+                    if (val != BowelCondition.custom) {
+                      _bowelCustomConditionController.clear();
+                      _bowelCustomConditionError = null;
+                    }
+                  }),
+                  onCustomConditionChanged: _validateBowelCustomCondition,
+                  onSizeChanged: (val) => setState(() {
+                    _bowelSize = val;
+                    _isDirty = true;
+                  }),
+                  onAddPhoto: _pickBowelPhoto,
+                  onRemovePhoto: () => setState(() {
+                    _bowelPhotoPath = null;
+                    _isDirty = true;
+                  }),
+                ),
                 const SizedBox(height: 24),
 
                 // === Urine Section ===
                 _buildSectionHeader(theme, 'Urine'),
                 const SizedBox(height: 16),
-                _buildUrineToggle(theme),
-                if (_hadUrination) ...[
-                  const SizedBox(height: 16),
-                  _buildUrineColorDropdown(theme),
-                  if (_urineCondition == UrineCondition.custom) ...[
-                    const SizedBox(height: 16),
-                    _buildUrineCustomColor(theme),
-                  ],
-                  const SizedBox(height: 16),
-                  _buildUrineSizeDropdown(theme),
-                  // Urgency slider deferred: FluidsEntry has no urgency field.
-                  // Hiding until DB support is added in a future phase.
-                  const SizedBox(height: 16),
-                  _buildUrinePhoto(theme),
-                ],
+                FluidsEntryUrineSection(
+                  hadUrination: _hadUrination,
+                  urineCondition: _urineCondition,
+                  customColorController: _urineCustomColorController,
+                  customColorError: _urineCustomColorError,
+                  urineSize: _urineSize,
+                  urinePhotoPath: _urinePhotoPath,
+                  onToggleChanged: (val) => setState(() {
+                    _hadUrination = val;
+                    _isDirty = true;
+                    if (!val) {
+                      _urineCondition = null;
+                      _urineCustomColorController.clear();
+                      _urineSize = MovementSize.medium;
+                    }
+                  }),
+                  onConditionChanged: (val) => setState(() {
+                    _urineCondition = val;
+                    _isDirty = true;
+                    if (val != UrineCondition.custom) {
+                      _urineCustomColorController.clear();
+                      _urineCustomColorError = null;
+                    }
+                  }),
+                  onCustomColorChanged: _validateUrineCustomColor,
+                  onSizeChanged: (val) => setState(() {
+                    _urineSize = val;
+                    _isDirty = true;
+                  }),
+                  onAddPhoto: _pickUrinePhoto,
+                  onRemovePhoto: () => setState(() {
+                    _urinePhotoPath = null;
+                    _isDirty = true;
+                  }),
+                ),
                 const SizedBox(height: 24),
 
                 // === Menstruation Section ===
@@ -314,9 +357,22 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
                 // === BBT Section ===
                 _buildSectionHeader(theme, 'Basal Body Temperature'),
                 const SizedBox(height: 16),
-                _buildBBTRow(theme),
-                const SizedBox(height: 16),
-                _buildBBTTimePicker(theme),
+                FluidsEntryBBTSection(
+                  bbtController: _bbtController,
+                  useMetric: _useMetricBBT,
+                  recordedTime: _bbtRecordedTime,
+                  bbtError: _bbtError,
+                  onUnitChanged: (val) => setState(() {
+                    _useMetricBBT = val;
+                    _isDirty = true;
+                    _validateBBT();
+                  }),
+                  onRecordedTimeChanged: (val) => setState(() {
+                    _bbtRecordedTime = val;
+                    _isDirty = true;
+                  }),
+                  onBBTChanged: _validateBBT,
+                ),
                 const SizedBox(height: 24),
 
                 // === Custom Fluid Section ===
@@ -540,147 +596,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     ),
   );
 
-  // === Bowel Movement Section ===
-
-  Widget _buildBowelToggle(ThemeData theme) => Semantics(
-    label: 'Had bowel movement, toggle',
-    toggled: _hadBowelMovement,
-    child: ExcludeSemantics(
-      child: SwitchListTile(
-        title: const Text('Had Bowel Movement'),
-        value: _hadBowelMovement,
-        onChanged: (value) {
-          setState(() {
-            _hadBowelMovement = value;
-            _isDirty = true;
-            if (!value) {
-              _bowelCondition = null;
-              _bowelCustomConditionController.clear();
-              _bowelSize = MovementSize.medium;
-            }
-          });
-        },
-      ),
-    ),
-  );
-
-  Widget _buildBowelConditionDropdown(ThemeData theme) => Semantics(
-    // NOTE: Uses BowelCondition enum per Section 6.1 field table; accessibility label
-    // references Bristol scale per Section 18.5 for user familiarity.
-    label: 'Bristol stool scale, 1 to 7, required if bowel movement',
-    child: ExcludeSemantics(
-      child: DropdownButtonFormField<BowelCondition>(
-        initialValue: _bowelCondition,
-        decoration: const InputDecoration(
-          labelText: 'Condition',
-          hintText: 'Select',
-        ),
-        items: BowelCondition.values
-            .map(
-              (condition) => DropdownMenuItem<BowelCondition>(
-                value: condition,
-                child: Text(_bowelConditionLabel(condition)),
-              ),
-            )
-            .toList(),
-        onChanged: (value) {
-          setState(() {
-            _bowelCondition = value;
-            _isDirty = true;
-            if (value != BowelCondition.custom) {
-              _bowelCustomConditionController.clear();
-              _bowelCustomConditionError = null;
-            }
-          });
-        },
-      ),
-    ),
-  );
-
-  Widget _buildBowelCustomCondition(ThemeData theme) => ShadowTextField(
-    controller: _bowelCustomConditionController,
-    label: 'Custom Condition',
-    hintText: 'Describe',
-    errorText: _bowelCustomConditionError,
-    maxLength: ValidationRules.nameMaxLength,
-    textInputAction: TextInputAction.next,
-    onChanged: (_) => _validateBowelCustomCondition(),
-  );
-
-  Widget _buildBowelSizeDropdown(ThemeData theme) => Semantics(
-    label: 'Movement size, small medium or large',
-    child: ExcludeSemantics(
-      child: DropdownButtonFormField<MovementSize>(
-        initialValue: _bowelSize,
-        decoration: const InputDecoration(labelText: 'Size'),
-        items: MovementSize.values
-            .map(
-              (size) => DropdownMenuItem<MovementSize>(
-                value: size,
-                child: Text(_movementSizeLabel(size)),
-              ),
-            )
-            .toList(),
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {
-              _bowelSize = value;
-              _isDirty = true;
-            });
-          }
-        },
-      ),
-    ),
-  );
-
-  Widget _buildBowelPhoto(ThemeData theme) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (_bowelPhotoPath != null) ...[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.file(
-            File(_bowelPhotoPath!),
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.broken_image),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: () {
-            setState(() {
-              _bowelPhotoPath = null;
-              _isDirty = true;
-            });
-          },
-          icon: const Icon(Icons.close, size: 16),
-          label: const Text('Remove photo'),
-        ),
-        const SizedBox(height: 8),
-      ],
-      Semantics(
-        label: 'Take photo of bowel movement, optional',
-        child: ExcludeSemantics(
-          child: OutlinedButton.icon(
-            onPressed: _pickBowelPhoto,
-            icon: const Icon(Icons.photo_camera),
-            label: const Text('Add photo'),
-          ),
-        ),
-      ),
-    ],
-  );
-
   Future<void> _pickBowelPhoto() async {
     try {
       final path = await showPhotoPicker(context);
@@ -707,55 +622,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       }
     }
   }
-
-  Widget _buildUrinePhoto(ThemeData theme) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (_urinePhotoPath != null) ...[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.file(
-            File(_urinePhotoPath!),
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.broken_image),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: () {
-            setState(() {
-              _urinePhotoPath = null;
-              _isDirty = true;
-            });
-          },
-          icon: const Icon(Icons.close, size: 16),
-          label: const Text('Remove photo'),
-        ),
-        const SizedBox(height: 8),
-      ],
-      Semantics(
-        label: 'Take photo of urine, optional',
-        child: ExcludeSemantics(
-          child: OutlinedButton.icon(
-            key: const Key('add_urine_photo_button'),
-            onPressed: _pickUrinePhoto,
-            icon: const Icon(Icons.photo_camera),
-            label: const Text('Add photo'),
-          ),
-        ),
-      ),
-    ],
-  );
 
   Future<void> _pickUrinePhoto() async {
     try {
@@ -784,94 +650,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     }
   }
 
-  // === Urine Section ===
-
-  Widget _buildUrineToggle(ThemeData theme) => Semantics(
-    label: 'Had urination, toggle',
-    toggled: _hadUrination,
-    child: ExcludeSemantics(
-      child: SwitchListTile(
-        title: const Text('Had Urination'),
-        value: _hadUrination,
-        onChanged: (value) {
-          setState(() {
-            _hadUrination = value;
-            _isDirty = true;
-            if (!value) {
-              _urineCondition = null;
-              _urineCustomColorController.clear();
-              _urineSize = MovementSize.medium;
-            }
-          });
-        },
-      ),
-    ),
-  );
-
-  Widget _buildUrineColorDropdown(ThemeData theme) => Semantics(
-    label: 'Urine color, select from scale',
-    child: ExcludeSemantics(
-      child: DropdownButtonFormField<UrineCondition>(
-        initialValue: _urineCondition,
-        decoration: const InputDecoration(
-          labelText: 'Color',
-          hintText: 'Select color',
-        ),
-        items: UrineCondition.values
-            .map(
-              (condition) => DropdownMenuItem<UrineCondition>(
-                value: condition,
-                child: Text(_urineConditionLabel(condition)),
-              ),
-            )
-            .toList(),
-        onChanged: (value) {
-          setState(() {
-            _urineCondition = value;
-            _isDirty = true;
-            if (value != UrineCondition.custom) {
-              _urineCustomColorController.clear();
-              _urineCustomColorError = null;
-            }
-          });
-        },
-      ),
-    ),
-  );
-
-  Widget _buildUrineCustomColor(ThemeData theme) => ShadowTextField(
-    controller: _urineCustomColorController,
-    label: 'Custom Color',
-    hintText: 'Describe',
-    errorText: _urineCustomColorError,
-    maxLength: ValidationRules.nameMaxLength,
-    textInputAction: TextInputAction.next,
-    onChanged: (_) => _validateUrineCustomColor(),
-  );
-
-  Widget _buildUrineSizeDropdown(ThemeData theme) => Semantics(
-    label: 'Urination volume, small medium or large',
-    child: ExcludeSemantics(
-      child: DropdownButtonFormField<MovementSize>(
-        initialValue: _urineSize,
-        decoration: const InputDecoration(labelText: 'Size'),
-        items: const [
-          DropdownMenuItem(value: MovementSize.small, child: Text('Small')),
-          DropdownMenuItem(value: MovementSize.medium, child: Text('Medium')),
-          DropdownMenuItem(value: MovementSize.large, child: Text('Large')),
-        ],
-        onChanged: (value) {
-          if (value != null) {
-            setState(() {
-              _urineSize = value;
-              _isDirty = true;
-            });
-          }
-        },
-      ),
-    ),
-  );
-
   // === Menstruation Section ===
 
   Widget _buildMenstruationFlow(ThemeData theme) => Semantics(
@@ -888,92 +666,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
             });
           }
         },
-      ),
-    ),
-  );
-
-  // === BBT Section ===
-
-  Widget _buildBBTRow(ThemeData theme) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(
-        flex: 2,
-        child: Semantics(
-          label: 'Basal body temperature, required, degrees',
-          textField: true,
-          child: ExcludeSemantics(
-            child: ShadowTextField.numeric(
-              controller: _bbtController,
-              label: 'Temperature',
-              hintText: 'e.g., 98.6',
-              errorText: _bbtError,
-              maxLength: 6,
-              textInputAction: TextInputAction.next,
-              onChanged: (_) => _validateBBT(),
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(width: 16),
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: DropdownButtonFormField<bool>(
-            initialValue: _useMetricBBT,
-            decoration: const InputDecoration(labelText: 'Unit'),
-            items: const [
-              DropdownMenuItem(value: false, child: Text('\u00B0F')),
-              DropdownMenuItem(value: true, child: Text('\u00B0C')),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                setState(() {
-                  _useMetricBBT = value;
-                  _isDirty = true;
-                  _validateBBT();
-                });
-              }
-            },
-          ),
-        ),
-      ),
-    ],
-  );
-
-  Widget _buildBBTTimePicker(ThemeData theme) => Semantics(
-    label: 'Temperature recorded time',
-    child: ExcludeSemantics(
-      child: InkWell(
-        onTap: () async {
-          final time = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.fromDateTime(_bbtRecordedTime),
-          );
-          if (time != null) {
-            setState(() {
-              _bbtRecordedTime = DateTime(
-                _bbtRecordedTime.year,
-                _bbtRecordedTime.month,
-                _bbtRecordedTime.day,
-                time.hour,
-                time.minute,
-              );
-              _isDirty = true;
-            });
-          }
-        },
-        child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Time Recorded',
-            hintText: 'Time measured',
-            suffixIcon: Icon(Icons.access_time),
-          ),
-          child: Text(
-            _formatTime(TimeOfDay.fromDateTime(_bbtRecordedTime)),
-            style: theme.textTheme.bodyLarge,
-          ),
-        ),
       ),
     ),
   );
@@ -1030,37 +722,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
     ),
   );
 
-  // === Label Helpers ===
-
-  String _bowelConditionLabel(BowelCondition condition) => switch (condition) {
-    BowelCondition.diarrhea => 'Diarrhea',
-    BowelCondition.runny => 'Runny',
-    BowelCondition.loose => 'Loose',
-    BowelCondition.normal => 'Normal',
-    BowelCondition.firm => 'Firm',
-    BowelCondition.hard => 'Hard',
-    BowelCondition.custom => 'Custom',
-  };
-
-  String _movementSizeLabel(MovementSize size) => switch (size) {
-    MovementSize.tiny => 'Tiny',
-    MovementSize.small => 'Small',
-    MovementSize.medium => 'Medium',
-    MovementSize.large => 'Large',
-    MovementSize.huge => 'Huge',
-  };
-
-  String _urineConditionLabel(UrineCondition condition) => switch (condition) {
-    UrineCondition.clear => 'Clear',
-    UrineCondition.lightYellow => 'Light Yellow',
-    UrineCondition.yellow => 'Yellow',
-    UrineCondition.darkYellow => 'Dark Yellow',
-    UrineCondition.amber => 'Amber',
-    UrineCondition.brown => 'Brown',
-    UrineCondition.red => 'Red',
-    UrineCondition.custom => 'Custom',
-  };
-
   // === Formatting Helpers ===
 
   /// Formats a temperature value, stripping trailing .0 for whole numbers.
@@ -1068,8 +729,6 @@ class _FluidsEntryScreenState extends ConsumerState<FluidsEntryScreen> {
       value % 1 == 0 ? value.toInt().toString() : value.toString();
 
   String _formatDateTime(DateTime dt) => DateFormatters.shortDateTime(dt);
-
-  String _formatTime(TimeOfDay time) => DateFormatters.time12h(time);
 
   // === Conversion Helpers ===
 
