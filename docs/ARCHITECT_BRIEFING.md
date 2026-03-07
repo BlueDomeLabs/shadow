@@ -10,11 +10,11 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   72dfe84 — P-014: Fluids Restructuring Session A — Domain Layer
-# Last Code:     bodily_output_logs domain layer (entities, DAO, repo, usecases, providers)
-# Next Action:   Architect reviews P-014 output; Session B (UI layer)
+# Last Commit:   368671d — P-015: Fluids Restructuring UI Layer
+# Last Code:     BodilyOutputListScreen, BodilyOutputEditScreen, FluidsQuickEntrySheet rewrite
+# Next Action:   Architect reviews P-015 output; next phase TBD
 # Open Items:    None
-# Tests:         3,679 passing
+# Tests:         3,575 passing
 # Schema:        v20
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,100 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] P-015 — Fluids Restructuring: Session B — UI Layer
+
+**P-015 | Tests: 3,575 | Schema: v20 | Analyzer: clean**
+
+### Technical Summary
+
+Full UI layer for `bodily_output_logs`. Session started from a compacted context mid-execution and was completed post-compaction. All work committed in a single clean commit.
+
+**Housekeeping:**
+- Fixed "P-013" → "P-014" in briefing header and `.claude/work-status/current.json` (typo from Session A).
+
+**New files created:**
+- `lib/presentation/screens/bodily_output/bodily_output_list_screen.dart` — `ConsumerStatefulWidget`. `FutureBuilder` on `GetBodilyOutputsUseCase.execute()`. Logs grouped by day descending. AppBar "Bodily Functions". FAB opens `BodilyOutputEditScreen`. Empty state, error state with Retry, day headers, log cards (type icon + label + time).
+- `lib/presentation/screens/bodily_output/bodily_output_edit_screen.dart` — `ConsumerStatefulWidget`. Full type selector (all `BodyOutputType` chips). Type-specific field sections: gas severity, urine condition, bowel condition, menstruation flow, BBT temp field, custom label. Shared notes field. Creates via `logBodilyOutputUseCaseProvider`; updates via `updateBodilyOutputUseCaseProvider`. Captures `Navigator.of(context)` before `await` to satisfy `use_build_context_synchronously`.
+- `test/unit/presentation/screens/bodily_output/bodily_output_list_screen_test.dart` — 11 widget tests (mockito). Covers: appBarTitle, bbt label, empty state, FAB presence, log card, error state, retry button, day header (ListView), multiple types, gas label, auth failure shows error.
+- `test/unit/presentation/screens/bodily_output/bodily_output_list_screen_test.mocks.dart` — generated
+- `test/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet_test.mocks.dart` — generated
+
+**Modified files:**
+- `lib/core/bootstrap.dart` — Added `bodilyOutputRepositoryProvider.overrideWithValue(bodilyOutputRepo)` using `BodilyOutputRepositoryImpl(database.bodilyOutputDao, uuid)`. Fixed `directives_ordering` for new imports.
+- `lib/presentation/screens/home/home_screen.dart` — Replaced `FluidsTab` import/usage with `BodilyOutputListScreen`. Label "Fluids" → "Bodily Functions".
+- `lib/presentation/screens/home/tabs/home_tab.dart` — Replaced `FluidsEntryScreen` with `BodilyOutputEditScreen(profileId: profileId, existingLog: null)`. Label "Log Fluids" → "Log Body Output".
+- `lib/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet.dart` — Fully rewritten. Old: beverage capture (ml + name). New: bodily output type selector (Urine/Bowel/Gas chips) + gas severity chips. Uses `logBodilyOutputUseCaseProvider`. Title "Log Body Output". Semantic label "Body output quick-entry sheet".
+- `test/presentation/screens/home/home_screen_test.dart` — Fixed "Fluids"/"Log Fluids" text. Added `getBodilyOutputsUseCaseProvider` stub override to all `ProviderScope`/`ProviderContainer` instances (required because `BodilyOutputListScreen` is built in `IndexedStack`). Added `_StubGetBodilyOutputsUseCase`, `_StubBodilyOutputRepository`, `_StubAuthService` stubs at bottom. Fixed `combinators_ordering` and removed unused `sync_metadata` import.
+- `test/presentation/screens/home/tabs/home_tab_test.dart` — "Log Fluids" → "Log Body Output".
+- `test/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet_test.dart` — Entirely rewritten for new bodily output sheet. 10 tests covering render, chips, severity visibility, use case call, semantic label, snackbar on auth failure.
+
+**Deleted files (production):**
+- `lib/presentation/screens/fluids_entries/fluids_entry_screen.dart`
+- `lib/presentation/screens/fluids_entries/fluids_entry_bbt_section.dart`
+- `lib/presentation/screens/fluids_entries/fluids_entry_bowel_section.dart`
+- `lib/presentation/screens/fluids_entries/fluids_entry_urine_section.dart`
+- `lib/presentation/screens/home/tabs/fluids_tab.dart`
+
+**Deleted files (tests):**
+- `test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart`
+- `test/presentation/screens/fluids_entries/fluids_entry_bbt_section_test.dart`
+- `test/presentation/screens/fluids_entries/fluids_entry_bowel_section_test.dart`
+- `test/presentation/screens/fluids_entries/fluids_entry_urine_section_test.dart`
+- `test/presentation/screens/home/tabs/fluids_tab_test.dart`
+
+**Test count change:** 3,679 (P-014) → 3,575 (P-015). Net −104. Expected: deleting 5 test files removed ~115 old tests; adding 11 list-screen tests and rewriting 10 quick-entry tests adds ~21. Net approximately −94, consistent with observed delta. No regressions — all remaining tests pass.
+
+**Note:** Session experienced mid-execution compaction (context limit). Work was resumed from compaction and completed correctly. No partial or orphaned state observed. The Architect should inspect the pre-compaction and post-compaction work in the commit diff for consistency.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/core/bootstrap.dart` | MODIFIED | Wire bodilyOutputRepositoryProvider |
+| `lib/presentation/screens/bodily_output/bodily_output_list_screen.dart` | CREATED | Bodily output log list screen |
+| `lib/presentation/screens/bodily_output/bodily_output_edit_screen.dart` | CREATED | Bodily output create/edit screen |
+| `lib/presentation/screens/fluids_entries/fluids_entry_screen.dart` | DELETED | Replaced by bodily_output_edit_screen |
+| `lib/presentation/screens/fluids_entries/fluids_entry_bbt_section.dart` | DELETED | Stale |
+| `lib/presentation/screens/fluids_entries/fluids_entry_bowel_section.dart` | DELETED | Stale |
+| `lib/presentation/screens/fluids_entries/fluids_entry_urine_section.dart` | DELETED | Stale |
+| `lib/presentation/screens/home/tabs/fluids_tab.dart` | DELETED | Replaced by BodilyOutputListScreen |
+| `lib/presentation/screens/home/home_screen.dart` | MODIFIED | Tab renamed, FluidsTab → BodilyOutputListScreen |
+| `lib/presentation/screens/home/tabs/home_tab.dart` | MODIFIED | Quick action updated |
+| `lib/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet.dart` | MODIFIED | Full rewrite for bodily output |
+| `test/unit/presentation/screens/bodily_output/bodily_output_list_screen_test.dart` | CREATED | 11 widget tests |
+| `test/unit/presentation/screens/bodily_output/bodily_output_list_screen_test.mocks.dart` | CREATED | Generated |
+| `test/presentation/screens/fluids_entries/fluids_entry_screen_test.dart` | DELETED | Stale |
+| `test/presentation/screens/fluids_entries/fluids_entry_bbt_section_test.dart` | DELETED | Stale |
+| `test/presentation/screens/fluids_entries/fluids_entry_bowel_section_test.dart` | DELETED | Stale |
+| `test/presentation/screens/fluids_entries/fluids_entry_urine_section_test.dart` | DELETED | Stale |
+| `test/presentation/screens/home/tabs/fluids_tab_test.dart` | DELETED | Stale |
+| `test/presentation/screens/home/home_screen_test.dart` | MODIFIED | Updated for renamed tab + stub override |
+| `test/presentation/screens/home/tabs/home_tab_test.dart` | MODIFIED | Updated quick action label |
+| `test/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet_test.dart` | MODIFIED | Full rewrite |
+| `test/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet_test.mocks.dart` | CREATED | Generated |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | Session log entry |
+| `.claude/work-status/current.json` | MODIFIED | lastPromptId fixed P-013→P-014 (housekeeping), updated for P-015 |
+
+### Executive Summary for Reid
+
+P-015 completes the Fluids Restructuring at the UI level. Here's what changed:
+
+**"Fluids" is now "Bodily Functions"** throughout the app — the bottom navigation tab label, the screen title, and the quick-action button on the home screen all reflect the new name.
+
+**New Bodily Output list screen:** The Bodily Functions tab now shows a proper log history — your recorded events grouped by day, with a floating button to add a new entry.
+
+**New Bodily Output edit screen:** Tapping the add button opens a form where you can pick what type of event to log (Urine, Bowel, Gas, Menstruation, BBT, or Custom), fill in type-specific details, add notes, and save.
+
+**Quick-entry sheet updated:** The quick-entry sheet that pops up from a notification now logs body output events (Urine/Bowel/Gas + severity) instead of the old water intake form.
+
+**Cleanup:** The old Fluids screens (5 files) and their tests (5 files) have been deleted. They've been fully replaced by the new Bodily Output screens.
+
+The test suite is clean at 3,575 tests passing (the drop from 3,679 reflects the deletion of ~115 old fluids tests and the addition of 21 new bodily output tests).
+
+This session experienced a mid-run context compaction and was resumed and completed successfully. The Architect should verify the commit diff for consistency across the compaction boundary.
 
 ---
 
