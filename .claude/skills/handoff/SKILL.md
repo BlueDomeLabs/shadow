@@ -94,11 +94,18 @@ this session:
     docs/specs/02_DATABASE_SCHEMA.md \
     docs/specs/03_API_CONTRACTS.md \
     docs/ARCHITECT_BRIEFING_ARCHIVE.md \
+    .claude/settings.json \
+    .claude/settings.local.json \
     .claude/work-status/current.json \
-    .claude/skills/startup/SKILL.md \
+    .claude/skills/context-lost.md \
     .claude/skills/coding/SKILL.md \
     .claude/skills/compliance/SKILL.md \
+    .claude/skills/factory-reset/SKILL.md \
     .claude/skills/handoff/SKILL.md \
+    .claude/skills/implementation-review/SKILL.md \
+    .claude/skills/launch-shadow/skill.md \
+    .claude/skills/spec-review/SKILL.md \
+    .claude/skills/startup/SKILL.md \
     [every file created or modified this session]
 
 ---
