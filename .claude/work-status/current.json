@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-011 — Rewrite /coding as control document reading list; add to /startup",
+  "task": "P-012 — Retire /implementation-review and /spec-review skills",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "lastPromptId": "P-011",
-  "notes": "coding/SKILL.md rewritten as 4-document pointer list. startup/SKILL.md updated with Step 6 to invoke /coding."
+  "lastPromptId": "P-012",
+  "notes": "implementation-review/SKILL.md and spec-review/SKILL.md deleted. Decisions logged in DECISIONS.md."
 }
