@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-017 — Docs Correction: ROADMAP.md + VISION.md",
+  "task": "P-018 — Docs: VOICE_LOGGING_SPEC.md Corrections",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3575,
   "schemaVersion": 20,
-  "lastPromptId": "P-017",
-  "notes": "Docs-only session. ROADMAP.md replaced with Architect's corrected version (48 insertions, 11 deletions). VISION.md in Downloads was identical to project — no change needed."
+  "lastPromptId": "P-018",
+  "notes": "Docs-only session. Three corrections: decision #5 closed (Bodily Functions rename), schema target corrected v20→v21, Navigation Architecture section added."
 }
