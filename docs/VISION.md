@@ -1,7 +1,7 @@
 # Blue Dome Labs — Platform Vision
 
 **Document:** VISION.md
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-07
 **Author:** Reid Barcus, Founder & CEO — Blue Dome Labs
 **Audience:** Potential partners, collaborators, and domain experts considering
 building an app on the Ember platform
@@ -33,8 +33,9 @@ tracking apps for iOS and Android using a shared platform called Ember.
 
 Ember is the infrastructure. It provides every capability a serious personal tracking
 app needs — encrypted storage, cloud sync, security, photo and video handling,
-notifications, AI-powered conversational logging, health platform integration, and more.
-All of it is built, tested, and proven in production.
+notifications, AI-powered conversational logging, calendar integration, document
+import, health platform integration, and more. All of it is built, tested, and proven
+in production.
 
 Shadow is the first app built on Ember. It is a personal health tracking app for people
 managing chronic conditions. Shadow exists to prove the platform works and to push
@@ -49,8 +50,80 @@ remaining investment.
 
 ## The Ember Platform
 
-Ember is a Flutter/Dart platform targeting iOS and Android. Here is what it provides
-out of the box to every app built on it.
+Ember is a Flutter/Dart platform targeting iOS and Android. Every capability described
+below is designed to be domain-agnostic — it works for a health app, a gardening app,
+a financial tracker, or any other personal data domain without modification. The
+platform is the engine. The domain is the configuration.
+
+Here is what Ember provides out of the box to every app built on it.
+
+---
+
+### The AI Assistant
+
+The AI assistant is the primary entry point of every Ember app. When the user opens
+the app, they arrive at the AI chat interface — which has already reviewed pending
+notification items, recent entries, and calendar context, and is ready to engage.
+A notification tap opens the same interface with the relevant item queued first, but
+the user does not need a notification to start a session. They can open the app at
+any time to log anything, ask anything, or take any action.
+
+> "Good morning. Did you eat breakfast today?"
+> "Yeah, oatmeal and coffee."
+> "Got it — oatmeal and coffee. Your Vitamin D was due this morning — did you take it?"
+> "Yes."
+> "Perfect. You're all caught up. You have a cardiology appointment tomorrow —
+>  want me to put together a summary report for your doctor?"
+
+The assistant confirms each answer before logging it. Every confirmed item is written
+to the correct database field through the existing use case layer. Nothing is bypassed.
+Text input is always available as a fallback for situations where speaking is not
+appropriate.
+
+The assistant maintains a rolling memory of recent sessions and personalizes its
+questions accordingly. It learns that you usually have coffee with breakfast, that you
+tend to skip the journal prompt, that you prefer brief answers. Over time, sessions
+get faster.
+
+The conversational logging interface is fully domain-agnostic. The same infrastructure
+that asks a Shadow user about their breakfast asks a gardener about their tomatoes or
+a financial tracker user about their receipts. Only the prompts and the data model
+change. The conversation engine, voice pipeline, and AI integration are shared by
+every Ember app.
+
+---
+
+### Voice Pipeline
+
+The voice interface uses on-device speech-to-text and text-to-speech engines —
+Apple's AVSpeechSynthesizer on iOS and Android's native TTS engine on Android.
+No third-party voice API is required. The feature works fully offline.
+
+Every spoken response is displayed on screen simultaneously, providing an accessibility
+fallback for users in environments where audio is not appropriate.
+
+---
+
+### Calendar Integration
+
+Ember integrates with Google Calendar (iOS and Android) and Apple Calendar (iOS) as
+both a reader and a writer. Through the AI assistant, users can create, edit, and
+delete calendar events and tasks in natural language — without leaving the app or
+navigating a separate calendar screen.
+
+A health user who says "I have an appointment with Dr. Smith at 11am this Friday at
+the People's Clinic" gets a calendar event created immediately. A spoken task — "I
+need to pick up my prescription tomorrow morning" — becomes a calendar reminder.
+Attendee invites are supported where the calendar platform allows.
+
+The AI assistant can also read the calendar and use it as context. If a cardiology
+appointment is coming up, the assistant can surface that during a logging session and
+offer to prepare a summary report. Calendar awareness makes the assistant smarter
+without requiring the user to manage two separate systems.
+
+Calendar commands flow naturally in the same conversation as health logging, report
+requests, or any other interaction. Calendar is not a separate section of the app —
+it is a capability of the AI assistant.
 
 ---
 
@@ -84,6 +157,11 @@ The sync architecture supports:
   strategies (last-write-wins, keep-both, or user choice)
 - **QR code device pairing** — a new device is added to an account by scanning
   a QR code on an existing device. No passwords, no account registration required.
+- **Cloud-only storage for large files** — photos, videos, and other media can be
+  designated as cloud-only. Once a file is confirmed uploaded, the local copy is
+  deleted and downloaded on demand when the user views it. For users with large
+  media libraries, this keeps device storage consumption manageable without
+  sacrificing access.
 
 ---
 
@@ -129,50 +207,8 @@ Multiple pending notifications are stacked into a single "you have items to revi
 notification, preventing notification fatigue. All specifics stay private — the
 notification body never contains health data.
 
----
-
-### AI-Powered Conversational Logging
-
-This is Ember's most distinctive capability and the one that solves the friction problem
-described at the opening of this document.
-
-When the user taps a notification, the app opens to a voice interface. An AI assistant
-(powered by the Anthropic Claude API) greets the user by name and works through all
-pending items in natural conversation:
-
-> "Good morning. Did you eat breakfast today?"
-> "Yeah, oatmeal and coffee."
-> "Got it — oatmeal and coffee. Your Vitamin D was due this morning — did you take it?"
-> "Yes."
-> "Perfect. You're all caught up. Your next check-in is this evening around six.
->  Have a beautiful day."
-
-The assistant confirms each answer before logging it. Every confirmed item is written
-to the correct database field through the existing use case layer. Nothing is bypassed.
-Text input is always available as a fallback for situations where speaking is not
-appropriate.
-
-The assistant maintains a rolling memory of recent sessions and personalizes its
-questions accordingly. It learns that you usually have coffee with breakfast, that you
-tend to skip the journal prompt, that you prefer brief answers. Over time, sessions
-get faster.
-
-The conversational logging interface is fully domain-agnostic. The same infrastructure
-that asks a Shadow user about their breakfast asks a gardener about their tomatoes or
-a financial tracker user about their receipts. Only the prompts and the data model
-change. The conversation engine, voice pipeline, and AI integration are shared by
-every Ember app.
-
----
-
-### Voice Pipeline
-
-The voice interface uses on-device speech-to-text and text-to-speech engines —
-Apple's AVSpeechSynthesizer on iOS and Android's native TTS engine on Android.
-No third-party voice API is required. The feature works fully offline.
-
-Every spoken response is displayed on screen simultaneously, providing an accessibility
-fallback for users in environments where audio is not appropriate.
+Tapping a notification opens the AI assistant, which addresses all pending items
+in a single conversational session.
 
 ---
 
@@ -193,16 +229,49 @@ Ember provides a complete photo management pipeline:
 
 ---
 
-### Video Capture and Processing
+### Photo Annotations *(planned)*
 
-Video support is planned for a near-term release, extending the photo pipeline to
-short video clips. This is particularly valuable in domains where motion or progression
-over time is meaningful — a 10-second clip documents a wound, a skin condition, or a
-plant's health in ways a photograph cannot.
+Users can annotate photos at edit time — drawing circles, arrows, and text labels
+directly on an image to mark a specific area of interest. A health user circles the
+spot on their arm they are monitoring; a gardening user marks the leaf showing early
+disease. Annotations are stored as a separate overlay, preserving the original
+unmodified image underneath.
 
-The video pipeline will include the same encryption, cloud sync, and timeline
-organization as photos, with appropriate handling for large file sizes (chunked
-upload, local compression, storage management).
+The annotation tool is part of the edit photo flow, not a separate mode, keeping
+the interaction simple and discoverable.
+
+---
+
+### Video Capture and Processing *(planned)*
+
+Video support extends the photo pipeline to short video clips. This is particularly
+valuable in domains where motion or progression over time is meaningful — a 10-second
+clip documents a wound, a skin condition, or a plant's health in ways a photograph
+cannot.
+
+The video pipeline includes the same encryption, cloud sync, and timeline organization
+as photos, with appropriate handling for large file sizes (chunked upload, local
+compression, storage management, and cloud-only offload for devices where storage
+is a constraint).
+
+---
+
+### PDF Document Import *(planned)*
+
+Ember can import structured data from PDF documents using AI-powered extraction.
+A user shares a PDF — a blood work panel, a lab result, a pathology report — and
+Ember reads it using the Anthropic Claude API, extracts the tabular data, and stores
+it as a read-only imported record. Extracted tables can be included in generated
+reports alongside manually-entered data, giving users a complete picture without
+manual re-entry.
+
+The user reviews the extracted data before confirming import. Imported records are
+never modified after confirmation — they are a faithful representation of the
+source document.
+
+The extraction pipeline is domain-agnostic. The same capability that reads a blood
+panel reads a soil test for a gardening app or a financial statement for a budgeting
+app.
 
 ---
 
@@ -256,21 +325,27 @@ Ember generates formatted PDF reports from stored data. Reports are configurable
 date range and data category, and are designed for use cases where the user needs to
 share data with a professional — a doctor, a nutritionist, a specialist.
 
-Reports include charts, tables, and optionally photos. All report generation happens
-on-device with no server dependency.
+Reports include charts, tables, and optionally photos. Imported PDF document data
+can be included alongside manually-entered data in the same report. All report
+generation happens on-device with no server dependency.
 
 ---
 
 ### Intelligence System *(planned)*
 
-A future release will add a pattern detection and correlation engine. The system will
-analyze historical data to surface non-obvious relationships — which foods correlate
-with symptom flare-ups, which activities improve sleep quality, which environmental
-factors precede health events.
+A pattern detection and correlation engine analyzes historical data to surface
+non-obvious relationships. Which foods correlate with symptom flare-ups. Which
+activities improve sleep quality. Which environmental factors precede health events.
 
-The intelligence system is fully domain-agnostic. The same pattern detection that finds
-food-symptom correlations in a health app finds seasonal patterns in a gardening app
-or spending patterns in a financial app.
+The system ships in a dormant state — visible to users from day one, with a clear
+explanation of what it does and what it is building toward. It activates automatically
+when a meaningful threshold of accumulated data has been reached. Users who open the
+app on day one understand what is coming. Users who have logged consistently begin
+receiving insights without any action on their part.
+
+The intelligence system is fully domain-agnostic. The same pattern detection that
+finds food-symptom correlations in a health app finds seasonal patterns in a gardening
+app or spending patterns in a financial app.
 
 ---
 
@@ -286,8 +361,9 @@ want to bring that expertise to a professional mobile app without building the
 infrastructure yourself, that is exactly the collaboration this platform is designed for.
 
 You bring the domain knowledge: what data matters, what questions to ask, what insights
-users need. Blue Dome Labs brings the platform: encrypted storage, sync, AI logging,
-photo handling, notifications, security, and everything else described in this document.
+users need. Blue Dome Labs brings the platform: encrypted storage, sync, AI assistant,
+photo handling, calendar integration, notifications, security, and everything else
+described in this document.
 
 Shadow is the proof that this works. It is a complete, production-quality app built
 entirely on the Ember platform by a founder who is not a programmer, working with AI
