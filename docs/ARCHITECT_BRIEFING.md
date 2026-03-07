@@ -9,9 +9,9 @@
 # NOTE: File moved to docs/ARCHITECT_BRIEFING.md (2026-03-06 housekeeping)
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Housekeeping session complete; awaiting Architect review
-# Last Commit:   7efca3d — Housekeeping: move spec files to docs/, delete stale .claude/ folders, fix 22_API_CONTRACTS.md
-# Last Code:     Doc-only session. No production code changes. Tests unchanged.
+# Status:        IDLE — Awaiting Architect review and next phase prompt
+# Last Commit:   4a061a8 — (Shadow app unchanged this session)
+# Last Code:     No Shadow app changes. Tooling work only (bdl-sync).
 # Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
 # Open Items:    None
 # Tests:         3,611 passing
@@ -22,6 +22,31 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Tooling Session: bdl-sync clear command + Project Knowledge cleanup
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+No Shadow app changes this session. Reid ran `bdl-sync init` which uploaded 621 files from the Shadow repo into Claude.ai Project Knowledge — far more than intended. Added a `clear` command to `/Users/reidbarcus/Development/tools/bdl-sync/bdl_sync.py` that deletes all files from Project Knowledge in one pass. Ran `bdl-sync clear` — all 621 files deleted successfully. The tools directory is not a git repository so the bdl_sync.py change was not committed to version control.
+
+Also identified a local structural anomaly: `test/widget/` exists locally but is not committed to the repository. `.gitignore` has a pending local modification (likely from bdl-sync init). Neither was addressed this session — read-only investigation only.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `/Users/reidbarcus/Development/tools/bdl-sync/bdl_sync.py` | MODIFIED (unversioned) | Added `clear` command — deletes all Project Knowledge files |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This entry |
+
+### Executive Summary for Reid
+
+This session was tooling cleanup. The `bdl-sync init` command uploaded every file in the Shadow project to the Architect's Project Knowledge — about 621 files. That's too many; the Architect only needs a handful of key docs. I added a "clear" command to the sync tool and ran it — all 621 files are now gone from Project Knowledge.
+
+Next step: figure out which files the Architect actually needs in Project Knowledge and push only those with `bdl-sync push`. That's a decision for you and the Architect to make.
 
 ---
 
