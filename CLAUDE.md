@@ -366,15 +366,12 @@ test delta reviewable.
 
 | Skill | Trigger | Purpose |
 |-------|---------|---------|
-| `/startup` | First thing every session | Verify clean state, orient to current work |
-| `/coding` | When writing any code | Standards, patterns, definition of done |
-| `/compliance` | Before saying "done" | Final checklist before reporting complete |
-| `/handoff` | Before conversation ends | Commit, update briefing, deliver report |
+| `/startup` | First thing every session | Cold-start orientation and verification |
+| `/coding` | When writing any code | Control document reading list |
+| `/handoff` | Before conversation ends | Commit, sync, deliver report |
 | `/factory-reset` | Before testing major features | Wipe all app data for a clean test run |
 | `/launch-shadow` | After clean or codegen | Regenerate code and launch app on macOS |
-| `/spec-review` | Before major implementation | Audit spec docs against coding standards |
-| `/implementation-review` | After implementation | Verify code matches specs exactly |
-| `/context-lost` | After context compaction | Re-orient from docs/ARCHITECT_BRIEFING.md and resume |
+| `/context-lost` | After context compaction | Re-orient and resume after compaction |
 
 ---
 

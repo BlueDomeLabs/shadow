@@ -5,6 +5,38 @@
 
 ---
 
+## Security Findings
+
+---
+
+### SEC-001 — Hardcoded OAuth Credentials (Development Fallback)
+
+**Severity:** HIGH
+**Category:** Security
+**Status:** OPEN
+**Gate:** Must be resolved before App Store submission
+
+**Finding:**
+OAuth client ID and client secret are hardcoded as development
+fallback values in `lib/core/config/google_oauth_config.dart`.
+These same credentials are documented in
+`docs/specs/19_OAUTH_IMPLEMENTATION.md`. Both files are
+git-tracked, meaning real credentials are in git history.
+
+**Resolution Required:**
+- Remove hardcoded fallback values from google_oauth_config.dart
+- Production build must fail loudly if GOOGLE_OAUTH_CLIENT_ID
+  and GOOGLE_OAUTH_CLIENT_SECRET are not provided via --dart-define
+- Rotate both credentials after the hardcoded values are removed
+- Update docs/specs/19_OAUTH_IMPLEMENTATION.md to remove the
+  hardcoded values from code examples
+
+**Files:**
+- `lib/core/config/google_oauth_config.dart`
+- `docs/specs/19_OAUTH_IMPLEMENTATION.md`
+
+---
+
 ## Pass 01 — Architecture & Layer Boundaries
 Date: 2026-03-02
 Status: COMPLETE
