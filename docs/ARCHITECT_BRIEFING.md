@@ -25,6 +25,33 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] P-013 — Update CLAUDE.md Skills Table + Add SEC-001 OAuth Finding
+
+**P-013 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config/docs session. No lib/ or test/ files touched.
+
+Two changes:
+
+1. **`CLAUDE.md` Skills table** — removed three retired skill rows (/compliance, /spec-review, /implementation-review). Updated descriptions on remaining entries to match current skill descriptions (e.g. /startup now "Cold-start orientation and verification", /coding now "Control document reading list", /handoff now "Commit, sync, deliver report"). Table now has 6 rows.
+
+2. **`docs/AUDIT_FINDINGS.md`** — added new "Security Findings" section above Pass 01. SEC-001 is a HIGH severity security finding: hardcoded OAuth client ID and client secret in `lib/core/config/google_oauth_config.dart` and documented in `docs/specs/19_OAUTH_IMPLEMENTATION.md`, both git-tracked. Gate: must be resolved before App Store submission. Resolution requires removing hardcoded fallbacks, failing loudly if --dart-define values are absent, rotating credentials, and updating the OAuth spec doc.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `CLAUDE.md` | MODIFIED | Skills table: 3 retired rows removed, descriptions updated |
+| `docs/AUDIT_FINDINGS.md` | MODIFIED | SEC-001 HIGH security finding added in new Security Findings section |
+
+### Executive Summary for Reid
+
+Two fixes this session. First: cleaned up the skills reference table — removed three skills that were retired in earlier sessions and are no longer relevant. Second: added a security finding that needs to be resolved before the app goes to the App Store. The Google OAuth credentials (the "keys" that let the app talk to Google) are currently stored directly in the source code, which means they're in the git history. Before launch we need to remove them from the code, rotate them (get new ones), and make the build system require them to be provided separately. This is a standard pre-launch step — it's tracked now so it doesn't get missed.
+
+---
+
 ## [2026-03-07 MST] P-012 — Retire /implementation-review and /spec-review Skills
 
 **P-012 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
