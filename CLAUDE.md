@@ -187,10 +187,10 @@ Every session must end with these steps in order:
      docs/22_API_CONTRACTS.md \
      docs/ARCHITECT_BRIEFING_ARCHIVE.md \
      .claude/work-status/current.json \
-     .claude/skills/startup.md \
-     .claude/skills/coding.md \
-     .claude/skills/compliance.md \
-     .claude/skills/handoff.md \
+     .claude/skills/startup/SKILL.md \
+     .claude/skills/coding/SKILL.md \
+     .claude/skills/compliance/SKILL.md \
+     .claude/skills/handoff/SKILL.md \
      [any files created or modified this session]
    ```
 

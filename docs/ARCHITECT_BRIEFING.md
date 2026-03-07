@@ -25,6 +25,50 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Tooling Session: bdl-sync + Project Knowledge setup
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Full-day tooling session. No Shadow app code changed. All work was on the bdl-sync tool (`/Users/reidbarcus/Development/tools/bdl-sync/bdl_sync.py`, unversioned) and project docs/structure.
+
+**Changes made:**
+1. **bdl-sync `clear` command** — deletes all files from Project Knowledge in one pass. Used to clean up an accidental 621-file upload from `bdl-sync init`.
+2. **Local vs repo structure audit** — confirmed zero untracked/deleted files. Found `test/widget/` empty local dir (deleted) and `.gitignore` pending modification (committed `d982704`).
+3. **Docs moved to `docs/`** — `DECISIONS.md`, `VISION.md`, `MCP_CONFIGURATION_PLAN.md` moved from root to `docs/` via `git mv` (committed `a66f2ff`). Root now has only `CLAUDE.md` and `README.md` as `.md` files.
+4. **bdl-sync allowlist** — `collect_files()` now only scans `.claude/`, `docs/`, `test/`, `lib/`. Prevents accidental full-repo uploads.
+5. **bdl-sync `push --files`** — explicit file list mode; skips allowlist scan when `--files` provided.
+6. **bdl-sync `delete`** — new subcommand; removes specific files from Project Knowledge by relative path. Confirmed Project Knowledge stores filenames as full relative paths (e.g. `docs/ARCHITECT_BRIEFING.md`, not `ARCHITECT_BRIEFING.md`).
+7. **Standard Sync Block added to CLAUDE.md** — every session must end with commit, briefing update, flutter test, flutter analyze, bdl-sync push of key files. Skill file paths corrected to `.claude/skills/*/SKILL.md` (committed `2efcfda`, fix committed separately).
+8. **Baseline Project Knowledge push** — 8 core files now in Project Knowledge (see ls output below).
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `CLAUDE.md` | MODIFIED | Standard Sync Block added; skill paths corrected |
+| `docs/DECISIONS.md` | MOVED (`a66f2ff`) | From root |
+| `docs/VISION.md` | MOVED (`a66f2ff`) | From root |
+| `docs/MCP_CONFIGURATION_PLAN.md` | MOVED (`a66f2ff`) | From root |
+| `.gitignore` | MODIFIED (`d982704`) | `.bdlsync/` added |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This entry |
+| `/tools/bdl-sync/bdl_sync.py` | MODIFIED (unversioned) | clear, push --files, delete commands; allowlist |
+
+### Executive Summary for Reid
+
+Today was all setup and tooling work — no app features. Here's what changed:
+
+1. The sync tool (`bdl-sync`) now has four commands: `push` (full or file-specific), `clear` (wipe everything), `delete` (remove specific files), and `ls` (list what's there). It also now has a safety net that prevents accidentally uploading the entire codebase.
+
+2. The project root is cleaner — the last three stray doc files (`DECISIONS`, `VISION`, `MCP_CONFIGURATION_PLAN`) moved into `docs/` where everything else lives.
+
+3. The Architect's Project Knowledge now has a curated baseline: the 8 key documents the Architect needs to review your work. Every future session will push updated versions of those files automatically.
+
+4. `CLAUDE.md` now has a "Standard Sync Block" — a checklist that tells the next instance of me exactly which files to push to the Architect at the end of every session.
+
+---
+
 ## [2026-03-07 MST] — Tooling: bdl-sync live test results
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
