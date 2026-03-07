@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-012 — Retire /implementation-review and /spec-review skills",
+  "task": "P-013 — Update CLAUDE.md Skills table; add SEC-001 OAuth credential finding",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "lastPromptId": "P-012",
-  "notes": "implementation-review/SKILL.md and spec-review/SKILL.md deleted. Decisions logged in DECISIONS.md."
+  "lastPromptId": "P-013",
+  "notes": "CLAUDE.md skills table trimmed to 6 rows. SEC-001 HIGH security finding added to AUDIT_FINDINGS.md."
 }
