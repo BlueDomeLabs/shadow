@@ -333,6 +333,8 @@ The following domain entities intentionally omit some or all of `clientId`, `pro
 | `UserSettings` | clientId, profileId, syncMetadata | Device-local preferences; never synced to Google Drive |
 | `HealthSyncSettings` | clientId, syncMetadata | Device-local health platform sync configuration |
 | `HealthSyncStatus` | clientId, profileId, syncMetadata | Device-local import tracking state |
+| `VoiceLoggingSettings` | clientId, syncMetadata | Per-device voice assistant configuration; local-only |
+| `VoiceSessionTurn` | clientId, syncMetadata | Device-local personalization context; local-only |
 
 **Rationale:**
 - **Security tables** (`refresh_token_usage`, `pairing_sessions`): Security artifacts must not leave the device

@@ -33065,6 +33065,1039 @@ class HealthSyncStatusTableCompanion
   }
 }
 
+class $VoiceLoggingSettingsTableTable extends VoiceLoggingSettingsTable
+    with TableInfo<$VoiceLoggingSettingsTableTable, VoiceLoggingSettingsRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VoiceLoggingSettingsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 36,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _closingStyleMeta = const VerificationMeta(
+    'closingStyle',
+  );
+  @override
+  late final GeneratedColumn<int> closingStyle = GeneratedColumn<int>(
+    'closing_style',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _fixedFarewellMeta = const VerificationMeta(
+    'fixedFarewell',
+  );
+  @override
+  late final GeneratedColumn<String> fixedFarewell = GeneratedColumn<String>(
+    'fixed_farewell',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categoryPriorityOrderMeta =
+      const VerificationMeta('categoryPriorityOrder');
+  @override
+  late final GeneratedColumn<String> categoryPriorityOrder =
+      GeneratedColumn<String>(
+        'category_priority_order',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    profileId,
+    closingStyle,
+    fixedFarewell,
+    categoryPriorityOrder,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'voice_logging_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VoiceLoggingSettingsRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('closing_style')) {
+      context.handle(
+        _closingStyleMeta,
+        closingStyle.isAcceptableOrUnknown(
+          data['closing_style']!,
+          _closingStyleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fixed_farewell')) {
+      context.handle(
+        _fixedFarewellMeta,
+        fixedFarewell.isAcceptableOrUnknown(
+          data['fixed_farewell']!,
+          _fixedFarewellMeta,
+        ),
+      );
+    }
+    if (data.containsKey('category_priority_order')) {
+      context.handle(
+        _categoryPriorityOrderMeta,
+        categoryPriorityOrder.isAcceptableOrUnknown(
+          data['category_priority_order']!,
+          _categoryPriorityOrderMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VoiceLoggingSettingsRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VoiceLoggingSettingsRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      closingStyle: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}closing_style'],
+      )!,
+      fixedFarewell: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fixed_farewell'],
+      ),
+      categoryPriorityOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_priority_order'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      ),
+    );
+  }
+
+  @override
+  $VoiceLoggingSettingsTableTable createAlias(String alias) {
+    return $VoiceLoggingSettingsTableTable(attachedDatabase, alias);
+  }
+}
+
+class VoiceLoggingSettingsRow extends DataClass
+    implements Insertable<VoiceLoggingSettingsRow> {
+  final String id;
+  final String profileId;
+  final int closingStyle;
+  final String? fixedFarewell;
+  final String? categoryPriorityOrder;
+  final int createdAt;
+  final int? updatedAt;
+  const VoiceLoggingSettingsRow({
+    required this.id,
+    required this.profileId,
+    required this.closingStyle,
+    this.fixedFarewell,
+    this.categoryPriorityOrder,
+    required this.createdAt,
+    this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['profile_id'] = Variable<String>(profileId);
+    map['closing_style'] = Variable<int>(closingStyle);
+    if (!nullToAbsent || fixedFarewell != null) {
+      map['fixed_farewell'] = Variable<String>(fixedFarewell);
+    }
+    if (!nullToAbsent || categoryPriorityOrder != null) {
+      map['category_priority_order'] = Variable<String>(categoryPriorityOrder);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<int>(updatedAt);
+    }
+    return map;
+  }
+
+  VoiceLoggingSettingsTableCompanion toCompanion(bool nullToAbsent) {
+    return VoiceLoggingSettingsTableCompanion(
+      id: Value(id),
+      profileId: Value(profileId),
+      closingStyle: Value(closingStyle),
+      fixedFarewell: fixedFarewell == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fixedFarewell),
+      categoryPriorityOrder: categoryPriorityOrder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryPriorityOrder),
+      createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory VoiceLoggingSettingsRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VoiceLoggingSettingsRow(
+      id: serializer.fromJson<String>(json['id']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      closingStyle: serializer.fromJson<int>(json['closingStyle']),
+      fixedFarewell: serializer.fromJson<String?>(json['fixedFarewell']),
+      categoryPriorityOrder: serializer.fromJson<String?>(
+        json['categoryPriorityOrder'],
+      ),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'profileId': serializer.toJson<String>(profileId),
+      'closingStyle': serializer.toJson<int>(closingStyle),
+      'fixedFarewell': serializer.toJson<String?>(fixedFarewell),
+      'categoryPriorityOrder': serializer.toJson<String?>(
+        categoryPriorityOrder,
+      ),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int?>(updatedAt),
+    };
+  }
+
+  VoiceLoggingSettingsRow copyWith({
+    String? id,
+    String? profileId,
+    int? closingStyle,
+    Value<String?> fixedFarewell = const Value.absent(),
+    Value<String?> categoryPriorityOrder = const Value.absent(),
+    int? createdAt,
+    Value<int?> updatedAt = const Value.absent(),
+  }) => VoiceLoggingSettingsRow(
+    id: id ?? this.id,
+    profileId: profileId ?? this.profileId,
+    closingStyle: closingStyle ?? this.closingStyle,
+    fixedFarewell: fixedFarewell.present
+        ? fixedFarewell.value
+        : this.fixedFarewell,
+    categoryPriorityOrder: categoryPriorityOrder.present
+        ? categoryPriorityOrder.value
+        : this.categoryPriorityOrder,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+  );
+  VoiceLoggingSettingsRow copyWithCompanion(
+    VoiceLoggingSettingsTableCompanion data,
+  ) {
+    return VoiceLoggingSettingsRow(
+      id: data.id.present ? data.id.value : this.id,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      closingStyle: data.closingStyle.present
+          ? data.closingStyle.value
+          : this.closingStyle,
+      fixedFarewell: data.fixedFarewell.present
+          ? data.fixedFarewell.value
+          : this.fixedFarewell,
+      categoryPriorityOrder: data.categoryPriorityOrder.present
+          ? data.categoryPriorityOrder.value
+          : this.categoryPriorityOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoiceLoggingSettingsRow(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('closingStyle: $closingStyle, ')
+          ..write('fixedFarewell: $fixedFarewell, ')
+          ..write('categoryPriorityOrder: $categoryPriorityOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    profileId,
+    closingStyle,
+    fixedFarewell,
+    categoryPriorityOrder,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VoiceLoggingSettingsRow &&
+          other.id == this.id &&
+          other.profileId == this.profileId &&
+          other.closingStyle == this.closingStyle &&
+          other.fixedFarewell == this.fixedFarewell &&
+          other.categoryPriorityOrder == this.categoryPriorityOrder &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class VoiceLoggingSettingsTableCompanion
+    extends UpdateCompanion<VoiceLoggingSettingsRow> {
+  final Value<String> id;
+  final Value<String> profileId;
+  final Value<int> closingStyle;
+  final Value<String?> fixedFarewell;
+  final Value<String?> categoryPriorityOrder;
+  final Value<int> createdAt;
+  final Value<int?> updatedAt;
+  final Value<int> rowid;
+  const VoiceLoggingSettingsTableCompanion({
+    this.id = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.closingStyle = const Value.absent(),
+    this.fixedFarewell = const Value.absent(),
+    this.categoryPriorityOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VoiceLoggingSettingsTableCompanion.insert({
+    required String id,
+    required String profileId,
+    this.closingStyle = const Value.absent(),
+    this.fixedFarewell = const Value.absent(),
+    this.categoryPriorityOrder = const Value.absent(),
+    required int createdAt,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       profileId = Value(profileId),
+       createdAt = Value(createdAt);
+  static Insertable<VoiceLoggingSettingsRow> custom({
+    Expression<String>? id,
+    Expression<String>? profileId,
+    Expression<int>? closingStyle,
+    Expression<String>? fixedFarewell,
+    Expression<String>? categoryPriorityOrder,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (profileId != null) 'profile_id': profileId,
+      if (closingStyle != null) 'closing_style': closingStyle,
+      if (fixedFarewell != null) 'fixed_farewell': fixedFarewell,
+      if (categoryPriorityOrder != null)
+        'category_priority_order': categoryPriorityOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VoiceLoggingSettingsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? profileId,
+    Value<int>? closingStyle,
+    Value<String?>? fixedFarewell,
+    Value<String?>? categoryPriorityOrder,
+    Value<int>? createdAt,
+    Value<int?>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return VoiceLoggingSettingsTableCompanion(
+      id: id ?? this.id,
+      profileId: profileId ?? this.profileId,
+      closingStyle: closingStyle ?? this.closingStyle,
+      fixedFarewell: fixedFarewell ?? this.fixedFarewell,
+      categoryPriorityOrder:
+          categoryPriorityOrder ?? this.categoryPriorityOrder,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (closingStyle.present) {
+      map['closing_style'] = Variable<int>(closingStyle.value);
+    }
+    if (fixedFarewell.present) {
+      map['fixed_farewell'] = Variable<String>(fixedFarewell.value);
+    }
+    if (categoryPriorityOrder.present) {
+      map['category_priority_order'] = Variable<String>(
+        categoryPriorityOrder.value,
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoiceLoggingSettingsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('closingStyle: $closingStyle, ')
+          ..write('fixedFarewell: $fixedFarewell, ')
+          ..write('categoryPriorityOrder: $categoryPriorityOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VoiceSessionHistoryTableTable extends VoiceSessionHistoryTable
+    with TableInfo<$VoiceSessionHistoryTableTable, VoiceSessionHistoryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VoiceSessionHistoryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 36,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 36,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _turnIndexMeta = const VerificationMeta(
+    'turnIndex',
+  );
+  @override
+  late final GeneratedColumn<int> turnIndex = GeneratedColumn<int>(
+    'turn_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<int> role = GeneratedColumn<int>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _loggedItemTypeMeta = const VerificationMeta(
+    'loggedItemType',
+  );
+  @override
+  late final GeneratedColumn<int> loggedItemType = GeneratedColumn<int>(
+    'logged_item_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    profileId,
+    sessionId,
+    turnIndex,
+    role,
+    content,
+    loggedItemType,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'voice_session_history';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VoiceSessionHistoryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('turn_index')) {
+      context.handle(
+        _turnIndexMeta,
+        turnIndex.isAcceptableOrUnknown(data['turn_index']!, _turnIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_turnIndexMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('logged_item_type')) {
+      context.handle(
+        _loggedItemTypeMeta,
+        loggedItemType.isAcceptableOrUnknown(
+          data['logged_item_type']!,
+          _loggedItemTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VoiceSessionHistoryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VoiceSessionHistoryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      turnIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}turn_index'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}role'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      loggedItemType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}logged_item_type'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $VoiceSessionHistoryTableTable createAlias(String alias) {
+    return $VoiceSessionHistoryTableTable(attachedDatabase, alias);
+  }
+}
+
+class VoiceSessionHistoryRow extends DataClass
+    implements Insertable<VoiceSessionHistoryRow> {
+  final String id;
+  final String profileId;
+  final String sessionId;
+  final int turnIndex;
+  final int role;
+  final String content;
+  final int? loggedItemType;
+  final int createdAt;
+  const VoiceSessionHistoryRow({
+    required this.id,
+    required this.profileId,
+    required this.sessionId,
+    required this.turnIndex,
+    required this.role,
+    required this.content,
+    this.loggedItemType,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['profile_id'] = Variable<String>(profileId);
+    map['session_id'] = Variable<String>(sessionId);
+    map['turn_index'] = Variable<int>(turnIndex);
+    map['role'] = Variable<int>(role);
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || loggedItemType != null) {
+      map['logged_item_type'] = Variable<int>(loggedItemType);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  VoiceSessionHistoryTableCompanion toCompanion(bool nullToAbsent) {
+    return VoiceSessionHistoryTableCompanion(
+      id: Value(id),
+      profileId: Value(profileId),
+      sessionId: Value(sessionId),
+      turnIndex: Value(turnIndex),
+      role: Value(role),
+      content: Value(content),
+      loggedItemType: loggedItemType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loggedItemType),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory VoiceSessionHistoryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VoiceSessionHistoryRow(
+      id: serializer.fromJson<String>(json['id']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      turnIndex: serializer.fromJson<int>(json['turnIndex']),
+      role: serializer.fromJson<int>(json['role']),
+      content: serializer.fromJson<String>(json['content']),
+      loggedItemType: serializer.fromJson<int?>(json['loggedItemType']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'profileId': serializer.toJson<String>(profileId),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'turnIndex': serializer.toJson<int>(turnIndex),
+      'role': serializer.toJson<int>(role),
+      'content': serializer.toJson<String>(content),
+      'loggedItemType': serializer.toJson<int?>(loggedItemType),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  VoiceSessionHistoryRow copyWith({
+    String? id,
+    String? profileId,
+    String? sessionId,
+    int? turnIndex,
+    int? role,
+    String? content,
+    Value<int?> loggedItemType = const Value.absent(),
+    int? createdAt,
+  }) => VoiceSessionHistoryRow(
+    id: id ?? this.id,
+    profileId: profileId ?? this.profileId,
+    sessionId: sessionId ?? this.sessionId,
+    turnIndex: turnIndex ?? this.turnIndex,
+    role: role ?? this.role,
+    content: content ?? this.content,
+    loggedItemType: loggedItemType.present
+        ? loggedItemType.value
+        : this.loggedItemType,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  VoiceSessionHistoryRow copyWithCompanion(
+    VoiceSessionHistoryTableCompanion data,
+  ) {
+    return VoiceSessionHistoryRow(
+      id: data.id.present ? data.id.value : this.id,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      turnIndex: data.turnIndex.present ? data.turnIndex.value : this.turnIndex,
+      role: data.role.present ? data.role.value : this.role,
+      content: data.content.present ? data.content.value : this.content,
+      loggedItemType: data.loggedItemType.present
+          ? data.loggedItemType.value
+          : this.loggedItemType,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoiceSessionHistoryRow(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('turnIndex: $turnIndex, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('loggedItemType: $loggedItemType, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    profileId,
+    sessionId,
+    turnIndex,
+    role,
+    content,
+    loggedItemType,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VoiceSessionHistoryRow &&
+          other.id == this.id &&
+          other.profileId == this.profileId &&
+          other.sessionId == this.sessionId &&
+          other.turnIndex == this.turnIndex &&
+          other.role == this.role &&
+          other.content == this.content &&
+          other.loggedItemType == this.loggedItemType &&
+          other.createdAt == this.createdAt);
+}
+
+class VoiceSessionHistoryTableCompanion
+    extends UpdateCompanion<VoiceSessionHistoryRow> {
+  final Value<String> id;
+  final Value<String> profileId;
+  final Value<String> sessionId;
+  final Value<int> turnIndex;
+  final Value<int> role;
+  final Value<String> content;
+  final Value<int?> loggedItemType;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const VoiceSessionHistoryTableCompanion({
+    this.id = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.turnIndex = const Value.absent(),
+    this.role = const Value.absent(),
+    this.content = const Value.absent(),
+    this.loggedItemType = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VoiceSessionHistoryTableCompanion.insert({
+    required String id,
+    required String profileId,
+    required String sessionId,
+    required int turnIndex,
+    required int role,
+    required String content,
+    this.loggedItemType = const Value.absent(),
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       profileId = Value(profileId),
+       sessionId = Value(sessionId),
+       turnIndex = Value(turnIndex),
+       role = Value(role),
+       content = Value(content),
+       createdAt = Value(createdAt);
+  static Insertable<VoiceSessionHistoryRow> custom({
+    Expression<String>? id,
+    Expression<String>? profileId,
+    Expression<String>? sessionId,
+    Expression<int>? turnIndex,
+    Expression<int>? role,
+    Expression<String>? content,
+    Expression<int>? loggedItemType,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (profileId != null) 'profile_id': profileId,
+      if (sessionId != null) 'session_id': sessionId,
+      if (turnIndex != null) 'turn_index': turnIndex,
+      if (role != null) 'role': role,
+      if (content != null) 'content': content,
+      if (loggedItemType != null) 'logged_item_type': loggedItemType,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VoiceSessionHistoryTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? profileId,
+    Value<String>? sessionId,
+    Value<int>? turnIndex,
+    Value<int>? role,
+    Value<String>? content,
+    Value<int?>? loggedItemType,
+    Value<int>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return VoiceSessionHistoryTableCompanion(
+      id: id ?? this.id,
+      profileId: profileId ?? this.profileId,
+      sessionId: sessionId ?? this.sessionId,
+      turnIndex: turnIndex ?? this.turnIndex,
+      role: role ?? this.role,
+      content: content ?? this.content,
+      loggedItemType: loggedItemType ?? this.loggedItemType,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (turnIndex.present) {
+      map['turn_index'] = Variable<int>(turnIndex.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<int>(role.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (loggedItemType.present) {
+      map['logged_item_type'] = Variable<int>(loggedItemType.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VoiceSessionHistoryTableCompanion(')
+          ..write('id: $id, ')
+          ..write('profileId: $profileId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('turnIndex: $turnIndex, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('loggedItemType: $loggedItemType, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -33116,6 +34149,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $HealthSyncSettingsTableTable(this);
   late final $HealthSyncStatusTableTable healthSyncStatusTable =
       $HealthSyncStatusTableTable(this);
+  late final $VoiceLoggingSettingsTableTable voiceLoggingSettingsTable =
+      $VoiceLoggingSettingsTableTable(this);
+  late final $VoiceSessionHistoryTableTable voiceSessionHistoryTable =
+      $VoiceSessionHistoryTableTable(this);
+  late final Index idxVoiceSessionHistoryProfileCreated = Index(
+    'idx_voice_session_history_profile_created',
+    'CREATE INDEX idx_voice_session_history_profile_created ON voice_session_history (profile_id, created_at)',
+  );
   late final SupplementDao supplementDao = SupplementDao(this as AppDatabase);
   late final IntakeLogDao intakeLogDao = IntakeLogDao(this as AppDatabase);
   late final ConditionDao conditionDao = ConditionDao(this as AppDatabase);
@@ -33185,6 +34226,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final HealthSyncStatusDao healthSyncStatusDao = HealthSyncStatusDao(
     this as AppDatabase,
   );
+  late final VoiceLoggingSettingsDao voiceLoggingSettingsDao =
+      VoiceLoggingSettingsDao(this as AppDatabase);
+  late final VoiceSessionHistoryDao voiceSessionHistoryDao =
+      VoiceSessionHistoryDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -33223,6 +34268,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importedVitals,
     healthSyncSettingsTable,
     healthSyncStatusTable,
+    voiceLoggingSettingsTable,
+    voiceSessionHistoryTable,
+    idxVoiceSessionHistoryProfileCreated,
   ];
 }
 
@@ -48193,6 +49241,547 @@ typedef $$HealthSyncStatusTableTableProcessedTableManager =
       HealthSyncStatusRow,
       PrefetchHooks Function()
     >;
+typedef $$VoiceLoggingSettingsTableTableCreateCompanionBuilder =
+    VoiceLoggingSettingsTableCompanion Function({
+      required String id,
+      required String profileId,
+      Value<int> closingStyle,
+      Value<String?> fixedFarewell,
+      Value<String?> categoryPriorityOrder,
+      required int createdAt,
+      Value<int?> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$VoiceLoggingSettingsTableTableUpdateCompanionBuilder =
+    VoiceLoggingSettingsTableCompanion Function({
+      Value<String> id,
+      Value<String> profileId,
+      Value<int> closingStyle,
+      Value<String?> fixedFarewell,
+      Value<String?> categoryPriorityOrder,
+      Value<int> createdAt,
+      Value<int?> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$VoiceLoggingSettingsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $VoiceLoggingSettingsTableTable> {
+  $$VoiceLoggingSettingsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get closingStyle => $composableBuilder(
+    column: $table.closingStyle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fixedFarewell => $composableBuilder(
+    column: $table.fixedFarewell,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryPriorityOrder => $composableBuilder(
+    column: $table.categoryPriorityOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$VoiceLoggingSettingsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $VoiceLoggingSettingsTableTable> {
+  $$VoiceLoggingSettingsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get closingStyle => $composableBuilder(
+    column: $table.closingStyle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fixedFarewell => $composableBuilder(
+    column: $table.fixedFarewell,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryPriorityOrder => $composableBuilder(
+    column: $table.categoryPriorityOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$VoiceLoggingSettingsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VoiceLoggingSettingsTableTable> {
+  $$VoiceLoggingSettingsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get closingStyle => $composableBuilder(
+    column: $table.closingStyle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fixedFarewell => $composableBuilder(
+    column: $table.fixedFarewell,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categoryPriorityOrder => $composableBuilder(
+    column: $table.categoryPriorityOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$VoiceLoggingSettingsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VoiceLoggingSettingsTableTable,
+          VoiceLoggingSettingsRow,
+          $$VoiceLoggingSettingsTableTableFilterComposer,
+          $$VoiceLoggingSettingsTableTableOrderingComposer,
+          $$VoiceLoggingSettingsTableTableAnnotationComposer,
+          $$VoiceLoggingSettingsTableTableCreateCompanionBuilder,
+          $$VoiceLoggingSettingsTableTableUpdateCompanionBuilder,
+          (
+            VoiceLoggingSettingsRow,
+            BaseReferences<
+              _$AppDatabase,
+              $VoiceLoggingSettingsTableTable,
+              VoiceLoggingSettingsRow
+            >,
+          ),
+          VoiceLoggingSettingsRow,
+          PrefetchHooks Function()
+        > {
+  $$VoiceLoggingSettingsTableTableTableManager(
+    _$AppDatabase db,
+    $VoiceLoggingSettingsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VoiceLoggingSettingsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$VoiceLoggingSettingsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$VoiceLoggingSettingsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> closingStyle = const Value.absent(),
+                Value<String?> fixedFarewell = const Value.absent(),
+                Value<String?> categoryPriorityOrder = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VoiceLoggingSettingsTableCompanion(
+                id: id,
+                profileId: profileId,
+                closingStyle: closingStyle,
+                fixedFarewell: fixedFarewell,
+                categoryPriorityOrder: categoryPriorityOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String profileId,
+                Value<int> closingStyle = const Value.absent(),
+                Value<String?> fixedFarewell = const Value.absent(),
+                Value<String?> categoryPriorityOrder = const Value.absent(),
+                required int createdAt,
+                Value<int?> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VoiceLoggingSettingsTableCompanion.insert(
+                id: id,
+                profileId: profileId,
+                closingStyle: closingStyle,
+                fixedFarewell: fixedFarewell,
+                categoryPriorityOrder: categoryPriorityOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$VoiceLoggingSettingsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VoiceLoggingSettingsTableTable,
+      VoiceLoggingSettingsRow,
+      $$VoiceLoggingSettingsTableTableFilterComposer,
+      $$VoiceLoggingSettingsTableTableOrderingComposer,
+      $$VoiceLoggingSettingsTableTableAnnotationComposer,
+      $$VoiceLoggingSettingsTableTableCreateCompanionBuilder,
+      $$VoiceLoggingSettingsTableTableUpdateCompanionBuilder,
+      (
+        VoiceLoggingSettingsRow,
+        BaseReferences<
+          _$AppDatabase,
+          $VoiceLoggingSettingsTableTable,
+          VoiceLoggingSettingsRow
+        >,
+      ),
+      VoiceLoggingSettingsRow,
+      PrefetchHooks Function()
+    >;
+typedef $$VoiceSessionHistoryTableTableCreateCompanionBuilder =
+    VoiceSessionHistoryTableCompanion Function({
+      required String id,
+      required String profileId,
+      required String sessionId,
+      required int turnIndex,
+      required int role,
+      required String content,
+      Value<int?> loggedItemType,
+      required int createdAt,
+      Value<int> rowid,
+    });
+typedef $$VoiceSessionHistoryTableTableUpdateCompanionBuilder =
+    VoiceSessionHistoryTableCompanion Function({
+      Value<String> id,
+      Value<String> profileId,
+      Value<String> sessionId,
+      Value<int> turnIndex,
+      Value<int> role,
+      Value<String> content,
+      Value<int?> loggedItemType,
+      Value<int> createdAt,
+      Value<int> rowid,
+    });
+
+class $$VoiceSessionHistoryTableTableFilterComposer
+    extends Composer<_$AppDatabase, $VoiceSessionHistoryTableTable> {
+  $$VoiceSessionHistoryTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get turnIndex => $composableBuilder(
+    column: $table.turnIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get loggedItemType => $composableBuilder(
+    column: $table.loggedItemType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$VoiceSessionHistoryTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $VoiceSessionHistoryTableTable> {
+  $$VoiceSessionHistoryTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get turnIndex => $composableBuilder(
+    column: $table.turnIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get loggedItemType => $composableBuilder(
+    column: $table.loggedItemType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$VoiceSessionHistoryTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VoiceSessionHistoryTableTable> {
+  $$VoiceSessionHistoryTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<int> get turnIndex =>
+      $composableBuilder(column: $table.turnIndex, builder: (column) => column);
+
+  GeneratedColumn<int> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<int> get loggedItemType => $composableBuilder(
+    column: $table.loggedItemType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$VoiceSessionHistoryTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VoiceSessionHistoryTableTable,
+          VoiceSessionHistoryRow,
+          $$VoiceSessionHistoryTableTableFilterComposer,
+          $$VoiceSessionHistoryTableTableOrderingComposer,
+          $$VoiceSessionHistoryTableTableAnnotationComposer,
+          $$VoiceSessionHistoryTableTableCreateCompanionBuilder,
+          $$VoiceSessionHistoryTableTableUpdateCompanionBuilder,
+          (
+            VoiceSessionHistoryRow,
+            BaseReferences<
+              _$AppDatabase,
+              $VoiceSessionHistoryTableTable,
+              VoiceSessionHistoryRow
+            >,
+          ),
+          VoiceSessionHistoryRow,
+          PrefetchHooks Function()
+        > {
+  $$VoiceSessionHistoryTableTableTableManager(
+    _$AppDatabase db,
+    $VoiceSessionHistoryTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VoiceSessionHistoryTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$VoiceSessionHistoryTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$VoiceSessionHistoryTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<int> turnIndex = const Value.absent(),
+                Value<int> role = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<int?> loggedItemType = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VoiceSessionHistoryTableCompanion(
+                id: id,
+                profileId: profileId,
+                sessionId: sessionId,
+                turnIndex: turnIndex,
+                role: role,
+                content: content,
+                loggedItemType: loggedItemType,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String profileId,
+                required String sessionId,
+                required int turnIndex,
+                required int role,
+                required String content,
+                Value<int?> loggedItemType = const Value.absent(),
+                required int createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => VoiceSessionHistoryTableCompanion.insert(
+                id: id,
+                profileId: profileId,
+                sessionId: sessionId,
+                turnIndex: turnIndex,
+                role: role,
+                content: content,
+                loggedItemType: loggedItemType,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$VoiceSessionHistoryTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VoiceSessionHistoryTableTable,
+      VoiceSessionHistoryRow,
+      $$VoiceSessionHistoryTableTableFilterComposer,
+      $$VoiceSessionHistoryTableTableOrderingComposer,
+      $$VoiceSessionHistoryTableTableAnnotationComposer,
+      $$VoiceSessionHistoryTableTableCreateCompanionBuilder,
+      $$VoiceSessionHistoryTableTableUpdateCompanionBuilder,
+      (
+        VoiceSessionHistoryRow,
+        BaseReferences<
+          _$AppDatabase,
+          $VoiceSessionHistoryTableTable,
+          VoiceSessionHistoryRow
+        >,
+      ),
+      VoiceSessionHistoryRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -48273,4 +49862,14 @@ class $AppDatabaseManager {
       );
   $$HealthSyncStatusTableTableTableManager get healthSyncStatusTable =>
       $$HealthSyncStatusTableTableTableManager(_db, _db.healthSyncStatusTable);
+  $$VoiceLoggingSettingsTableTableTableManager get voiceLoggingSettingsTable =>
+      $$VoiceLoggingSettingsTableTableTableManager(
+        _db,
+        _db.voiceLoggingSettingsTable,
+      );
+  $$VoiceSessionHistoryTableTableTableManager get voiceSessionHistoryTable =>
+      $$VoiceSessionHistoryTableTableTableManager(
+        _db,
+        _db.voiceSessionHistoryTable,
+      );
 }

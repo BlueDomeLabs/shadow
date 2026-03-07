@@ -9,19 +9,137 @@
 # NOTE: File moved to docs/ARCHITECT_BRIEFING.md (2026-03-06 housekeeping)
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   cebfd78 — P-018: correct VOICE_LOGGING_SPEC.md
-# Last Code:     No code changes — docs-only session
-# Next Action:   Architect reviews P-018; Phase 19 implementation next
+# Status:        IDLE — Awaiting Architect review of P-019 Session A
+# Last Commit:   (see below — P-019 Session A)
+# Last Code:     Voice logging domain + data layer — schema v21
+# Next Action:   Architect reviews P-019 Session A; Session B (wiring + UI) next
 # Open Items:    None
-# Tests:         3,575 passing (unchanged — no code changes this session)
-# Schema:        v20
+# Tests:         3,639 passing | 0 failures
+# Schema:        v21
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-10 MST] P-019 Session A — Voice Logging: Domain and Data Layer
+
+**P-019 | Tests: 3,639 | Schema: v21 | Analyzer: clean**
+
+### Technical Summary
+
+Full domain and data layer for Phase 19 Conversational Voice Logging Assistant. Context was compacted mid-session; work was recovered and completed. All 10 steps from the P-019 prompt are complete.
+
+**Step 1 — Tables (CREATED)**
+- `lib/data/datasources/local/tables/voice_logging_settings_table.dart` — `VoiceLoggingSettingsTable` with columns: id, profile_id, closing_style (int, default=1), fixed_farewell (nullable), category_priority_order (nullable text/JSON), created_at, updated_at (nullable). No sync metadata. PK: id. Table name: `voice_logging_settings`.
+- `lib/data/datasources/local/tables/voice_session_history_table.dart` — `VoiceSessionHistoryTable` with `@TableIndex` on (profile_id, created_at), columns: id, profile_id, session_id, turn_index, role (int), content, logged_item_type (nullable int), created_at. No sync metadata. PK: id. Table name: `voice_session_history`.
+
+**Step 2 — Enums (MODIFIED: health_enums.dart)**
+Three enums added, all using `.values[value]` / `.index` pattern (matching existing enum convention):
+- `ClosingStyle` — none(0), random(1), fixed(2)
+- `VoiceTurnRole` — assistant(0), user(1)
+- `LoggableItemType` — 20 values covering all loggable entry types
+
+**Step 3 — Entities (CREATED)**
+- `VoiceLoggingSettings` — const constructor; includes `copyWith`; `categoryPriorityOrder: List<int>?`
+- `VoiceSessionTurn` — const constructor; `loggedItemType: LoggableItemType?` nullable
+- `VoiceQueueItem` — in-memory only (no DB table); includes `VoiceQueueItemStatus` enum
+
+**Step 4 — DAOs (CREATED)**
+- `VoiceLoggingSettingsDao` — `getByProfileId`, `upsert` (insertOnConflictUpdate)
+- `VoiceSessionHistoryDao` — `getRecentTurns(profileId, sinceEpochMs)`, `insertTurn`, `deleteOlderThan`
+
+**Step 5 — Database.dart (MODIFIED)**
+- schemaVersion: 20 → 21
+- Added both tables to `@DriftDatabase(tables: [...])` and both DAOs to `daos: [...]`
+- v21 migration: creates both tables + creates composite index on voice_session_history
+- All imports sorted alphabetically (directives_ordering fix)
+
+**Step 6 — Repository (CREATED)**
+- `VoiceLoggingRepository` — abstract interface with 5 methods
+- `VoiceLoggingRepositoryImpl` — full implementation; `_retentionMs = 90 days`; JSON encode/decode for `categoryPriorityOrder`; cutoffs computed from `DateTime.now().millisecondsSinceEpoch`
+
+**Step 7 — Use Cases (CREATED, 5 files)**
+- `GetVoiceLoggingSettingsUseCase` — canRead check; returns default (closingStyle=random) when no row, does NOT write default to DB
+- `SaveVoiceLoggingSettingsUseCase` — canWrite check
+- `GetRecentSessionTurnsUseCase` — canRead; daysBack=14 default; passes through to repo
+- `SaveSessionTurnUseCase` — canWrite check
+- `PruneSessionHistoryUseCase` — canWrite check; delegates 90-day cutoff logic to repo
+
+**Step 8 — Providers + Bootstrap (CREATED/MODIFIED)**
+- `voice_logging_providers.dart` — `voiceLoggingRepositoryProvider` (keepAlive); 5 use case providers
+- `bootstrap.dart` — wired `VoiceLoggingRepositoryImpl` with both DAOs; added to overrides list
+
+**Step 9 — Tests (CREATED, 11 files, 64 new tests)**
+Full coverage: entity construction + copyWith; DAO CRUD (insert, query, filter, delete); repo round-trips + timestamp cutoffs; migration schema verification; use case success/auth-denied/repo-failure paths.
+
+**Step 10 — Docs (MODIFIED)**
+- `docs/specs/02_DATABASE_SCHEMA.md` Section 2.7 — added `VoiceLoggingSettings` and `VoiceSessionTurn` to sync exemption table
+
+**Issues discovered and fixed:**
+1. `drift/drift.dart` hide clause needed in all 3 Drift-using test files: `hide DatabaseConnection, isNotNull, isNull`
+2. Hardcoded epoch `1700000000000` (Nov 2023) too old for `getRecentTurns`/`pruneOldTurns` cutoffs — fixed by using `DateTime.now().millisecondsSinceEpoch` as base time
+3. `database_test.dart` asserted `schemaVersion == 20` — updated to 21
+4. Import ordering (directives_ordering) fixed in bootstrap.dart, database.dart, voice_logging_repository_impl.dart
+5. Unused table imports removed from DAO test files
+6. `prefer_const_constructors` fixed in 5 test files
+
+**Net test delta:** 3,575 → 3,639 (+64 tests). All passing.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/data/datasources/local/tables/voice_logging_settings_table.dart` | CREATED | VoiceLoggingSettingsTable Drift table |
+| `lib/data/datasources/local/tables/voice_session_history_table.dart` | CREATED | VoiceSessionHistoryTable Drift table with composite index |
+| `lib/domain/enums/health_enums.dart` | MODIFIED | Added ClosingStyle, VoiceTurnRole, LoggableItemType enums |
+| `lib/domain/entities/voice_logging/voice_logging_settings.dart` | CREATED | VoiceLoggingSettings entity with copyWith |
+| `lib/domain/entities/voice_logging/voice_session_turn.dart` | CREATED | VoiceSessionTurn entity |
+| `lib/domain/entities/voice_logging/voice_queue_item.dart` | CREATED | VoiceQueueItem in-memory entity |
+| `lib/data/datasources/local/daos/voice_logging_settings_dao.dart` | CREATED | Settings DAO |
+| `lib/data/datasources/local/daos/voice_session_history_dao.dart` | CREATED | History DAO |
+| `lib/data/datasources/local/database.dart` | MODIFIED | schemaVersion 20→21; 2 tables + 2 DAOs added; v21 migration; sorted imports |
+| `lib/domain/repositories/voice_logging_repository.dart` | CREATED | Abstract repository interface |
+| `lib/data/repositories/voice_logging_repository_impl.dart` | CREATED | Full implementation |
+| `lib/domain/usecases/voice_logging/get_voice_logging_settings_use_case.dart` | CREATED | Read settings use case |
+| `lib/domain/usecases/voice_logging/save_voice_logging_settings_use_case.dart` | CREATED | Write settings use case |
+| `lib/domain/usecases/voice_logging/get_recent_session_turns_use_case.dart` | CREATED | Read history use case |
+| `lib/domain/usecases/voice_logging/save_session_turn_use_case.dart` | CREATED | Write history use case |
+| `lib/domain/usecases/voice_logging/prune_session_history_use_case.dart` | CREATED | Prune history use case |
+| `lib/presentation/providers/voice_logging_providers.dart` | CREATED | Riverpod providers |
+| `lib/core/bootstrap.dart` | MODIFIED | Wired VoiceLoggingRepositoryImpl; sorted imports |
+| `docs/specs/02_DATABASE_SCHEMA.md` | MODIFIED | Section 2.7 sync exemptions: added VoiceLoggingSettings + VoiceSessionTurn |
+| `test/unit/domain/entities/voice_logging/voice_logging_settings_test.dart` | CREATED | 6 tests |
+| `test/unit/domain/entities/voice_logging/voice_session_turn_test.dart` | CREATED | 8 tests |
+| `test/unit/data/datasources/local/daos/voice_logging_settings_dao_test.dart` | CREATED | 6 tests |
+| `test/unit/data/datasources/local/daos/voice_session_history_dao_test.dart` | CREATED | 7 tests |
+| `test/unit/data/repositories/voice_logging_repository_impl_test.dart` | CREATED | 10 tests |
+| `test/unit/data/migrations/v20_to_v21_migration_test.dart` | CREATED | 6 tests |
+| `test/unit/domain/usecases/voice_logging/get_voice_logging_settings_use_case_test.dart` | CREATED | 5 tests |
+| `test/unit/domain/usecases/voice_logging/save_voice_logging_settings_use_case_test.dart` | CREATED | 3 tests |
+| `test/unit/domain/usecases/voice_logging/get_recent_session_turns_use_case_test.dart` | CREATED | 6 tests |
+| `test/unit/domain/usecases/voice_logging/save_session_turn_use_case_test.dart` | CREATED | 3 tests |
+| `test/unit/domain/usecases/voice_logging/prune_session_history_use_case_test.dart` | CREATED | 3 tests |
+| `test/unit/data/datasources/local/database_test.dart` | MODIFIED | Updated schemaVersion assertion 20→21 |
+
+### Executive Summary for Reid
+
+Phase 19 Session A is complete. We built the full back-end infrastructure for the Conversational Voice Logging Assistant — everything from the database tables to the domain logic. Nothing is visible in the app yet; that's Session B.
+
+Here's what was built:
+
+**Database (schema v21):** Two new tables — one stores your per-device voice assistant preferences (like how the assistant says goodbye), and one stores the transcript history of your voice sessions so the AI can recall recent context when you talk to it. History is automatically pruned after 90 days.
+
+**Domain layer:** Three new enums (closing style, speaker role, and what kind of health item was logged), two entity classes, and five use cases covering all the operations the UI will need: read/save settings, read/save/prune session history.
+
+**Wiring:** Riverpod providers and bootstrap wiring so the feature is fully injectable.
+
+**Tests:** 64 new tests covering all paths — entity construction, database round-trips, migration, and use case success/failure/auth-denied paths. Full suite is at 3,639 passing with 0 failures.
+
+One note on timing: context was compacted mid-session. The recovery was clean — all work was completed correctly and the test suite confirms it. The prompt asked for a 10-step session; all 10 steps are done. Context compaction is a signal that the session scope may be worth watching — if Session B is similar in size, it might benefit from being split into B1 and B2.
 
 ---
 

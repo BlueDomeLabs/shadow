@@ -45,6 +45,7 @@ import 'package:shadow_app/data/repositories/sleep_entry_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_label_photo_repository_impl.dart';
 import 'package:shadow_app/data/repositories/supplement_repository_impl.dart';
 import 'package:shadow_app/data/repositories/user_settings_repository_impl.dart';
+import 'package:shadow_app/data/repositories/voice_logging_repository_impl.dart';
 import 'package:shadow_app/data/services/cloud_sync_auth_service_impl.dart';
 import 'package:shadow_app/data/services/diet_compliance_service_impl.dart';
 import 'package:shadow_app/data/services/food_barcode_service_impl.dart';
@@ -62,6 +63,7 @@ import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
 import 'package:shadow_app/presentation/providers/bodily_output_providers.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
+import 'package:shadow_app/presentation/providers/voice_logging_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:uuid/uuid.dart';
@@ -114,6 +116,10 @@ Future<List<Override>> bootstrap() async {
   final bodilyOutputRepo = BodilyOutputRepositoryImpl(
     database.bodilyOutputDao,
     uuid,
+  );
+  final voiceLoggingRepo = VoiceLoggingRepositoryImpl(
+    database.voiceLoggingSettingsDao,
+    database.voiceSessionHistoryDao,
   );
   final fluidsEntryRepo = FluidsEntryRepositoryImpl(
     database.fluidsEntryDao,
@@ -512,5 +518,7 @@ Future<List<Override>> bootstrap() async {
     reportQueryServiceProvider.overrideWithValue(reportQueryService),
     reportDataServiceProvider.overrideWithValue(reportDataService),
     reportExportServiceProvider.overrideWithValue(reportExportService),
+    // Phase 19 voice logging repository
+    voiceLoggingRepositoryProvider.overrideWithValue(voiceLoggingRepo),
   ];
 }

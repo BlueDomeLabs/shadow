@@ -562,6 +562,50 @@ enum WakingFeeling {
   );
 }
 
+// === Voice Logging Enums (Phase 19) ===
+
+enum ClosingStyle {
+  none, // 0
+  random, // 1
+  fixed; // 2
+
+  static ClosingStyle fromInt(int value) => ClosingStyle.values[value];
+  int toInt() => index;
+}
+
+enum VoiceTurnRole {
+  assistant, // 0
+  user; // 1
+
+  static VoiceTurnRole fromInt(int value) => VoiceTurnRole.values[value];
+  int toInt() => index;
+}
+
+enum LoggableItemType {
+  foodBreakfast,
+  foodLunch,
+  foodDinner,
+  foodSnack,
+  beverage,
+  sleep,
+  supplement,
+  medication,
+  conditionLog,
+  flareUpEnd,
+  journal,
+  activity,
+  photo,
+  bodilyOutputUrine,
+  bodilyOutputBowel,
+  bodilyOutputGas,
+  bodilyOutputMenstruation,
+  bodilyOutputBbt,
+  bodilyOutputCustom;
+
+  static LoggableItemType fromInt(int value) => LoggableItemType.values[value];
+  int toInt() => index;
+}
+
 // === Health Platform Integration Enums (Phase 16) ===
 
 /// Health data types importable from Apple HealthKit and Google Health Connect.

@@ -1,10 +1,6 @@
 {
   "status": "complete",
-  "task": "P-018 — Docs: VOICE_LOGGING_SPEC.md Corrections",
-  "timestamp": "2026-03-07T00:00:00Z",
-  "testsStatus": "passing",
-  "testCount": 3575,
-  "schemaVersion": 20,
-  "lastPromptId": "P-018",
-  "notes": "Docs-only session. Three corrections: decision #5 closed (Bodily Functions rename), schema target corrected v20→v21, Navigation Architecture section added."
+  "task": "P-019 Session A: Voice logging domain and data layer",
+  "testCount": 3639,
+  "schemaVersion": 21
 }

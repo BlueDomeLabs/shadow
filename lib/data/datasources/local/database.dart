@@ -44,6 +44,8 @@ import 'package:shadow_app/data/datasources/local/daos/supplement_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/supplement_label_photo_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/sync_conflict_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/user_settings_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/voice_logging_settings_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/voice_session_history_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/anchor_event_times_table.dart';
@@ -77,6 +79,8 @@ import 'package:shadow_app/data/datasources/local/tables/supplement_label_photos
 import 'package:shadow_app/data/datasources/local/tables/supplements_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/sync_conflicts_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/user_settings_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/voice_logging_settings_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/voice_session_history_table.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'database.g.dart';
@@ -130,6 +134,8 @@ part 'database.g.dart';
     ImportedVitals,
     HealthSyncSettingsTable,
     HealthSyncStatusTable,
+    VoiceLoggingSettingsTable,
+    VoiceSessionHistoryTable,
   ],
   daos: [
     SupplementDao,
@@ -165,6 +171,8 @@ part 'database.g.dart';
     ImportedVitalDao,
     HealthSyncSettingsDao,
     HealthSyncStatusDao,
+    VoiceLoggingSettingsDao,
+    VoiceSessionHistoryDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -214,8 +222,12 @@ class AppDatabase extends _$AppDatabase {
   ///      Renamed NotificationCategory.fluids → bodilyOutputs (value=2 unchanged).
   ///      Added MealType.beverage (value=4).
   ///      fluids_entries left as tombstone (not dropped).
+  /// v21: Voice Logging data foundation (VOICE_LOGGING_SPEC.md)
+  ///      Created voice_logging_settings (per-profile AI assistant preferences).
+  ///      Created voice_session_history (rolling 90-day conversation context).
+  ///      Both tables are local-only — not synced.
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   /// Migration strategy for schema changes.
   ///
@@ -520,6 +532,20 @@ class AppDatabase extends _$AppDatabase {
 
             // Step 5: fluids_entries is NOT dropped — left as tombstone.
           });
+        }
+
+        // v21: Voice Logging data foundation (VOICE_LOGGING_SPEC.md)
+        if (from < 21) {
+          await m.createTable(voiceLoggingSettingsTable);
+          await m.createTable(voiceSessionHistoryTable);
+          // Create index with DESC ordering on created_at for efficient
+          // recent-turns queries. @TableIndex on the table class handles
+          // fresh installs; this customStatement covers upgrade paths.
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS '
+            'idx_voice_session_history_profile_created '
+            'ON voice_session_history (profile_id, created_at DESC)',
+          );
         }
       } on Exception catch (e, stack) {
         debugPrint('[Shadow DB] onUpgrade FAILED (v$from → v$to): $e');
