@@ -573,6 +573,14 @@ enum ClosingStyle {
   int toInt() => index;
 }
 
+enum DefaultInputMode {
+  voice, // 0
+  text; // 1
+
+  static DefaultInputMode fromInt(int value) => DefaultInputMode.values[value];
+  int toInt() => index;
+}
+
 enum VoiceTurnRole {
   assistant, // 0
   user; // 1

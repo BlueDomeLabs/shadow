@@ -121,6 +121,7 @@ class VoiceLoggingRepositoryImpl implements VoiceLoggingRepository {
       closingStyle: ClosingStyle.fromInt(row.closingStyle),
       fixedFarewell: row.fixedFarewell,
       categoryPriorityOrder: priorityOrder,
+      defaultInputMode: DefaultInputMode.fromInt(row.defaultInputMode),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -139,6 +140,7 @@ class VoiceLoggingRepositoryImpl implements VoiceLoggingRepository {
       closingStyle: Value(s.closingStyle.toInt()),
       fixedFarewell: Value(s.fixedFarewell),
       categoryPriorityOrder: Value(encodedOrder),
+      defaultInputMode: Value(s.defaultInputMode.toInt()),
       createdAt: Value(s.createdAt),
       updatedAt: Value(s.updatedAt),
     );

@@ -10,9 +10,9 @@ import 'package:shadow_app/presentation/providers/settings/security_provider.dar
 import 'package:shadow_app/presentation/providers/settings/user_settings_provider.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/access_revoked_screen.dart';
 import 'package:shadow_app/presentation/screens/guest_invites/guest_disclaimer_dialog.dart';
-import 'package:shadow_app/presentation/screens/home/home_screen.dart';
 import 'package:shadow_app/presentation/screens/profiles/welcome_screen.dart';
 import 'package:shadow_app/presentation/screens/settings/lock_screen.dart';
+import 'package:shadow_app/presentation/screens/voice_logging/voice_logging_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +45,7 @@ class ShadowApp extends ConsumerWidget {
       theme: _buildTheme(),
       home: state.profiles.isEmpty && !guestMode.isGuestMode
           ? const WelcomeScreen()
-          : const HomeScreen(),
+          : const VoiceLoggingScreen(),
       builder: (context, child) =>
           _LockScreenGuard(child: _GuestDisclaimerGuard(child: child!)),
     );

@@ -7,6 +7,7 @@ import 'package:shadow_app/presentation/screens/health/health_sync_settings_scre
 import 'package:shadow_app/presentation/screens/notifications/notification_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/settings/security_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/settings/units_settings_screen.dart';
+import 'package:shadow_app/presentation/screens/settings/voice_logging_settings_screen.dart';
 
 /// Hub screen linking all settings sections.
 class SettingsScreen extends StatelessWidget {
@@ -22,6 +23,12 @@ class SettingsScreen extends StatelessWidget {
           title: 'Notifications',
           subtitle: 'Configure reminders and anchor times',
           onTap: () => _navigateTo(context, const NotificationSettingsScreen()),
+        ),
+        _SettingsTile(
+          icon: Icons.mic_outlined,
+          title: 'Voice Logging',
+          subtitle: 'Assistant preferences and notification priority',
+          onTap: () => _navigateTo(context, const VoiceLoggingSettingsScreen()),
         ),
         _SettingsTile(
           icon: Icons.straighten_outlined,

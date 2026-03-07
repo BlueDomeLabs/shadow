@@ -26,6 +26,10 @@ class VoiceLoggingSettingsTable extends Table {
   TextColumn get categoryPriorityOrder =>
       text().named('category_priority_order').nullable()();
 
+  // DefaultInputMode: 0 = voice (default), 1 = text
+  IntColumn get defaultInputMode =>
+      integer().named('default_input_mode').withDefault(const Constant(0))();
+
   IntColumn get createdAt => integer().named('created_at')();
   IntColumn get updatedAt => integer().named('updated_at').nullable()();
 

@@ -57,6 +57,7 @@ void main() {
           'closing_style',
           'fixed_farewell',
           'category_priority_order',
+          'default_input_mode',
           'created_at',
           'updated_at',
         ]),
@@ -104,8 +105,8 @@ void main() {
       expect(result.first.data['content'], 'Hello');
     });
 
-    test('currentSchemaVersion_is21', () async {
-      expect(database.schemaVersion, 21);
+    test('currentSchemaVersion_is22', () async {
+      expect(database.schemaVersion, 22);
     });
   });
 }

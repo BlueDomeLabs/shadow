@@ -9,19 +9,115 @@
 # NOTE: File moved to docs/ARCHITECT_BRIEFING.md (2026-03-06 housekeeping)
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
-# Status:        IDLE — Awaiting Architect review of P-019 Session A
-# Last Commit:   (see below — P-019 Session A)
-# Last Code:     Voice logging domain + data layer — schema v21
-# Next Action:   Architect reviews P-019 Session A; Session B (wiring + UI) next
+# Status:        IDLE — Awaiting Architect review of P-020
+# Last Commit:   feat: Phase 19 Session B1 — schema v22, VoiceLoggingScreen UI shell, navigation, settings
+# Last Code:     Schema v22 + VoiceLoggingScreen + VoiceLoggingSettingsScreen + root nav change
+# Next Action:   Architect reviews P-020; Session B2 (STT/TTS wiring) next
 # Open Items:    None
-# Tests:         3,639 passing | 0 failures
-# Schema:        v21
+# Tests:         3,656 passing | 0 failures
+# Schema:        v22
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-11 MST] P-020 — Phase 19 Session B1: Schema v22 + VoiceLoggingScreen UI + Navigation
+
+**P-020 | Tests: 3,656 | Schema: v22 | Analyzer: clean**
+
+### Technical Summary
+
+Seven implementation steps completed in a single session. All steps are per the P-020 prompt spec.
+
+**Step 1 — Schema v22: default_input_mode column**
+- `voice_logging_settings_table.dart`: Added `IntColumn get defaultInputMode` with `withDefault(const Constant(0))` (0=voice default)
+- `health_enums.dart`: Added `DefaultInputMode { voice, text }` enum with `fromInt`/`toInt`
+- `voice_logging_settings.dart` entity: Added `defaultInputMode` field (`DefaultInputMode`, required, defaults to `DefaultInputMode.voice`)
+- `voice_logging_repository_impl.dart`: Added `defaultInputMode` to `_rowToSettings` and `_settingsToCompanion`
+- `get_voice_logging_settings_use_case.dart`: Uses entity default — no explicit arg needed (lint caught redundant value)
+- `database.dart`: schemaVersion bumped 21→22; added `if (from < 22)` migration using `m.addColumn(voiceLoggingSettingsTable, voiceLoggingSettingsTable.defaultInputMode)`
+- Tests: `v21_to_v22_migration_test.dart` (3 tests), entity test updated (+2 tests), v20→v21 test updated (schema version + column list), `database_test.dart` updated to v22
+
+**Step 2 — Voice packages added**
+- `pubspec.yaml`: Added `speech_to_text: ^7.0.0` and `flutter_tts: ^4.2.0`
+- `flutter pub get` completed cleanly, 5 package changes
+
+**Step 3 — VoiceLoggingScreen UI shell**
+- `lib/presentation/screens/voice_logging/voice_logging_screen.dart` created
+- `ConsumerStatefulWidget` with placeholder state (`_assistantText`, `_isListening`, `_isTextMode`)
+- Layout: header row (X close + text mode toggle), animated avatar circle, assistant text bubble, large mic button, text input row (always visible), queue progress dots (conditional on `pendingItemCount > 0`), BottomAppBar with "Logs" nav item
+- All business logic is placeholder — `_isListening` toggles on mic tap; `_sendText` clears field; "Logs" pushes `HomeScreen` via `Navigator.push`
+- `_QueueProgressDots` private class handles dot rendering
+
+**Step 4 — Navigation architecture change**
+- `lib/main.dart`: `home:` changed from `HomeScreen()` to `VoiceLoggingScreen()` for existing-profile users
+- `WelcomeScreen` path unchanged (new users still see WelcomeScreen first)
+- `HomeScreen` remains fully functional — accessed via the "Logs" BottomAppBar nav item on VoiceLoggingScreen
+- Notification tap routing NOT changed (per prompt spec — Session C scope)
+
+**Step 5 — VoiceLoggingSettingsScreen**
+- `lib/presentation/screens/settings/voice_logging_settings_screen.dart` created
+- `ConsumerStatefulWidget` with `profileId` optional constructor param (avoids profileProvider mocking in tests)
+- Section 1: ClosingStyle using Flutter 3.38 `RadioGroup` + `Radio<T>` pattern (RadioListTile deprecated post-3.32)
+- Section 2: `SegmentedButton<DefaultInputMode>` for voice/text toggle
+- Section 3: `ReorderableListView` with 10 default categories (per spec Section 3.2 order)
+- Auto-save on every change — no save button
+
+**Step 6 — Settings hub update**
+- `lib/presentation/screens/settings/settings_screen.dart`: Added "Voice Logging" tile between Notifications and Units (prompt spec says between Notifications and Security; Units comes before Security so insertion point is Notifications → Voice Logging → Units → Security)
+
+**Step 7 — Tests**
+- `test/unit/data/migrations/v21_to_v22_migration_test.dart`: 3 tests (column exists, default=0, schemaVersion=22)
+- `test/unit/presentation/screens/voice_logging/voice_logging_screen_test.dart`: 7 widget tests
+- `test/unit/presentation/screens/settings/voice_logging_settings_screen_test.dart`: 5 widget tests
+- 17 new tests total; 3,639→3,656
+
+**Codegen:** 2 build_runner passes (step 1 after schema change, step 7 after new mock files). Both successful.
+
+**Analyzer issues fixed:**
+- `avoid_redundant_argument_values` — use case default arg
+- `directives_ordering` — main.dart import order
+- `deprecated_member_use` — RadioListTile → RadioGroup/Radio pattern
+- `prefer_const_constructors`, `prefer_final_fields`, `use_late_for_private_fields_and_variables`
+- `avoid_init_to_null` — late field declaration
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/data/datasources/local/tables/voice_logging_settings_table.dart` | MODIFIED | Added `defaultInputMode` column (IntColumn, default 0) |
+| `lib/domain/enums/health_enums.dart` | MODIFIED | Added `DefaultInputMode` enum |
+| `lib/domain/entities/voice_logging/voice_logging_settings.dart` | MODIFIED | Added `defaultInputMode` field + copyWith |
+| `lib/data/repositories/voice_logging_repository_impl.dart` | MODIFIED | Added `defaultInputMode` to row↔entity conversions |
+| `lib/domain/usecases/voice_logging/get_voice_logging_settings_use_case.dart` | MODIFIED | Removed redundant explicit default arg |
+| `lib/data/datasources/local/database.dart` | MODIFIED | schemaVersion 21→22; v22 migration block added |
+| `pubspec.yaml` | MODIFIED | Added speech_to_text ^7.0.0 and flutter_tts ^4.2.0 |
+| `lib/main.dart` | MODIFIED | Root route: HomeScreen → VoiceLoggingScreen |
+| `lib/presentation/screens/voice_logging/voice_logging_screen.dart` | CREATED | AI assistant home screen UI shell |
+| `lib/presentation/screens/settings/voice_logging_settings_screen.dart` | CREATED | Voice logging settings screen |
+| `lib/presentation/screens/settings/settings_screen.dart` | MODIFIED | Added Voice Logging entry between Notifications and Units |
+| `test/unit/data/datasources/local/database_test.dart` | MODIFIED | Updated schema version assertion to 22 |
+| `test/unit/data/migrations/v20_to_v21_migration_test.dart` | MODIFIED | Updated schema version + added default_input_mode to column list |
+| `test/unit/data/migrations/v21_to_v22_migration_test.dart` | CREATED | 3 migration tests for v22 |
+| `test/unit/domain/entities/voice_logging/voice_logging_settings_test.dart` | MODIFIED | +2 tests for defaultInputMode |
+| `test/unit/presentation/screens/voice_logging/voice_logging_screen_test.dart` | CREATED | 7 widget tests |
+| `test/unit/presentation/screens/settings/voice_logging_settings_screen_test.dart` | CREATED | 5 widget tests |
+
+### Executive Summary for Reid
+
+This session built three things:
+
+**1. A new default_input_mode setting** — The database and settings model now support storing whether you prefer to talk (voice) or type (text) by default when using the AI assistant. This was accidentally left out of Session A and is now in.
+
+**2. The AI assistant home screen** — When you open Shadow, you now land on the VoiceLoggingScreen instead of the tab grid. It shows a pulsing avatar, Shadow's current message, a microphone button, a text input field (always visible), and progress dots for queued items. Tapping "Logs" at the bottom takes you to the existing tab grid. Everything is placeholder for now — the mic doesn't actually listen yet. That wiring comes in Session B2.
+
+**3. A Voice Logging settings screen** — Now accessible from Settings → Voice Logging. You can set your preferred closing message style (none, random, or a custom farewell phrase), your default input mode (voice or text), and reorder the categories Shadow asks about. Changes save instantly.
+
+The app opens differently now — VoiceLoggingScreen is the home. HomeScreen is still fully functional and accessible via the Logs button.
 
 ---
 

@@ -14,6 +14,7 @@ class VoiceLoggingSettings {
   final ClosingStyle closingStyle;
   final String? fixedFarewell;
   final List<int>? categoryPriorityOrder;
+  final DefaultInputMode defaultInputMode;
   final int createdAt;
   final int? updatedAt;
 
@@ -23,6 +24,7 @@ class VoiceLoggingSettings {
     required this.closingStyle,
     this.fixedFarewell,
     this.categoryPriorityOrder,
+    this.defaultInputMode = DefaultInputMode.voice,
     required this.createdAt,
     this.updatedAt,
   });
@@ -33,6 +35,7 @@ class VoiceLoggingSettings {
     ClosingStyle? closingStyle,
     String? fixedFarewell,
     List<int>? categoryPriorityOrder,
+    DefaultInputMode? defaultInputMode,
     int? createdAt,
     int? updatedAt,
   }) => VoiceLoggingSettings(
@@ -41,6 +44,7 @@ class VoiceLoggingSettings {
     closingStyle: closingStyle ?? this.closingStyle,
     fixedFarewell: fixedFarewell ?? this.fixedFarewell,
     categoryPriorityOrder: categoryPriorityOrder ?? this.categoryPriorityOrder,
+    defaultInputMode: defaultInputMode ?? this.defaultInputMode,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );

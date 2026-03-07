@@ -226,8 +226,10 @@ class AppDatabase extends _$AppDatabase {
   ///      Created voice_logging_settings (per-profile AI assistant preferences).
   ///      Created voice_session_history (rolling 90-day conversation context).
   ///      Both tables are local-only — not synced.
+  /// v22: Add default_input_mode to voice_logging_settings (Phase 19 Session B1)
+  ///      Stores user's preferred input mode: 0=voice, 1=text
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   /// Migration strategy for schema changes.
   ///
@@ -545,6 +547,14 @@ class AppDatabase extends _$AppDatabase {
             'CREATE INDEX IF NOT EXISTS '
             'idx_voice_session_history_profile_created '
             'ON voice_session_history (profile_id, created_at DESC)',
+          );
+        }
+
+        // v22: Add default_input_mode to voice_logging_settings (Phase 19 Session B1)
+        if (from < 22) {
+          await m.addColumn(
+            voiceLoggingSettingsTable,
+            voiceLoggingSettingsTable.defaultInputMode,
           );
         }
       } on Exception catch (e, stack) {

@@ -33129,6 +33129,18 @@ class $VoiceLoggingSettingsTableTable extends VoiceLoggingSettingsTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _defaultInputModeMeta = const VerificationMeta(
+    'defaultInputMode',
+  );
+  @override
+  late final GeneratedColumn<int> defaultInputMode = GeneratedColumn<int>(
+    'default_input_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -33158,6 +33170,7 @@ class $VoiceLoggingSettingsTableTable extends VoiceLoggingSettingsTable
     closingStyle,
     fixedFarewell,
     categoryPriorityOrder,
+    defaultInputMode,
     createdAt,
     updatedAt,
   ];
@@ -33213,6 +33226,15 @@ class $VoiceLoggingSettingsTableTable extends VoiceLoggingSettingsTable
         ),
       );
     }
+    if (data.containsKey('default_input_mode')) {
+      context.handle(
+        _defaultInputModeMeta,
+        defaultInputMode.isAcceptableOrUnknown(
+          data['default_input_mode']!,
+          _defaultInputModeMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -33259,6 +33281,10 @@ class $VoiceLoggingSettingsTableTable extends VoiceLoggingSettingsTable
         DriftSqlType.string,
         data['${effectivePrefix}category_priority_order'],
       ),
+      defaultInputMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}default_input_mode'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -33283,6 +33309,7 @@ class VoiceLoggingSettingsRow extends DataClass
   final int closingStyle;
   final String? fixedFarewell;
   final String? categoryPriorityOrder;
+  final int defaultInputMode;
   final int createdAt;
   final int? updatedAt;
   const VoiceLoggingSettingsRow({
@@ -33291,6 +33318,7 @@ class VoiceLoggingSettingsRow extends DataClass
     required this.closingStyle,
     this.fixedFarewell,
     this.categoryPriorityOrder,
+    required this.defaultInputMode,
     required this.createdAt,
     this.updatedAt,
   });
@@ -33306,6 +33334,7 @@ class VoiceLoggingSettingsRow extends DataClass
     if (!nullToAbsent || categoryPriorityOrder != null) {
       map['category_priority_order'] = Variable<String>(categoryPriorityOrder);
     }
+    map['default_input_mode'] = Variable<int>(defaultInputMode);
     map['created_at'] = Variable<int>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<int>(updatedAt);
@@ -33324,6 +33353,7 @@ class VoiceLoggingSettingsRow extends DataClass
       categoryPriorityOrder: categoryPriorityOrder == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryPriorityOrder),
+      defaultInputMode: Value(defaultInputMode),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -33344,6 +33374,7 @@ class VoiceLoggingSettingsRow extends DataClass
       categoryPriorityOrder: serializer.fromJson<String?>(
         json['categoryPriorityOrder'],
       ),
+      defaultInputMode: serializer.fromJson<int>(json['defaultInputMode']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int?>(json['updatedAt']),
     );
@@ -33359,6 +33390,7 @@ class VoiceLoggingSettingsRow extends DataClass
       'categoryPriorityOrder': serializer.toJson<String?>(
         categoryPriorityOrder,
       ),
+      'defaultInputMode': serializer.toJson<int>(defaultInputMode),
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int?>(updatedAt),
     };
@@ -33370,6 +33402,7 @@ class VoiceLoggingSettingsRow extends DataClass
     int? closingStyle,
     Value<String?> fixedFarewell = const Value.absent(),
     Value<String?> categoryPriorityOrder = const Value.absent(),
+    int? defaultInputMode,
     int? createdAt,
     Value<int?> updatedAt = const Value.absent(),
   }) => VoiceLoggingSettingsRow(
@@ -33382,6 +33415,7 @@ class VoiceLoggingSettingsRow extends DataClass
     categoryPriorityOrder: categoryPriorityOrder.present
         ? categoryPriorityOrder.value
         : this.categoryPriorityOrder,
+    defaultInputMode: defaultInputMode ?? this.defaultInputMode,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -33400,6 +33434,9 @@ class VoiceLoggingSettingsRow extends DataClass
       categoryPriorityOrder: data.categoryPriorityOrder.present
           ? data.categoryPriorityOrder.value
           : this.categoryPriorityOrder,
+      defaultInputMode: data.defaultInputMode.present
+          ? data.defaultInputMode.value
+          : this.defaultInputMode,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -33413,6 +33450,7 @@ class VoiceLoggingSettingsRow extends DataClass
           ..write('closingStyle: $closingStyle, ')
           ..write('fixedFarewell: $fixedFarewell, ')
           ..write('categoryPriorityOrder: $categoryPriorityOrder, ')
+          ..write('defaultInputMode: $defaultInputMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -33426,6 +33464,7 @@ class VoiceLoggingSettingsRow extends DataClass
     closingStyle,
     fixedFarewell,
     categoryPriorityOrder,
+    defaultInputMode,
     createdAt,
     updatedAt,
   );
@@ -33438,6 +33477,7 @@ class VoiceLoggingSettingsRow extends DataClass
           other.closingStyle == this.closingStyle &&
           other.fixedFarewell == this.fixedFarewell &&
           other.categoryPriorityOrder == this.categoryPriorityOrder &&
+          other.defaultInputMode == this.defaultInputMode &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -33449,6 +33489,7 @@ class VoiceLoggingSettingsTableCompanion
   final Value<int> closingStyle;
   final Value<String?> fixedFarewell;
   final Value<String?> categoryPriorityOrder;
+  final Value<int> defaultInputMode;
   final Value<int> createdAt;
   final Value<int?> updatedAt;
   final Value<int> rowid;
@@ -33458,6 +33499,7 @@ class VoiceLoggingSettingsTableCompanion
     this.closingStyle = const Value.absent(),
     this.fixedFarewell = const Value.absent(),
     this.categoryPriorityOrder = const Value.absent(),
+    this.defaultInputMode = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -33468,6 +33510,7 @@ class VoiceLoggingSettingsTableCompanion
     this.closingStyle = const Value.absent(),
     this.fixedFarewell = const Value.absent(),
     this.categoryPriorityOrder = const Value.absent(),
+    this.defaultInputMode = const Value.absent(),
     required int createdAt,
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -33480,6 +33523,7 @@ class VoiceLoggingSettingsTableCompanion
     Expression<int>? closingStyle,
     Expression<String>? fixedFarewell,
     Expression<String>? categoryPriorityOrder,
+    Expression<int>? defaultInputMode,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<int>? rowid,
@@ -33491,6 +33535,7 @@ class VoiceLoggingSettingsTableCompanion
       if (fixedFarewell != null) 'fixed_farewell': fixedFarewell,
       if (categoryPriorityOrder != null)
         'category_priority_order': categoryPriorityOrder,
+      if (defaultInputMode != null) 'default_input_mode': defaultInputMode,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -33503,6 +33548,7 @@ class VoiceLoggingSettingsTableCompanion
     Value<int>? closingStyle,
     Value<String?>? fixedFarewell,
     Value<String?>? categoryPriorityOrder,
+    Value<int>? defaultInputMode,
     Value<int>? createdAt,
     Value<int?>? updatedAt,
     Value<int>? rowid,
@@ -33514,6 +33560,7 @@ class VoiceLoggingSettingsTableCompanion
       fixedFarewell: fixedFarewell ?? this.fixedFarewell,
       categoryPriorityOrder:
           categoryPriorityOrder ?? this.categoryPriorityOrder,
+      defaultInputMode: defaultInputMode ?? this.defaultInputMode,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -33540,6 +33587,9 @@ class VoiceLoggingSettingsTableCompanion
         categoryPriorityOrder.value,
       );
     }
+    if (defaultInputMode.present) {
+      map['default_input_mode'] = Variable<int>(defaultInputMode.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
     }
@@ -33560,6 +33610,7 @@ class VoiceLoggingSettingsTableCompanion
           ..write('closingStyle: $closingStyle, ')
           ..write('fixedFarewell: $fixedFarewell, ')
           ..write('categoryPriorityOrder: $categoryPriorityOrder, ')
+          ..write('defaultInputMode: $defaultInputMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -49248,6 +49299,7 @@ typedef $$VoiceLoggingSettingsTableTableCreateCompanionBuilder =
       Value<int> closingStyle,
       Value<String?> fixedFarewell,
       Value<String?> categoryPriorityOrder,
+      Value<int> defaultInputMode,
       required int createdAt,
       Value<int?> updatedAt,
       Value<int> rowid,
@@ -49259,6 +49311,7 @@ typedef $$VoiceLoggingSettingsTableTableUpdateCompanionBuilder =
       Value<int> closingStyle,
       Value<String?> fixedFarewell,
       Value<String?> categoryPriorityOrder,
+      Value<int> defaultInputMode,
       Value<int> createdAt,
       Value<int?> updatedAt,
       Value<int> rowid,
@@ -49295,6 +49348,11 @@ class $$VoiceLoggingSettingsTableTableFilterComposer
 
   ColumnFilters<String> get categoryPriorityOrder => $composableBuilder(
     column: $table.categoryPriorityOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get defaultInputMode => $composableBuilder(
+    column: $table.defaultInputMode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -49343,6 +49401,11 @@ class $$VoiceLoggingSettingsTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get defaultInputMode => $composableBuilder(
+    column: $table.defaultInputMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -49381,6 +49444,11 @@ class $$VoiceLoggingSettingsTableTableAnnotationComposer
 
   GeneratedColumn<String> get categoryPriorityOrder => $composableBuilder(
     column: $table.categoryPriorityOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get defaultInputMode => $composableBuilder(
+    column: $table.defaultInputMode,
     builder: (column) => column,
   );
 
@@ -49442,6 +49510,7 @@ class $$VoiceLoggingSettingsTableTableTableManager
                 Value<int> closingStyle = const Value.absent(),
                 Value<String?> fixedFarewell = const Value.absent(),
                 Value<String?> categoryPriorityOrder = const Value.absent(),
+                Value<int> defaultInputMode = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -49451,6 +49520,7 @@ class $$VoiceLoggingSettingsTableTableTableManager
                 closingStyle: closingStyle,
                 fixedFarewell: fixedFarewell,
                 categoryPriorityOrder: categoryPriorityOrder,
+                defaultInputMode: defaultInputMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -49462,6 +49532,7 @@ class $$VoiceLoggingSettingsTableTableTableManager
                 Value<int> closingStyle = const Value.absent(),
                 Value<String?> fixedFarewell = const Value.absent(),
                 Value<String?> categoryPriorityOrder = const Value.absent(),
+                Value<int> defaultInputMode = const Value.absent(),
                 required int createdAt,
                 Value<int?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -49471,6 +49542,7 @@ class $$VoiceLoggingSettingsTableTableTableManager
                 closingStyle: closingStyle,
                 fixedFarewell: fixedFarewell,
                 categoryPriorityOrder: categoryPriorityOrder,
+                defaultInputMode: defaultInputMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

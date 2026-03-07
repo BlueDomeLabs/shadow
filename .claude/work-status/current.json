@@ -1,6 +1,6 @@
 {
   "status": "complete",
-  "task": "P-019 Session A: Voice logging domain and data layer",
-  "testCount": 3639,
-  "schemaVersion": 21
+  "task": "P-020: Schema v22, VoiceLoggingScreen UI shell, navigation, settings",
+  "testCount": 3656,
+  "schemaVersion": 22
 }

@@ -76,6 +76,30 @@ void main() {
       expect(updated.categoryPriorityOrder, [2, 0, 1]);
     });
 
+    test('construction_defaultInputMode_defaults', () {
+      const s = VoiceLoggingSettings(
+        id: profileId,
+        profileId: profileId,
+        closingStyle: ClosingStyle.random,
+        createdAt: now,
+      );
+      expect(s.defaultInputMode, DefaultInputMode.voice);
+    });
+
+    test('copyWith_updatesDefaultInputMode', () {
+      const original = VoiceLoggingSettings(
+        id: profileId,
+        profileId: profileId,
+        closingStyle: ClosingStyle.random,
+        createdAt: now,
+      );
+      final updated = original.copyWith(
+        defaultInputMode: DefaultInputMode.text,
+      );
+      expect(updated.defaultInputMode, DefaultInputMode.text);
+      expect(updated.closingStyle, ClosingStyle.random); // unchanged
+    });
+
     test('copyWith_preservesUnchangedFields', () {
       const original = VoiceLoggingSettings(
         id: profileId,
