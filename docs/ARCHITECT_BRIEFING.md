@@ -25,6 +25,30 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Fix SessionStart Hook to Delegate to /context-lost
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config-only session. No lib/ or test/ files touched.
+
+Replaced the SessionStart hook's inline recovery instructions with a short message that tells me to invoke `/context-lost`. The old command was ~250 characters of inline instructions that duplicated the skill. The new command is a single sentence: "invoke /context-lost right now before doing anything else." The skill itself contains the full recovery procedure.
+
+No other hooks changed (PreToolUse agent blocks, PostToolUse clipboard tracker, Stop clipboard reminder all untouched).
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/settings.json` | MODIFIED | SessionStart hook command replaced with /context-lost delegation |
+
+### Executive Summary for Reid
+
+Fixed the compaction recovery message. When context compaction happens and I wake up in a new session, instead of seeing a long inline list of instructions, I now get a single clear message: "invoke /context-lost." That skill has everything I need. One pointer instead of a duplicate copy.
+
+---
+
 ## [2026-03-07 MST] — Add TEAM_PROTOCOL.md
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
