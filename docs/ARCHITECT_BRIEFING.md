@@ -10,10 +10,10 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   4a061a8 — (Shadow app unchanged this session)
-# Last Code:     No Shadow app changes. Tooling work only (bdl-sync).
+# Last Commit:   ba0e0c0 — docs: update ARCHITECT_BRIEFING for bdl-sync tooling session
+# Last Code:     No Shadow app changes. Read-only investigation + bdl-sync tooling.
 # Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
-# Open Items:    None
+# Open Items:    test/widget/ is an empty local dir, not in repo, not gitignored (minor)
 # Tests:         3,611 passing
 # Schema:        v19
 # Analyzer:      Clean
@@ -22,6 +22,35 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Read-Only: Local vs. Repository Structure Audit
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Read-only investigation. No files changed. Findings:
+
+- `git ls-files --others --exclude-standard` — zero untracked files
+- `git ls-files --deleted` — zero missing files
+- `.gitignore` has a local modification (not yet staged) — likely from `bdl-sync init` adding `.bdlsync/` to it
+- `test/widget/` exists locally as an empty directory but is not committed to the repo and not gitignored
+- `.bdlsync/` exists locally (created by `bdl-sync init`) — not in repo; should be gitignored or deleted
+- All other local-only directories (`.idea/`, `macos/Pods/`, `android/.gradle/`, etc.) are correctly gitignored
+
+No action taken — read-only session.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| (none) | READ ONLY | No files changed |
+
+### Executive Summary for Reid
+
+Quick structural checkup on the project. Everything looks clean — no missing files, no unexpected changes. The only two minor things to note: there's an empty `test/widget/` folder sitting locally that was never committed (harmless), and the `.bdlsync/` folder from the sync tool setup needs to either be added to `.gitignore` or deleted. Neither affects the app or the Architect.
 
 ---
 
