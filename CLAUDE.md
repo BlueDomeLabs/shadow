@@ -203,7 +203,11 @@ embedded in this file.**
 Every session report has four sections in this order:
 
 ### 1. Header
-One line: **Tests: X,XXX | Schema: vX | Analyzer: clean**
+One line: **[Prompt ID] | Tests: X,XXX | Schema: vX | Analyzer: clean**
+
+The Prompt ID is at the top of every prompt the Architect writes
+(e.g. P-010). Echo it exactly. If no prompt ID is present, write
+UNASSIGNED.
 
 ### 2. Technical Summary
 Written for the Architect. Thorough and precise. Cover what was built,

@@ -191,6 +191,25 @@ decision is always final.
 
 Prompts are written by the Architect and delivered by Reid.
 
+### Prompt IDs
+
+Every prompt the Architect writes carries a unique sequential
+identifier at the very top — the first thing in the prompt.
+Format: P-001, P-002, P-003, and so on.
+
+The current prompt ID counter is stored in
+.claude/work-status/current.json as lastPromptId. The Architect
+reads it before writing each prompt and increments by one.
+
+Shadow echoes the prompt ID in the ARCHITECT_BRIEFING.md session
+header for every session. This allows Reid to reference any prompt
+by ID during active dialogue — "P-010 is done" tells the Architect
+exactly what was completed.
+
+The ID needs no log — it lives in the active conversation context.
+It is a reference tool for the current session, not a permanent
+audit trail.
+
 Before every prompt:
 - Reid runs /compact in Shadow's terminal
 - Shadow wakes cold — ARCHITECT_BRIEFING.md is its only memory
