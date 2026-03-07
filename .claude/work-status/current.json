@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-015 — Fluids Restructuring: Session B — UI Layer",
+  "task": "P-016 — Docs Update: ROADMAP.md + VISION.md",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3575,
   "schemaVersion": 20,
-  "lastPromptId": "P-015",
-  "notes": "Created BodilyOutputListScreen and BodilyOutputEditScreen. Rewrote FluidsQuickEntrySheet for bodily outputs. Renamed Fluids tab to Bodily Functions. Deleted 5 stale fluids_entries screens and 5 stale test files. Added 11 list-screen tests and 10 quick-entry tests. Wired bodilyOutputRepositoryProvider in bootstrap.dart. 3,575 tests passing, analyzer clean."
+  "lastPromptId": "P-016",
+  "notes": "Docs-only session. Moved Architect's updated ROADMAP.md from Downloads into project. VISION.md was already present. No code changes. 3,575 tests passing (unchanged)."
 }
