@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Retire /compliance skill — checklist folded into /handoff Step 0",
+  "task": "Rewrite /startup skill — dual-audience cold-start with split verification",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "notes": "compliance/SKILL.md deleted. Checklist added to handoff/SKILL.md as Step 0. Decision logged in DECISIONS.md."
+  "notes": "startup/SKILL.md rewritten as dual-audience (Shadow + Architect) cold-start. Five ordered orientation docs, split verification sections. Compaction recovery removed (belongs to /context-lost)."
 }
