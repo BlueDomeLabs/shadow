@@ -12,6 +12,26 @@ the end of every session without exception.
 
 ---
 
+## Step 0 — Pre-Flight Verification
+
+Run these checks before committing anything. All must pass.
+If any fail, fix them first — do not proceed to Step 1.
+
+  [ ] flutter test                                    → all passing
+  [ ] flutter analyze                                 → no issues
+  [ ] dart format --set-exit-if-changed lib/ test/   → exit 0
+  [ ] Entity fields match docs/specs/03_API_CONTRACTS.md exactly
+  [ ] Repository methods match contracts exactly
+  [ ] All timestamps are int — never DateTime
+  [ ] All error codes from approved AppError hierarchy
+  [ ] Tests cover success AND failure paths
+  [ ] Authorization checked first in every use case
+  [ ] docs/ARCHITECT_BRIEFING.md updated with session log entry
+
+If all checks pass, proceed to Step 1.
+
+---
+
 ## Step 1 — Commit to GitHub
 
   git add -A
@@ -84,7 +104,6 @@ leaves stale versions alongside new ones in Project Knowledge.
     .claude/work-status/current.json \
     .claude/skills/context-lost.md \
     .claude/skills/coding/SKILL.md \
-    .claude/skills/compliance/SKILL.md \
     .claude/skills/factory-reset/SKILL.md \
     .claude/skills/handoff/SKILL.md \
     .claude/skills/implementation-review/SKILL.md \

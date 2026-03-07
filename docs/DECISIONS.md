@@ -17,6 +17,21 @@ Each entry has:
 
 ## Decisions
 
+### 2026-03-07: /compliance skill retired — folded into /handoff
+
+**What:** The /compliance skill was deleted. Its pre-completion
+checklist now lives in /handoff as Step 0 — Pre-Flight Verification.
+
+**Why:** There was no use case for running /compliance without
+/handoff following immediately after. They were always invoked
+in sequence. Folding them into one skill eliminates a redundant
+invocation and ensures the verification step can never be skipped.
+
+**Impact:** Shadow invokes /handoff only. The compliance checklist
+runs automatically as the first step before any commit.
+
+---
+
 ### 2026-03-01: iCloud sync — COMPLETE
 
 **What:** iCloud/CloudKit sync fully implemented and shipped (Phases 31a–31b + Xcode entitlements). ICloudProvider implements CloudStorageProvider (10 methods) using the icloud_storage package with file-based storage mirroring the Google Drive folder structure. Container ID: iCloud.com.bluedomecolorado.shadowApp. Encryption: same AES-256-GCM pipeline as Google Drive — SyncServiceImpl encrypts before upload, both providers receive pre-encrypted envelopes.
