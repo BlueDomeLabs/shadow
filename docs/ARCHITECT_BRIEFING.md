@@ -25,6 +25,35 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Rewrite /startup Skill — Dual-Audience Cold-Start
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config-only session. No lib/ or test/ files touched.
+
+Replaced the entire contents of `.claude/skills/startup/SKILL.md`. Old skill was 27 lines — a brief 4-step checklist for Shadow only, with an embedded compaction recovery section (now owned by /context-lost). New skill is 131 lines covering:
+
+- Five ordered orientation documents (VISION → ROADMAP → CLAUDE.md → ARCHITECT_BRIEFING → TEAM_PROTOCOL)
+- Shadow verification section (flutter test, flutter analyze, git status, state-vs-briefing confirmation)
+- Architect verification section (Project Knowledge baseline check, CLAUDE.md consistency check, briefing-vs-files verification)
+- Closing "You Are Now Ready" section with role-specific next steps
+
+Compaction recovery section removed — belongs to /context-lost, not /startup.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/startup/SKILL.md` | REWRITTEN | Dual-audience cold-start procedure with split Shadow/Architect verification |
+
+### Executive Summary for Reid
+
+Updated the startup checklist so it works for both me (Shadow/Claude Code) and the Architect (Claude.ai). Previously it was just a short list of things I do before starting work. Now it's a full orientation — both of us read the same five documents in order, then split into separate verification steps: I run the tests and check git, the Architect checks that its file library is complete and that my briefing matches the actual files. Both of us end at the same place: ready to work with a verified understanding of where the project is.
+
+---
+
 ## [2026-03-07 MST] — Retire /compliance Skill — Fold Into /handoff
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
