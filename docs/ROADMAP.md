@@ -26,11 +26,11 @@ it grows with each phase and never regresses.
 
 | Metric | Value |
 |--------|-------|
-| Tests passing | 3,679 |
+| Tests passing | 3,575 |
 | Schema version | v20 |
 | Analyzer | Clean |
-| Last commit | 72dfe84 |
-| Status | Fluids Restructuring Session B in progress |
+| Last commit | 368671d — P-015 Fluids Restructuring UI Layer |
+| Status | Awaiting P-016 docs commit |
 
 ---
 
@@ -507,7 +507,7 @@ These items are sequenced and must complete before Shadow ships.
 
 ---
 
-### 1. Fluids Domain Restructuring 🔄 *(Session B in progress)*
+### 1. Fluids Domain Restructuring ✅ *(complete — March 2026)*
 
 The current `fluids_entries` table incorrectly groups beverages with bodily outputs
 (urine, bowel, menstruation, BBT) and uses a one-row-per-day aggregate model.
@@ -679,7 +679,31 @@ Design notes:
 
 ---
 
-### 10. VitalsLog Entity *(needs phase planning)*
+### 10. Diet System Expansion *(spec to be written)*
+
+Phase 15b built the core diet tracking system. The original spec included significant
+additional scope that was not implemented. Pre-launch additions:
+
+- **6 missing preset diets:** Gluten-Free, Dairy-Free, Carnivore, Whole30,
+  AIP (Autoimmune Protocol), DASH. Phase 15b shipped 8 presets; the full set is 14.
+- **Custom diet builder:** User-defined diets with macro targets (calories, protein,
+  carbs, fat, fiber, sugar, sodium — as grams/day, percentage of calories, or range),
+  food rules (Forbidden / Limited / Required / Preferred), per-rule exceptions,
+  and a plain-English rule summary before saving.
+- **Richer violation handling:** Add "Mark as Exception" (keep entry, exclude from
+  compliance stats) and "Disable This Rule" (remove rule with confirmation) alongside
+  the existing Keep/Remove options.
+- **Additional fasting protocols:** 5:2 (500-600 cal on designated days), OMAD
+  (one meal a day), 36-hour, and custom window alongside existing protocols.
+
+Micronutrient tracking (vitamins, minerals, USDA FoodData Central integration)
+is explicitly post-launch — see Post-Launch section.
+
+Spec: to be written, based on 59_DIET_TRACKING.md (archived) minus micronutrients.
+
+---
+
+### 11. VitalsLog Entity *(needs phase planning)*
 
 A dedicated VitalsLog entity for blood pressure, heart rate, and weight tracked
 manually (as opposed to imported from HealthKit). Currently these cannot be logged
@@ -688,7 +712,7 @@ DECISIONS.md (2026-02-23).
 
 ---
 
-### 11. Supplement Archive Support *(noted gap)*
+### 12. Supplement Archive Support *(noted gap)*
 
 SupplementDao has no archive() method — Supplements cannot currently be archived
 (hidden without deleting). Conditions and FoodItems support archive/unarchive.
@@ -696,7 +720,7 @@ This gap was confirmed during the audit and needs a phase before launch.
 
 ---
 
-### 12. Docs Reorganization ✅ *(complete — March 2026)*
+### 13. Docs Reorganization ✅ *(complete — March 2026)*
 
 Complete restructuring of the docs/ folder:
 - New structure: docs/specs/, docs/standards/, docs/planning/, docs/archive/
@@ -711,7 +735,7 @@ Complete restructuring of the docs/ folder:
 
 ---
 
-### 13. Pagination *(spec to be written)*
+### 14. Pagination *(spec to be written)*
 
 Cursor-based pagination at the DAO level for list views that currently load all
 records into memory. Journal entries, photo galleries, and other potentially large
@@ -725,7 +749,7 @@ Design notes:
 
 ---
 
-### 14. Encryption Offload *(spec to be written)*
+### 15. Encryption Offload *(spec to be written)*
 
 Move AES-256 encryption during cloud sync from the main thread to a background
 isolate (Flutter's term for a separate thread). Prevents UI freezes during large
@@ -739,7 +763,7 @@ Design notes:
 
 ---
 
-### 15. Physical Device Testing
+### 16. Physical Device Testing
 
 Several features are code-complete but untested on physical hardware:
 
@@ -752,7 +776,7 @@ Several features are code-complete but untested on physical hardware:
 
 ---
 
-### 16. App Store and Play Store Preparation
+### 17. App Store and Play Store Preparation
 
 - App icons (all required sizes for iOS and Android)
 - Screenshots for App Store Connect and Google Play Console
@@ -764,6 +788,19 @@ Several features are code-complete but untested on physical hardware:
 ---
 
 ## 💡 Post-Launch / Future
+
+### Micronutrient Tracking
+
+Full vitamin and mineral tracking with daily targets — 13 vitamins (A, B1–B12, C, D,
+E, K) and 13 minerals (calcium, iron, magnesium, zinc, etc.). Requires USDA FoodData
+Central API integration for nutritional data on preset foods. Per-nutrient targets
+configurable as minimum, maximum, or range, with RDA/DRI values as defaults.
+
+Deferred due to scope: the USDA pipeline is a significant data infrastructure addition.
+The core diet system (presets, custom builder, compliance, fasting) ships without it.
+Reference spec: docs/archive/59_DIET_TRACKING.md.
+
+---
 
 ### Wearable Device APIs
 
