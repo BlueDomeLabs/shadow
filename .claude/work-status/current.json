@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "Add prompt ID system",
+  "task": "P-011 — Rewrite /coding as control document reading list; add to /startup",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "lastPromptId": "P-010",
-  "notes": "Prompt ID system added. Architect assigns ID at top of every prompt. Shadow echoes it in ARCHITECT_BRIEFING.md session header."
+  "lastPromptId": "P-011",
+  "notes": "coding/SKILL.md rewritten as 4-document pointer list. startup/SKILL.md updated with Step 6 to invoke /coding."
 }
