@@ -17,6 +17,36 @@ Each entry has:
 
 ## Decisions
 
+### 2026-03-07: /implementation-review skill retired
+
+**What:** The /implementation-review skill was deleted.
+
+**Why:** Its purpose is fully covered by two existing mechanisms:
+the Architect reads actual committed files after every prompt as
+a lightweight per-session review, and the heavyweight audit process
+lives in docs/AUDIT_FINDINGS.md and docs/archive/AUDIT_HISTORY.md.
+There was no remaining use case for a standalone skill.
+
+**Impact:** Shadow no longer invokes /implementation-review.
+The Architect's post-prompt file verification is the per-session
+review. Planned audits are Architect-directed and tracked in
+AUDIT_FINDINGS.md.
+
+### 2026-03-07: /spec-review skill retired
+
+**What:** The /spec-review skill was deleted.
+
+**Why:** Spec review before implementation is the Architect's
+responsibility, not Shadow's. The Architect reads specs before
+writing every prompt and catches inconsistencies then. A skill
+aimed at Shadow for a task the Architect owns was the wrong
+mechanism. No standalone skill is needed for work the Architect
+does as a matter of course.
+
+**Impact:** Shadow no longer invokes /spec-review. The Architect's
+pre-prompt spec review is the right mechanism and continues
+unchanged.
+
 ### 2026-03-07: /compliance skill retired — folded into /handoff
 
 **What:** The /compliance skill was deleted. Its pre-completion
