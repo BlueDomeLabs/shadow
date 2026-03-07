@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   d982704 — chore: add .bdlsync/ to .gitignore
+# Last Commit:   4681739 — docs: update ARCHITECT_BRIEFING with bdl-sync tooling session log
 # Last Code:     No Shadow app changes. Tooling work only (bdl-sync).
 # Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
 # Open Items:    None
@@ -22,6 +22,28 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Tooling: bdl-sync live test results
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Live test of the two new bdl-sync commands. All passed. Key finding: **Project Knowledge stores filenames using the full relative path from the project root** (e.g. `docs/ARCHITECT_BRIEFING.md`, not `ARCHITECT_BRIEFING.md`). This means `bdl-sync delete` and `bdl-sync ls` must use full relative paths to match. The `push --files` command correctly uses the same relative paths it uploads, so round-tripping works as expected.
+
+Test sequence: pushed `docs/ARCHITECT_BRIEFING.md` → confirmed stored as `docs/ARCHITECT_BRIEFING.md` in `ls` → deleted via full path → confirmed "Deleted". Project Knowledge is now empty again.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| (none) | READ ONLY / LIVE TEST | No files changed — tooling test only |
+
+### Executive Summary for Reid
+
+The two new sync tool commands work correctly. One important thing to know: when a file is uploaded, it's stored in Project Knowledge using its full path from the project root — so `docs/ARCHITECT_BRIEFING.md` stays as `docs/ARCHITECT_BRIEFING.md`, not just `ARCHITECT_BRIEFING.md`. That means when you delete or reference files by name, you need to use the full path. The tool handles this correctly. Project Knowledge is empty again after the test.
 
 ---
 
