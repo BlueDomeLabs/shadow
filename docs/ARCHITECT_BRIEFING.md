@@ -10,9 +10,9 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   b808107 — P-016: docs update ROADMAP.md + VISION.md present
+# Last Commit:   2eb45cd — P-017: replace ROADMAP.md + VISION.md (corrected)
 # Last Code:     No code changes — docs-only session
-# Next Action:   Architect reviews P-015 + P-016; next phase TBD
+# Next Action:   Architect reviews P-017; next phase TBD
 # Open Items:    None
 # Tests:         3,575 passing (unchanged — no code changes this session)
 # Schema:        v20
@@ -22,6 +22,33 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] P-017 — Docs Correction: ROADMAP.md + VISION.md
+
+**P-017 | Tests: 3,575 (unchanged) | Schema: v20 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ changes.
+
+- `docs/ROADMAP.md` — replaced with Architect's corrected version from `~/Downloads/ROADMAP.md`. Git recorded 48 insertions / 11 deletions vs the P-016 version — the Architect updated current-state data (test counts, commit hash, session status) and made other corrections.
+- `docs/VISION.md` — Downloads version was identical to the project version already committed in a prior session. Git detected no diff; the file is already correct.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/ROADMAP.md` | MODIFIED | Replaced with Architect's corrected version — updated current-state data and other fixes |
+| `docs/VISION.md` | ALREADY CORRECT | Downloads version identical to project version — no change |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This session log entry |
+
+### Executive Summary for Reid
+
+The Architect's corrected ROADMAP.md is now in the project. It fixes stale data that was in the P-016 version. VISION.md was already up to date — the version in the project and the version in Downloads were identical.
+
+No code was written or tested. Tests remain at 3,575 passing.
 
 ---
 
