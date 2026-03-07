@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Handoff skill single source of truth + full .claude/ in Project Knowledge baseline",
+  "task": "Retire /compliance skill — checklist folded into /handoff Step 0",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "notes": "Rewrote handoff SKILL.md as single source of truth. Trimmed CLAUDE.md STANDARD SYNC BLOCK to 3 lines. All 12 .claude/ files now in PK baseline."
+  "notes": "compliance/SKILL.md deleted. Checklist added to handoff/SKILL.md as Step 0. Decision logged in DECISIONS.md."
 }
