@@ -167,6 +167,37 @@ Every session follows this flow. No exceptions.
 
 ---
 
+## STANDARD SYNC BLOCK
+
+Every session must end with these steps in order:
+
+1. Commit all changes to GitHub with a descriptive message
+2. Update docs/ARCHITECT_BRIEFING.md with a session log entry
+3. Run flutter test — must be passing
+4. Run flutter analyze — must be clean
+5. Push to Project Knowledge:
+
+   ```
+   bdl-sync push --files \
+     CLAUDE.md \
+     docs/ARCHITECT_BRIEFING.md \
+     docs/AUDIT_FINDINGS.md \
+     docs/02_CODING_STANDARDS.md \
+     docs/10_DATABASE_SCHEMA.md \
+     docs/22_API_CONTRACTS.md \
+     docs/ARCHITECT_BRIEFING_ARCHIVE.md \
+     .claude/work-status/current.json \
+     .claude/skills/startup.md \
+     .claude/skills/coding.md \
+     .claude/skills/compliance.md \
+     .claude/skills/handoff.md \
+     [any files created or modified this session]
+   ```
+
+6. Report back with file change table and list of files pushed
+
+---
+
 **Current project state and next actions are always in
 docs/ARCHITECT_BRIEFING.md. Read that file — do not rely on any plan
 embedded in this file.**
