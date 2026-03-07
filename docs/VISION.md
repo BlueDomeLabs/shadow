@@ -1,158 +1,302 @@
-# Shadow - Product Vision
+# Blue Dome Labs — Platform Vision
 
-**Last Updated: 2026-02-14**
-**This document is written for Reid, not for Claude instances. Keep it in plain language.**
-
----
-
-## What Is Shadow?
-
-Shadow is a personal health tracking app. It helps people keep track of their health conditions, supplements, food, sleep, fluids, activities, and more - all in one private, secure place. Think of it as a health journal that's always with you.
-
-Everything stays on the user's device by default (encrypted so nobody can read it). Users can optionally sync to Google Drive or iCloud so their data is backed up and available on other devices.
+**Document:** VISION.md
+**Last Updated:** 2026-03-06
+**Author:** Reid Barcus, Founder & CEO — Blue Dome Labs
+**Audience:** Potential partners, collaborators, and domain experts considering
+building an app on the Ember platform
 
 ---
 
-## Who Is It For?
+## The Problem Worth Solving
 
-1. **People managing chronic conditions** - Someone with eczema who wants to figure out what foods trigger flare-ups, or someone tracking which supplements help their symptoms.
-2. **Health counselors** - A nutritional counselor who manages supplement plans for multiple clients. They can switch between client profiles.
-3. **Families** - A parent tracking health data for family members.
+Most apps that track personal data fail for the same reason: logging is friction.
+A health tracking app that requires three taps and a form to record a meal gets
+abandoned within a week. A garden app that asks you to navigate menus to log a
+watering event collects dust. The data never flows in, so the insights never flow out,
+and the app becomes useless.
+
+The second reason these apps fail is economics. Building a professional-grade mobile
+app from scratch — one with encrypted storage, cloud sync, security, photo handling,
+notifications, and AI integration — costs hundreds of thousands of dollars and takes
+a year or more. Most great domain ideas never become apps because the infrastructure
+cost is prohibitive.
+
+Blue Dome Labs was built to solve both problems.
 
 ---
 
-## What Can Users Do?
+## What Blue Dome Labs Builds
 
-### Home Screen
-When users open the app, they see a home screen with:
-- Their current profile name and avatar at the top
-- A cloud sync button to manage backup settings
-- Quick action buttons for common tasks (report a flare-up, log supplements, log food, log fluids, start a photo round, log sleep, write a journal entry)
-- A bottom navigation bar with 9 tabs to get to any section
+Blue Dome Labs is a small, focused software company. We build data-driven personal
+tracking apps for iOS and Android using a shared platform called Ember.
 
-### Track Health Conditions
-- Create conditions (like "Eczema" or "Migraines")
-- Log how bad it is each day (1-10 severity scale)
-- Take photos to document changes over time
-- Record what triggered it
-- Mark conditions as resolved when they get better
+Ember is the infrastructure. It provides every capability a serious personal tracking
+app needs — encrypted storage, cloud sync, security, photo and video handling,
+notifications, AI-powered conversational logging, health platform integration, and more.
+All of it is built, tested, and proven in production.
 
-### Manage Supplements
-- Add supplements with details (name, form like capsule/tablet/powder, dosage, ingredients)
-- Set up schedules (daily, specific days, with meals, etc.)
-- Log whether you took them, missed them, or snoozed the reminder
-- See your compliance percentage over time
+Shadow is the first app built on Ember. It is a personal health tracking app for people
+managing chronic conditions. Shadow exists to prove the platform works and to push
+every capability to its limits. It has been in development since early 2026 and ships
+as a complete, production-ready iOS and Android application.
 
-### Log Food
-- Build a personal food library
-- Log meals with timestamps
-- Choose from 20+ diet types (keto, paleo, intermittent fasting, etc.)
-- Track diet compliance with real-time percentages
-- Get warnings before logging foods that break your diet rules
+Every future Blue Dome Labs app — and every app built by a collaborating domain expert —
+is built on Ember. The platform work is done once. The app-specific work is the only
+remaining investment.
 
-### Track Sleep
-- Log when you go to bed and when you wake up
-- Rate sleep quality
-- Record how you feel when waking up
-- Track dream types
-- See sleep patterns over time
+---
 
-### Track Fluids
-- Log water intake with quick-add buttons (8oz, 12oz, 16oz, etc.)
-- Track daily progress toward a hydration goal
-- Log bowel movements with type and condition
-- Track urination patterns
-- Track menstrual flow for women
-- Record basal body temperature for cycle tracking
-- Track any other bodily fluid with custom entries
+## The Ember Platform
 
-### Photo Documentation
-- Define body areas to photograph regularly
-- Take photos and maintain a timeline
-- Compare photos side-by-side to see changes over time
+Ember is a Flutter/Dart platform targeting iOS and Android. Here is what it provides
+out of the box to every app built on it.
 
-### Journal
-- Write free-form health notes
-- Add titles and tags for organization
-- Search through past entries
+---
 
-### Generate Reports
-- Create PDF reports for doctor visits
-- Select date ranges and categories
-- Include photos and charts
+### Encrypted Local Storage
+
+All user data is stored on-device in an AES-256 encrypted SQLite database
+(SQLCipher). The encryption key is stored in the platform's native secure storage —
+iOS Keychain on Apple devices, Android Keystore on Android devices. Data never leaves
+the device unencrypted under any circumstances.
+
+The database uses a sequential schema versioning system with forward-only migrations,
+so apps can evolve their data model without losing existing user data. Every record
+includes soft-delete support and a 30-day recovery window before permanent deletion.
+
+---
+
+### Cloud Sync
+
+Users can optionally back up and sync their data to Google Drive (iOS and Android)
+or iCloud (iOS only). Sync is bidirectional — the same account can be active on
+multiple devices, and data stays consistent across all of them.
+
+All data is encrypted before it leaves the device. The cloud never holds plaintext.
+
+The sync architecture supports:
+- **Full account sync** — all profiles and all data synchronized across devices
+- **Single-profile sync** — share one profile with a trusted person (a caregiver,
+  a health counselor, a family member) without exposing any other data
+- **Conflict resolution** — when the same record is changed on two devices before
+  they sync, the system detects the conflict and resolves it with configurable
+  strategies (last-write-wins, keep-both, or user choice)
+- **QR code device pairing** — a new device is added to an account by scanning
+  a QR code on an existing device. No passwords, no account registration required.
+
+---
+
+### Security
+
+Beyond encrypted storage, Ember provides a full application security layer:
+
+- **PIN protection** — 6-digit PIN locks the app when not in use
+- **Biometric authentication** — Face ID and fingerprint unlock
+- **Auto-lock** — configurable idle timeout before the app locks itself
+- **App switcher privacy** — app content is hidden in the iOS/Android task switcher
+  so sensitive data is not visible when switching between apps
+
+---
+
+### Multi-Profile Management
+
+A single app installation supports multiple independent profiles. Each profile has
+completely isolated data — no cross-contamination is possible at the database level.
+
+This enables the caregiver model: a health counselor, parent, or doctor runs one app
+and manages profiles for each of their clients or family members. Switching profiles
+is a single tap.
+
+Guest access allows a profile owner to share a specific profile with another device
+via a QR code invite. The guest device sees only that one profile. Access can be
+revoked at any time by the host. Each invite is hardware-locked to a single device —
+a QR code screenshot cannot be forwarded to a second device.
+
+---
 
 ### Notifications
-- Set reminders for supplements, meals, water, sleep, and more
-- 25 different reminder types
-- Customize times and days for each reminder
 
-### Profile Management
-- Create and manage profiles
-- Switch between profiles
-- Welcome screen for first-time users
+Ember's notification system is local-only — no server, no subscription, no privacy
+risk. Notifications are scheduled entirely on-device and fire without internet access.
 
-### Cloud Sync (Coming Soon)
-- Back up data to Google Drive or iCloud
-- Sync across multiple devices
-- Everything encrypted before leaving the device
-- Pair devices using QR codes
+The system supports two scheduling modes for each notification category:
+- **Anchor-event scheduling** — fires relative to named daily events (wake, breakfast,
+  morning, lunch, afternoon, dinner, evening, bedtime), each configurable by the user
+- **Interval scheduling** — fires on a repeating timer (every N hours)
+
+Multiple pending notifications are stacked into a single "you have items to review"
+notification, preventing notification fatigue. All specifics stay private — the
+notification body never contains health data.
 
 ---
 
-## What Does It Look Like Today?
+### AI-Powered Conversational Logging
 
-### Working and Usable
-- The app launches with a welcome screen for new users
-- Profile creation and management works
-- Home screen with all 9 tabs and quick action buttons
-- All data entry screens exist (supplements, conditions, food, sleep, fluids, activities, journal, photos)
-- Data saves to the encrypted local database
-- 1986 automated tests verify everything works correctly
+This is Ember's most distinctive capability and the one that solves the friction problem
+described at the opening of this document.
 
-### Still Being Built
-- Cloud sync (the screens exist but the actual sync doesn't work yet)
-- Some screens are basic and need polish (supplement editing, condition lists, food lists, sleep lists)
-- Report generation
-- Notifications system
-- Diet compliance tracking
-- Intelligence features (pattern detection, trigger analysis)
-- Wearable device integration (Apple Watch, Fitbit, etc.)
+When the user taps a notification, the app opens to a voice interface. An AI assistant
+(powered by the Anthropic Claude API) greets the user by name and works through all
+pending items in natural conversation:
 
----
+> "Good morning. Did you eat breakfast today?"
+> "Yeah, oatmeal and coffee."
+> "Got it — oatmeal and coffee. Your Vitamin D was due this morning — did you take it?"
+> "Yes."
+> "Perfect. You're all caught up. Your next check-in is this evening around six.
+>  Have a beautiful day."
 
-## The Big Picture Phases
+The assistant confirms each answer before logging it. Every confirmed item is written
+to the correct database field through the existing use case layer. Nothing is bypassed.
+Text input is always available as a fallback for situations where speaking is not
+appropriate.
 
-### Phase 1: Core Features - DONE
-All the basic tracking features work locally.
+The assistant maintains a rolling memory of recent sessions and personalizes its
+questions accordingly. It learns that you usually have coffee with breakfast, that you
+tend to skip the journal prompt, that you prefer brief answers. Over time, sessions
+get faster.
 
-### Phase 2: Enhanced Features - IN PROGRESS
-Multi-profile support, cloud sync, notifications, diet tracking, report generation.
-
-### Phase 3: Intelligence - PLANNED
-The app learns from your data: detects patterns, identifies triggers, predicts flare-ups, and gives personalized insights.
-
-### Phase 4: Health Data Integration - PLANNED
-Connect to Apple Health, Google Fit, Fitbit, Oura Ring, etc. Export data in medical formats for doctors.
-
-### Phase 5: Platform Expansion - FUTURE
-Windows, Linux, and web versions of the app.
+The conversational logging interface is fully domain-agnostic. The same infrastructure
+that asks a Shadow user about their breakfast asks a gardener about their tomatoes or
+a financial tracker user about their receipts. Only the prompts and the data model
+change. The conversation engine, voice pipeline, and AI integration are shared by
+every Ember app.
 
 ---
 
-## How to Check What's Working
+### Voice Pipeline
 
-To see the app yourself:
+The voice interface uses on-device speech-to-text and text-to-speech engines —
+Apple's AVSpeechSynthesizer on iOS and Android's native TTS engine on Android.
+No third-party voice API is required. The feature works fully offline.
 
-1. Open Terminal
-2. Navigate to the Shadow folder: `cd ~/Development/Shadow`
-3. Run: `flutter run -d macos`
-4. The app will launch on your Mac
+Every spoken response is displayed on screen simultaneously, providing an accessibility
+fallback for users in environments where audio is not appropriate.
 
-**Things to look for:**
-- Does the welcome screen appear on first launch?
-- Can you create a profile and see the home screen?
-- Do the navigation tabs work?
-- Can you tap into each section and see its screen?
-- Does data save when you enter it?
+---
 
-If anything looks broken or wrong, tell your Claude instance what you saw and they can investigate.
+### Photo Capture and Processing
+
+Ember provides a complete photo management pipeline:
+
+- Capture from camera or import from photo library
+- Automatic compression using native platform codecs (CoreImage on iOS,
+  libjpeg on Android) — fast and battery-efficient
+- EXIF metadata stripping — location data and device identifiers are removed
+  before storage
+- Encrypted storage with cloud sync
+- Timeline view — photos are organized chronologically and can be compared
+  side by side to track changes over time
+- Per-area organization — photos are grouped by user-defined areas
+  (a body location, a plant, a property, whatever the app requires)
+
+---
+
+### Video Capture and Processing
+
+Video support is planned for a near-term release, extending the photo pipeline to
+short video clips. This is particularly valuable in domains where motion or progression
+over time is meaningful — a 10-second clip documents a wound, a skin condition, or a
+plant's health in ways a photograph cannot.
+
+The video pipeline will include the same encryption, cloud sync, and timeline
+organization as photos, with appropriate handling for large file sizes (chunked
+upload, local compression, storage management).
+
+---
+
+### Health Platform Data Import
+
+On iOS, Ember can read data from Apple HealthKit — the centralized health data store
+on iPhones that aggregates data from the Health app and compatible devices. On Android,
+Ember reads from Google Health Connect.
+
+Supported data types include: steps, heart rate, blood pressure, blood oxygen,
+weight, and sleep data. Import is manual and user-controlled — Ember never reads
+health platform data in the background without explicit user action.
+
+Imported data is stored in a dedicated local table, isolated from manually-entered
+data, and is never modified after import.
+
+---
+
+### Barcode and Label Scanning
+
+Ember integrates with Open Food Facts (food products) and the NIH Dietary Supplement
+Label Database (supplements) for barcode-based data lookup. Scanning a product
+barcode populates nutritional information, ingredients, brand, and serving data
+automatically.
+
+For supplement labels that are not in the database, an AI-powered label scanner
+reads the label photo and extracts structured data using the Anthropic Claude API.
+The same pipeline can be adapted to any domain that involves labeled products.
+
+---
+
+### International Units
+
+Ember handles unit localization across all measurement types:
+
+- **Weight:** kg / lb
+- **Food weight:** g / oz
+- **Fluids:** ml / fl oz
+- **Temperature:** °C / °F
+- **Energy:** kcal / kJ
+- **Macro display:** grams / percentages
+
+Unit preferences are per-device and apply consistently across all data entry screens,
+reports, and displays.
+
+---
+
+### Report Generation
+
+Ember generates formatted PDF reports from stored data. Reports are configurable by
+date range and data category, and are designed for use cases where the user needs to
+share data with a professional — a doctor, a nutritionist, a specialist.
+
+Reports include charts, tables, and optionally photos. All report generation happens
+on-device with no server dependency.
+
+---
+
+### Intelligence System *(planned)*
+
+A future release will add a pattern detection and correlation engine. The system will
+analyze historical data to surface non-obvious relationships — which foods correlate
+with symptom flare-ups, which activities improve sleep quality, which environmental
+factors precede health events.
+
+The intelligence system is fully domain-agnostic. The same pattern detection that finds
+food-symptom correlations in a health app finds seasonal patterns in a gardening app
+or spending patterns in a financial app.
+
+---
+
+## The Business Model
+
+Blue Dome Labs apps are priced at approximately $12/year — accessible to individuals,
+sustainable as a business.
+
+Blue Dome Labs collaborates with domain experts on a revenue-share model. If you have
+deep expertise in a domain — gardening, finance, fitness, nutrition, veterinary care,
+or anything else where people benefit from tracking personal data over time — and you
+want to bring that expertise to a professional mobile app without building the
+infrastructure yourself, that is exactly the collaboration this platform is designed for.
+
+You bring the domain knowledge: what data matters, what questions to ask, what insights
+users need. Blue Dome Labs brings the platform: encrypted storage, sync, AI logging,
+photo handling, notifications, security, and everything else described in this document.
+
+Shadow is the proof that this works. It is a complete, production-quality app built
+entirely on the Ember platform by a founder who is not a programmer, working with AI
+as the engineering team.
+
+---
+
+## Contact
+
+Reid Barcus
+Founder & CEO, Blue Dome Labs
+reid@bluedomecolorado.com

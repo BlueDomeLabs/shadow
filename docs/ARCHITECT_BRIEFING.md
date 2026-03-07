@@ -10,10 +10,10 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   d622d97 — docs: fix skill file paths in Standard Sync Block
-# Last Code:     No Shadow app changes. Tooling session complete.
+# Last Commit:   [docs-restructure] — docs: restructure docs/ into specs/, standards/, planning/, archive/
+# Last Code:     No Shadow app changes. Docs-only restructuring session.
 # Next Action:   Reid decides next phase direction
-# Open Items:    None — Project Knowledge baseline (12 files) established and verified
+# Open Items:    None
 # Tests:         3,611 passing
 # Schema:        v19
 # Analyzer:      Clean
@@ -22,6 +22,119 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Docs Restructuring: docs/ reorganized into subdirectories
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only restructuring session. No lib/ or test/ files touched. Test count unchanged.
+
+**New directory structure:**
+- `docs/specs/` — 25 files (01_ARCHITECTURE through 25_WEARABLE_INTEGRATION). Technical spec files moved here and renumbered 01–25 with descriptive names.
+- `docs/standards/` — 7 files (01_CODING_STANDARDS through 07_PRIVACY_COMPLIANCE). Engineering standards moved here.
+- `docs/planning/` — 2 files: FLUIDS_RESTRUCTURING_SPEC.md, VOICE_LOGGING_SPEC.md. Forward-looking pending specs.
+- `docs/archive/` — 4 consolidation files: ERA1_HISTORY.md (349KB, 17 era-1 source docs), ERA2_HISTORY.md (119KB, 5 era-2 source docs), AUDIT_HISTORY.md (263KB, 13 audit plan source docs), MCP_CONFIGURATION.md (moved from docs/ root).
+
+**New top-level docs:**
+- `docs/VISION.md` — new version from Downloads (replaces previous)
+- `docs/ROADMAP.md` — new file from Downloads
+
+**35 source files removed** after consolidation into archive (17 era-1, 5 era-2, 13 audit history).
+
+**CLAUDE.md updated:**
+- SESSION PROTOCOL section: `docs/22_API_CONTRACTS.md` → `docs/specs/03_API_CONTRACTS.md`, `docs/02_CODING_STANDARDS.md` → `docs/standards/01_CODING_STANDARDS.md`
+- KEY REFERENCE FILES table: updated all paths; added VISION.md, ROADMAP.md, planning/ entries
+- STANDARD SYNC BLOCK: updated to new canonical paths
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/VISION.md` | REPLACED | New version from Downloads |
+| `docs/ROADMAP.md` | NEW | New file from Downloads |
+| `docs/specs/01_ARCHITECTURE.md` | MOVED | From docs/04_ARCHITECTURE.md |
+| `docs/specs/02_DATABASE_SCHEMA.md` | MOVED | From docs/10_DATABASE_SCHEMA.md |
+| `docs/specs/03_API_CONTRACTS.md` | MOVED | From docs/22_API_CONTRACTS.md |
+| `docs/specs/04_DESIGN_POLICIES.md` | MOVED | From docs/03_DESIGN_POLICIES.md |
+| `docs/specs/05_UI_FIELD_SPECIFICATIONS.md` | MOVED | From docs/38_UI_FIELD_SPECIFICATIONS.md |
+| `docs/specs/06_WIDGET_LIBRARY.md` | MOVED | From docs/09_WIDGET_LIBRARY.md |
+| `docs/specs/07_USER_FLOWS.md` | MOVED | From docs/14_USER_FLOWS.md |
+| `docs/specs/08_NOTIFICATION_SYSTEM.md` | MOVED | From docs/57_NOTIFICATION_SYSTEM.md |
+| `docs/specs/09_SETTINGS_SCREENS.md` | MOVED | From docs/58_SETTINGS_SCREENS.md |
+| `docs/specs/10_GUEST_PROFILE_ACCESS.md` | MOVED | From docs/56_GUEST_PROFILE_ACCESS.md |
+| `docs/specs/11_QR_DEVICE_PAIRING.md` | MOVED | From docs/35_QR_DEVICE_PAIRING.md |
+| `docs/specs/12_INTERNATIONAL_UNITS.md` | MOVED | From docs/36_INTERNATIONAL_UNITS.md |
+| `docs/specs/13_PHOTO_PROCESSING.md` | MOVED | From docs/18_PHOTO_PROCESSING.md |
+| `docs/specs/14_DIET_TRACKING.md` | MOVED | From docs/59_DIET_TRACKING.md |
+| `docs/specs/15_FOOD_DATABASE.md` | MOVED | From docs/59a_FOOD_DATABASE_EXTENSION.md |
+| `docs/specs/16_SUPPLEMENT_EXTENSION.md` | MOVED | From docs/60_SUPPLEMENT_EXTENSION.md |
+| `docs/specs/17_HEALTH_PLATFORM_INTEGRATION.md` | MOVED | From docs/61_HEALTH_PLATFORM_INTEGRATION.md |
+| `docs/specs/18_REPORT_GENERATION.md` | MOVED | From docs/40_REPORT_GENERATION.md |
+| `docs/specs/19_OAUTH_IMPLEMENTATION.md` | MOVED | From docs/08_OAUTH_IMPLEMENTATION.md |
+| `docs/specs/20_APPLE_INTEGRATION.md` | MOVED | From docs/15_APPLE_INTEGRATION.md |
+| `docs/specs/21_LOCALIZATION_GUIDE.md` | MOVED | From docs/13_LOCALIZATION_GUIDE.md |
+| `docs/specs/22_FEATURE_FLAGS.md` | MOVED | From docs/19_FEATURE_FLAGS.md |
+| `docs/specs/23_SAMPLE_DATA_GENERATOR.md` | MOVED | From docs/39_SAMPLE_DATA_GENERATOR.md |
+| `docs/specs/24_INTELLIGENCE_SYSTEM.md` | MOVED | From docs/42_INTELLIGENCE_SYSTEM.md |
+| `docs/specs/25_WEARABLE_INTEGRATION.md` | MOVED | From docs/43_WEARABLE_INTEGRATION.md |
+| `docs/standards/01_CODING_STANDARDS.md` | MOVED | From docs/02_CODING_STANDARDS.md |
+| `docs/standards/02_TESTING_STRATEGY.md` | MOVED | From docs/06_TESTING_STRATEGY.md |
+| `docs/standards/03_NAMING_CONVENTIONS.md` | MOVED | From docs/07_NAMING_CONVENTIONS.md |
+| `docs/standards/04_SECURITY_GUIDELINES.md` | MOVED | From docs/11_SECURITY_GUIDELINES.md |
+| `docs/standards/05_ACCESSIBILITY_GUIDELINES.md` | MOVED | From docs/12_ACCESSIBILITY_GUIDELINES.md |
+| `docs/standards/06_ERROR_HANDLING.md` | MOVED | From docs/16_ERROR_HANDLING.md |
+| `docs/standards/07_PRIVACY_COMPLIANCE.md` | MOVED | From docs/17_PRIVACY_COMPLIANCE.md |
+| `docs/planning/FLUIDS_RESTRUCTURING_SPEC.md` | MOVED | From docs/FLUIDS_RESTRUCTURING_SPEC.md |
+| `docs/planning/VOICE_LOGGING_SPEC.md` | MOVED | From docs/VOICE_LOGGING_SPEC.md |
+| `docs/archive/ERA1_HISTORY.md` | NEW | 349KB — 17 era-1 source docs consolidated |
+| `docs/archive/ERA2_HISTORY.md` | NEW | 119KB — 5 era-2 source docs consolidated |
+| `docs/archive/AUDIT_HISTORY.md` | NEW | 263KB — 13 audit plan source docs consolidated |
+| `docs/archive/MCP_CONFIGURATION.md` | MOVED | From docs/MCP_CONFIGURATION_PLAN.md |
+| 35 source docs | REMOVED | Consolidated into ERA1/ERA2/AUDIT_HISTORY archive files |
+| `CLAUDE.md` | MODIFIED | Updated 3 sections: SESSION PROTOCOL paths, KEY REFERENCE FILES table, STANDARD SYNC BLOCK |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This entry |
+
+### Executive Summary for Reid
+
+Housekeeping complete. The docs folder now has a clean, organized structure instead of 89 files dumped in one flat directory:
+
+- **docs/specs/** — all the technical blueprints (25 files, numbered and named clearly)
+- **docs/standards/** — all the engineering rules and guidelines (7 files)
+- **docs/planning/** — the two upcoming specs (fluids restructuring and voice logging)
+- **docs/archive/** — historical planning documents from the big-team era and audit phase, consolidated into 3 large archive files so they're preserved but out of the way
+
+The two new files from the Architect (VISION.md and ROADMAP.md) are now in place at the docs/ root.
+
+No app code was changed. Tests are still 3,611 passing.
+
+---
+
+## [2026-03-07 MST] — Docs: VOICE_LOGGING_SPEC + FLUIDS_RESTRUCTURING_SPEC added
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Moved two new spec files from ~/Downloads into the project and committed them:
+- `docs/VOICE_LOGGING_SPEC.md` — voice logging feature spec (Phase 19 prerequisite)
+- `docs/FLUIDS_RESTRUCTURING_SPEC.md` — bodily output domain restructuring spec (prerequisite for voice logging)
+
+Also pushed all 89 docs/ files to Project Knowledge for Architect audit review (full list in previous session output). 95 total files now in Project Knowledge (89 docs/ + 6 baseline files).
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/VOICE_LOGGING_SPEC.md` | NEW | Moved from ~/Downloads, committed fc8a624 |
+| `docs/FLUIDS_RESTRUCTURING_SPEC.md` | NEW | Moved from ~/Downloads, committed fc8a624 |
+
+### Executive Summary for Reid
+
+Added the two new planning documents the Architect prepared (voice logging spec and fluids restructuring spec) to the project. Also pushed a complete snapshot of all docs to the Architect's Project Knowledge for review.
 
 ---
 

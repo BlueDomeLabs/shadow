@@ -154,8 +154,8 @@ Every session follows this flow. No exceptions.
 - Check `git status` for uncommitted changes
 
 ### 2. CODE (follow specs exactly)
-- Read `docs/22_API_CONTRACTS.md` for interface definitions
-- Read `docs/02_CODING_STANDARDS.md` for patterns
+- Read `docs/specs/03_API_CONTRACTS.md` for interface definitions
+- Read `docs/standards/01_CODING_STANDARDS.md` for patterns
 - Read task-specific specs as needed
 - Every entity: `id`, `clientId`, `profileId`, `syncMetadata`
 - Every repository method: returns `Result<T, AppError>`
@@ -199,9 +199,12 @@ Every session must end with these steps in order:
      CLAUDE.md \
      docs/ARCHITECT_BRIEFING.md \
      docs/AUDIT_FINDINGS.md \
-     docs/02_CODING_STANDARDS.md \
-     docs/10_DATABASE_SCHEMA.md \
-     docs/22_API_CONTRACTS.md \
+     docs/DECISIONS.md \
+     docs/VISION.md \
+     docs/ROADMAP.md \
+     docs/standards/01_CODING_STANDARDS.md \
+     docs/specs/02_DATABASE_SCHEMA.md \
+     docs/specs/03_API_CONTRACTS.md \
      docs/ARCHITECT_BRIEFING_ARCHIVE.md \
      .claude/work-status/current.json \
      .claude/skills/startup/SKILL.md \
@@ -368,12 +371,15 @@ test delta reviewable.
 
 | Document | Purpose |
 |----------|---------|
-| `VISION.md` | Plain-language product vision (Reid's document) |
-| `DECISIONS.md` | Log of all significant decisions with reasoning |
-| `docs/22_API_CONTRACTS.md` | Exact interface definitions (canonical) |
-| `docs/02_CODING_STANDARDS.md` | Mandatory patterns |
-| `docs/38_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |
-| `docs/10_DATABASE_SCHEMA.md` | Database structure |
+| `docs/VISION.md` | Platform and product vision |
+| `docs/ROADMAP.md` | Complete build history and forward plan |
+| `docs/DECISIONS.md` | Log of all significant decisions with reasoning |
+| `docs/specs/03_API_CONTRACTS.md` | Exact interface definitions (canonical) |
+| `docs/standards/01_CODING_STANDARDS.md` | Mandatory patterns |
+| `docs/specs/05_UI_FIELD_SPECIFICATIONS.md` | Field-by-field screen specs |
+| `docs/specs/02_DATABASE_SCHEMA.md` | Database structure |
+| `docs/planning/FLUIDS_RESTRUCTURING_SPEC.md` | Fluids domain restructuring spec (pending) |
+| `docs/planning/VOICE_LOGGING_SPEC.md` | Voice logging spec (pending) |
 | `lib/presentation/screens/supplements/supplement_list_screen.dart` | Reference screen implementation — match this pattern for all new screens |
 
 ---
