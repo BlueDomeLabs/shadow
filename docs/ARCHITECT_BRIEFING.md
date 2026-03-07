@@ -25,6 +25,35 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] P-012 — Retire /implementation-review and /spec-review Skills
+
+**P-012 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config/docs session. No lib/ or test/ files touched.
+
+Deleted `.claude/skills/implementation-review/SKILL.md` and `.claude/skills/spec-review/SKILL.md`. Both skills had no remaining use case:
+
+- `/implementation-review` was redundant to the Architect's post-prompt file verification (reads actual committed files after every session) and the AUDIT_FINDINGS.md/AUDIT_HISTORY.md audit infrastructure.
+- `/spec-review` was the wrong mechanism for the right task — spec review before implementation is the Architect's pre-prompt responsibility, not something Shadow should run independently.
+
+Both decisions logged in `docs/DECISIONS.md` at the top of the Decisions section.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/implementation-review/SKILL.md` | DELETED | Skill retired — covered by Architect post-prompt verification and audit process |
+| `.claude/skills/spec-review/SKILL.md` | DELETED | Skill retired — spec review is Architect pre-prompt responsibility |
+| `docs/DECISIONS.md` | MODIFIED | Two decision entries added at top of Decisions section |
+
+### Executive Summary for Reid
+
+Removed two skills that were solving problems already handled elsewhere. The implementation review skill was checking work that the Architect already checks after every session by reading the actual files. The spec review skill was asking me to do something that's actually the Architect's job before writing each prompt. Both deleted; both decisions documented.
+
+---
+
 ## [2026-03-07 MST] P-011 — Rewrite /coding as Control Document Reading List; Add to /startup
 
 **P-011 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
