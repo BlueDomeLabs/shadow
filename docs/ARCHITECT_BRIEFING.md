@@ -10,10 +10,10 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   ba0e0c0 — docs: update ARCHITECT_BRIEFING for bdl-sync tooling session
-# Last Code:     No Shadow app changes. Read-only investigation + bdl-sync tooling.
+# Last Commit:   d982704 — chore: add .bdlsync/ to .gitignore
+# Last Code:     No Shadow app changes. Tooling work only (bdl-sync).
 # Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
-# Open Items:    test/widget/ is an empty local dir, not in repo, not gitignored (minor)
+# Open Items:    None
 # Tests:         3,611 passing
 # Schema:        v19
 # Analyzer:      Clean
@@ -22,6 +22,36 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Tooling: bdl-sync push --files and delete commands
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+No Shadow app changes. Extended `bdl-sync` (`/Users/reidbarcus/Development/tools/bdl-sync/bdl_sync.py`) with two new capabilities:
+
+**`push --files <file1> <file2> ...`:** When `--files` is provided, skips the allowlist scan entirely and pushes only the explicitly listed files (relative to cwd). Missing files print a warning and are skipped. Existing push behavior (full allowlist scan) is unchanged when `--files` is omitted.
+
+**`delete <file1> <file2> ...`:** New subcommand. Fetches remote Project Knowledge docs, looks up each requested filepath by filename, deletes matches, and prints "Deleted" or "Not found" per file. Does not touch the local filesystem.
+
+Also completed earlier in this session: `test/widget/` empty dir removed; `.bdlsync/` added to `.gitignore` (committed `d982704`); `DECISIONS.md`, `VISION.md`, `MCP_CONFIGURATION_PLAN.md` moved to `docs/` (committed `a66f2ff`).
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `/tools/bdl-sync/bdl_sync.py` | MODIFIED (unversioned) | Added `--files` to push; added `delete` subcommand; updated parser + routing |
+| `.gitignore` | COMMITTED (`d982704`) | `.bdlsync/` added |
+| `docs/DECISIONS.md` | MOVED (`a66f2ff`) | From root via git mv |
+| `docs/VISION.md` | MOVED (`a66f2ff`) | From root via git mv |
+| `docs/MCP_CONFIGURATION_PLAN.md` | MOVED (`a66f2ff`) | From root via git mv |
+
+### Executive Summary for Reid
+
+More tooling work. Added two new commands to the sync tool: one lets you push a specific list of files instead of everything (so we can push just the Architect's key docs without uploading the whole codebase), and one lets you delete specific files from Project Knowledge by name. Also cleaned up the last few loose ends from earlier — empty test folder deleted, three doc files moved into `docs/`, and the sync tool's config folder properly gitignored.
 
 ---
 
