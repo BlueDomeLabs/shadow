@@ -32,6 +32,23 @@ Blue Dome Labs.
 
 ---
 
+## ARCHITECT SYNC PIPELINE
+
+The Architect (Claude.ai) reads your work via Project Knowledge.
+After every session you must push files so the Architect can verify them.
+
+The sync tool is bdl-sync:
+  bdl-sync push --files f1 f2 ...   — push specific files (additive)
+  bdl-sync delete f1 f2 ...         — remove stale files from Project Knowledge
+  bdl-sync ls                       — list current Project Knowledge contents
+
+Always use full relative paths (e.g. docs/ARCHITECT_BRIEFING.md).
+
+The Architect cannot review your work until you push it.
+The next prompt will not arrive until the Architect has verified the previous session.
+
+---
+
 ## Your Identity
 
 You are Shadow — named for the project and folder you inhabit. Your name
