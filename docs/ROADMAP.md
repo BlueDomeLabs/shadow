@@ -1,7 +1,7 @@
 # Shadow — Project Roadmap
 
 **Document:** ROADMAP.md
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-07
 **Maintained by:** The Architect (claude.ai)
 **Purpose:** Complete build history, current state, and forward plan for Shadow
 and the Ember platform. Updated at the close of each major phase or work cycle.
@@ -26,11 +26,11 @@ it grows with each phase and never regresses.
 
 | Metric | Value |
 |--------|-------|
-| Tests passing | 3,611 |
-| Schema version | v19 |
+| Tests passing | 3,679 |
+| Schema version | v20 |
 | Analyzer | Clean |
-| Last commit | d622d97 |
-| Status | IDLE — Awaiting next phase |
+| Last commit | 72dfe84 |
+| Status | Fluids Restructuring Session B in progress |
 
 ---
 
@@ -355,7 +355,7 @@ pipeline as Google Drive — all data is encrypted before upload.
 Platform: iOS and macOS only. iCloud button hidden on Android.
 Xcode entitlements configured for all three build configurations.
 Provider selection persisted in FlutterSecureStorage. Provider switching requires
-app restart (hot-switching deferred to a future phase).
+app restart.
 
 Tests: incremental. Completed: Phases 31a–31b in original numbering.
 
@@ -505,29 +505,32 @@ architectural risk. All 64 findings resolved. 3,611 tests passing at close.
 
 These items are sequenced and must complete before Shadow ships.
 
-### 1. Fluids Domain Restructuring *(specced — awaiting implementation)*
+---
+
+### 1. Fluids Domain Restructuring 🔄 *(Session B in progress)*
 
 The current `fluids_entries` table incorrectly groups beverages with bodily outputs
 (urine, bowel, menstruation, BBT) and uses a one-row-per-day aggregate model.
 
 Resolution:
 - Replace `fluids_entries` with `bodily_output_logs` (one row per event, schema v20)
+  — Session A complete (3,679 tests)
 - Move water and beverages to `food_logs` as FoodItem records with meal_type=beverage
+- Rename tab label to "Bodily Functions"
 - Rename notification category `fluids` → `bodilyOutputs`
 - New use cases: LogBodilyOutputUseCase, GetBodilyOutputsUseCase,
   UpdateBodilyOutputUseCase, DeleteBodilyOutputUseCase
 
 Spec: `docs/planning/FLUIDS_RESTRUCTURING_SPEC.md`
-Minimum test count: ~74 new tests
 
 ---
 
 ### 2. Phase 19 — Conversational Voice Logging *(specced — awaiting Fluids)*
 
 The AI-powered conversational logging assistant. When a notification fires, the user
-taps it and the app opens to a voice interface. An AI assistant (Claude API) works
-through all pending items in natural conversation, confirms each answer, and writes
-confirmed data to the database through the existing use case layer.
+taps it and the app opens to the AI assistant interface. The assistant works through
+all pending items in natural conversation, confirms each answer, and writes confirmed
+data to the database through the existing use case layer.
 
 Architecture:
 - NotificationQueueBuilder → VoiceSessionManager ↔ VoicePipeline → ClaudeApiClient
@@ -540,29 +543,143 @@ Architecture:
 
 Spec: `docs/planning/VOICE_LOGGING_SPEC.md`
 
----
-
-### 3. Docs Reorganization *(in planning — current session)*
-
-Complete restructuring of the docs/ folder:
-- New structure: docs/specs/, docs/standards/, docs/planning/, docs/archive/
-- All active specs renumbered into clean sequence
-- Standards extracted into docs/standards/ subfolder
-- Era 1 and Era 2 historical docs consolidated into single archive files
-- All audit history rounds consolidated into AUDIT_HISTORY.md
-- VISION.md, PRODUCT_SPEC.md, ROADMAP.md written as new top-level documents
+> **Design direction — resolve before Phase 19 UI begins:** The long-term vision
+> positions the AI assistant as the app's primary home screen. The user opens the app
+> and arrives at the AI interface, not a tab grid. Phase 19 should be architected with
+> this in mind so the interface can be promoted to the home screen in a subsequent
+> release without structural rework. Reid to confirm final design direction before
+> Phase 19 UI implementation begins.
 
 ---
 
-### 4. VIDEO_PROCESSING Spec *(to be written)*
+### 3. AI Home Screen *(spec to be written — resolve before Phase 19 UI)*
 
-Video capture and storage as an extension of the photo pipeline. 10-second clips for
+Promote the AI assistant to the app's primary home screen. The user opens the app
+and arrives at the AI interface — which has already reviewed pending notification
+items, recent entries, and calendar context, and is ready to engage. The tab
+navigation remains accessible via gesture or persistent nav element for direct
+data browsing.
+
+Design notes:
+- Phase 19 must be architected to support this promotion without structural rework
+- Navigation model: AI chat as root route, tab grid accessible via gesture or
+  persistent nav element
+- The notification queue, calendar context, and health data are all inputs to the
+  AI's opening greeting and agenda
+- Spec: to be written before Phase 19 UI begins
+
+---
+
+### 4. Calendar Integration *(spec to be written)*
+
+Natural language calendar management through the AI assistant. Connects to Google
+Calendar (iOS and Android) and Apple Calendar (iOS) as both reader and writer. Users
+create, edit, and delete events and tasks by speaking or typing in the same interface
+used for health logging. No separate calendar screen.
+
+Example interactions:
+- "I have an appointment with Dr. Smith at 11am this Friday at the People's Clinic"
+  → creates calendar event
+- "I need to buy carrots, lettuce, and oranges tomorrow" → creates calendar task
+- "What do I have scheduled next week?" → AI reads and summarizes calendar
+- "Invite Sarah to Friday's appointment" → adds attendee to event
+
+The AI can also read calendar context proactively — surfacing upcoming appointments
+during logging sessions and offering to prepare relevant reports.
+
+Design notes:
+- OAuth flows for Google Calendar API and Apple EventKit
+- Calendar is a capability of the AI assistant, not a separate app section
+- Domain-agnostic — any Ember app can enable calendar integration
+- Spec: to be written
+
+---
+
+### 5. PDF Document Import *(spec to be written)*
+
+AI-powered extraction of structured data from PDF documents. User shares a PDF
+(blood work, lab results, medical reports) and the Claude API reads it and extracts
+tabular data into a read-only imported record. The user reviews the extracted table
+before confirming. Extracted records can be included in generated reports.
+
+Design notes:
+- New table: `imported_pdf_records` (read-only, never modified after import)
+- Claude API call with PDF as document input, structured JSON response
+- User reviews extracted table before confirming import
+- Imported record linked to report generation pipeline
+- Domain-agnostic — the same pipeline works for any structured PDF in any Ember app
+- Spec: to be written
+
+---
+
+### 6. Photo Annotations *(spec to be written)*
+
+Edit-time annotation layer for photos. Users draw circles, arrows, and text labels
+on photos to mark specific areas of interest. Annotations stored as a separate
+overlay — the original image is never modified.
+
+Design notes:
+- Annotation tool added to the edit photo flow (not a separate mode)
+- Overlay stored as a separate JSON or SVG layer alongside the photo record
+- Displayed composited on the photo in timeline and report views
+- Domain-agnostic — works for any photo in any Ember app
+- Spec: to be written
+
+---
+
+### 7. Cloud-Only Storage for Large Files *(spec to be written)*
+
+Storage management option for photos, videos, and other large files. Once a file is
+confirmed uploaded to cloud storage, the local copy is deleted. The file is downloaded
+on demand when the user views it and cached temporarily. Reduces device storage
+significantly for users with large media libraries.
+
+Design notes:
+- Per-file setting — user can pin important files locally
+- Requires confirmed upload before local delete
+- Download-on-demand with loading indicator in photo and video timeline views
+- Integrates with the video pipeline
+- Spec: to be written
+
+---
+
+### 8. Intelligence System *(spec to be written)*
+
+Pattern detection and correlation engine. Analyzes historical data to surface
+non-obvious relationships: which foods correlate with symptom flare-ups, which
+activities improve sleep, which environmental factors precede health events.
+
+The system ships in a dormant state — visible to users from day one with a clear
+explanation of what it does and what it is building toward. It activates automatically
+when a meaningful threshold of accumulated data has been reached.
+
+Design notes:
+- Ships dormant at launch — shows explanation and progress toward activation threshold
+- Activates automatically when threshold is crossed — no user action required
+- **Open decision:** What constitutes a meaningful threshold? Likely a combination
+  of time (minimum days of logging), volume (minimum entry count), and domain
+  diversity (minimum number of tracked categories with sufficient data). This must
+  be defined before the spec is written.
+- Fully domain-agnostic — the same engine works for any Ember app
+- Spec: to be written after threshold decision is made
+
+---
+
+### 9. Video Pipeline *(spec to be written)*
+
+Video capture and storage as an extension of the photo pipeline. Short clips for
 documenting conditions, wounds, skin changes, or any domain where motion matters.
-Chunked upload, local compression, storage management, timeline organization.
+
+Design notes:
+- Chunked upload for large files — required for reliable video sync
+- Local compression before upload
+- Same encryption, timeline organization, and cloud-only offload as photos
+- Duration target: 10–30 second clips (to be confirmed in spec)
+- Spec: to be written
 
 ---
 
-### 5. VitalsLog Entity *(specced as future — needs phase planning)*
+### 10. VitalsLog Entity *(needs phase planning)*
 
 A dedicated VitalsLog entity for blood pressure, heart rate, and weight tracked
 manually (as opposed to imported from HealthKit). Currently these cannot be logged
@@ -571,16 +688,7 @@ DECISIONS.md (2026-02-23).
 
 ---
 
-### 6. Photo Encryption *(deferred — needs phase planning)*
-
-AES-256-GCM encryption for photo files at rest. Currently deferred because it
-requires a key management system (generation, storage, rotation, distribution).
-The database is fully encrypted; photos are not. Documented in DECISIONS.md
-(2026-02-27).
-
----
-
-### 7. Supplement Archive Support *(noted gap)*
+### 11. Supplement Archive Support *(noted gap)*
 
 SupplementDao has no archive() method — Supplements cannot currently be archived
 (hidden without deleting). Conditions and FoodItems support archive/unarchive.
@@ -588,7 +696,50 @@ This gap was confirmed during the audit and needs a phase before launch.
 
 ---
 
-### 8. Physical Device Testing
+### 12. Docs Reorganization ✅ *(complete — March 2026)*
+
+Complete restructuring of the docs/ folder:
+- New structure: docs/specs/, docs/standards/, docs/planning/, docs/archive/
+- All active specs renumbered into clean sequence
+- Standards extracted into docs/standards/ subfolder
+- Era 1 and Era 2 historical docs consolidated into single archive files
+- All audit history rounds consolidated into AUDIT_HISTORY.md
+- VISION.md, ROADMAP.md written as top-level platform documents
+- Skill system overhauled: /handoff, /startup, /coding rewritten;
+  /compliance, /implementation-review, /spec-review retired
+- Prompt ID system introduced (P-001 sequence)
+
+---
+
+### 13. Pagination *(spec to be written)*
+
+Cursor-based pagination at the DAO level for list views that currently load all
+records into memory. Journal entries, photo galleries, and other potentially large
+lists need paginated loading for users with years of accumulated data.
+
+Design notes:
+- Load 50 records initially, fetch next page on scroll
+- Implementation at DAO level — presentation layer requests pages
+- Required for long-term users with high data volume
+- Spec: to be written
+
+---
+
+### 14. Encryption Offload *(spec to be written)*
+
+Move AES-256 encryption during cloud sync from the main thread to a background
+isolate (Flutter's term for a separate thread). Prevents UI freezes during large
+sync batches and during encryption of large video files.
+
+Design notes:
+- Particularly important when video pipeline ships — video files are large enough
+  that main-thread encryption would cause noticeable freezes
+- Background isolate communicates results back to main thread via SendPort/ReceivePort
+- Spec: to be written
+
+---
+
+### 15. Physical Device Testing
 
 Several features are code-complete but untested on physical hardware:
 
@@ -601,7 +752,7 @@ Several features are code-complete but untested on physical hardware:
 
 ---
 
-### 9. App Store and Play Store Preparation
+### 16. App Store and Play Store Preparation
 
 - App icons (all required sizes for iOS and Android)
 - Screenshots for App Store Connect and Google Play Console
@@ -614,37 +765,16 @@ Several features are code-complete but untested on physical hardware:
 
 ## 💡 Post-Launch / Future
 
-These items are identified and specced but will not block the initial launch.
+### Wearable Device APIs
 
-### Intelligence System *(spec: docs/specs/27_INTELLIGENCE_SYSTEM.md)*
+Direct API integrations with Fitbit, Garmin, Oura, and WHOOP beyond the HealthKit /
+Health Connect import already built. Each requires its own OAuth flow and data mapping
+to Shadow's schema. These platforms expose richer data through their direct APIs than
+through Apple or Google's health aggregators — HRV, recovery scores, sleep stages,
+strain data.
 
-Pattern detection and trigger correlation. Analyzes historical data to surface
-non-obvious relationships — foods that correlate with symptom flare-ups, activities
-that improve sleep, environmental factors that precede health events. Requires
-meaningful accumulated data history to be useful. Fully domain-agnostic.
-
-### Wearable Device APIs *(spec: docs/specs/28_WEARABLE_INTEGRATION.md)*
-
-Direct API integrations with Fitbit, Garmin, Oura, and WHOOP beyond the HealthKit/
-Health Connect import already built. Each requires its own OAuth flow and data mapping.
-FHIR R4 export for interoperability with healthcare systems.
-
-### Hot Provider Switching
-
-Switch between Google Drive and iCloud sync without an app restart. Currently requires
-app restart. Deferred as acceptable for launch.
-
-### Pagination
-
-Journal entry lists and photo galleries currently load all records into memory.
-For long-term users with years of data, cursor-based pagination at the DAO level
-will be needed. Documented in AUDIT-09-004.
-
-### Encryption Offload
-
-AES-256 encryption during sync currently runs on the main thread. For large sync
-batches after extended offline periods, this could cause brief UI freezes. Should
-be moved to a background isolate. Documented in AUDIT-09-003.
+May or may not be built depending on user demand and platform API availability.
+FHIR R4 export for interoperability with healthcare systems would accompany this work.
 
 ---
 
@@ -654,9 +784,10 @@ After Shadow ships, the platform capabilities built here will be extracted into
 Ember — a reusable Flutter/Dart template for building new personal tracking apps.
 
 Ember extracts: encrypted storage, cloud sync, security, profile management,
-guest access, notifications, voice logging infrastructure, photo and video
-processing, health platform import, AI integration, report generation,
-barcode scanning, unit localization, and the full standards/specs documentation.
+guest access, notifications, AI assistant, voice pipeline, calendar integration,
+photo and video processing, photo annotations, PDF document import, health platform
+import, intelligence system, report generation, barcode scanning, unit localization,
+and the full standards/specs documentation.
 
 The first planned Ember app: **Seeds** — a personal seed collection tracker for
 Reid's collaborator Gurattan, built on a revenue-share model.
