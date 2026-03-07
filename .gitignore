@@ -48,3 +48,4 @@ app.*.map.json
 client_secret*.json
 *.env
 scripts/.last_sync_hash
+.bdlsync/
