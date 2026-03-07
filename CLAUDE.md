@@ -186,20 +186,9 @@ Every session follows this flow. No exceptions.
 
 ## STANDARD SYNC BLOCK
 
-At the end of every session, invoke the /handoff skill. It contains
-the full authoritative procedure.
-
-The /handoff skill covers, in order:
-1. git add + git commit + git push to GitHub
-2. Update docs/ARCHITECT_BRIEFING.md
-3. flutter test — must pass
-4. flutter analyze — must be clean
-5. bdl-sync delete all stale Project Knowledge files
-   (moved, removed, or modified files — delete before pushing)
-6. bdl-sync push baseline + all files touched this session
-7. bdl-sync ls to verify no stale files remain
-8. Update .claude/work-status/current.json
-9. Report back to Reid
+At the end of every session, invoke /handoff.
+The /handoff skill contains the complete procedure.
+Do not maintain sync instructions anywhere else.
 
 ---
 
