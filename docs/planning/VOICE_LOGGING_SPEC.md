@@ -2,7 +2,7 @@
 # Shadow — Conversational Voice Logging Assistant
 # Phase 19 Feature Specification
 # Status: APPROVED — All decisions resolved. Ready for Phase 19 implementation queue.
-# Last Updated: 2026-03-06
+# Last Updated: 2026-03-07
 # Author: The Architect
 
 ---
@@ -102,6 +102,22 @@ table. Controls closing message style and user-defined notification category pri
 `voice_session_history` table. Provides Claude with personalization context. Local-only,
 not synced to Google Drive.
 
+### Navigation Architecture
+
+Phase 19 builds the AI assistant interface as the app's primary root route —
+not a modal pushed over the existing tab navigation. When the user opens the
+app, they arrive at the AI chat interface directly. The tab grid remains
+accessible via a persistent bottom navigation element.
+
+This is the permanent architecture, not a placeholder. The design decision is
+final: the AI assistant is the home screen for Shadow and all future Ember apps.
+
+The existing `HomeScreen` tab scaffold is demoted from the root route. Navigation
+structure:
+- Root route → `VoiceLoggingScreen` (AI assistant home)
+- Persistent bottom nav → access to all existing tabs
+- Notification tap → opens `VoiceLoggingScreen` with pending items queued
+
 ---
 
 ## 2. New Database Tables
@@ -114,7 +130,7 @@ Per-profile voice logging configuration. One row per profile.
 
 ```
 Table: voice_logging_settings
-Schema version: v20 (added in Phase 19)
+Schema version: v21 (added in Phase 19)
 Sync: Local-only — not synced to Google Drive
 ```
 
@@ -149,7 +165,7 @@ conversational exchange (user turn + assistant turn = one row).
 
 ```
 Table: voice_session_history
-Schema version: v20 (added in Phase 19)
+Schema version: v21 (added in Phase 19)
 Sync: Local-only — not synced to Google Drive
 Retention: Rolling 90-day window. Rows older than 90 days are deleted at session open.
 ```
@@ -810,16 +826,16 @@ These items must be resolved before Phase 19 implementation begins.
 | 2 | Voice sessions sync to Google Drive? | Reid ✓ | **RESOLVED** — local-only. |
 | 3 | Skipped items — same-day follow-up or next window? | Reid ✓ | **RESOLVED** — next scheduled window. "Not now" = stays pending. "Skip" = removed from current window. Claude takes user literally. |
 | 4 | Where do water/beverages live? | Reid ✓ | **RESOLVED** — `food_logs` via `FoodItem` records. meal_type=beverage. |
-| 5 | Fluids tab / notification category name | Reid | **OPEN** — tab renamed from "Fluids" to TBD. See FLUIDS_RESTRUCTURING_SPEC.md Open Decision #1. |
+| 5 | Fluids tab / notification category name | Reid ✓ | **RESOLVED** — tab renamed to "Bodily Functions". Notification category renamed to `bodilyOutputs`. Completed in P-014/P-015. |
 
 ---
 
 ## 14. Schema Migration
 
-Phase 19 requires schema v20 (current is v19). Migration adds two tables:
+Phase 19 requires schema v21 (current is v20). Migration adds two tables:
 
 ```
-Migration 19 → 20:
+Migration 20 → 21:
   CREATE TABLE voice_logging_settings (...)
   CREATE TABLE voice_session_history (...)
   CREATE INDEX idx_voice_session_history_profile_created
@@ -837,3 +853,4 @@ No existing tables are modified.
 | 0.1 DRAFT | 2026-03-06 | Architect | Initial draft |
 | 1.0 APPROVED | 2026-03-06 | Reid + Architect | All original open decisions resolved |
 | 1.1 | 2026-03-06 | Architect | Fluids domain corrected: bodily outputs → bodily_output_logs, beverages → food_logs. Data mapping table fully updated. Sequencing updated to include Fluids Restructuring prerequisite. |
+| 1.2 | 2026-03-07 | Architect | Closed decision #5 (Bodily Functions rename). Schema target corrected v20→v21. AI Home Screen navigation architecture added. |

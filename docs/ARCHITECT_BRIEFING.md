@@ -10,9 +10,9 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   2eb45cd — P-017: replace ROADMAP.md + VISION.md (corrected)
+# Last Commit:   [P-018 commit pending]
 # Last Code:     No code changes — docs-only session
-# Next Action:   Architect reviews P-017; next phase TBD
+# Next Action:   Architect reviews P-018; Phase 19 implementation next
 # Open Items:    None
 # Tests:         3,575 passing (unchanged — no code changes this session)
 # Schema:        v20
@@ -22,6 +22,45 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] P-018 — Docs: VOICE_LOGGING_SPEC.md Corrections
+
+**P-018 | Tests: 3,575 (unchanged) | Schema: v20 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ changes.
+
+Three corrections applied to `docs/planning/VOICE_LOGGING_SPEC.md`:
+
+1. **Decision #5 closed** — Section 13 Open Decisions row for #5 updated from OPEN to RESOLVED. Tab renamed to "Bodily Functions", notification category renamed to `bodilyOutputs`, completed in P-014/P-015.
+
+2. **Schema version corrected v20→v21** — P-014 consumed v20 for `bodily_output_logs`. Phase 19's migration target is therefore v21. Three occurrences corrected: Section 2.1 table header, Section 2.2 table header, Section 14 migration block (including migration label `19→20` corrected to `20→21`).
+
+3. **Navigation Architecture section added** — New subsection at end of Section 1 (after Component Responsibilities, before horizontal rule). Establishes that `VoiceLoggingScreen` is the app's primary root route — not a modal. `HomeScreen` tab scaffold is demoted. This is the permanent architecture for Shadow and all future Ember apps.
+
+Document Control row 1.2 added. File header `Last Updated` updated to 2026-03-07.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/planning/VOICE_LOGGING_SPEC.md` | MODIFIED | Decision #5 closed; schema v20→v21; Navigation Architecture added; Document Control 1.2 added |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This session log entry |
+
+### Executive Summary for Reid
+
+Three corrections to the Voice Logging spec before Phase 19 begins:
+
+1. **Bodily Functions decision is now officially closed in the spec** — the tab rename and notification category rename are recorded as complete (they were done in P-014 and P-015 but the spec still showed them as open).
+
+2. **Schema version corrected** — the spec said Phase 19 would use schema v20, but P-014 already used v20 for Bodily Functions. Phase 19 will use v21 instead. The spec now says this correctly in all three places it appears.
+
+3. **AI home screen architecture is now documented in the spec** — the decision that the AI assistant is the app's primary home screen (not a modal or a tab) is now written into the Voice Logging spec so Phase 19 implementation has it as a clear requirement.
+
+No code was written or tested. Tests remain at 3,575 passing.
 
 ---
 
