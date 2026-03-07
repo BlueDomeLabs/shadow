@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-016 — Docs Update: ROADMAP.md + VISION.md",
+  "task": "P-017 — Docs Correction: ROADMAP.md + VISION.md",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3575,
   "schemaVersion": 20,
-  "lastPromptId": "P-016",
-  "notes": "Docs-only session. Moved Architect's updated ROADMAP.md from Downloads into project. VISION.md was already present. No code changes. 3,575 tests passing (unchanged)."
+  "lastPromptId": "P-017",
+  "notes": "Docs-only session. ROADMAP.md replaced with Architect's corrected version (48 insertions, 11 deletions). VISION.md in Downloads was identical to project — no change needed."
 }
