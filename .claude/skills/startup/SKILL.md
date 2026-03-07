@@ -48,6 +48,13 @@ standards, the review gate, what done means. Read this last so
 it is fresh before you begin work. It is the most actionable
 document in the project.
 
+### 6. Invoke /coding
+
+Read the control documents listed in the /coding skill. These define
+the standards every instance must know before working. Both Shadow
+and the Architect read them — Shadow to know what to build, the
+Architect to know what to enforce.
+
 ---
 
 ## Verification — Shadow (Claude Code)

@@ -1,143 +1,53 @@
 ---
 name: coding
-description: Production coding standards for Shadow app. Every code change requires tests. Verify your work before reporting complete.
-license: Internal use
+description: Control document reading list. Invoke before writing any
+  code. Also invoked during /startup so every cold instance reads the
+  current standards before working.
 ---
 
-# Shadow Coding Standards
+## Overview
 
-## The 3 Rules
+Read every document in this list fully before writing any code.
+These are the control documents — code must comply with all of them.
 
-1. **Every code change needs a test** - No exceptions
-2. **Verify before reporting complete** - Run tests, check the app
-3. **Be honest about failures** - Report problems, don't hide them
-
----
-
-## Rule 1: Tests With Every Change
-
-| You Write | You Also Write |
-|-----------|----------------|
-| New class | New test file |
-| New method | New test cases |
-| Bug fix | Regression test that catches the bug |
-| Modified method | Updated tests + new edge cases |
-
-**No code is complete without tests.**
-
-```bash
-# Run before claiming done
-flutter test
-```
+When a new control document is added to the project, it gets added
+to this list. This skill is the single place that defines what
+"knows the standards" means.
 
 ---
 
-## Rule 2: Verify Before Reporting Complete
+## Control Documents
 
-Before saying "done":
+### 1. docs/specs/03_API_CONTRACTS.md
+Exact interface definitions. Method signatures, return types, entity
+fields, error codes. Code must match these exactly — no deviations.
 
-1. **Run tests** - `flutter test` must pass
-2. **Run the app** - Verify behavior manually
-3. **Check the actual files** - Tests exist, code is there
+### 2. docs/standards/01_CODING_STANDARDS.md
+Mandatory patterns. Result types, error handling, timestamp rules,
+enum conventions, repository patterns, use case structure.
 
-**Never claim tests pass without running them.**
-**Never claim a feature works without trying it.**
+### 3. docs/standards/02_TESTING_STRATEGY.md
+Test coverage requirements, patterns, naming conventions, hygiene
+rules. Every code change requires tests. No exceptions.
 
-### Factory Reset for Major Features
-
-```bash
-# Clear app data before testing new features
-rm -rf ~/Library/Application\ Support/com.example.shadow/
-flutter clean && flutter pub get
-flutter run -d macos
-```
+### 4. docs/standards/03_NAMING_CONVENTIONS.md
+File naming, class naming, method naming, database naming. All
+naming must follow these conventions exactly.
 
 ---
 
-## Rule 3: Be Honest About Failures
+## When This Skill Is Invoked
 
-**Good reporting:**
-- "15 tests pass, 2 fail with timeout issues"
-- "Core implementation complete, edge case X needs attention"
-- "Build fails with error: [actual error]"
-
-**Bad reporting:**
-- "All tests pass" (when you didn't run them)
-- "Implementation complete" (when you haven't verified)
-- "Fixed the bug" (when it's worked around)
+- During /startup — every cold instance reads the control documents
+  before doing any work
+- In any prompt that involves writing code — the Architect includes
+  /coding explicitly
+- Not invoked for research-only or docs-only prompts
 
 ---
 
-## Code Standards (Quick Reference)
+## Adding New Control Documents
 
-### Naming
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Variables | camelCase | `firstName`, `isLoading` |
-| Classes | PascalCase | `ProfileRepository`, `SyncService` |
-| Files | snake_case | `profile_repository.dart` |
-| Database | snake_case | `user_profiles`, `sync_status` |
-
-### Methods
-
-| Pattern | Returns | If Not Found |
-|---------|---------|--------------|
-| `getProfile(id)` | `Profile` | **THROWS** |
-| `findProfile(id)` | `Profile?` | Returns **null** |
-| `getAllProfiles()` | `List<Profile>` | Returns **empty list** |
-
-### Critical Checks
-
-Before committing:
-
-- [ ] No force unwrap `!` without null checks
-- [ ] Images have `cacheWidth`/`cacheHeight`
-- [ ] Icons have `semanticLabel`
-- [ ] Queries filter `sync_deleted_at IS NULL`
-- [ ] List methods have `limit`/`offset` params
-- [ ] DateFormat uses locale
-- [ ] No hardcoded secrets
-
----
-
-## Test Naming Pattern
-
-```dart
-// Pattern: methodName_state_expected
-test('getProfile_existingId_returnsProfile', () { });
-test('getProfile_missingId_throwsNotFound', () { });
-test('addProfile_validData_insertsAndMarksDirty', () { });
-```
-
----
-
-## Definition of Done
-
-A task is done when:
-
-- [ ] Code compiles without warnings
-- [ ] Tests written and passing
-- [ ] No regressions in existing tests
-
----
-
-## API Contracts
-
-All code must follow the exact signatures in `docs/docs/22_API_CONTRACTS.md`. If a method isn't defined there, ask before implementing.
-
-Result type pattern:
-```dart
-Future<Result<Profile, AppError>> getProfile(String id);
-```
-
-Error codes must use constants from the contracts - no ad-hoc strings.
-
----
-
-## When Stuck
-
-1. Read the spec documents (01-34 in /Development/Shadow/)
-2. Check `docs/docs/22_API_CONTRACTS.md` for exact method signatures
-3. Check `docs/docs/25_DEFINITION_OF_DONE.md` for completion criteria
-4. Ask the user before making assumptions
+When a new standard or spec is established that all code must comply
+with, add it to this list. The skill is the registry — if it is not
+here, instances will not know to read it.
