@@ -325,10 +325,13 @@ void main() {
 
         // Fluids: Mode 2A, 2h interval
         expect(
-          byCategory[NotificationCategory.fluids]?.schedulingMode,
+          byCategory[NotificationCategory.bodilyOutputs]?.schedulingMode,
           NotificationSchedulingMode.interval,
         );
-        expect(byCategory[NotificationCategory.fluids]?.intervalHours, 2);
+        expect(
+          byCategory[NotificationCategory.bodilyOutputs]?.intervalHours,
+          2,
+        );
 
         // Journal: Mode 2B, 21:00
         expect(

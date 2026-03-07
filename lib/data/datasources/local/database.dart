@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shadow_app/data/datasources/local/daos/activity_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/activity_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/anchor_event_time_dao.dart';
+import 'package:shadow_app/data/datasources/local/daos/bodily_output_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/condition_log_dao.dart';
 import 'package:shadow_app/data/datasources/local/daos/diet_dao.dart';
@@ -46,6 +47,7 @@ import 'package:shadow_app/data/datasources/local/daos/user_settings_dao.dart';
 import 'package:shadow_app/data/datasources/local/tables/activities_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/activity_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/anchor_event_times_table.dart';
+import 'package:shadow_app/data/datasources/local/tables/bodily_output_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/condition_logs_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/conditions_table.dart';
 import 'package:shadow_app/data/datasources/local/tables/diet_exceptions_table.dart';
@@ -100,6 +102,7 @@ part 'database.g.dart';
     Conditions,
     ConditionLogs,
     FlareUps,
+    BodilyOutputLogs,
     FluidsEntries,
     SleepEntries,
     Activities,
@@ -134,6 +137,7 @@ part 'database.g.dart';
     ConditionDao,
     ConditionLogDao,
     FlareUpDao,
+    BodilyOutputDao,
     FluidsEntryDao,
     SleepEntryDao,
     ActivityDao,
@@ -204,8 +208,14 @@ class AppDatabase extends _$AppDatabase {
   ///      Removed bowel_custom_condition and urine_custom_condition columns
   ///      which had no corresponding entity fields. Recreates fluids_entries
   ///      table via TableMigration, preserving all other data.
+  /// v20: Fluids Restructuring (FLUIDS_RESTRUCTURING_SPEC.md)
+  ///      Created bodily_output_logs table (one row per event).
+  ///      Migrated fluids_entries bowel/urine/menstruation/BBT/custom rows.
+  ///      Renamed NotificationCategory.fluids → bodilyOutputs (value=2 unchanged).
+  ///      Added MealType.beverage (value=4).
+  ///      fluids_entries left as tombstone (not dropped).
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   /// Migration strategy for schema changes.
   ///
@@ -365,6 +375,151 @@ class AppDatabase extends _$AppDatabase {
         // all other data intact.
         if (from < 19) {
           await m.alterTable(TableMigration(fluidsEntries));
+        }
+
+        // v20: Fluids Restructuring — per FLUIDS_RESTRUCTURING_SPEC.md Section 6
+        // Wraps all steps in a transaction so fluids_entries is untouched if any
+        // step fails.
+        if (from < 20) {
+          await transaction(() async {
+            // Step 1: Create bodily_output_logs table.
+            await m.createTable(bodilyOutputLogs);
+
+            // Step 2: Migrate fluids_entries rows to bodily_output_logs.
+            // Each fluids_entries row may produce up to 4 output rows.
+            // UUID generation uses SQLite's randomblob per project convention.
+            const uuidExpr =
+                "lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || "
+                "substr(lower(hex(randomblob(2))),2) || '-' || "
+                "substr('89ab', abs(random()) % 4 + 1, 1) || "
+                "substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))";
+
+            // 2a: Bowel movements (has_bowel_movement = 1)
+            await customStatement('''
+              INSERT INTO bodily_output_logs (
+                id, client_id, profile_id, occurred_at,
+                output_type, bowel_condition, bowel_size,
+                photo_path, notes,
+                sync_created_at, sync_status, sync_is_dirty,
+                sync_version
+              )
+              SELECT
+                $uuidExpr, client_id, profile_id, entry_date,
+                1, bowel_condition, bowel_size,
+                bowel_photo_path, notes,
+                sync_created_at, 0, 1,
+                1
+              FROM fluids_entries
+              WHERE has_bowel_movement = 1 AND sync_deleted_at IS NULL
+            ''');
+
+            // 2b: Urine events (has_urine_movement = 1)
+            await customStatement('''
+              INSERT INTO bodily_output_logs (
+                id, client_id, profile_id, occurred_at,
+                output_type, urine_condition, urine_size,
+                photo_path,
+                sync_created_at, sync_status, sync_is_dirty,
+                sync_version
+              )
+              SELECT
+                $uuidExpr, client_id, profile_id, entry_date,
+                0, urine_condition, urine_size,
+                urine_photo_path,
+                sync_created_at, 0, 1,
+                1
+              FROM fluids_entries
+              WHERE has_urine_movement = 1 AND sync_deleted_at IS NULL
+            ''');
+
+            // 2c: Menstruation (menstruation_flow NOT NULL AND > 0)
+            // Legacy MenstruationFlow: none=0, spotty=1, light=2, medium=3, heavy=4
+            // New MenstruationFlow:     spotting=0, light=1, medium=2, heavy=3
+            // Map: old 1→0 (spotting), 2→1 (light), 3→2 (medium), 4→3 (heavy)
+            await customStatement('''
+              INSERT INTO bodily_output_logs (
+                id, client_id, profile_id, occurred_at,
+                output_type, menstruation_flow,
+                sync_created_at, sync_status, sync_is_dirty,
+                sync_version
+              )
+              SELECT
+                $uuidExpr, client_id, profile_id, entry_date,
+                3,
+                CASE menstruation_flow
+                  WHEN 1 THEN 0
+                  WHEN 2 THEN 1
+                  WHEN 3 THEN 2
+                  WHEN 4 THEN 3
+                  ELSE 0
+                END,
+                sync_created_at, 0, 1,
+                1
+              FROM fluids_entries
+              WHERE menstruation_flow IS NOT NULL
+                AND menstruation_flow > 0
+                AND sync_deleted_at IS NULL
+            ''');
+
+            // 2d: BBT entries (basal_body_temperature NOT NULL)
+            // occurred_at = bbt_recorded_time if not null, else entry_date
+            await customStatement('''
+              INSERT INTO bodily_output_logs (
+                id, client_id, profile_id, occurred_at,
+                output_type, temperature_value,
+                sync_created_at, sync_status, sync_is_dirty,
+                sync_version
+              )
+              SELECT
+                $uuidExpr, client_id, profile_id,
+                COALESCE(bbt_recorded_time, entry_date),
+                4, basal_body_temperature,
+                sync_created_at, 0, 1,
+                1
+              FROM fluids_entries
+              WHERE basal_body_temperature IS NOT NULL
+                AND sync_deleted_at IS NULL
+            ''');
+
+            // 2e: Custom fluid entries (other_fluid_name NOT NULL)
+            // notes = other_fluid_amount || ' — ' || other_fluid_notes (concatenated)
+            await customStatement('''
+              INSERT INTO bodily_output_logs (
+                id, client_id, profile_id, occurred_at,
+                output_type, custom_type_label, notes,
+                sync_created_at, sync_status, sync_is_dirty,
+                sync_version
+              )
+              SELECT
+                $uuidExpr, client_id, profile_id, entry_date,
+                5, other_fluid_name,
+                CASE
+                  WHEN other_fluid_amount IS NOT NULL AND other_fluid_notes IS NOT NULL
+                    THEN other_fluid_amount || ' — ' || other_fluid_notes
+                  WHEN other_fluid_amount IS NOT NULL
+                    THEN other_fluid_amount
+                  ELSE other_fluid_notes
+                END,
+                sync_created_at, 0, 1,
+                1
+              FROM fluids_entries
+              WHERE other_fluid_name IS NOT NULL
+                AND sync_deleted_at IS NULL
+            ''');
+
+            // Step 3: water_intake_ml is NOT migrated.
+            // Reason: cannot meaningfully split daily aggregate into food_log events.
+            debugPrint(
+              '[Shadow DB v20] water_intake_ml data from fluids_entries was '
+              'not migrated to food_logs. This is expected per spec.',
+            );
+
+            // Step 4: Update notification_category_settings.
+            // fluids(2) → bodilyOutputs(2) — same integer, name only changed in Dart.
+            // No DB update needed since the integer value is unchanged.
+
+            // Step 5: fluids_entries is NOT dropped — left as tombstone.
+          });
         }
       } on Exception catch (e, stack) {
         debugPrint('[Shadow DB] onUpgrade FAILED (v$from → v$to): $e');

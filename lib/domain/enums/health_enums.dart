@@ -503,7 +503,10 @@ enum MealType {
   breakfast(0),
   lunch(1),
   dinner(2),
-  snack(3);
+  snack(3),
+  beverage(
+    4,
+  ); // Added in Fluids Restructuring phase — beverages log via food_logs
 
   final int value;
   const MealType(this.value);

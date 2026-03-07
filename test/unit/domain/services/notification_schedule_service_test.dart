@@ -281,7 +281,7 @@ void main() {
       // 08:00 to 22:00, every 2h → 8 times
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 2,
           intervalStartTime: '08:00',
@@ -300,7 +300,7 @@ void main() {
     test('computeSchedule_intervalMode_includesStartTime', () {
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 4,
           intervalStartTime: '08:00',
@@ -319,7 +319,7 @@ void main() {
     test('computeSchedule_intervalMode_includesEndTime', () {
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 4,
           intervalStartTime: '08:00',
@@ -339,7 +339,7 @@ void main() {
       // 08:00 to 21:00, every 4h → 08:00, 12:00, 16:00, 20:00 (21:00 not hit exactly)
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 4,
           intervalStartTime: '08:00',
@@ -359,7 +359,7 @@ void main() {
     test('computeSchedule_intervalMode_disabledCategory_returnsEmpty', () {
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           isEnabled: false,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 2,
@@ -380,7 +380,7 @@ void main() {
       // Missing intervalStartTime — should produce no notifications
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 2,
           // intervalStartTime and intervalEndTime are null
@@ -398,7 +398,7 @@ void main() {
     test('computeSchedule_intervalMode_payloadHasNoCategoryAnchorEvent', () {
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 4,
           intervalStartTime: '08:00',
@@ -418,7 +418,7 @@ void main() {
     test('computeSchedule_intervalMode_fluidsBodyText', () {
       final settings = [
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 4,
           intervalStartTime: '08:00',
@@ -531,7 +531,7 @@ void main() {
       final settings = [
         makeSettings(anchorEventValues: [AnchorEventName.wake.value]),
         makeSettings(
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.specificTimes,
           specificTimes: ['10:00', '14:00'],
         ),

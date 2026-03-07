@@ -42,7 +42,7 @@ void main() {
     test('creates Mode 2A (interval) with interval fields', () {
       const settings = NotificationCategorySettings(
         id: 'cat-3',
-        category: NotificationCategory.fluids,
+        category: NotificationCategory.bodilyOutputs,
         schedulingMode: NotificationSchedulingMode.interval,
         intervalHours: 2,
         intervalStartTime: '08:00',
@@ -92,7 +92,7 @@ void main() {
     test('serializes to and from JSON', () {
       const settings = NotificationCategorySettings(
         id: 'cat-7',
-        category: NotificationCategory.fluids,
+        category: NotificationCategory.bodilyOutputs,
         isEnabled: true,
         schedulingMode: NotificationSchedulingMode.interval,
         intervalHours: 4,
@@ -168,7 +168,7 @@ void main() {
     test('has correct values', () {
       expect(NotificationCategory.supplements.value, 0);
       expect(NotificationCategory.foodMeals.value, 1);
-      expect(NotificationCategory.fluids.value, 2);
+      expect(NotificationCategory.bodilyOutputs.value, 2);
       expect(NotificationCategory.photos.value, 3);
       expect(NotificationCategory.journalEntries.value, 4);
       expect(NotificationCategory.activities.value, 5);
@@ -185,7 +185,7 @@ void main() {
     test('displayName returns human-readable names', () {
       expect(NotificationCategory.supplements.displayName, 'Supplements');
       expect(NotificationCategory.foodMeals.displayName, 'Food & Meals');
-      expect(NotificationCategory.fluids.displayName, 'Fluids');
+      expect(NotificationCategory.bodilyOutputs.displayName, 'Body Output');
       expect(NotificationCategory.photos.displayName, 'Photos');
       expect(
         NotificationCategory.journalEntries.displayName,

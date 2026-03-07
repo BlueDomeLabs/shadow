@@ -7,7 +7,8 @@
 enum NotificationCategory {
   supplements(0),
   foodMeals(1),
-  fluids(2),
+  // formerly fluids(2) — renamed in Fluids Restructuring phase (v20 migration)
+  bodilyOutputs(2),
   photos(3),
   journalEntries(4),
   activities(5),
@@ -25,7 +26,7 @@ enum NotificationCategory {
   String get displayName => switch (this) {
     supplements => 'Supplements',
     foodMeals => 'Food & Meals',
-    fluids => 'Fluids',
+    bodilyOutputs => 'Body Output',
     photos => 'Photos',
     journalEntries => 'Journal Entries',
     activities => 'Activities',

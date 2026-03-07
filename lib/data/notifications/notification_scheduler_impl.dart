@@ -13,14 +13,14 @@ import 'package:timezone/timezone.dart' as tz;
 String _channelId(NotificationCategory category) => switch (category) {
   NotificationCategory.supplements => 'supplements',
   NotificationCategory.foodMeals => 'meals',
-  NotificationCategory.fluids => 'water',
+  NotificationCategory.bodilyOutputs => 'water',
   _ => 'health',
 };
 
 /// Android importance level per [NotificationCategory].
 Importance _importance(NotificationCategory category) => switch (category) {
   NotificationCategory.supplements => Importance.high,
-  NotificationCategory.fluids => Importance.low,
+  NotificationCategory.bodilyOutputs => Importance.low,
   _ => Importance.defaultImportance,
 };
 

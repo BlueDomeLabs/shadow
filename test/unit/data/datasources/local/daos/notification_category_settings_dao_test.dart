@@ -65,7 +65,7 @@ void main() {
         final s1 = createSettings(id: 'ncs-dup');
         final s2 = createSettings(
           id: 'ncs-dup',
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
         );
 
         await database.notificationCategorySettingsDao.insert(s1);
@@ -79,7 +79,7 @@ void main() {
       test('insert_intervalMode_persistsIntervalFields', () async {
         final settings = createSettings(
           id: 'ncs-int',
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
           schedulingMode: NotificationSchedulingMode.interval,
           intervalHours: 2,
           intervalStartTime: '08:00',
@@ -121,7 +121,10 @@ void main() {
 
       test('getAll_multipleSettings_returnsAllOrderedByCategory', () async {
         await database.notificationCategorySettingsDao.insert(
-          createSettings(id: 's3', category: NotificationCategory.fluids),
+          createSettings(
+            id: 's3',
+            category: NotificationCategory.bodilyOutputs,
+          ),
         );
         await database.notificationCategorySettingsDao.insert(
           createSettings(id: 's1'),
@@ -138,7 +141,7 @@ void main() {
         // Ordered by category.value: supplements(0), foodMeals(1), fluids(2)
         expect(items[0].category, NotificationCategory.supplements);
         expect(items[1].category, NotificationCategory.foodMeals);
-        expect(items[2].category, NotificationCategory.fluids);
+        expect(items[2].category, NotificationCategory.bodilyOutputs);
       });
     });
 
@@ -212,7 +215,7 @@ void main() {
       test('updateEntity_existingSettings_updatesSchedulingMode', () async {
         final settings = createSettings(
           id: 'ncs-mode',
-          category: NotificationCategory.fluids,
+          category: NotificationCategory.bodilyOutputs,
         );
         await database.notificationCategorySettingsDao.insert(settings);
 

@@ -542,7 +542,7 @@ String _formatTime(String hhmm) {
 IconData _categoryIcon(NotificationCategory category) => switch (category) {
   NotificationCategory.supplements => Icons.medication,
   NotificationCategory.foodMeals => Icons.restaurant,
-  NotificationCategory.fluids => Icons.local_drink,
+  NotificationCategory.bodilyOutputs => Icons.local_drink,
   NotificationCategory.photos => Icons.photo_camera,
   NotificationCategory.journalEntries => Icons.book,
   NotificationCategory.activities => Icons.directions_run,

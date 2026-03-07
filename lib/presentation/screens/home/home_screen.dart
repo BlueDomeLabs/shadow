@@ -80,7 +80,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       pendingLogs: const [],
     ),
     NotificationCategory.foodMeals => FoodQuickEntrySheet(profileId: profileId),
-    NotificationCategory.fluids => FluidsQuickEntrySheet(profileId: profileId),
+    NotificationCategory.bodilyOutputs => FluidsQuickEntrySheet(
+      profileId: profileId,
+    ),
     NotificationCategory.photos => PhotoQuickEntrySheet(profileId: profileId),
     NotificationCategory.journalEntries => JournalQuickEntrySheet(
       profileId: profileId,

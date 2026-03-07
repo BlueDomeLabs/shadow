@@ -51,7 +51,7 @@ Map<String, dynamic> _$$NotificationCategorySettingsImplToJson(
 const _$NotificationCategoryEnumMap = {
   NotificationCategory.supplements: 'supplements',
   NotificationCategory.foodMeals: 'foodMeals',
-  NotificationCategory.fluids: 'fluids',
+  NotificationCategory.bodilyOutputs: 'bodilyOutputs',
   NotificationCategory.photos: 'photos',
   NotificationCategory.journalEntries: 'journalEntries',
   NotificationCategory.activities: 'activities',

@@ -140,7 +140,7 @@ void main() {
 
       expect(find.text('Supplements'), findsOneWidget);
       expect(find.text('Food & Meals'), findsOneWidget);
-      expect(find.text('Fluids'), findsOneWidget);
+      expect(find.text('Body Output'), findsOneWidget);
       expect(find.text('Photos'), findsOneWidget);
       expect(find.text('Journal Entries'), findsOneWidget);
       expect(find.text('Activities'), findsOneWidget);

@@ -103,7 +103,7 @@ class NotificationSeedService {
     // Fluids — Mode 2A, every 2 hours between 8:00 and 22:00
     NotificationCategorySettings(
       id: _uuid.v4(),
-      category: NotificationCategory.fluids,
+      category: NotificationCategory.bodilyOutputs,
       schedulingMode: NotificationSchedulingMode.interval,
       intervalHours: 2,
       intervalStartTime: '08:00',

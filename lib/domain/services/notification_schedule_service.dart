@@ -150,7 +150,7 @@ class NotificationScheduleService {
       anchorEventName != null
           ? 'What did you have for ${anchorEventName.displayName}?'
           : 'Time to log your meal.',
-    NotificationCategory.fluids =>
+    NotificationCategory.bodilyOutputs =>
       'Time to log your fluids. What have you had?',
     NotificationCategory.photos => 'Time for your photo check-in.',
     NotificationCategory.journalEntries =>

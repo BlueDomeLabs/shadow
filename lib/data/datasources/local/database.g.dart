@@ -6788,6 +6788,1892 @@ class FlareUpsCompanion extends UpdateCompanion<FlareUpRow> {
   }
 }
 
+class $BodilyOutputLogsTable extends BodilyOutputLogs
+    with TableInfo<$BodilyOutputLogsTable, BodilyOutputLogRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BodilyOutputLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _occurredAtMeta = const VerificationMeta(
+    'occurredAt',
+  );
+  @override
+  late final GeneratedColumn<int> occurredAt = GeneratedColumn<int>(
+    'occurred_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outputTypeMeta = const VerificationMeta(
+    'outputType',
+  );
+  @override
+  late final GeneratedColumn<int> outputType = GeneratedColumn<int>(
+    'output_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _customTypeLabelMeta = const VerificationMeta(
+    'customTypeLabel',
+  );
+  @override
+  late final GeneratedColumn<String> customTypeLabel = GeneratedColumn<String>(
+    'custom_type_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _urineConditionMeta = const VerificationMeta(
+    'urineCondition',
+  );
+  @override
+  late final GeneratedColumn<int> urineCondition = GeneratedColumn<int>(
+    'urine_condition',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _urineCustomConditionMeta =
+      const VerificationMeta('urineCustomCondition');
+  @override
+  late final GeneratedColumn<String> urineCustomCondition =
+      GeneratedColumn<String>(
+        'urine_custom_condition',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _urineSizeMeta = const VerificationMeta(
+    'urineSize',
+  );
+  @override
+  late final GeneratedColumn<int> urineSize = GeneratedColumn<int>(
+    'urine_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bowelConditionMeta = const VerificationMeta(
+    'bowelCondition',
+  );
+  @override
+  late final GeneratedColumn<int> bowelCondition = GeneratedColumn<int>(
+    'bowel_condition',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bowelCustomConditionMeta =
+      const VerificationMeta('bowelCustomCondition');
+  @override
+  late final GeneratedColumn<String> bowelCustomCondition =
+      GeneratedColumn<String>(
+        'bowel_custom_condition',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _bowelSizeMeta = const VerificationMeta(
+    'bowelSize',
+  );
+  @override
+  late final GeneratedColumn<int> bowelSize = GeneratedColumn<int>(
+    'bowel_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _gasSeverityMeta = const VerificationMeta(
+    'gasSeverity',
+  );
+  @override
+  late final GeneratedColumn<int> gasSeverity = GeneratedColumn<int>(
+    'gas_severity',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _menstruationFlowMeta = const VerificationMeta(
+    'menstruationFlow',
+  );
+  @override
+  late final GeneratedColumn<int> menstruationFlow = GeneratedColumn<int>(
+    'menstruation_flow',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _temperatureValueMeta = const VerificationMeta(
+    'temperatureValue',
+  );
+  @override
+  late final GeneratedColumn<double> temperatureValue = GeneratedColumn<double>(
+    'temperature_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _temperatureUnitMeta = const VerificationMeta(
+    'temperatureUnit',
+  );
+  @override
+  late final GeneratedColumn<int> temperatureUnit = GeneratedColumn<int>(
+    'temperature_unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _photoPathMeta = const VerificationMeta(
+    'photoPath',
+  );
+  @override
+  late final GeneratedColumn<String> photoPath = GeneratedColumn<String>(
+    'photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cloudStorageUrlMeta = const VerificationMeta(
+    'cloudStorageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> cloudStorageUrl = GeneratedColumn<String>(
+    'cloud_storage_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fileHashMeta = const VerificationMeta(
+    'fileHash',
+  );
+  @override
+  late final GeneratedColumn<String> fileHash = GeneratedColumn<String>(
+    'file_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fileSizeBytesMeta = const VerificationMeta(
+    'fileSizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> fileSizeBytes = GeneratedColumn<int>(
+    'file_size_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isFileUploadedMeta = const VerificationMeta(
+    'isFileUploaded',
+  );
+  @override
+  late final GeneratedColumn<bool> isFileUploaded = GeneratedColumn<bool>(
+    'is_file_uploaded',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_file_uploaded" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _importSourceMeta = const VerificationMeta(
+    'importSource',
+  );
+  @override
+  late final GeneratedColumn<String> importSource = GeneratedColumn<String>(
+    'import_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importExternalIdMeta = const VerificationMeta(
+    'importExternalId',
+  );
+  @override
+  late final GeneratedColumn<String> importExternalId = GeneratedColumn<String>(
+    'import_external_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncCreatedAtMeta = const VerificationMeta(
+    'syncCreatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncCreatedAt = GeneratedColumn<int>(
+    'sync_created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncUpdatedAtMeta = const VerificationMeta(
+    'syncUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncUpdatedAt = GeneratedColumn<int>(
+    'sync_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncDeletedAtMeta = const VerificationMeta(
+    'syncDeletedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncDeletedAt = GeneratedColumn<int>(
+    'sync_deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncLastSyncedAtMeta = const VerificationMeta(
+    'syncLastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<int> syncLastSyncedAt = GeneratedColumn<int>(
+    'sync_last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _syncVersionMeta = const VerificationMeta(
+    'syncVersion',
+  );
+  @override
+  late final GeneratedColumn<int> syncVersion = GeneratedColumn<int>(
+    'sync_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _syncDeviceIdMeta = const VerificationMeta(
+    'syncDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> syncDeviceId = GeneratedColumn<String>(
+    'sync_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncIsDirtyMeta = const VerificationMeta(
+    'syncIsDirty',
+  );
+  @override
+  late final GeneratedColumn<bool> syncIsDirty = GeneratedColumn<bool>(
+    'sync_is_dirty',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sync_is_dirty" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _conflictDataMeta = const VerificationMeta(
+    'conflictData',
+  );
+  @override
+  late final GeneratedColumn<String> conflictData = GeneratedColumn<String>(
+    'conflict_data',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    profileId,
+    occurredAt,
+    outputType,
+    customTypeLabel,
+    urineCondition,
+    urineCustomCondition,
+    urineSize,
+    bowelCondition,
+    bowelCustomCondition,
+    bowelSize,
+    gasSeverity,
+    menstruationFlow,
+    temperatureValue,
+    temperatureUnit,
+    notes,
+    photoPath,
+    cloudStorageUrl,
+    fileHash,
+    fileSizeBytes,
+    isFileUploaded,
+    importSource,
+    importExternalId,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bodily_output_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BodilyOutputLogRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('occurred_at')) {
+      context.handle(
+        _occurredAtMeta,
+        occurredAt.isAcceptableOrUnknown(data['occurred_at']!, _occurredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_occurredAtMeta);
+    }
+    if (data.containsKey('output_type')) {
+      context.handle(
+        _outputTypeMeta,
+        outputType.isAcceptableOrUnknown(data['output_type']!, _outputTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_outputTypeMeta);
+    }
+    if (data.containsKey('custom_type_label')) {
+      context.handle(
+        _customTypeLabelMeta,
+        customTypeLabel.isAcceptableOrUnknown(
+          data['custom_type_label']!,
+          _customTypeLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_condition')) {
+      context.handle(
+        _urineConditionMeta,
+        urineCondition.isAcceptableOrUnknown(
+          data['urine_condition']!,
+          _urineConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_custom_condition')) {
+      context.handle(
+        _urineCustomConditionMeta,
+        urineCustomCondition.isAcceptableOrUnknown(
+          data['urine_custom_condition']!,
+          _urineCustomConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('urine_size')) {
+      context.handle(
+        _urineSizeMeta,
+        urineSize.isAcceptableOrUnknown(data['urine_size']!, _urineSizeMeta),
+      );
+    }
+    if (data.containsKey('bowel_condition')) {
+      context.handle(
+        _bowelConditionMeta,
+        bowelCondition.isAcceptableOrUnknown(
+          data['bowel_condition']!,
+          _bowelConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bowel_custom_condition')) {
+      context.handle(
+        _bowelCustomConditionMeta,
+        bowelCustomCondition.isAcceptableOrUnknown(
+          data['bowel_custom_condition']!,
+          _bowelCustomConditionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bowel_size')) {
+      context.handle(
+        _bowelSizeMeta,
+        bowelSize.isAcceptableOrUnknown(data['bowel_size']!, _bowelSizeMeta),
+      );
+    }
+    if (data.containsKey('gas_severity')) {
+      context.handle(
+        _gasSeverityMeta,
+        gasSeverity.isAcceptableOrUnknown(
+          data['gas_severity']!,
+          _gasSeverityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('menstruation_flow')) {
+      context.handle(
+        _menstruationFlowMeta,
+        menstruationFlow.isAcceptableOrUnknown(
+          data['menstruation_flow']!,
+          _menstruationFlowMeta,
+        ),
+      );
+    }
+    if (data.containsKey('temperature_value')) {
+      context.handle(
+        _temperatureValueMeta,
+        temperatureValue.isAcceptableOrUnknown(
+          data['temperature_value']!,
+          _temperatureValueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('temperature_unit')) {
+      context.handle(
+        _temperatureUnitMeta,
+        temperatureUnit.isAcceptableOrUnknown(
+          data['temperature_unit']!,
+          _temperatureUnitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('photo_path')) {
+      context.handle(
+        _photoPathMeta,
+        photoPath.isAcceptableOrUnknown(data['photo_path']!, _photoPathMeta),
+      );
+    }
+    if (data.containsKey('cloud_storage_url')) {
+      context.handle(
+        _cloudStorageUrlMeta,
+        cloudStorageUrl.isAcceptableOrUnknown(
+          data['cloud_storage_url']!,
+          _cloudStorageUrlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('file_hash')) {
+      context.handle(
+        _fileHashMeta,
+        fileHash.isAcceptableOrUnknown(data['file_hash']!, _fileHashMeta),
+      );
+    }
+    if (data.containsKey('file_size_bytes')) {
+      context.handle(
+        _fileSizeBytesMeta,
+        fileSizeBytes.isAcceptableOrUnknown(
+          data['file_size_bytes']!,
+          _fileSizeBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_file_uploaded')) {
+      context.handle(
+        _isFileUploadedMeta,
+        isFileUploaded.isAcceptableOrUnknown(
+          data['is_file_uploaded']!,
+          _isFileUploadedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_source')) {
+      context.handle(
+        _importSourceMeta,
+        importSource.isAcceptableOrUnknown(
+          data['import_source']!,
+          _importSourceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_external_id')) {
+      context.handle(
+        _importExternalIdMeta,
+        importExternalId.isAcceptableOrUnknown(
+          data['import_external_id']!,
+          _importExternalIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_created_at')) {
+      context.handle(
+        _syncCreatedAtMeta,
+        syncCreatedAt.isAcceptableOrUnknown(
+          data['sync_created_at']!,
+          _syncCreatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_syncCreatedAtMeta);
+    }
+    if (data.containsKey('sync_updated_at')) {
+      context.handle(
+        _syncUpdatedAtMeta,
+        syncUpdatedAt.isAcceptableOrUnknown(
+          data['sync_updated_at']!,
+          _syncUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_deleted_at')) {
+      context.handle(
+        _syncDeletedAtMeta,
+        syncDeletedAt.isAcceptableOrUnknown(
+          data['sync_deleted_at']!,
+          _syncDeletedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_last_synced_at')) {
+      context.handle(
+        _syncLastSyncedAtMeta,
+        syncLastSyncedAt.isAcceptableOrUnknown(
+          data['sync_last_synced_at']!,
+          _syncLastSyncedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('sync_version')) {
+      context.handle(
+        _syncVersionMeta,
+        syncVersion.isAcceptableOrUnknown(
+          data['sync_version']!,
+          _syncVersionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_device_id')) {
+      context.handle(
+        _syncDeviceIdMeta,
+        syncDeviceId.isAcceptableOrUnknown(
+          data['sync_device_id']!,
+          _syncDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_is_dirty')) {
+      context.handle(
+        _syncIsDirtyMeta,
+        syncIsDirty.isAcceptableOrUnknown(
+          data['sync_is_dirty']!,
+          _syncIsDirtyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conflict_data')) {
+      context.handle(
+        _conflictDataMeta,
+        conflictData.isAcceptableOrUnknown(
+          data['conflict_data']!,
+          _conflictDataMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BodilyOutputLogRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BodilyOutputLogRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      occurredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}occurred_at'],
+      )!,
+      outputType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}output_type'],
+      )!,
+      customTypeLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_type_label'],
+      ),
+      urineCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}urine_condition'],
+      ),
+      urineCustomCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}urine_custom_condition'],
+      ),
+      urineSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}urine_size'],
+      ),
+      bowelCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bowel_condition'],
+      ),
+      bowelCustomCondition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bowel_custom_condition'],
+      ),
+      bowelSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bowel_size'],
+      ),
+      gasSeverity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gas_severity'],
+      ),
+      menstruationFlow: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}menstruation_flow'],
+      ),
+      temperatureValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}temperature_value'],
+      ),
+      temperatureUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}temperature_unit'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      photoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_path'],
+      ),
+      cloudStorageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cloud_storage_url'],
+      ),
+      fileHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_hash'],
+      ),
+      fileSizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}file_size_bytes'],
+      ),
+      isFileUploaded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_file_uploaded'],
+      )!,
+      importSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_source'],
+      ),
+      importExternalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_external_id'],
+      ),
+      syncCreatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_created_at'],
+      )!,
+      syncUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_updated_at'],
+      ),
+      syncDeletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_deleted_at'],
+      ),
+      syncLastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_last_synced_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      syncVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_version'],
+      )!,
+      syncDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_device_id'],
+      ),
+      syncIsDirty: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sync_is_dirty'],
+      )!,
+      conflictData: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_data'],
+      ),
+    );
+  }
+
+  @override
+  $BodilyOutputLogsTable createAlias(String alias) {
+    return $BodilyOutputLogsTable(attachedDatabase, alias);
+  }
+}
+
+class BodilyOutputLogRow extends DataClass
+    implements Insertable<BodilyOutputLogRow> {
+  final String id;
+  final String clientId;
+  final String profileId;
+  final int occurredAt;
+  final int outputType;
+  final String? customTypeLabel;
+  final int? urineCondition;
+  final String? urineCustomCondition;
+  final int? urineSize;
+  final int? bowelCondition;
+  final String? bowelCustomCondition;
+  final int? bowelSize;
+  final int? gasSeverity;
+  final int? menstruationFlow;
+  final double? temperatureValue;
+  final int? temperatureUnit;
+  final String? notes;
+  final String? photoPath;
+  final String? cloudStorageUrl;
+  final String? fileHash;
+  final int? fileSizeBytes;
+  final bool isFileUploaded;
+  final String? importSource;
+  final String? importExternalId;
+  final int syncCreatedAt;
+  final int? syncUpdatedAt;
+  final int? syncDeletedAt;
+  final int? syncLastSyncedAt;
+  final int syncStatus;
+  final int syncVersion;
+  final String? syncDeviceId;
+  final bool syncIsDirty;
+  final String? conflictData;
+  const BodilyOutputLogRow({
+    required this.id,
+    required this.clientId,
+    required this.profileId,
+    required this.occurredAt,
+    required this.outputType,
+    this.customTypeLabel,
+    this.urineCondition,
+    this.urineCustomCondition,
+    this.urineSize,
+    this.bowelCondition,
+    this.bowelCustomCondition,
+    this.bowelSize,
+    this.gasSeverity,
+    this.menstruationFlow,
+    this.temperatureValue,
+    this.temperatureUnit,
+    this.notes,
+    this.photoPath,
+    this.cloudStorageUrl,
+    this.fileHash,
+    this.fileSizeBytes,
+    required this.isFileUploaded,
+    this.importSource,
+    this.importExternalId,
+    required this.syncCreatedAt,
+    this.syncUpdatedAt,
+    this.syncDeletedAt,
+    this.syncLastSyncedAt,
+    required this.syncStatus,
+    required this.syncVersion,
+    this.syncDeviceId,
+    required this.syncIsDirty,
+    this.conflictData,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['profile_id'] = Variable<String>(profileId);
+    map['occurred_at'] = Variable<int>(occurredAt);
+    map['output_type'] = Variable<int>(outputType);
+    if (!nullToAbsent || customTypeLabel != null) {
+      map['custom_type_label'] = Variable<String>(customTypeLabel);
+    }
+    if (!nullToAbsent || urineCondition != null) {
+      map['urine_condition'] = Variable<int>(urineCondition);
+    }
+    if (!nullToAbsent || urineCustomCondition != null) {
+      map['urine_custom_condition'] = Variable<String>(urineCustomCondition);
+    }
+    if (!nullToAbsent || urineSize != null) {
+      map['urine_size'] = Variable<int>(urineSize);
+    }
+    if (!nullToAbsent || bowelCondition != null) {
+      map['bowel_condition'] = Variable<int>(bowelCondition);
+    }
+    if (!nullToAbsent || bowelCustomCondition != null) {
+      map['bowel_custom_condition'] = Variable<String>(bowelCustomCondition);
+    }
+    if (!nullToAbsent || bowelSize != null) {
+      map['bowel_size'] = Variable<int>(bowelSize);
+    }
+    if (!nullToAbsent || gasSeverity != null) {
+      map['gas_severity'] = Variable<int>(gasSeverity);
+    }
+    if (!nullToAbsent || menstruationFlow != null) {
+      map['menstruation_flow'] = Variable<int>(menstruationFlow);
+    }
+    if (!nullToAbsent || temperatureValue != null) {
+      map['temperature_value'] = Variable<double>(temperatureValue);
+    }
+    if (!nullToAbsent || temperatureUnit != null) {
+      map['temperature_unit'] = Variable<int>(temperatureUnit);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || photoPath != null) {
+      map['photo_path'] = Variable<String>(photoPath);
+    }
+    if (!nullToAbsent || cloudStorageUrl != null) {
+      map['cloud_storage_url'] = Variable<String>(cloudStorageUrl);
+    }
+    if (!nullToAbsent || fileHash != null) {
+      map['file_hash'] = Variable<String>(fileHash);
+    }
+    if (!nullToAbsent || fileSizeBytes != null) {
+      map['file_size_bytes'] = Variable<int>(fileSizeBytes);
+    }
+    map['is_file_uploaded'] = Variable<bool>(isFileUploaded);
+    if (!nullToAbsent || importSource != null) {
+      map['import_source'] = Variable<String>(importSource);
+    }
+    if (!nullToAbsent || importExternalId != null) {
+      map['import_external_id'] = Variable<String>(importExternalId);
+    }
+    map['sync_created_at'] = Variable<int>(syncCreatedAt);
+    if (!nullToAbsent || syncUpdatedAt != null) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt);
+    }
+    if (!nullToAbsent || syncDeletedAt != null) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt);
+    }
+    if (!nullToAbsent || syncLastSyncedAt != null) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['sync_version'] = Variable<int>(syncVersion);
+    if (!nullToAbsent || syncDeviceId != null) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId);
+    }
+    map['sync_is_dirty'] = Variable<bool>(syncIsDirty);
+    if (!nullToAbsent || conflictData != null) {
+      map['conflict_data'] = Variable<String>(conflictData);
+    }
+    return map;
+  }
+
+  BodilyOutputLogsCompanion toCompanion(bool nullToAbsent) {
+    return BodilyOutputLogsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      profileId: Value(profileId),
+      occurredAt: Value(occurredAt),
+      outputType: Value(outputType),
+      customTypeLabel: customTypeLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customTypeLabel),
+      urineCondition: urineCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineCondition),
+      urineCustomCondition: urineCustomCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineCustomCondition),
+      urineSize: urineSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(urineSize),
+      bowelCondition: bowelCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelCondition),
+      bowelCustomCondition: bowelCustomCondition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelCustomCondition),
+      bowelSize: bowelSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bowelSize),
+      gasSeverity: gasSeverity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gasSeverity),
+      menstruationFlow: menstruationFlow == null && nullToAbsent
+          ? const Value.absent()
+          : Value(menstruationFlow),
+      temperatureValue: temperatureValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureValue),
+      temperatureUnit: temperatureUnit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureUnit),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      photoPath: photoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoPath),
+      cloudStorageUrl: cloudStorageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cloudStorageUrl),
+      fileHash: fileHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileHash),
+      fileSizeBytes: fileSizeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fileSizeBytes),
+      isFileUploaded: Value(isFileUploaded),
+      importSource: importSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importSource),
+      importExternalId: importExternalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importExternalId),
+      syncCreatedAt: Value(syncCreatedAt),
+      syncUpdatedAt: syncUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncUpdatedAt),
+      syncDeletedAt: syncDeletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeletedAt),
+      syncLastSyncedAt: syncLastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncLastSyncedAt),
+      syncStatus: Value(syncStatus),
+      syncVersion: Value(syncVersion),
+      syncDeviceId: syncDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncDeviceId),
+      syncIsDirty: Value(syncIsDirty),
+      conflictData: conflictData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictData),
+    );
+  }
+
+  factory BodilyOutputLogRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BodilyOutputLogRow(
+      id: serializer.fromJson<String>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      occurredAt: serializer.fromJson<int>(json['occurredAt']),
+      outputType: serializer.fromJson<int>(json['outputType']),
+      customTypeLabel: serializer.fromJson<String?>(json['customTypeLabel']),
+      urineCondition: serializer.fromJson<int?>(json['urineCondition']),
+      urineCustomCondition: serializer.fromJson<String?>(
+        json['urineCustomCondition'],
+      ),
+      urineSize: serializer.fromJson<int?>(json['urineSize']),
+      bowelCondition: serializer.fromJson<int?>(json['bowelCondition']),
+      bowelCustomCondition: serializer.fromJson<String?>(
+        json['bowelCustomCondition'],
+      ),
+      bowelSize: serializer.fromJson<int?>(json['bowelSize']),
+      gasSeverity: serializer.fromJson<int?>(json['gasSeverity']),
+      menstruationFlow: serializer.fromJson<int?>(json['menstruationFlow']),
+      temperatureValue: serializer.fromJson<double?>(json['temperatureValue']),
+      temperatureUnit: serializer.fromJson<int?>(json['temperatureUnit']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      photoPath: serializer.fromJson<String?>(json['photoPath']),
+      cloudStorageUrl: serializer.fromJson<String?>(json['cloudStorageUrl']),
+      fileHash: serializer.fromJson<String?>(json['fileHash']),
+      fileSizeBytes: serializer.fromJson<int?>(json['fileSizeBytes']),
+      isFileUploaded: serializer.fromJson<bool>(json['isFileUploaded']),
+      importSource: serializer.fromJson<String?>(json['importSource']),
+      importExternalId: serializer.fromJson<String?>(json['importExternalId']),
+      syncCreatedAt: serializer.fromJson<int>(json['syncCreatedAt']),
+      syncUpdatedAt: serializer.fromJson<int?>(json['syncUpdatedAt']),
+      syncDeletedAt: serializer.fromJson<int?>(json['syncDeletedAt']),
+      syncLastSyncedAt: serializer.fromJson<int?>(json['syncLastSyncedAt']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      syncVersion: serializer.fromJson<int>(json['syncVersion']),
+      syncDeviceId: serializer.fromJson<String?>(json['syncDeviceId']),
+      syncIsDirty: serializer.fromJson<bool>(json['syncIsDirty']),
+      conflictData: serializer.fromJson<String?>(json['conflictData']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'profileId': serializer.toJson<String>(profileId),
+      'occurredAt': serializer.toJson<int>(occurredAt),
+      'outputType': serializer.toJson<int>(outputType),
+      'customTypeLabel': serializer.toJson<String?>(customTypeLabel),
+      'urineCondition': serializer.toJson<int?>(urineCondition),
+      'urineCustomCondition': serializer.toJson<String?>(urineCustomCondition),
+      'urineSize': serializer.toJson<int?>(urineSize),
+      'bowelCondition': serializer.toJson<int?>(bowelCondition),
+      'bowelCustomCondition': serializer.toJson<String?>(bowelCustomCondition),
+      'bowelSize': serializer.toJson<int?>(bowelSize),
+      'gasSeverity': serializer.toJson<int?>(gasSeverity),
+      'menstruationFlow': serializer.toJson<int?>(menstruationFlow),
+      'temperatureValue': serializer.toJson<double?>(temperatureValue),
+      'temperatureUnit': serializer.toJson<int?>(temperatureUnit),
+      'notes': serializer.toJson<String?>(notes),
+      'photoPath': serializer.toJson<String?>(photoPath),
+      'cloudStorageUrl': serializer.toJson<String?>(cloudStorageUrl),
+      'fileHash': serializer.toJson<String?>(fileHash),
+      'fileSizeBytes': serializer.toJson<int?>(fileSizeBytes),
+      'isFileUploaded': serializer.toJson<bool>(isFileUploaded),
+      'importSource': serializer.toJson<String?>(importSource),
+      'importExternalId': serializer.toJson<String?>(importExternalId),
+      'syncCreatedAt': serializer.toJson<int>(syncCreatedAt),
+      'syncUpdatedAt': serializer.toJson<int?>(syncUpdatedAt),
+      'syncDeletedAt': serializer.toJson<int?>(syncDeletedAt),
+      'syncLastSyncedAt': serializer.toJson<int?>(syncLastSyncedAt),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'syncVersion': serializer.toJson<int>(syncVersion),
+      'syncDeviceId': serializer.toJson<String?>(syncDeviceId),
+      'syncIsDirty': serializer.toJson<bool>(syncIsDirty),
+      'conflictData': serializer.toJson<String?>(conflictData),
+    };
+  }
+
+  BodilyOutputLogRow copyWith({
+    String? id,
+    String? clientId,
+    String? profileId,
+    int? occurredAt,
+    int? outputType,
+    Value<String?> customTypeLabel = const Value.absent(),
+    Value<int?> urineCondition = const Value.absent(),
+    Value<String?> urineCustomCondition = const Value.absent(),
+    Value<int?> urineSize = const Value.absent(),
+    Value<int?> bowelCondition = const Value.absent(),
+    Value<String?> bowelCustomCondition = const Value.absent(),
+    Value<int?> bowelSize = const Value.absent(),
+    Value<int?> gasSeverity = const Value.absent(),
+    Value<int?> menstruationFlow = const Value.absent(),
+    Value<double?> temperatureValue = const Value.absent(),
+    Value<int?> temperatureUnit = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    Value<String?> photoPath = const Value.absent(),
+    Value<String?> cloudStorageUrl = const Value.absent(),
+    Value<String?> fileHash = const Value.absent(),
+    Value<int?> fileSizeBytes = const Value.absent(),
+    bool? isFileUploaded,
+    Value<String?> importSource = const Value.absent(),
+    Value<String?> importExternalId = const Value.absent(),
+    int? syncCreatedAt,
+    Value<int?> syncUpdatedAt = const Value.absent(),
+    Value<int?> syncDeletedAt = const Value.absent(),
+    Value<int?> syncLastSyncedAt = const Value.absent(),
+    int? syncStatus,
+    int? syncVersion,
+    Value<String?> syncDeviceId = const Value.absent(),
+    bool? syncIsDirty,
+    Value<String?> conflictData = const Value.absent(),
+  }) => BodilyOutputLogRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    profileId: profileId ?? this.profileId,
+    occurredAt: occurredAt ?? this.occurredAt,
+    outputType: outputType ?? this.outputType,
+    customTypeLabel: customTypeLabel.present
+        ? customTypeLabel.value
+        : this.customTypeLabel,
+    urineCondition: urineCondition.present
+        ? urineCondition.value
+        : this.urineCondition,
+    urineCustomCondition: urineCustomCondition.present
+        ? urineCustomCondition.value
+        : this.urineCustomCondition,
+    urineSize: urineSize.present ? urineSize.value : this.urineSize,
+    bowelCondition: bowelCondition.present
+        ? bowelCondition.value
+        : this.bowelCondition,
+    bowelCustomCondition: bowelCustomCondition.present
+        ? bowelCustomCondition.value
+        : this.bowelCustomCondition,
+    bowelSize: bowelSize.present ? bowelSize.value : this.bowelSize,
+    gasSeverity: gasSeverity.present ? gasSeverity.value : this.gasSeverity,
+    menstruationFlow: menstruationFlow.present
+        ? menstruationFlow.value
+        : this.menstruationFlow,
+    temperatureValue: temperatureValue.present
+        ? temperatureValue.value
+        : this.temperatureValue,
+    temperatureUnit: temperatureUnit.present
+        ? temperatureUnit.value
+        : this.temperatureUnit,
+    notes: notes.present ? notes.value : this.notes,
+    photoPath: photoPath.present ? photoPath.value : this.photoPath,
+    cloudStorageUrl: cloudStorageUrl.present
+        ? cloudStorageUrl.value
+        : this.cloudStorageUrl,
+    fileHash: fileHash.present ? fileHash.value : this.fileHash,
+    fileSizeBytes: fileSizeBytes.present
+        ? fileSizeBytes.value
+        : this.fileSizeBytes,
+    isFileUploaded: isFileUploaded ?? this.isFileUploaded,
+    importSource: importSource.present ? importSource.value : this.importSource,
+    importExternalId: importExternalId.present
+        ? importExternalId.value
+        : this.importExternalId,
+    syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+    syncUpdatedAt: syncUpdatedAt.present
+        ? syncUpdatedAt.value
+        : this.syncUpdatedAt,
+    syncDeletedAt: syncDeletedAt.present
+        ? syncDeletedAt.value
+        : this.syncDeletedAt,
+    syncLastSyncedAt: syncLastSyncedAt.present
+        ? syncLastSyncedAt.value
+        : this.syncLastSyncedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    syncVersion: syncVersion ?? this.syncVersion,
+    syncDeviceId: syncDeviceId.present ? syncDeviceId.value : this.syncDeviceId,
+    syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+    conflictData: conflictData.present ? conflictData.value : this.conflictData,
+  );
+  BodilyOutputLogRow copyWithCompanion(BodilyOutputLogsCompanion data) {
+    return BodilyOutputLogRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      occurredAt: data.occurredAt.present
+          ? data.occurredAt.value
+          : this.occurredAt,
+      outputType: data.outputType.present
+          ? data.outputType.value
+          : this.outputType,
+      customTypeLabel: data.customTypeLabel.present
+          ? data.customTypeLabel.value
+          : this.customTypeLabel,
+      urineCondition: data.urineCondition.present
+          ? data.urineCondition.value
+          : this.urineCondition,
+      urineCustomCondition: data.urineCustomCondition.present
+          ? data.urineCustomCondition.value
+          : this.urineCustomCondition,
+      urineSize: data.urineSize.present ? data.urineSize.value : this.urineSize,
+      bowelCondition: data.bowelCondition.present
+          ? data.bowelCondition.value
+          : this.bowelCondition,
+      bowelCustomCondition: data.bowelCustomCondition.present
+          ? data.bowelCustomCondition.value
+          : this.bowelCustomCondition,
+      bowelSize: data.bowelSize.present ? data.bowelSize.value : this.bowelSize,
+      gasSeverity: data.gasSeverity.present
+          ? data.gasSeverity.value
+          : this.gasSeverity,
+      menstruationFlow: data.menstruationFlow.present
+          ? data.menstruationFlow.value
+          : this.menstruationFlow,
+      temperatureValue: data.temperatureValue.present
+          ? data.temperatureValue.value
+          : this.temperatureValue,
+      temperatureUnit: data.temperatureUnit.present
+          ? data.temperatureUnit.value
+          : this.temperatureUnit,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
+      cloudStorageUrl: data.cloudStorageUrl.present
+          ? data.cloudStorageUrl.value
+          : this.cloudStorageUrl,
+      fileHash: data.fileHash.present ? data.fileHash.value : this.fileHash,
+      fileSizeBytes: data.fileSizeBytes.present
+          ? data.fileSizeBytes.value
+          : this.fileSizeBytes,
+      isFileUploaded: data.isFileUploaded.present
+          ? data.isFileUploaded.value
+          : this.isFileUploaded,
+      importSource: data.importSource.present
+          ? data.importSource.value
+          : this.importSource,
+      importExternalId: data.importExternalId.present
+          ? data.importExternalId.value
+          : this.importExternalId,
+      syncCreatedAt: data.syncCreatedAt.present
+          ? data.syncCreatedAt.value
+          : this.syncCreatedAt,
+      syncUpdatedAt: data.syncUpdatedAt.present
+          ? data.syncUpdatedAt.value
+          : this.syncUpdatedAt,
+      syncDeletedAt: data.syncDeletedAt.present
+          ? data.syncDeletedAt.value
+          : this.syncDeletedAt,
+      syncLastSyncedAt: data.syncLastSyncedAt.present
+          ? data.syncLastSyncedAt.value
+          : this.syncLastSyncedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      syncVersion: data.syncVersion.present
+          ? data.syncVersion.value
+          : this.syncVersion,
+      syncDeviceId: data.syncDeviceId.present
+          ? data.syncDeviceId.value
+          : this.syncDeviceId,
+      syncIsDirty: data.syncIsDirty.present
+          ? data.syncIsDirty.value
+          : this.syncIsDirty,
+      conflictData: data.conflictData.present
+          ? data.conflictData.value
+          : this.conflictData,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodilyOutputLogRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('outputType: $outputType, ')
+          ..write('customTypeLabel: $customTypeLabel, ')
+          ..write('urineCondition: $urineCondition, ')
+          ..write('urineCustomCondition: $urineCustomCondition, ')
+          ..write('urineSize: $urineSize, ')
+          ..write('bowelCondition: $bowelCondition, ')
+          ..write('bowelCustomCondition: $bowelCustomCondition, ')
+          ..write('bowelSize: $bowelSize, ')
+          ..write('gasSeverity: $gasSeverity, ')
+          ..write('menstruationFlow: $menstruationFlow, ')
+          ..write('temperatureValue: $temperatureValue, ')
+          ..write('temperatureUnit: $temperatureUnit, ')
+          ..write('notes: $notes, ')
+          ..write('photoPath: $photoPath, ')
+          ..write('cloudStorageUrl: $cloudStorageUrl, ')
+          ..write('fileHash: $fileHash, ')
+          ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('isFileUploaded: $isFileUploaded, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    clientId,
+    profileId,
+    occurredAt,
+    outputType,
+    customTypeLabel,
+    urineCondition,
+    urineCustomCondition,
+    urineSize,
+    bowelCondition,
+    bowelCustomCondition,
+    bowelSize,
+    gasSeverity,
+    menstruationFlow,
+    temperatureValue,
+    temperatureUnit,
+    notes,
+    photoPath,
+    cloudStorageUrl,
+    fileHash,
+    fileSizeBytes,
+    isFileUploaded,
+    importSource,
+    importExternalId,
+    syncCreatedAt,
+    syncUpdatedAt,
+    syncDeletedAt,
+    syncLastSyncedAt,
+    syncStatus,
+    syncVersion,
+    syncDeviceId,
+    syncIsDirty,
+    conflictData,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BodilyOutputLogRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.profileId == this.profileId &&
+          other.occurredAt == this.occurredAt &&
+          other.outputType == this.outputType &&
+          other.customTypeLabel == this.customTypeLabel &&
+          other.urineCondition == this.urineCondition &&
+          other.urineCustomCondition == this.urineCustomCondition &&
+          other.urineSize == this.urineSize &&
+          other.bowelCondition == this.bowelCondition &&
+          other.bowelCustomCondition == this.bowelCustomCondition &&
+          other.bowelSize == this.bowelSize &&
+          other.gasSeverity == this.gasSeverity &&
+          other.menstruationFlow == this.menstruationFlow &&
+          other.temperatureValue == this.temperatureValue &&
+          other.temperatureUnit == this.temperatureUnit &&
+          other.notes == this.notes &&
+          other.photoPath == this.photoPath &&
+          other.cloudStorageUrl == this.cloudStorageUrl &&
+          other.fileHash == this.fileHash &&
+          other.fileSizeBytes == this.fileSizeBytes &&
+          other.isFileUploaded == this.isFileUploaded &&
+          other.importSource == this.importSource &&
+          other.importExternalId == this.importExternalId &&
+          other.syncCreatedAt == this.syncCreatedAt &&
+          other.syncUpdatedAt == this.syncUpdatedAt &&
+          other.syncDeletedAt == this.syncDeletedAt &&
+          other.syncLastSyncedAt == this.syncLastSyncedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.syncVersion == this.syncVersion &&
+          other.syncDeviceId == this.syncDeviceId &&
+          other.syncIsDirty == this.syncIsDirty &&
+          other.conflictData == this.conflictData);
+}
+
+class BodilyOutputLogsCompanion extends UpdateCompanion<BodilyOutputLogRow> {
+  final Value<String> id;
+  final Value<String> clientId;
+  final Value<String> profileId;
+  final Value<int> occurredAt;
+  final Value<int> outputType;
+  final Value<String?> customTypeLabel;
+  final Value<int?> urineCondition;
+  final Value<String?> urineCustomCondition;
+  final Value<int?> urineSize;
+  final Value<int?> bowelCondition;
+  final Value<String?> bowelCustomCondition;
+  final Value<int?> bowelSize;
+  final Value<int?> gasSeverity;
+  final Value<int?> menstruationFlow;
+  final Value<double?> temperatureValue;
+  final Value<int?> temperatureUnit;
+  final Value<String?> notes;
+  final Value<String?> photoPath;
+  final Value<String?> cloudStorageUrl;
+  final Value<String?> fileHash;
+  final Value<int?> fileSizeBytes;
+  final Value<bool> isFileUploaded;
+  final Value<String?> importSource;
+  final Value<String?> importExternalId;
+  final Value<int> syncCreatedAt;
+  final Value<int?> syncUpdatedAt;
+  final Value<int?> syncDeletedAt;
+  final Value<int?> syncLastSyncedAt;
+  final Value<int> syncStatus;
+  final Value<int> syncVersion;
+  final Value<String?> syncDeviceId;
+  final Value<bool> syncIsDirty;
+  final Value<String?> conflictData;
+  final Value<int> rowid;
+  const BodilyOutputLogsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.occurredAt = const Value.absent(),
+    this.outputType = const Value.absent(),
+    this.customTypeLabel = const Value.absent(),
+    this.urineCondition = const Value.absent(),
+    this.urineCustomCondition = const Value.absent(),
+    this.urineSize = const Value.absent(),
+    this.bowelCondition = const Value.absent(),
+    this.bowelCustomCondition = const Value.absent(),
+    this.bowelSize = const Value.absent(),
+    this.gasSeverity = const Value.absent(),
+    this.menstruationFlow = const Value.absent(),
+    this.temperatureValue = const Value.absent(),
+    this.temperatureUnit = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.photoPath = const Value.absent(),
+    this.cloudStorageUrl = const Value.absent(),
+    this.fileHash = const Value.absent(),
+    this.fileSizeBytes = const Value.absent(),
+    this.isFileUploaded = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    this.syncCreatedAt = const Value.absent(),
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BodilyOutputLogsCompanion.insert({
+    required String id,
+    required String clientId,
+    required String profileId,
+    required int occurredAt,
+    required int outputType,
+    this.customTypeLabel = const Value.absent(),
+    this.urineCondition = const Value.absent(),
+    this.urineCustomCondition = const Value.absent(),
+    this.urineSize = const Value.absent(),
+    this.bowelCondition = const Value.absent(),
+    this.bowelCustomCondition = const Value.absent(),
+    this.bowelSize = const Value.absent(),
+    this.gasSeverity = const Value.absent(),
+    this.menstruationFlow = const Value.absent(),
+    this.temperatureValue = const Value.absent(),
+    this.temperatureUnit = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.photoPath = const Value.absent(),
+    this.cloudStorageUrl = const Value.absent(),
+    this.fileHash = const Value.absent(),
+    this.fileSizeBytes = const Value.absent(),
+    this.isFileUploaded = const Value.absent(),
+    this.importSource = const Value.absent(),
+    this.importExternalId = const Value.absent(),
+    required int syncCreatedAt,
+    this.syncUpdatedAt = const Value.absent(),
+    this.syncDeletedAt = const Value.absent(),
+    this.syncLastSyncedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.syncVersion = const Value.absent(),
+    this.syncDeviceId = const Value.absent(),
+    this.syncIsDirty = const Value.absent(),
+    this.conflictData = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       clientId = Value(clientId),
+       profileId = Value(profileId),
+       occurredAt = Value(occurredAt),
+       outputType = Value(outputType),
+       syncCreatedAt = Value(syncCreatedAt);
+  static Insertable<BodilyOutputLogRow> custom({
+    Expression<String>? id,
+    Expression<String>? clientId,
+    Expression<String>? profileId,
+    Expression<int>? occurredAt,
+    Expression<int>? outputType,
+    Expression<String>? customTypeLabel,
+    Expression<int>? urineCondition,
+    Expression<String>? urineCustomCondition,
+    Expression<int>? urineSize,
+    Expression<int>? bowelCondition,
+    Expression<String>? bowelCustomCondition,
+    Expression<int>? bowelSize,
+    Expression<int>? gasSeverity,
+    Expression<int>? menstruationFlow,
+    Expression<double>? temperatureValue,
+    Expression<int>? temperatureUnit,
+    Expression<String>? notes,
+    Expression<String>? photoPath,
+    Expression<String>? cloudStorageUrl,
+    Expression<String>? fileHash,
+    Expression<int>? fileSizeBytes,
+    Expression<bool>? isFileUploaded,
+    Expression<String>? importSource,
+    Expression<String>? importExternalId,
+    Expression<int>? syncCreatedAt,
+    Expression<int>? syncUpdatedAt,
+    Expression<int>? syncDeletedAt,
+    Expression<int>? syncLastSyncedAt,
+    Expression<int>? syncStatus,
+    Expression<int>? syncVersion,
+    Expression<String>? syncDeviceId,
+    Expression<bool>? syncIsDirty,
+    Expression<String>? conflictData,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (profileId != null) 'profile_id': profileId,
+      if (occurredAt != null) 'occurred_at': occurredAt,
+      if (outputType != null) 'output_type': outputType,
+      if (customTypeLabel != null) 'custom_type_label': customTypeLabel,
+      if (urineCondition != null) 'urine_condition': urineCondition,
+      if (urineCustomCondition != null)
+        'urine_custom_condition': urineCustomCondition,
+      if (urineSize != null) 'urine_size': urineSize,
+      if (bowelCondition != null) 'bowel_condition': bowelCondition,
+      if (bowelCustomCondition != null)
+        'bowel_custom_condition': bowelCustomCondition,
+      if (bowelSize != null) 'bowel_size': bowelSize,
+      if (gasSeverity != null) 'gas_severity': gasSeverity,
+      if (menstruationFlow != null) 'menstruation_flow': menstruationFlow,
+      if (temperatureValue != null) 'temperature_value': temperatureValue,
+      if (temperatureUnit != null) 'temperature_unit': temperatureUnit,
+      if (notes != null) 'notes': notes,
+      if (photoPath != null) 'photo_path': photoPath,
+      if (cloudStorageUrl != null) 'cloud_storage_url': cloudStorageUrl,
+      if (fileHash != null) 'file_hash': fileHash,
+      if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
+      if (isFileUploaded != null) 'is_file_uploaded': isFileUploaded,
+      if (importSource != null) 'import_source': importSource,
+      if (importExternalId != null) 'import_external_id': importExternalId,
+      if (syncCreatedAt != null) 'sync_created_at': syncCreatedAt,
+      if (syncUpdatedAt != null) 'sync_updated_at': syncUpdatedAt,
+      if (syncDeletedAt != null) 'sync_deleted_at': syncDeletedAt,
+      if (syncLastSyncedAt != null) 'sync_last_synced_at': syncLastSyncedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (syncVersion != null) 'sync_version': syncVersion,
+      if (syncDeviceId != null) 'sync_device_id': syncDeviceId,
+      if (syncIsDirty != null) 'sync_is_dirty': syncIsDirty,
+      if (conflictData != null) 'conflict_data': conflictData,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BodilyOutputLogsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? clientId,
+    Value<String>? profileId,
+    Value<int>? occurredAt,
+    Value<int>? outputType,
+    Value<String?>? customTypeLabel,
+    Value<int?>? urineCondition,
+    Value<String?>? urineCustomCondition,
+    Value<int?>? urineSize,
+    Value<int?>? bowelCondition,
+    Value<String?>? bowelCustomCondition,
+    Value<int?>? bowelSize,
+    Value<int?>? gasSeverity,
+    Value<int?>? menstruationFlow,
+    Value<double?>? temperatureValue,
+    Value<int?>? temperatureUnit,
+    Value<String?>? notes,
+    Value<String?>? photoPath,
+    Value<String?>? cloudStorageUrl,
+    Value<String?>? fileHash,
+    Value<int?>? fileSizeBytes,
+    Value<bool>? isFileUploaded,
+    Value<String?>? importSource,
+    Value<String?>? importExternalId,
+    Value<int>? syncCreatedAt,
+    Value<int?>? syncUpdatedAt,
+    Value<int?>? syncDeletedAt,
+    Value<int?>? syncLastSyncedAt,
+    Value<int>? syncStatus,
+    Value<int>? syncVersion,
+    Value<String?>? syncDeviceId,
+    Value<bool>? syncIsDirty,
+    Value<String?>? conflictData,
+    Value<int>? rowid,
+  }) {
+    return BodilyOutputLogsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      profileId: profileId ?? this.profileId,
+      occurredAt: occurredAt ?? this.occurredAt,
+      outputType: outputType ?? this.outputType,
+      customTypeLabel: customTypeLabel ?? this.customTypeLabel,
+      urineCondition: urineCondition ?? this.urineCondition,
+      urineCustomCondition: urineCustomCondition ?? this.urineCustomCondition,
+      urineSize: urineSize ?? this.urineSize,
+      bowelCondition: bowelCondition ?? this.bowelCondition,
+      bowelCustomCondition: bowelCustomCondition ?? this.bowelCustomCondition,
+      bowelSize: bowelSize ?? this.bowelSize,
+      gasSeverity: gasSeverity ?? this.gasSeverity,
+      menstruationFlow: menstruationFlow ?? this.menstruationFlow,
+      temperatureValue: temperatureValue ?? this.temperatureValue,
+      temperatureUnit: temperatureUnit ?? this.temperatureUnit,
+      notes: notes ?? this.notes,
+      photoPath: photoPath ?? this.photoPath,
+      cloudStorageUrl: cloudStorageUrl ?? this.cloudStorageUrl,
+      fileHash: fileHash ?? this.fileHash,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      isFileUploaded: isFileUploaded ?? this.isFileUploaded,
+      importSource: importSource ?? this.importSource,
+      importExternalId: importExternalId ?? this.importExternalId,
+      syncCreatedAt: syncCreatedAt ?? this.syncCreatedAt,
+      syncUpdatedAt: syncUpdatedAt ?? this.syncUpdatedAt,
+      syncDeletedAt: syncDeletedAt ?? this.syncDeletedAt,
+      syncLastSyncedAt: syncLastSyncedAt ?? this.syncLastSyncedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      syncVersion: syncVersion ?? this.syncVersion,
+      syncDeviceId: syncDeviceId ?? this.syncDeviceId,
+      syncIsDirty: syncIsDirty ?? this.syncIsDirty,
+      conflictData: conflictData ?? this.conflictData,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (occurredAt.present) {
+      map['occurred_at'] = Variable<int>(occurredAt.value);
+    }
+    if (outputType.present) {
+      map['output_type'] = Variable<int>(outputType.value);
+    }
+    if (customTypeLabel.present) {
+      map['custom_type_label'] = Variable<String>(customTypeLabel.value);
+    }
+    if (urineCondition.present) {
+      map['urine_condition'] = Variable<int>(urineCondition.value);
+    }
+    if (urineCustomCondition.present) {
+      map['urine_custom_condition'] = Variable<String>(
+        urineCustomCondition.value,
+      );
+    }
+    if (urineSize.present) {
+      map['urine_size'] = Variable<int>(urineSize.value);
+    }
+    if (bowelCondition.present) {
+      map['bowel_condition'] = Variable<int>(bowelCondition.value);
+    }
+    if (bowelCustomCondition.present) {
+      map['bowel_custom_condition'] = Variable<String>(
+        bowelCustomCondition.value,
+      );
+    }
+    if (bowelSize.present) {
+      map['bowel_size'] = Variable<int>(bowelSize.value);
+    }
+    if (gasSeverity.present) {
+      map['gas_severity'] = Variable<int>(gasSeverity.value);
+    }
+    if (menstruationFlow.present) {
+      map['menstruation_flow'] = Variable<int>(menstruationFlow.value);
+    }
+    if (temperatureValue.present) {
+      map['temperature_value'] = Variable<double>(temperatureValue.value);
+    }
+    if (temperatureUnit.present) {
+      map['temperature_unit'] = Variable<int>(temperatureUnit.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (photoPath.present) {
+      map['photo_path'] = Variable<String>(photoPath.value);
+    }
+    if (cloudStorageUrl.present) {
+      map['cloud_storage_url'] = Variable<String>(cloudStorageUrl.value);
+    }
+    if (fileHash.present) {
+      map['file_hash'] = Variable<String>(fileHash.value);
+    }
+    if (fileSizeBytes.present) {
+      map['file_size_bytes'] = Variable<int>(fileSizeBytes.value);
+    }
+    if (isFileUploaded.present) {
+      map['is_file_uploaded'] = Variable<bool>(isFileUploaded.value);
+    }
+    if (importSource.present) {
+      map['import_source'] = Variable<String>(importSource.value);
+    }
+    if (importExternalId.present) {
+      map['import_external_id'] = Variable<String>(importExternalId.value);
+    }
+    if (syncCreatedAt.present) {
+      map['sync_created_at'] = Variable<int>(syncCreatedAt.value);
+    }
+    if (syncUpdatedAt.present) {
+      map['sync_updated_at'] = Variable<int>(syncUpdatedAt.value);
+    }
+    if (syncDeletedAt.present) {
+      map['sync_deleted_at'] = Variable<int>(syncDeletedAt.value);
+    }
+    if (syncLastSyncedAt.present) {
+      map['sync_last_synced_at'] = Variable<int>(syncLastSyncedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (syncVersion.present) {
+      map['sync_version'] = Variable<int>(syncVersion.value);
+    }
+    if (syncDeviceId.present) {
+      map['sync_device_id'] = Variable<String>(syncDeviceId.value);
+    }
+    if (syncIsDirty.present) {
+      map['sync_is_dirty'] = Variable<bool>(syncIsDirty.value);
+    }
+    if (conflictData.present) {
+      map['conflict_data'] = Variable<String>(conflictData.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodilyOutputLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('profileId: $profileId, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('outputType: $outputType, ')
+          ..write('customTypeLabel: $customTypeLabel, ')
+          ..write('urineCondition: $urineCondition, ')
+          ..write('urineCustomCondition: $urineCustomCondition, ')
+          ..write('urineSize: $urineSize, ')
+          ..write('bowelCondition: $bowelCondition, ')
+          ..write('bowelCustomCondition: $bowelCustomCondition, ')
+          ..write('bowelSize: $bowelSize, ')
+          ..write('gasSeverity: $gasSeverity, ')
+          ..write('menstruationFlow: $menstruationFlow, ')
+          ..write('temperatureValue: $temperatureValue, ')
+          ..write('temperatureUnit: $temperatureUnit, ')
+          ..write('notes: $notes, ')
+          ..write('photoPath: $photoPath, ')
+          ..write('cloudStorageUrl: $cloudStorageUrl, ')
+          ..write('fileHash: $fileHash, ')
+          ..write('fileSizeBytes: $fileSizeBytes, ')
+          ..write('isFileUploaded: $isFileUploaded, ')
+          ..write('importSource: $importSource, ')
+          ..write('importExternalId: $importExternalId, ')
+          ..write('syncCreatedAt: $syncCreatedAt, ')
+          ..write('syncUpdatedAt: $syncUpdatedAt, ')
+          ..write('syncDeletedAt: $syncDeletedAt, ')
+          ..write('syncLastSyncedAt: $syncLastSyncedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('syncVersion: $syncVersion, ')
+          ..write('syncDeviceId: $syncDeviceId, ')
+          ..write('syncIsDirty: $syncIsDirty, ')
+          ..write('conflictData: $conflictData, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $FluidsEntriesTable extends FluidsEntries
     with TableInfo<$FluidsEntriesTable, FluidsEntryRow> {
   @override
@@ -31187,6 +33073,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ConditionsTable conditions = $ConditionsTable(this);
   late final $ConditionLogsTable conditionLogs = $ConditionLogsTable(this);
   late final $FlareUpsTable flareUps = $FlareUpsTable(this);
+  late final $BodilyOutputLogsTable bodilyOutputLogs = $BodilyOutputLogsTable(
+    this,
+  );
   late final $FluidsEntriesTable fluidsEntries = $FluidsEntriesTable(this);
   late final $SleepEntriesTable sleepEntries = $SleepEntriesTable(this);
   late final $ActivitiesTable activities = $ActivitiesTable(this);
@@ -31234,6 +33123,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this as AppDatabase,
   );
   late final FlareUpDao flareUpDao = FlareUpDao(this as AppDatabase);
+  late final BodilyOutputDao bodilyOutputDao = BodilyOutputDao(
+    this as AppDatabase,
+  );
   late final FluidsEntryDao fluidsEntryDao = FluidsEntryDao(
     this as AppDatabase,
   );
@@ -31303,6 +33195,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     conditions,
     conditionLogs,
     flareUps,
+    bodilyOutputLogs,
     fluidsEntries,
     sleepEntries,
     activities,
@@ -34279,6 +36172,798 @@ typedef $$FlareUpsTableProcessedTableManager =
       $$FlareUpsTableUpdateCompanionBuilder,
       (FlareUpRow, BaseReferences<_$AppDatabase, $FlareUpsTable, FlareUpRow>),
       FlareUpRow,
+      PrefetchHooks Function()
+    >;
+typedef $$BodilyOutputLogsTableCreateCompanionBuilder =
+    BodilyOutputLogsCompanion Function({
+      required String id,
+      required String clientId,
+      required String profileId,
+      required int occurredAt,
+      required int outputType,
+      Value<String?> customTypeLabel,
+      Value<int?> urineCondition,
+      Value<String?> urineCustomCondition,
+      Value<int?> urineSize,
+      Value<int?> bowelCondition,
+      Value<String?> bowelCustomCondition,
+      Value<int?> bowelSize,
+      Value<int?> gasSeverity,
+      Value<int?> menstruationFlow,
+      Value<double?> temperatureValue,
+      Value<int?> temperatureUnit,
+      Value<String?> notes,
+      Value<String?> photoPath,
+      Value<String?> cloudStorageUrl,
+      Value<String?> fileHash,
+      Value<int?> fileSizeBytes,
+      Value<bool> isFileUploaded,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      required int syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+typedef $$BodilyOutputLogsTableUpdateCompanionBuilder =
+    BodilyOutputLogsCompanion Function({
+      Value<String> id,
+      Value<String> clientId,
+      Value<String> profileId,
+      Value<int> occurredAt,
+      Value<int> outputType,
+      Value<String?> customTypeLabel,
+      Value<int?> urineCondition,
+      Value<String?> urineCustomCondition,
+      Value<int?> urineSize,
+      Value<int?> bowelCondition,
+      Value<String?> bowelCustomCondition,
+      Value<int?> bowelSize,
+      Value<int?> gasSeverity,
+      Value<int?> menstruationFlow,
+      Value<double?> temperatureValue,
+      Value<int?> temperatureUnit,
+      Value<String?> notes,
+      Value<String?> photoPath,
+      Value<String?> cloudStorageUrl,
+      Value<String?> fileHash,
+      Value<int?> fileSizeBytes,
+      Value<bool> isFileUploaded,
+      Value<String?> importSource,
+      Value<String?> importExternalId,
+      Value<int> syncCreatedAt,
+      Value<int?> syncUpdatedAt,
+      Value<int?> syncDeletedAt,
+      Value<int?> syncLastSyncedAt,
+      Value<int> syncStatus,
+      Value<int> syncVersion,
+      Value<String?> syncDeviceId,
+      Value<bool> syncIsDirty,
+      Value<String?> conflictData,
+      Value<int> rowid,
+    });
+
+class $$BodilyOutputLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $BodilyOutputLogsTable> {
+  $$BodilyOutputLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get outputType => $composableBuilder(
+    column: $table.outputType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customTypeLabel => $composableBuilder(
+    column: $table.customTypeLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get urineSize => $composableBuilder(
+    column: $table.urineSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bowelSize => $composableBuilder(
+    column: $table.bowelSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gasSeverity => $composableBuilder(
+    column: $table.gasSeverity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get temperatureValue => $composableBuilder(
+    column: $table.temperatureValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileHash => $composableBuilder(
+    column: $table.fileHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BodilyOutputLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BodilyOutputLogsTable> {
+  $$BodilyOutputLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get outputType => $composableBuilder(
+    column: $table.outputType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customTypeLabel => $composableBuilder(
+    column: $table.customTypeLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get urineSize => $composableBuilder(
+    column: $table.urineSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bowelSize => $composableBuilder(
+    column: $table.bowelSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gasSeverity => $composableBuilder(
+    column: $table.gasSeverity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get temperatureValue => $composableBuilder(
+    column: $table.temperatureValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileHash => $composableBuilder(
+    column: $table.fileHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BodilyOutputLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BodilyOutputLogsTable> {
+  $$BodilyOutputLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<int> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get outputType => $composableBuilder(
+    column: $table.outputType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customTypeLabel => $composableBuilder(
+    column: $table.customTypeLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get urineCondition => $composableBuilder(
+    column: $table.urineCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get urineCustomCondition => $composableBuilder(
+    column: $table.urineCustomCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get urineSize =>
+      $composableBuilder(column: $table.urineSize, builder: (column) => column);
+
+  GeneratedColumn<int> get bowelCondition => $composableBuilder(
+    column: $table.bowelCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bowelCustomCondition => $composableBuilder(
+    column: $table.bowelCustomCondition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bowelSize =>
+      $composableBuilder(column: $table.bowelSize, builder: (column) => column);
+
+  GeneratedColumn<int> get gasSeverity => $composableBuilder(
+    column: $table.gasSeverity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get menstruationFlow => $composableBuilder(
+    column: $table.menstruationFlow,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get temperatureValue => $composableBuilder(
+    column: $table.temperatureValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get temperatureUnit => $composableBuilder(
+    column: $table.temperatureUnit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get photoPath =>
+      $composableBuilder(column: $table.photoPath, builder: (column) => column);
+
+  GeneratedColumn<String> get cloudStorageUrl => $composableBuilder(
+    column: $table.cloudStorageUrl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get fileHash =>
+      $composableBuilder(column: $table.fileHash, builder: (column) => column);
+
+  GeneratedColumn<int> get fileSizeBytes => $composableBuilder(
+    column: $table.fileSizeBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isFileUploaded => $composableBuilder(
+    column: $table.isFileUploaded,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importSource => $composableBuilder(
+    column: $table.importSource,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get importExternalId => $composableBuilder(
+    column: $table.importExternalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncCreatedAt => $composableBuilder(
+    column: $table.syncCreatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncUpdatedAt => $composableBuilder(
+    column: $table.syncUpdatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncDeletedAt => $composableBuilder(
+    column: $table.syncDeletedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncLastSyncedAt => $composableBuilder(
+    column: $table.syncLastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get syncVersion => $composableBuilder(
+    column: $table.syncVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncDeviceId => $composableBuilder(
+    column: $table.syncDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get syncIsDirty => $composableBuilder(
+    column: $table.syncIsDirty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictData => $composableBuilder(
+    column: $table.conflictData,
+    builder: (column) => column,
+  );
+}
+
+class $$BodilyOutputLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BodilyOutputLogsTable,
+          BodilyOutputLogRow,
+          $$BodilyOutputLogsTableFilterComposer,
+          $$BodilyOutputLogsTableOrderingComposer,
+          $$BodilyOutputLogsTableAnnotationComposer,
+          $$BodilyOutputLogsTableCreateCompanionBuilder,
+          $$BodilyOutputLogsTableUpdateCompanionBuilder,
+          (
+            BodilyOutputLogRow,
+            BaseReferences<
+              _$AppDatabase,
+              $BodilyOutputLogsTable,
+              BodilyOutputLogRow
+            >,
+          ),
+          BodilyOutputLogRow,
+          PrefetchHooks Function()
+        > {
+  $$BodilyOutputLogsTableTableManager(
+    _$AppDatabase db,
+    $BodilyOutputLogsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BodilyOutputLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BodilyOutputLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BodilyOutputLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<int> occurredAt = const Value.absent(),
+                Value<int> outputType = const Value.absent(),
+                Value<String?> customTypeLabel = const Value.absent(),
+                Value<int?> urineCondition = const Value.absent(),
+                Value<String?> urineCustomCondition = const Value.absent(),
+                Value<int?> urineSize = const Value.absent(),
+                Value<int?> bowelCondition = const Value.absent(),
+                Value<String?> bowelCustomCondition = const Value.absent(),
+                Value<int?> bowelSize = const Value.absent(),
+                Value<int?> gasSeverity = const Value.absent(),
+                Value<int?> menstruationFlow = const Value.absent(),
+                Value<double?> temperatureValue = const Value.absent(),
+                Value<int?> temperatureUnit = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
+                Value<String?> cloudStorageUrl = const Value.absent(),
+                Value<String?> fileHash = const Value.absent(),
+                Value<int?> fileSizeBytes = const Value.absent(),
+                Value<bool> isFileUploaded = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                Value<int> syncCreatedAt = const Value.absent(),
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BodilyOutputLogsCompanion(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                occurredAt: occurredAt,
+                outputType: outputType,
+                customTypeLabel: customTypeLabel,
+                urineCondition: urineCondition,
+                urineCustomCondition: urineCustomCondition,
+                urineSize: urineSize,
+                bowelCondition: bowelCondition,
+                bowelCustomCondition: bowelCustomCondition,
+                bowelSize: bowelSize,
+                gasSeverity: gasSeverity,
+                menstruationFlow: menstruationFlow,
+                temperatureValue: temperatureValue,
+                temperatureUnit: temperatureUnit,
+                notes: notes,
+                photoPath: photoPath,
+                cloudStorageUrl: cloudStorageUrl,
+                fileHash: fileHash,
+                fileSizeBytes: fileSizeBytes,
+                isFileUploaded: isFileUploaded,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String clientId,
+                required String profileId,
+                required int occurredAt,
+                required int outputType,
+                Value<String?> customTypeLabel = const Value.absent(),
+                Value<int?> urineCondition = const Value.absent(),
+                Value<String?> urineCustomCondition = const Value.absent(),
+                Value<int?> urineSize = const Value.absent(),
+                Value<int?> bowelCondition = const Value.absent(),
+                Value<String?> bowelCustomCondition = const Value.absent(),
+                Value<int?> bowelSize = const Value.absent(),
+                Value<int?> gasSeverity = const Value.absent(),
+                Value<int?> menstruationFlow = const Value.absent(),
+                Value<double?> temperatureValue = const Value.absent(),
+                Value<int?> temperatureUnit = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
+                Value<String?> cloudStorageUrl = const Value.absent(),
+                Value<String?> fileHash = const Value.absent(),
+                Value<int?> fileSizeBytes = const Value.absent(),
+                Value<bool> isFileUploaded = const Value.absent(),
+                Value<String?> importSource = const Value.absent(),
+                Value<String?> importExternalId = const Value.absent(),
+                required int syncCreatedAt,
+                Value<int?> syncUpdatedAt = const Value.absent(),
+                Value<int?> syncDeletedAt = const Value.absent(),
+                Value<int?> syncLastSyncedAt = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<int> syncVersion = const Value.absent(),
+                Value<String?> syncDeviceId = const Value.absent(),
+                Value<bool> syncIsDirty = const Value.absent(),
+                Value<String?> conflictData = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BodilyOutputLogsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                profileId: profileId,
+                occurredAt: occurredAt,
+                outputType: outputType,
+                customTypeLabel: customTypeLabel,
+                urineCondition: urineCondition,
+                urineCustomCondition: urineCustomCondition,
+                urineSize: urineSize,
+                bowelCondition: bowelCondition,
+                bowelCustomCondition: bowelCustomCondition,
+                bowelSize: bowelSize,
+                gasSeverity: gasSeverity,
+                menstruationFlow: menstruationFlow,
+                temperatureValue: temperatureValue,
+                temperatureUnit: temperatureUnit,
+                notes: notes,
+                photoPath: photoPath,
+                cloudStorageUrl: cloudStorageUrl,
+                fileHash: fileHash,
+                fileSizeBytes: fileSizeBytes,
+                isFileUploaded: isFileUploaded,
+                importSource: importSource,
+                importExternalId: importExternalId,
+                syncCreatedAt: syncCreatedAt,
+                syncUpdatedAt: syncUpdatedAt,
+                syncDeletedAt: syncDeletedAt,
+                syncLastSyncedAt: syncLastSyncedAt,
+                syncStatus: syncStatus,
+                syncVersion: syncVersion,
+                syncDeviceId: syncDeviceId,
+                syncIsDirty: syncIsDirty,
+                conflictData: conflictData,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BodilyOutputLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BodilyOutputLogsTable,
+      BodilyOutputLogRow,
+      $$BodilyOutputLogsTableFilterComposer,
+      $$BodilyOutputLogsTableOrderingComposer,
+      $$BodilyOutputLogsTableAnnotationComposer,
+      $$BodilyOutputLogsTableCreateCompanionBuilder,
+      $$BodilyOutputLogsTableUpdateCompanionBuilder,
+      (
+        BodilyOutputLogRow,
+        BaseReferences<
+          _$AppDatabase,
+          $BodilyOutputLogsTable,
+          BodilyOutputLogRow
+        >,
+      ),
+      BodilyOutputLogRow,
       PrefetchHooks Function()
     >;
 typedef $$FluidsEntriesTableCreateCompanionBuilder =
@@ -45522,6 +48207,8 @@ class $AppDatabaseManager {
       $$ConditionLogsTableTableManager(_db, _db.conditionLogs);
   $$FlareUpsTableTableManager get flareUps =>
       $$FlareUpsTableTableManager(_db, _db.flareUps);
+  $$BodilyOutputLogsTableTableManager get bodilyOutputLogs =>
+      $$BodilyOutputLogsTableTableManager(_db, _db.bodilyOutputLogs);
   $$FluidsEntriesTableTableManager get fluidsEntries =>
       $$FluidsEntriesTableTableManager(_db, _db.fluidsEntries);
   $$SleepEntriesTableTableManager get sleepEntries =>
