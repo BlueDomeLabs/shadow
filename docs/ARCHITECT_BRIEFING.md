@@ -25,6 +25,32 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Retire /compliance Skill — Fold Into /handoff
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config/docs session. No lib/ or test/ files touched.
+
+Deleted `.claude/skills/compliance/SKILL.md` and folded its checklist into `.claude/skills/handoff/SKILL.md` as a new Step 0 — Pre-Flight Verification. All existing steps renumbered up by one (old Step 1 → new Step 2, etc.). The compliance checklist path reference updated from `docs/22_API_CONTRACTS.md` to `docs/specs/03_API_CONTRACTS.md` to match current structure. Compliance skill entry also removed from the handoff skill's bdl-sync push baseline list (line 87 previously).
+
+Logged the decision in `docs/DECISIONS.md` as specified.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/compliance/SKILL.md` | DELETED | Skill retired — content folded into /handoff |
+| `.claude/skills/handoff/SKILL.md` | MODIFIED | New Step 0 pre-flight checklist added; all steps renumbered; compliance entry removed from push list |
+| `docs/DECISIONS.md` | MODIFIED | Decision entry added at top of Decisions section |
+
+### Executive Summary for Reid
+
+Removed a redundant step from the end-of-session routine. There were two skills — `/compliance` (a checklist) and `/handoff` (the sync procedure) — and you always ran compliance right before handoff, every time. So they've been merged: the checklist is now Step 0 of /handoff, and the separate compliance skill is gone. One thing to run instead of two.
+
+---
+
 ## [2026-03-07 MST] — Fix SessionStart Hook to Delegate to /context-lost
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
