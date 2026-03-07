@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Docs Restructuring — docs/ reorganized into specs/, standards/, planning/, archive/",
+  "task": "Handoff Skill Rewrite + CLAUDE.md Standard Sync Block Trim",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "notes": "Doc-only session. specs/ (25 files), standards/ (7 files), planning/ (2 files), archive/ (ERA1, ERA2, AUDIT_HISTORY + MCP). 35 source docs removed. docs/VISION.md + docs/ROADMAP.md added. CLAUDE.md paths updated."
+  "notes": "Rewrote .claude/skills/handoff/SKILL.md with full 9-step end-of-session procedure including delete-before-push discipline. Trimmed CLAUDE.md STANDARD SYNC BLOCK to a short /handoff trigger. No code changes."
 }
