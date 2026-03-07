@@ -25,6 +25,33 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] P-011 — Rewrite /coding as Control Document Reading List; Add to /startup
+
+**P-011 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config-only session. No lib/ or test/ files touched.
+
+Two changes:
+
+1. **`.claude/skills/coding/SKILL.md`** — complete rewrite. Old skill was 144 lines of inline standards (3 rules, code patterns, naming tables, definition of done) that duplicated the actual control documents. New skill is 57 lines: a reading list of 4 control documents (03_API_CONTRACTS.md, 01_CODING_STANDARDS.md, 02_TESTING_STRATEGY.md, 03_NAMING_CONVENTIONS.md), an invocation rule (during /startup and in any coding prompt, not docs-only), and an extension rule (new control docs get added here). No content duplicated — the documents own their own standards.
+
+2. **`.claude/skills/startup/SKILL.md`** — inserted new Step 6 "Invoke /coding" after Step 5 (TEAM_PROTOCOL.md). Wires /coding into the cold-start sequence so every new instance reads the control documents before doing any work.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/coding/SKILL.md` | REWRITTEN | Control document reading list — 144 lines of inline content replaced with 4-document pointer list |
+| `.claude/skills/startup/SKILL.md` | MODIFIED | Step 6 "Invoke /coding" added to Orientation block |
+
+### Executive Summary for Reid
+
+The `/coding` skill used to contain a copy of the coding standards — which meant the standards existed in two places and could drift. Now it's a reading list: four documents to read before writing code. When I open a coding session, I read those four documents and then work from them directly. The startup sequence now includes this reading step, so every fresh instance starts with current standards in context.
+
+---
+
 ## [2026-03-07 MST] P-010 — Add Prompt ID System
 
 **P-010 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
