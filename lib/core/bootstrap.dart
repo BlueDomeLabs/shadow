@@ -21,6 +21,7 @@ import 'package:shadow_app/data/notifications/notification_scheduler_impl.dart';
 import 'package:shadow_app/data/repositories/activity_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/activity_repository_impl.dart';
 import 'package:shadow_app/data/repositories/anchor_event_time_repository_impl.dart';
+import 'package:shadow_app/data/repositories/bodily_output_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_log_repository_impl.dart';
 import 'package:shadow_app/data/repositories/condition_repository_impl.dart';
 import 'package:shadow_app/data/repositories/diet_repository_impl.dart';
@@ -59,6 +60,7 @@ import 'package:shadow_app/domain/entities/entities.dart';
 import 'package:shadow_app/domain/services/guest_sync_validator.dart';
 import 'package:shadow_app/domain/services/guest_token_service.dart';
 import 'package:shadow_app/domain/sync/cloud_storage_provider.dart';
+import 'package:shadow_app/presentation/providers/bodily_output_providers.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -108,6 +110,10 @@ Future<List<Override>> bootstrap() async {
     database.flareUpDao,
     uuid,
     deviceInfoService,
+  );
+  final bodilyOutputRepo = BodilyOutputRepositoryImpl(
+    database.bodilyOutputDao,
+    uuid,
   );
   final fluidsEntryRepo = FluidsEntryRepositoryImpl(
     database.fluidsEntryDao,
@@ -447,6 +453,7 @@ Future<List<Override>> bootstrap() async {
     conditionRepositoryProvider.overrideWithValue(conditionRepo),
     conditionLogRepositoryProvider.overrideWithValue(conditionLogRepo),
     flareUpRepositoryProvider.overrideWithValue(flareUpRepo),
+    bodilyOutputRepositoryProvider.overrideWithValue(bodilyOutputRepo),
     fluidsEntryRepositoryProvider.overrideWithValue(fluidsEntryRepo),
     sleepEntryRepositoryProvider.overrideWithValue(sleepEntryRepo),
     activityRepositoryProvider.overrideWithValue(activityRepo),

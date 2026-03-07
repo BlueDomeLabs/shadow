@@ -7,9 +7,9 @@ import 'package:shadow_app/domain/enums/notification_enums.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
+import 'package:shadow_app/presentation/screens/bodily_output/bodily_output_list_screen.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/activities_tab.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/conditions_tab.dart';
-import 'package:shadow_app/presentation/screens/home/tabs/fluids_tab.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/food_tab.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/home_tab.dart';
 import 'package:shadow_app/presentation/screens/home/tabs/photos_tab.dart';
@@ -131,7 +131,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               PhotosTab(profileId: profileId, profileName: profileName),
               FoodTab(profileId: profileId, profileName: profileName),
               ConditionsTab(profileId: profileId, profileName: profileName),
-              FluidsTab(profileId: profileId, profileName: profileName),
+              BodilyOutputListScreen(profileId: profileId),
               ActivitiesTab(profileId: profileId, profileName: profileName),
               SleepTab(profileId: profileId),
               ReportsTab(profileId: profileId, profileName: profileName),
@@ -165,7 +165,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: Icon(Icons.health_and_safety),
                 label: 'Conditions',
               ),
-              BottomNavigationBarItem(icon: Icon(Icons.wc), label: 'Fluids'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.wc),
+                label: 'Bodily Functions',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_run),
                 label: 'Activities',
@@ -192,7 +195,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'Photos screen',
       'Food tracking screen',
       'Conditions screen',
-      'Fluids tracking screen',
+      'Bodily Functions screen',
       'Activities screen',
       'Sleep tracking screen',
       'Reports screen',

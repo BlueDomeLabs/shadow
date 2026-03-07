@@ -50,7 +50,7 @@ void main() {
       expect(find.text('Report a Flare-Up'), findsOneWidget);
       expect(find.text('Report Supplements'), findsOneWidget);
       expect(find.text('Log Food'), findsOneWidget);
-      expect(find.text('Log Fluids'), findsOneWidget);
+      expect(find.text('Log Body Output'), findsOneWidget);
       expect(find.text('Start Photo Round'), findsOneWidget);
       expect(find.text('Going to Sleep'), findsOneWidget);
       expect(find.text('Waking Up'), findsOneWidget);

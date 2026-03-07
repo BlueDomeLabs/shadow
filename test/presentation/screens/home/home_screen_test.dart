@@ -4,7 +4,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shadow_app/core/errors/app_error.dart';
 import 'package:shadow_app/core/services/notification_tap_handler.dart';
+import 'package:shadow_app/core/types/result.dart';
+import 'package:shadow_app/domain/entities/bodily_output_enums.dart';
+import 'package:shadow_app/domain/entities/bodily_output_log.dart';
+import 'package:shadow_app/domain/repositories/bodily_output_repository.dart';
+import 'package:shadow_app/domain/services/profile_authorization_service.dart'
+    show ProfileAccess, ProfileAuthorizationService;
+import 'package:shadow_app/domain/usecases/bodily_output/get_bodily_outputs_use_case.dart';
+import 'package:shadow_app/presentation/providers/bodily_output_providers.dart';
 import 'package:shadow_app/presentation/providers/di/di_providers.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
@@ -31,6 +40,11 @@ void main() {
             const ProfileState(currentProfileId: testProfileId),
           ),
         ),
+        // Override bodily output use case so BodilyOutputListScreen doesn't
+        // throw UnimplementedError from the uninitialized repository.
+        getBodilyOutputsUseCaseProvider.overrideWithValue(
+          _StubGetBodilyOutputsUseCase(),
+        ),
       ],
       child: const MaterialApp(home: HomeScreen()),
     );
@@ -45,7 +59,7 @@ void main() {
       expect(find.text('Photos'), findsOneWidget);
       expect(find.text('Food'), findsWidgets);
       expect(find.text('Conditions'), findsWidgets);
-      expect(find.text('Fluids'), findsOneWidget);
+      expect(find.text('Bodily Functions'), findsOneWidget);
       expect(find.text('Activities'), findsWidgets);
       expect(find.text('Sleep'), findsWidgets);
       expect(find.text('Reports'), findsWidgets);
@@ -67,7 +81,7 @@ void main() {
       expect(find.text('Report a Flare-Up'), findsOneWidget);
       expect(find.text('Report Supplements'), findsOneWidget);
       expect(find.text('Log Food'), findsOneWidget);
-      expect(find.text('Log Fluids'), findsOneWidget);
+      expect(find.text('Log Body Output'), findsOneWidget);
       expect(find.text('Journal'), findsOneWidget);
     });
 
@@ -107,6 +121,9 @@ void main() {
                 const ProfileState(currentProfileId: testProfileId),
               ),
             ),
+            getBodilyOutputsUseCaseProvider.overrideWithValue(
+              _StubGetBodilyOutputsUseCase(),
+            ),
           ],
         );
         addTearDown(container.dispose);
@@ -145,6 +162,9 @@ void main() {
                 const ProfileState(currentProfileId: testProfileId),
               ),
             ),
+            getBodilyOutputsUseCaseProvider.overrideWithValue(
+              _StubGetBodilyOutputsUseCase(),
+            ),
           ],
         );
         addTearDown(container.dispose);
@@ -178,4 +198,64 @@ void main() {
       });
     });
   });
+}
+
+/// Stub use case that always returns an empty list — avoids wiring the
+/// bodily output repository in home_screen widget tests.
+class _StubGetBodilyOutputsUseCase extends GetBodilyOutputsUseCase {
+  _StubGetBodilyOutputsUseCase()
+    : super(_StubBodilyOutputRepository(), _StubAuthService());
+
+  @override
+  Future<Result<List<BodilyOutputLog>, AppError>> execute(
+    String profileId, {
+    int? from,
+    int? to,
+    BodyOutputType? type,
+  }) async => const Success([]);
+}
+
+class _StubBodilyOutputRepository implements BodilyOutputRepository {
+  @override
+  Future<Result<void, AppError>> log(BodilyOutputLog entry) async =>
+      const Success(null);
+
+  @override
+  Future<Result<List<BodilyOutputLog>, AppError>> getAll(
+    String profileId, {
+    int? from,
+    int? to,
+    BodyOutputType? type,
+  }) async => const Success([]);
+
+  @override
+  Future<Result<BodilyOutputLog, AppError>> getById(String id) async => Failure(
+    DatabaseError.queryFailed(
+      'bodily_output_logs',
+      'not found',
+      StackTrace.empty,
+    ),
+  );
+
+  @override
+  Future<Result<void, AppError>> update(BodilyOutputLog entry) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void, AppError>> delete(String profileId, String id) async =>
+      const Success(null);
+}
+
+class _StubAuthService implements ProfileAuthorizationService {
+  @override
+  Future<bool> canRead(String profileId) async => true;
+
+  @override
+  Future<bool> canWrite(String profileId) async => true;
+
+  @override
+  Future<bool> isOwner(String profileId) async => true;
+
+  @override
+  Future<List<ProfileAccess>> getAccessibleProfiles() async => [];
 }

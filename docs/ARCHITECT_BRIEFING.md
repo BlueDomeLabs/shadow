@@ -10,9 +10,9 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   72dfe84 — P-013: Fluids Restructuring Session A — Domain Layer
+# Last Commit:   72dfe84 — P-014: Fluids Restructuring Session A — Domain Layer
 # Last Code:     bodily_output_logs domain layer (entities, DAO, repo, usecases, providers)
-# Next Action:   Architect reviews P-013 output; Session B (data layer / migration wiring)
+# Next Action:   Architect reviews P-014 output; Session B (UI layer)
 # Open Items:    None
 # Tests:         3,679 passing
 # Schema:        v20
@@ -25,9 +25,9 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
-## [2026-03-07 MST] P-013 — Fluids Restructuring: Session A — Domain Layer
+## [2026-03-07 MST] P-014 — Fluids Restructuring: Session A — Domain Layer
 
-**P-013 | Tests: 3,679 | Schema: v20 | Analyzer: clean**
+**P-014 | Tests: 3,679 | Schema: v20 | Analyzer: clean**
 
 ### Technical Summary
 

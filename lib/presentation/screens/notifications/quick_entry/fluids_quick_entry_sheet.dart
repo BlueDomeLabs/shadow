@@ -1,20 +1,19 @@
 // lib/presentation/screens/notifications/quick_entry/fluids_quick_entry_sheet.dart
-// Per 57_NOTIFICATION_SYSTEM.md — Fluids quick-entry sheet
+// Per 57_NOTIFICATION_SYSTEM.md — Bodily output quick-entry sheet
+// NOTE: Sheet class name retained for compatibility with home_screen.dart import.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shadow_app/core/errors/app_error.dart';
-import 'package:shadow_app/domain/usecases/fluids_entries/fluids_entries_usecases.dart';
-import 'package:shadow_app/presentation/providers/fluids_entries/fluids_entry_list_provider.dart';
+import 'package:shadow_app/domain/entities/bodily_output_enums.dart';
+import 'package:shadow_app/domain/entities/bodily_output_log.dart';
+import 'package:shadow_app/domain/entities/sync_metadata.dart';
+import 'package:shadow_app/presentation/providers/bodily_output_providers.dart';
 import 'package:shadow_app/presentation/widgets/widgets.dart';
-import 'package:uuid/uuid.dart';
 
-/// Quick-entry sheet for Fluids notification category.
+/// Quick-entry sheet for the Bodily Output notification category.
 ///
-/// Opened when the user taps a Fluids notification.
-/// Captures water intake in ml and an optional other fluid entry,
-/// then creates a FluidsEntry record.
-/// Per 57_NOTIFICATION_SYSTEM.md section: Fluids.
+/// Opened when the user taps a Body Output notification.
+/// Allows quick logging of a urine, bowel, or gas event.
 class FluidsQuickEntrySheet extends ConsumerStatefulWidget {
   final String profileId;
 
@@ -38,40 +37,9 @@ class FluidsQuickEntrySheet extends ConsumerStatefulWidget {
 }
 
 class _FluidsQuickEntrySheetState extends ConsumerState<FluidsQuickEntrySheet> {
-  final _waterController = TextEditingController();
-  final _otherFluidNameController = TextEditingController();
-  final _otherFluidAmountController = TextEditingController();
+  BodyOutputType _outputType = BodyOutputType.urine;
+  GasSeverity _gasSeverity = GasSeverity.moderate;
   bool _isSaving = false;
-  String? _waterError;
-
-  @override
-  void dispose() {
-    _waterController.dispose();
-    _otherFluidNameController.dispose();
-    _otherFluidAmountController.dispose();
-    super.dispose();
-  }
-
-  bool _validate() {
-    final waterText = _waterController.text.trim();
-    final otherName = _otherFluidNameController.text.trim();
-
-    // At least one fluid type must be entered
-    if (waterText.isEmpty && otherName.isEmpty) {
-      setState(() => _waterError = 'Enter water amount or an other fluid');
-      return false;
-    }
-
-    if (waterText.isNotEmpty) {
-      final ml = int.tryParse(waterText);
-      if (ml == null || ml <= 0) {
-        setState(() => _waterError = 'Enter a positive number of ml');
-        return false;
-      }
-    }
-    setState(() => _waterError = null);
-    return true;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +53,7 @@ class _FluidsQuickEntrySheetState extends ConsumerState<FluidsQuickEntrySheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
       ),
       child: Semantics(
-        label: 'Fluids quick-entry sheet',
+        label: 'Body output quick-entry sheet',
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,79 +72,56 @@ class _FluidsQuickEntrySheetState extends ConsumerState<FluidsQuickEntrySheet> {
             const SizedBox(height: 16),
             Semantics(
               header: true,
-              child: Text('Log Fluids', style: theme.textTheme.titleLarge),
+              child: Text('Log Body Output', style: theme.textTheme.titleLarge),
             ),
             const SizedBox(height: 16),
-            // Water intake
-            Semantics(
-              label: 'Water intake in millilitres, optional',
-              textField: true,
-              child: ExcludeSemantics(
-                child: ShadowTextField(
-                  controller: _waterController,
-                  label: 'Water (ml)',
-                  hintText: 'e.g. 250',
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.next,
-                  errorText: _waterError,
-                  onChanged: (_) {
-                    if (_waterError != null) _validate();
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Other fluid
-            Semantics(
-              header: true,
-              child: Text('Other Fluid', style: theme.textTheme.titleSmall),
-            ),
+            Text('Type', style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Semantics(
-                    label: 'Other fluid name, optional',
-                    textField: true,
-                    child: ExcludeSemantics(
-                      child: ShadowTextField(
-                        controller: _otherFluidNameController,
-                        label: 'Name',
-                        hintText: 'e.g. Coffee',
-                        textInputAction: TextInputAction.next,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Semantics(
-                    label: 'Other fluid amount, optional',
-                    textField: true,
-                    child: ExcludeSemantics(
-                      child: ShadowTextField(
-                        controller: _otherFluidAmountController,
-                        label: 'Amount',
-                        hintText: 'e.g. 1 cup',
-                        textInputAction: TextInputAction.done,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            Wrap(
+              spacing: 8,
+              children:
+                  [
+                        BodyOutputType.urine,
+                        BodyOutputType.bowel,
+                        BodyOutputType.gas,
+                      ]
+                      .map(
+                        (type) => ChoiceChip(
+                          label: Text(_typeLabel(type)),
+                          selected: _outputType == type,
+                          onSelected: (_) => setState(() => _outputType = type),
+                        ),
+                      )
+                      .toList(),
             ),
-            const SizedBox(height: 16),
+            if (_outputType == BodyOutputType.gas) ...[
+              const SizedBox(height: 16),
+              Text('Severity', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: GasSeverity.values
+                    .map(
+                      (s) => ChoiceChip(
+                        label: Text(_severityLabel(s)),
+                        selected: _gasSeverity == s,
+                        onSelected: (_) => setState(() => _gasSeverity = s),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+            const SizedBox(height: 24),
             ShadowButton.elevated(
               onPressed: _isSaving ? null : _handleSave,
-              label: 'Log fluids',
+              label: 'Log body output',
               child: _isSaving
                   ? const SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Log Fluids'),
+                  : const Text('Log'),
             ),
           ],
         ),
@@ -185,66 +130,54 @@ class _FluidsQuickEntrySheetState extends ConsumerState<FluidsQuickEntrySheet> {
   }
 
   Future<void> _handleSave() async {
-    if (!_validate()) return;
-
     setState(() => _isSaving = true);
 
-    try {
-      final now = DateTime.now();
-      final startOfToday = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).millisecondsSinceEpoch;
-      final endOfToday = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        23,
-        59,
-        59,
-      ).millisecondsSinceEpoch;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final log = BodilyOutputLog(
+      id: '',
+      clientId: '',
+      profileId: widget.profileId,
+      occurredAt: now,
+      outputType: _outputType,
+      gasSeverity: _outputType == BodyOutputType.gas ? _gasSeverity : null,
+      syncMetadata: SyncMetadata(
+        syncCreatedAt: now,
+        syncUpdatedAt: now,
+        syncDeviceId: '',
+      ),
+    );
 
-      final notifier = ref.read(
-        fluidsEntryListProvider(
-          widget.profileId,
-          startOfToday,
-          endOfToday,
-        ).notifier,
-      );
+    final result = await ref.read(logBodilyOutputUseCaseProvider)(log);
 
-      final waterText = _waterController.text.trim();
-      final otherName = _otherFluidNameController.text.trim();
-      final otherAmount = _otherFluidAmountController.text.trim();
+    if (!mounted) return;
 
-      await notifier.log(
-        LogFluidsEntryInput(
-          profileId: widget.profileId,
-          clientId: const Uuid().v4(),
-          entryDate: now.millisecondsSinceEpoch,
-          waterIntakeMl: waterText.isNotEmpty ? int.parse(waterText) : null,
-          otherFluidName: otherName.isNotEmpty ? otherName : null,
-          otherFluidAmount: otherAmount.isNotEmpty ? otherAmount : null,
-        ),
-      );
-
-      if (mounted) {
+    result.when(
+      success: (_) {
         Navigator.of(context).pop();
-        showAccessibleSnackBar(context: context, message: 'Fluids logged');
-      }
-    } on AppError catch (e) {
-      if (mounted) {
-        showAccessibleSnackBar(context: context, message: e.userMessage);
-      }
-    } on Exception {
-      if (mounted) {
+        showAccessibleSnackBar(context: context, message: 'Event logged');
+      },
+      failure: (e) {
+        setState(() => _isSaving = false);
         showAccessibleSnackBar(
           context: context,
-          message: 'An unexpected error occurred',
+          message: 'Could not save: ${e.userMessage}',
         );
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
+      },
+    );
   }
+
+  String _typeLabel(BodyOutputType type) => switch (type) {
+    BodyOutputType.urine => 'Urine',
+    BodyOutputType.bowel => 'Bowel',
+    BodyOutputType.gas => 'Gas',
+    BodyOutputType.menstruation => 'Menstruation',
+    BodyOutputType.bbt => 'BBT',
+    BodyOutputType.custom => 'Custom',
+  };
+
+  String _severityLabel(GasSeverity s) => switch (s) {
+    GasSeverity.mild => 'Mild',
+    GasSeverity.moderate => 'Moderate',
+    GasSeverity.severe => 'Severe',
+  };
 }

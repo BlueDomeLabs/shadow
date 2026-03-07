@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadow_app/domain/entities/profile.dart';
 import 'package:shadow_app/presentation/providers/guest_mode/guest_mode_provider.dart';
 import 'package:shadow_app/presentation/providers/profile/profile_provider.dart';
+import 'package:shadow_app/presentation/screens/bodily_output/bodily_output_edit_screen.dart';
 import 'package:shadow_app/presentation/screens/cloud_sync/cloud_sync_settings_screen.dart';
 import 'package:shadow_app/presentation/screens/conditions/condition_list_screen.dart';
-import 'package:shadow_app/presentation/screens/fluids_entries/fluids_entry_screen.dart';
 import 'package:shadow_app/presentation/screens/food_logs/food_log_screen.dart';
 import 'package:shadow_app/presentation/screens/journal_entries/journal_entry_list_screen.dart';
 import 'package:shadow_app/presentation/screens/photo_areas/photo_area_list_screen.dart';
@@ -104,12 +104,15 @@ class HomeTab extends ConsumerWidget {
                   const SizedBox(height: 12),
                   _buildActionButton(
                     context: context,
-                    label: 'Log Fluids',
+                    label: 'Log Body Output',
                     icon: Icons.wc,
                     color: Colors.brown,
                     onPressed: () => _navigateTo(
                       context,
-                      FluidsEntryScreen(profileId: profileId),
+                      BodilyOutputEditScreen(
+                        profileId: profileId,
+                        existingLog: null,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
