@@ -1,10 +1,10 @@
 {
   "status": "complete",
-  "task": "P-013 — Fluids Restructuring: Session A — Domain Layer",
+  "task": "P-015 — Fluids Restructuring: Session B — UI Layer",
   "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
-  "testCount": 3679,
+  "testCount": 3575,
   "schemaVersion": 20,
-  "lastPromptId": "P-014",
-  "notes": "Created bodily_output_logs domain layer: enums, Freezed entity, Drift table, DAO, repository interface + impl, 4 use cases, Riverpod providers. Schema migrated v19→v20. NotificationCategory.fluids renamed to bodilyOutputs. MealType.beverage(4) added. 8 test files created. 3,679 tests passing, analyzer clean."
+  "lastPromptId": "P-015",
+  "notes": "Created BodilyOutputListScreen and BodilyOutputEditScreen. Rewrote FluidsQuickEntrySheet for bodily outputs. Renamed Fluids tab to Bodily Functions. Deleted 5 stale fluids_entries screens and 5 stale test files. Added 11 list-screen tests and 10 quick-entry tests. Wired bodilyOutputRepositoryProvider in bootstrap.dart. 3,575 tests passing, analyzer clean."
 }
