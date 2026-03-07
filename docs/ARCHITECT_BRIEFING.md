@@ -10,18 +10,136 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   729d975 — chore: update work-status for docs restructuring session
-# Last Code:     No Shadow app changes. Docs-only sessions.
-# Next Action:   Reid decides next phase direction
+# Last Commit:   72dfe84 — P-013: Fluids Restructuring Session A — Domain Layer
+# Last Code:     bodily_output_logs domain layer (entities, DAO, repo, usecases, providers)
+# Next Action:   Architect reviews P-013 output; Session B (data layer / migration wiring)
 # Open Items:    None
-# Tests:         3,611 passing
-# Schema:        v19
+# Tests:         3,679 passing
+# Schema:        v20
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
 # ────────────────────────────────────────────────────────────────────────────
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] P-013 — Fluids Restructuring: Session A — Domain Layer
+
+**P-013 | Tests: 3,679 | Schema: v20 | Analyzer: clean**
+
+### Technical Summary
+
+Full domain layer for `bodily_output_logs`. All production code and tests written from scratch. No UI changes.
+
+**New files created:**
+- `lib/domain/entities/bodily_output_enums.dart` — 6 enums: `BodyOutputType`, `UrineCondition`, `BowelCondition`, `MenstruationFlow` (new integer values), `OutputSize`, `GasSeverity`
+- `lib/domain/entities/bodily_output_log.dart` — `@Freezed(toJson: true, fromJson: true)` entity implementing `Syncable`. All nullable type-specific fields, shared `notes`/`photoPath`, full sync metadata fields.
+- `lib/data/datasources/local/tables/bodily_output_logs_table.dart` — Drift table `BodilyOutputLogs` with `@DataClassName('BodilyOutputLogRow')`
+- `lib/data/datasources/local/daos/bodily_output_dao.dart` — `@DriftAccessor` with insert/getAll/getById/updateEntry/softDelete/getDirtyRecords
+- `lib/domain/repositories/bodily_output_repository.dart` — Abstract interface
+- `lib/data/repositories/bodily_output_repository_impl.dart` — Real implementation with `_rowToEntity()` and `_toCompanion()` helpers
+- `lib/domain/usecases/bodily_output/` — 4 use cases: log/get/update/delete with auth + validation
+- `lib/presentation/providers/bodily_output_providers.dart` — 5 Riverpod providers (repo throws `UnimplementedError`, DI wired in Session B)
+
+**Modified files:**
+- `lib/domain/enums/health_enums.dart` — Added `beverage(4)` to `MealType`
+- `lib/domain/enums/notification_enums.dart` — Renamed `fluids(2)` → `bodilyOutputs(2)`, displayName `'Fluids'` → `'Body Output'`
+- `lib/data/datasources/local/database.dart` — Registered table + DAO, incremented schemaVersion 19→20, added v20 migration block
+- 10 additional files with `NotificationCategory.fluids` → `NotificationCategory.bodilyOutputs` references
+
+**Schema migration v19→v20** — 5 INSERT...SELECT statements in a `transaction()`:
+- 2a: `has_bowel_movement = 1` → `output_type = 1` (bowel)
+- 2b: `has_urine_movement = 1` → `output_type = 0` (urine)
+- 2c: `menstruation_flow > 0` → `output_type = 3`, flow remapped (old 1→0, 2→1, 3→2, 4→3)
+- 2d: `basal_body_temperature NOT NULL` → `output_type = 4` (BBT), `occurred_at = COALESCE(bbt_recorded_time, entry_date)`
+- 2e: `other_fluid_name NOT NULL` → `output_type = 5` (custom), notes = amount + ' — ' + notes
+- `water_intake_ml` NOT migrated (cannot decompose daily aggregate)
+- `fluids_entries` NOT dropped (tombstone)
+
+**DAO method note:** Named `updateEntry()` instead of `update()` to avoid ambiguity with Drift's inherited `update(T table)`.
+
+**Test files (8 files, 65 new tests):**
+- `bodily_output_log_test.dart` — 6 tests (entity construction, copyWith, JSON round-trip, Syncable, defaults)
+- `bodily_output_dao_test.dart` — 15 tests (real in-memory DB)
+- `bodily_output_repository_impl_test.dart` — 10 tests (integration, real in-memory DB)
+- `log_bodily_output_use_case_test.dart` — 8 tests
+- `get_bodily_outputs_use_case_test.dart` — 8 tests
+- `update_bodily_output_use_case_test.dart` — 5 tests
+- `delete_bodily_output_use_case_test.dart` — 5 tests
+- `v19_to_v20_migration_test.dart` — 8 tests (seeds fluids_entries, runs migration SQL manually, verifies bodily_output_logs)
+
+**Issues encountered and resolved:**
+- Import conflicts (`DatabaseConnection`, `isNull`, `isNotNull`) in DAO and migration tests — fixed with `hide` clauses on drift import
+- Migration test design: fresh in-memory DBs skip `onUpgrade`, so migration SQL is run manually via `runMigrationSql()` helper after seeding
+- `fluids_entries.notes` NOT NULL with `withDefault('')` — seed helper must pass `notes ?? ''`
+- `NotificationCategory.fluids` rename broke 10 files — fixed with bulk sed
+- `database_test.dart` schemaVersion assertion (19→20) — updated
+- `notification_category_settings_test.dart` displayName 'Fluids' → 'Body Output' — updated
+- `notification_settings_screen_test.dart` 'Fluids' → 'Body Output' — updated
+- Context compaction occurred mid-session — recovered from summary and continued
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `lib/domain/entities/bodily_output_enums.dart` | CREATED | 6 new enums for bodily output domain |
+| `lib/domain/entities/bodily_output_log.dart` | CREATED | Freezed entity implementing Syncable |
+| `lib/domain/entities/bodily_output_log.freezed.dart` | CREATED | Generated freezed code |
+| `lib/domain/entities/bodily_output_log.g.dart` | CREATED | Generated JSON serialization |
+| `lib/domain/enums/health_enums.dart` | MODIFIED | Added MealType.beverage(4) |
+| `lib/domain/enums/notification_enums.dart` | MODIFIED | fluids→bodilyOutputs rename, displayName update |
+| `lib/data/datasources/local/tables/bodily_output_logs_table.dart` | CREATED | Drift table definition |
+| `lib/data/datasources/local/daos/bodily_output_dao.dart` | CREATED | DAO with 6 methods |
+| `lib/data/datasources/local/daos/bodily_output_dao.g.dart` | CREATED | Generated DAO code |
+| `lib/data/datasources/local/database.dart` | MODIFIED | Table/DAO registered, schemaVersion 19→20, v20 migration |
+| `lib/data/datasources/local/database.g.dart` | MODIFIED | Regenerated (Drift codegen) |
+| `lib/domain/repositories/bodily_output_repository.dart` | CREATED | Abstract repository interface |
+| `lib/data/repositories/bodily_output_repository_impl.dart` | CREATED | Concrete implementation |
+| `lib/domain/usecases/bodily_output/log_bodily_output_use_case.dart` | CREATED | Log use case with validation |
+| `lib/domain/usecases/bodily_output/get_bodily_outputs_use_case.dart` | CREATED | Get use case |
+| `lib/domain/usecases/bodily_output/update_bodily_output_use_case.dart` | CREATED | Update use case |
+| `lib/domain/usecases/bodily_output/delete_bodily_output_use_case.dart` | CREATED | Delete use case |
+| `lib/presentation/providers/bodily_output_providers.dart` | CREATED | 5 Riverpod providers |
+| `lib/presentation/providers/bodily_output_providers.g.dart` | CREATED | Generated provider code |
+| `lib/data/services/notification_seed_service.dart` | MODIFIED | fluids→bodilyOutputs |
+| `lib/data/services/notification_schedule_service.dart` | MODIFIED | fluids→bodilyOutputs |
+| `lib/presentation/screens/home/home_screen.dart` | MODIFIED | fluids→bodilyOutputs |
+| `lib/presentation/screens/settings/notification_settings_screen.dart` | MODIFIED | fluids→bodilyOutputs |
+| `lib/data/repositories/notification_scheduler_impl.dart` | MODIFIED | fluids→bodilyOutputs |
+| `test/unit/data/datasources/local/database_test.dart` | MODIFIED | schemaVersion assertion 19→20 |
+| `test/unit/domain/entities/notifications/notification_category_settings_test.dart` | MODIFIED | displayName 'Fluids'→'Body Output' |
+| `test/presentation/screens/notifications/notification_settings_screen_test.dart` | MODIFIED | 'Fluids'→'Body Output' in screen test |
+| `test/unit/data/services/notification_schedule_service_test.dart` | MODIFIED | fluids→bodilyOutputs |
+| `test/unit/data/services/notification_seed_service_test.dart` | MODIFIED | fluids→bodilyOutputs |
+| `test/unit/domain/entities/bodily_output_log_test.dart` | CREATED | 6 entity tests |
+| `test/unit/data/datasources/local/daos/bodily_output_dao_test.dart` | CREATED | 15 DAO tests |
+| `test/unit/data/repositories/bodily_output_repository_impl_test.dart` | CREATED | 10 repo impl tests |
+| `test/unit/domain/usecases/bodily_output/log_bodily_output_use_case_test.dart` | CREATED | 8 use case tests |
+| `test/unit/domain/usecases/bodily_output/log_bodily_output_use_case_test.mocks.dart` | CREATED | Generated mocks |
+| `test/unit/domain/usecases/bodily_output/get_bodily_outputs_use_case_test.dart` | CREATED | 8 use case tests |
+| `test/unit/domain/usecases/bodily_output/get_bodily_outputs_use_case_test.mocks.dart` | CREATED | Generated mocks |
+| `test/unit/domain/usecases/bodily_output/update_bodily_output_use_case_test.dart` | CREATED | 5 use case tests |
+| `test/unit/domain/usecases/bodily_output/update_bodily_output_use_case_test.mocks.dart` | CREATED | Generated mocks |
+| `test/unit/domain/usecases/bodily_output/delete_bodily_output_use_case_test.dart` | CREATED | 5 use case tests |
+| `test/unit/domain/usecases/bodily_output/delete_bodily_output_use_case_test.mocks.dart` | CREATED | Generated mocks |
+| `test/unit/data/migrations/v19_to_v20_migration_test.dart` | CREATED | 8 migration SQL tests |
+| `.claude/work-status/current.json` | MODIFIED | Updated phase status |
+
+### Executive Summary for Reid
+
+This session built the entire "infrastructure" for the new Bodily Output logging system — the part that lives in the database and business logic layers, invisible to users but essential before any screens can be built.
+
+What was built:
+- **New database table** (`bodily_output_logs`) that stores one row per event (one bowel movement = one row, one BBT reading = one row), replacing the old approach of stuffing everything into a single `fluids_entries` row
+- **Database migration** — when an existing user upgrades, their old fluids data is automatically converted into the new format
+- **All the code layers** between the database and future screens: enums, data entity, repository, use cases with input validation, Riverpod providers
+- **68 tests** covering all the new code, including tests that verify the migration SQL converts data correctly
+
+One naming change visible to users in the future: the Notifications section's "Fluids" category is now called "Body Output" — the integer value in the database is unchanged, so existing notification settings are preserved.
+
+Context compaction occurred mid-session (Claude's memory was wiped). Recovery was smooth — picked up from the summary file and completed all remaining work cleanly.
 
 ---
 
