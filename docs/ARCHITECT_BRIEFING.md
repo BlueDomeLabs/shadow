@@ -12,7 +12,7 @@
 # Status:        IDLE — Awaiting Architect review and next phase prompt
 # Last Commit:   d622d97 — docs: fix skill file paths in Standard Sync Block
 # Last Code:     No Shadow app changes. Tooling session complete.
-# Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
+# Next Action:   Reid decides next phase direction
 # Open Items:    None — Project Knowledge baseline (12 files) established and verified
 # Tests:         3,611 passing
 # Schema:        v19
