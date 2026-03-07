@@ -1,9 +1,9 @@
 {
   "status": "complete",
-  "task": "Housekeeping Session — docs reorganization, stale .claude/ cleanup, 22_API_CONTRACTS.md fixes",
-  "timestamp": "2026-03-06T22:00:00Z",
+  "task": "Docs Restructuring — docs/ reorganized into specs/, standards/, planning/, archive/",
+  "timestamp": "2026-03-07T00:00:00Z",
   "testsStatus": "passing",
   "testCount": 3611,
   "schemaVersion": 19,
-  "notes": "Doc-only session. 65 numbered spec files + ARCHITECT_BRIEFING files moved to docs/. 23 stale .claude/ files deleted (approved by Reid). 22_API_CONTRACTS.md §16.11–16.12 updated to current CloudSyncAuthService architecture. CLAUDE.md and skills paths updated."
+  "notes": "Doc-only session. specs/ (25 files), standards/ (7 files), planning/ (2 files), archive/ (ERA1, ERA2, AUDIT_HISTORY + MCP). 35 source docs removed. docs/VISION.md + docs/ROADMAP.md added. CLAUDE.md paths updated."
 }
