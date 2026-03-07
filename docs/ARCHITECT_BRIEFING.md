@@ -10,10 +10,10 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   4681739 — docs: update ARCHITECT_BRIEFING with bdl-sync tooling session log
-# Last Code:     No Shadow app changes. Tooling work only (bdl-sync).
+# Last Commit:   d622d97 — docs: fix skill file paths in Standard Sync Block
+# Last Code:     No Shadow app changes. Tooling session complete.
 # Next Action:   Architect reviews Group L s3 + Housekeeping; approves next phase
-# Open Items:    None
+# Open Items:    None — Project Knowledge baseline (12 files) established and verified
 # Tests:         3,611 passing
 # Schema:        v19
 # Analyzer:      Clean
@@ -22,6 +22,32 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Tooling: bdl-sync prune bug fix + Project Knowledge baseline complete
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Fixed a bug in `bdl-sync push --files`: the prune loop was running even in `--files` mode, deleting all remote files not in the explicit list. Fix: wrapped the prune loop in `if not args.files:`. The `--files` mode is now purely additive.
+
+Restored the 6 pruned baseline files and verified all 12 are present in Project Knowledge:
+`CLAUDE.md`, `docs/ARCHITECT_BRIEFING.md`, `docs/AUDIT_FINDINGS.md`, `docs/02_CODING_STANDARDS.md`, `docs/10_DATABASE_SCHEMA.md`, `docs/22_API_CONTRACTS.md`, `docs/ARCHITECT_BRIEFING_ARCHIVE.md`, `.claude/work-status/current.json`, `.claude/skills/startup/SKILL.md`, `.claude/skills/coding/SKILL.md`, `.claude/skills/compliance/SKILL.md`, `.claude/skills/handoff/SKILL.md`.
+
+The sync path is now fully functional. Every future session should end with `bdl-sync push --files` of the Standard Sync Block list plus any modified files.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `/tools/bdl-sync/bdl_sync.py` | MODIFIED (unversioned) | Prune loop gated on `if not args.files` |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This entry |
+
+### Executive Summary for Reid
+
+Fixed a bug where the sync tool was accidentally deleting files it shouldn't touch. The tool now correctly leaves existing Project Knowledge files alone when you push a specific list — it only uploads what you ask it to upload. All 12 baseline files are confirmed in Project Knowledge. The sync workflow is ready for regular use.
 
 ---
 
