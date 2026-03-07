@@ -10,8 +10,8 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   [docs-restructure] — docs: restructure docs/ into specs/, standards/, planning/, archive/
-# Last Code:     No Shadow app changes. Docs-only restructuring session.
+# Last Commit:   729d975 — chore: update work-status for docs restructuring session
+# Last Code:     No Shadow app changes. Docs-only sessions.
 # Next Action:   Reid decides next phase direction
 # Open Items:    None
 # Tests:         3,611 passing
@@ -22,6 +22,58 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] — Handoff Skill Rewrite + CLAUDE.md Sync Block Trim
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ files touched.
+
+Rewrote `.claude/skills/handoff/SKILL.md` with the full authoritative end-of-session procedure. The old skill was a brief 6-step outline that omitted the Project Knowledge delete-before-push discipline established in the previous docs restructuring sessions. The new skill is a 9-step procedure covering: git commit+push, briefing update, flutter test, flutter analyze, bdl-sync delete for stale files, bdl-sync push baseline+modified files, bdl-sync ls verification, work-status update, and final report. Also includes an emergency handoff section for compaction scenarios.
+
+Trimmed the STANDARD SYNC BLOCK in CLAUDE.md from a 6-step block (with a full bdl-sync push file list) to a short trigger that delegates to /handoff. This eliminates duplication — the file list lives in one canonical place (the skill) rather than two.
+
+Pre-commit hook: analyzer clean, formatter clean, no generated file changes.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/handoff/SKILL.md` | REWRITTEN | Full 9-step end-of-session procedure with delete-before-push discipline |
+| `CLAUDE.md` | MODIFIED | STANDARD SYNC BLOCK replaced with short /handoff trigger |
+
+### Executive Summary for Reid
+
+Updated the end-of-session checklist that the app engineer (me) follows at the close of every work session. The old version was too brief and didn't include the "delete stale files before pushing" step we established last session. The new version is a complete, authoritative procedure that I'll follow every time. Also tidied up the main instructions file to avoid having duplicate lists in two places — the full procedure now lives in one spot.
+
+---
+
+## [2026-03-07 MST] — Project Knowledge Sync Cleanup
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Sync-only session. No git changes. No code changes. No tests.
+
+Deleted 70 stale files from Project Knowledge (old-style `docs/01_*` through `docs/61_*` numbering, plus audit plan docs, era docs, and old planning files at wrong paths). Uploaded 30 new files (all docs/specs/, docs/standards/ entries not yet present, plus updated work-status). Total: 64 files now in Project Knowledge — exactly matching the new docs/ structure.
+
+No old-style numbered files remain in Project Knowledge.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| 70 stale Project Knowledge entries | DELETED | Old numbered paths and moved files |
+| 30 new/updated Project Knowledge entries | UPLOADED | New specs/, standards/, planning/, archive/ paths |
+
+### Executive Summary for Reid
+
+Cleaned up the Architect's file library to match the reorganized docs folder. The old file names are gone; the new organized structure is in place. The Architect now sees exactly the same layout in Project Knowledge that we see in the project folder.
 
 ---
 
