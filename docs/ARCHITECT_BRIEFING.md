@@ -25,6 +25,46 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Add Full .claude/ Directory to Standard Project Knowledge Sync
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ files touched.
+
+Inventoried `.claude/` and found 12 files:
+- `.claude/settings.json`
+- `.claude/settings.local.json`
+- `.claude/skills/coding/SKILL.md`
+- `.claude/skills/compliance/SKILL.md`
+- `.claude/skills/context-lost.md`
+- `.claude/skills/factory-reset/SKILL.md`
+- `.claude/skills/handoff/SKILL.md`
+- `.claude/skills/implementation-review/SKILL.md`
+- `.claude/skills/launch-shadow/skill.md`
+- `.claude/skills/spec-review/SKILL.md`
+- `.claude/skills/startup/SKILL.md`
+- `.claude/work-status/current.json`
+
+Deleted the 5 previously-known .claude/ PK entries, then pushed all 12 fresh. Updated `.claude/skills/handoff/SKILL.md` Step 6 baseline push list to include all 12 .claude/ files explicitly (replacing the old 5-entry list). CLAUDE.md itself required no change — its STANDARD SYNC BLOCK already just delegates to /handoff.
+
+Previously unknown files now in Project Knowledge for the first time: `settings.json`, `settings.local.json`, `context-lost.md`, `factory-reset/SKILL.md`, `implementation-review/SKILL.md`, `launch-shadow/skill.md`, `spec-review/SKILL.md`.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/handoff/SKILL.md` | MODIFIED | Step 6 push list updated to include all 12 .claude/ files |
+| `CLAUDE.md` | ALREADY CORRECT | No change needed — STANDARD SYNC BLOCK delegates to /handoff |
+| 7 previously-missing .claude/ files | ADDED TO PK | settings.json, settings.local.json, context-lost.md, factory-reset, implementation-review, launch-shadow, spec-review |
+
+### Executive Summary for Reid
+
+The Architect can now see everything in the `.claude/` configuration directory — not just the five skill files that were previously pushed, but also the settings files, the factory reset procedure, the implementation review checklist, the launch script, and the spec review checklist. All 12 files are now in Project Knowledge and will be included in every future sync.
+
+---
+
 ## [2026-03-07 MST] — Handoff Skill Rewrite + CLAUDE.md Sync Block Trim
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
