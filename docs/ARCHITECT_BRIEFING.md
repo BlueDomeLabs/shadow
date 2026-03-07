@@ -25,6 +25,26 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Add TEAM_PROTOCOL.md
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ files touched. Copied `TEAM_PROTOCOL.md` from Downloads to `docs/`, committed, and pushed. File is 257 lines covering team roles, communication protocol, and workflow.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/TEAM_PROTOCOL.md` | ADDED | Team roles, communication protocol, workflow document |
+
+### Executive Summary for Reid
+
+Added the Team Protocol document to the project repository. It's now in GitHub and in the Architect's file library.
+
+---
+
 ## [2026-03-07 MST] — Handoff Skill Single Source of Truth + Full .claude/ Sync Baseline
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
