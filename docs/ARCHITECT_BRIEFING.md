@@ -10,7 +10,7 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   [P-018 commit pending]
+# Last Commit:   cebfd78 — P-018: correct VOICE_LOGGING_SPEC.md
 # Last Code:     No code changes — docs-only session
 # Next Action:   Architect reviews P-018; Phase 19 implementation next
 # Open Items:    None
