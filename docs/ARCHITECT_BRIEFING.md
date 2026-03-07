@@ -1,6 +1,6 @@
 # ARCHITECT_BRIEFING.md
 # Shadow Health Tracking App — Architect Reference
-# Last Updated: 2026-03-06
+# Last Updated: 2026-03-07
 #
 # PRIMARY: GitHub repository — BlueDomeLabs/shadow
 # ARCHITECT_BRIEFING.md is the single source of truth.
@@ -10,11 +10,11 @@
 #
 # ── CLAUDE HANDOFF ──────────────────────────────────────────────────────────
 # Status:        IDLE — Awaiting Architect review and next phase prompt
-# Last Commit:   368671d — P-015: Fluids Restructuring UI Layer
-# Last Code:     BodilyOutputListScreen, BodilyOutputEditScreen, FluidsQuickEntrySheet rewrite
-# Next Action:   Architect reviews P-015 output; next phase TBD
+# Last Commit:   b808107 — P-016: docs update ROADMAP.md + VISION.md present
+# Last Code:     No code changes — docs-only session
+# Next Action:   Architect reviews P-015 + P-016; next phase TBD
 # Open Items:    None
-# Tests:         3,575 passing
+# Tests:         3,575 passing (unchanged — no code changes this session)
 # Schema:        v20
 # Analyzer:      Clean
 # Archive:       Session entries older than current phase → docs/ARCHITECT_BRIEFING_ARCHIVE.md
@@ -22,6 +22,37 @@
 
 This document gives Claude.ai high-level visibility into the Shadow codebase.
 Sections are in reverse chronological order — most recent at top, oldest at bottom.
+
+---
+
+## [2026-03-07 MST] P-016 — Docs Update: ROADMAP.md + VISION.md
+
+**P-016 | Tests: 3,575 (unchanged) | Schema: v20 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ changes.
+
+- `docs/ROADMAP.md` — replaced with Architect's updated revision from `~/Downloads/ROADMAP.md`. The new version adds significant content: AI Home Screen concept, Calendar Integration, PDF Import, Photo Annotations, Cloud-Only Storage, Intelligence System, Video Pipeline specs, and restructures the backlog ordering. It also marks Docs Reorganization as complete and updates the current-state table (3,679 tests, Schema v20, commit 72dfe84, Session B in progress — reflecting the Architect's state when the file was written).
+- `docs/VISION.md` — already present in the project from a prior session. Downloads copy was not present; no action taken.
+
+VISION.md absence from Downloads: The previous cleanup session (`architect_handoff.md` and `voice_logging_spec_prompt.md` push) may have consumed it, or it was moved earlier. The project already has a `docs/VISION.md` with content that matches the Architect's platform vision.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `docs/ROADMAP.md` | MODIFIED | Replaced with Architect's updated P-016 revision — significant backlog expansion |
+| `docs/VISION.md` | ALREADY PRESENT | Already in project from prior session — not in Downloads, no action taken |
+| `docs/ARCHITECT_BRIEFING.md` | MODIFIED | This session log entry |
+
+### Executive Summary for Reid
+
+The Architect's updated roadmap is now in the project. The new version is considerably more detailed — it lays out the full future vision including an AI home screen concept, calendar integration, PDF import, video pipeline, and intelligence system. It also formally marks the Docs Reorganization phase as complete.
+
+VISION.md was already in the project from a prior cleanup — nothing to do there.
+
+No code was written or tested this session. Tests remain at 3,575 passing.
 
 ---
 
