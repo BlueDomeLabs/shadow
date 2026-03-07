@@ -186,35 +186,20 @@ Every session follows this flow. No exceptions.
 
 ## STANDARD SYNC BLOCK
 
-Every session must end with these steps in order:
+At the end of every session, invoke the /handoff skill. It contains
+the full authoritative procedure.
 
-1. Commit all changes to GitHub with a descriptive message
-2. Update docs/ARCHITECT_BRIEFING.md with a session log entry
-3. Run flutter test — must be passing
-4. Run flutter analyze — must be clean
-5. Push to Project Knowledge:
-
-   ```
-   bdl-sync push --files \
-     CLAUDE.md \
-     docs/ARCHITECT_BRIEFING.md \
-     docs/AUDIT_FINDINGS.md \
-     docs/DECISIONS.md \
-     docs/VISION.md \
-     docs/ROADMAP.md \
-     docs/standards/01_CODING_STANDARDS.md \
-     docs/specs/02_DATABASE_SCHEMA.md \
-     docs/specs/03_API_CONTRACTS.md \
-     docs/ARCHITECT_BRIEFING_ARCHIVE.md \
-     .claude/work-status/current.json \
-     .claude/skills/startup/SKILL.md \
-     .claude/skills/coding/SKILL.md \
-     .claude/skills/compliance/SKILL.md \
-     .claude/skills/handoff/SKILL.md \
-     [any files created or modified this session]
-   ```
-
-6. Report back with file change table and list of files pushed
+The /handoff skill covers, in order:
+1. git add + git commit + git push to GitHub
+2. Update docs/ARCHITECT_BRIEFING.md
+3. flutter test — must pass
+4. flutter analyze — must be clean
+5. bdl-sync delete all stale Project Knowledge files
+   (moved, removed, or modified files — delete before pushing)
+6. bdl-sync push baseline + all files touched this session
+7. bdl-sync ls to verify no stale files remain
+8. Update .claude/work-status/current.json
+9. Report back to Reid
 
 ---
 
