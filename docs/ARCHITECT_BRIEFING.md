@@ -25,6 +25,36 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] P-010 — Add Prompt ID System
+
+**P-010 | Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Config/docs session. No lib/ or test/ files touched.
+
+Three changes:
+
+1. **`.claude/work-status/current.json`** — added `lastPromptId: "P-010"` field. This is the counter the Architect reads before writing each prompt.
+
+2. **`CLAUDE.md`** — updated the `### 1. Header` subsection in ARCHITECT_BRIEFING.md Report Format. Format changed from `Tests: X,XXX | Schema: vX | Analyzer: clean` to `[Prompt ID] | Tests: X,XXX | Schema: vX | Analyzer: clean`. Added two-line explanation: echo the ID from the top of the prompt; write UNASSIGNED if no ID is present.
+
+3. **`docs/TEAM_PROTOCOL.md`** — inserted a `### Prompt IDs` subsection after the opening paragraph of the Prompt Delivery Protocol section. Documents the format (P-001, P-002...), the counter location (current.json lastPromptId), Shadow's briefing echo rule, and the scope (active session reference, not audit trail).
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/work-status/current.json` | MODIFIED | Added lastPromptId: "P-010" |
+| `CLAUDE.md` | MODIFIED | Briefing header format updated to include Prompt ID |
+| `docs/TEAM_PROTOCOL.md` | MODIFIED | Prompt IDs subsection added to Prompt Delivery Protocol |
+
+### Executive Summary for Reid
+
+Added a simple ID system for prompts. Every prompt the Architect writes will now have a short ID at the top — P-011, P-012, and so on. I echo that ID in my session report so you can say "P-010 is done" and we all know exactly what you're referring to. The current counter lives in a small config file so the Architect knows what number comes next.
+
+---
+
 ## [2026-03-07 MST] — Rewrite /startup Skill — Dual-Audience Cold-Start
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
