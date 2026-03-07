@@ -25,6 +25,35 @@ Sections are in reverse chronological order — most recent at top, oldest at bo
 
 ---
 
+## [2026-03-07 MST] — Handoff Skill Single Source of Truth + Full .claude/ Sync Baseline
+
+**Tests: 3,611 | Schema: v19 | Analyzer: clean**
+
+### Technical Summary
+
+Docs-only session. No lib/ or test/ files touched.
+
+Two changes:
+
+1. **Rewrote `.claude/skills/handoff/SKILL.md`** as the definitive single source of truth for the end-of-session procedure. The new version has a tighter header ("do not look elsewhere for sync instructions"), a cleaner 9-step structure, and the bdl-sync push block now lists all 12 .claude/ files explicitly (settings.json, settings.local.json, work-status/current.json, and all 9 skill files).
+
+2. **Trimmed CLAUDE.md STANDARD SYNC BLOCK** to 3 lines: invoke /handoff, the skill contains the complete procedure, do not maintain sync instructions anywhere else. All detail has been removed from CLAUDE.md — it now lives exclusively in the skill.
+
+PK sync: deleted 13 stale entries (CLAUDE.md + all 12 .claude/ files), pushed 13 fresh versions. All 12 .claude/ files are now in Project Knowledge baseline.
+
+### File Change Table
+
+| File | Status | Description |
+|------|--------|-------------|
+| `.claude/skills/handoff/SKILL.md` | REWRITTEN | Single source of truth, full 9-step procedure, complete .claude/ file list in push block |
+| `CLAUDE.md` | MODIFIED | STANDARD SYNC BLOCK trimmed to 3 lines — all detail moved to /handoff |
+
+### Executive Summary for Reid
+
+Cleaned up the instructions so there's exactly one place that describes the end-of-session procedure — the `/handoff` skill. Previously there were two places (the skill and the main CLAUDE.md instructions file) with overlapping descriptions. Now the main file just says "run /handoff" and the skill has everything. Simpler, no risk of the two getting out of sync.
+
+---
+
 ## [2026-03-07 MST] — Add Full .claude/ Directory to Standard Project Knowledge Sync
 
 **Tests: 3,611 | Schema: v19 | Analyzer: clean**
