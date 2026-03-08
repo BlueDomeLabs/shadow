@@ -1,6 +1,6 @@
 {
   "status": "complete",
-  "task": "P-020: Schema v22, VoiceLoggingScreen UI shell, navigation, settings",
-  "testCount": 3656,
+  "task": "P-021: VoiceSessionState, VoicePipelineService, lifecycle wiring",
+  "testCount": 3668,
   "schemaVersion": 22
 }
